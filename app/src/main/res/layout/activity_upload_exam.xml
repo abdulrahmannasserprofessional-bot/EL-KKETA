@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FB"
+    android:layoutDirection="rtl">
+
+    <!-- Header Background -->
+    <View
+        android:id="@+id/headerView"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:background="#6C5CE7"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_edittext_rounded"
+        android:backgroundTint="#40FFFFFF"
+        android:contentDescription="رجوع"
+        android:src="@drawable/ic_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FFFFFF" />
+
+    <!-- Page Title -->
+    <TextView
+        android:id="@+id/tvHeaderTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="مركز رفع المحتوى"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        app:layout_constraintEnd_toStartOf="@id/btnBack"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnBack" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="-60dp"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Form Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:text="بيانات المحتوى الجديد"
+                        android:textColor="#6C5CE7"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etChapter"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:hint="الفصل / الوحدة"
+                        android:paddingHorizontal="20dp"
+                        android:textColor="#333333"
+                        android:textColorHint="#888888" />
+
+                    <EditText
+                        android:id="@+id/etTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:hint="عنوان المحاضرة / الملف"
+                        android:paddingHorizontal="20dp"
+                        android:textColor="#333333"
+                        android:textColorHint="#888888" />
+
+                    <EditText
+                        android:id="@+id/etLink"
+                        android:layout_width="match_parent"
+                        android:layout_height="55dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:hint="الفيديو أو رابط الملف / ID"
+                        android:paddingHorizontal="20dp"
+                        android:textColor="#333333"
+                        android:textColorHint="#888888" />
+
+                    <RadioGroup
+                        android:id="@+id/rgType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbVideo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:checked="true"
+                            android:text="فيديو" />
+
+                        <RadioButton
+                            android:id="@+id/rbFile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:text="ملزمة" />
+
+                        <RadioButton
+                            android:id="@+id/rbExam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="امتحان" />
+                    </RadioGroup>
+
+                    <!-- حقل الكود البرمجي (يظهر فقط عند اختيار امتحان) -->
+                    <EditText
+                        android:id="@+id/etExamJsonCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:gravity="top"
+                        android:hint="انسخ كود الامتحان البرمجي (JSON) هنا..."
+                        android:inputType="textMultiLine"
+                        android:padding="15dp"
+                        android:textColor="#333333"
+                        android:visibility="gone"
+                        android:typeface="monospace" />
+
+                    <Button
+                        android:id="@+id/btnPublish"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:backgroundTint="#6C5CE7"
+                        android:text="نشر المحتوى فوراً"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="10dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="15dp"
+                android:text="المحتوى المنشور حالياً"
+                android:textColor="#2C3E50"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
