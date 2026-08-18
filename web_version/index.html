@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELKHETA - منصة الخطة التعليمية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0984E3;
+            --primary-dark: #0652DD;
+            --bg: #F8F9FE;
+            --text: #2D3436;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .login-card {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .gradient-top {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 30vh;
+            background: linear-gradient(45deg, #74b9ff, #0984E3);
+            z-index: -1;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+        }
+        h1 { color: #FFF; margin-bottom: 50px; font-size: 28px; }
+        .input-group { margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #F0F2F9;
+            border-radius: 15px;
+            background: #F8F9FE;
+            font-family: inherit;
+            text-align: center;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to left, var(--primary-dark), var(--primary));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(9, 132, 227, 0.4); }
+        .register-link { color: var(--primary); font-weight: bold; text-decoration: none; margin-top: 20px; display: block; }
+    </style>
+</head>
+<body>
+    <div class="gradient-top"></div>
+    <div class="login-container">
+        <h1>ELKHETA</h1>
+        <div class="login-card">
+            <div class="logo">🎓</div>
+            <h2 style="margin-top: 0;">تسجيل الدخول</h2>
+            <p style="color: #636E72;">أدخل كود الطالب للمتابعة</p>
+            <div class="input-group">
+                <input type="text" id="studentCode" placeholder="كود الطالب (مثال: KH1234)">
+            </div>
+            <button onclick="login()">دخول للمنصة</button>
+            <a href="#" class="register-link">لا تملك كود؟ اشترك الآن</a>
+        </div>
+        <p style="text-align: center; color: #BCBCBC; margin-top: 30px;">Version 2.0.0</p>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+        // إعدادات Firebase (يجب نسخها من Firebase Console الخاصة بك)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function login() {
+            const code = document.getElementById('studentCode').value.trim().toUpperCase();
+            if (code === "") {
+                alert("يرجى إدخال الكود");
+                return;
+            }
+
+            database.ref('Students/' + code).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    alert("أهلاً بك يا " + userData.fullName);
+                    window.location.href = "home.html";
+                } else {
+                    alert("الكود غير صحيح أو غير مفعل");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

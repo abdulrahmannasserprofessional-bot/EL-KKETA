@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلاب - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .st-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; }
+        .st-info { text-align: right; }
+        .st-name { font-weight: bold; font-size: 16px; color: var(--text-main); }
+        .st-code { font-size: 12px; color: #E17055; font-weight: bold; margin-top: 3px; }
+        .delete-btn { color: #D63031; font-size: 20px; cursor: pointer; background: #FDECEA; padding: 8px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">إدارة الطلاب</div>
+    </div>
+
+    <div id="studentsList" style="margin-top: -20px; padding: 10px;">
+        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل قائمة الطلاب...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        function loadStudents() {
+            database.ref('Students').on('value', (snapshot) => {
+                const list = document.getElementById('studentsList');
+                list.innerHTML = "";
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const st = child.val();
+                        const card = document.createElement('div');
+                        card.className = "card st-card";
+                        card.innerHTML = `
+                            <div class="st-info">
+                                <div class="st-name">${st.fullName}</div>
+                                <div class="st-code">كود: ${st.studentCode}</div>
+                                <div style="font-size: 11px; color: #636E72;">📞 ${st.whatsapp}</div>
+                            </div>
+                            <div class="delete-btn" onclick="deleteStudent('${st.studentCode}')">🗑️</div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا يوجد طلاب مسجلون حالياً</div>`;
+                }
+            });
+        }
+
+        function deleteStudent(code) {
+            if(confirm("هل أنت متأكد من حذف هذا الطالب؟")) {
+                database.ref('Students/' + code).remove();
+            }
+        }
+        loadStudents();
+    </script>
+</body>
+</html>

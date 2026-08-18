@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الدروس - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section { margin-top: -30px; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #F0F2F9; border-radius: 12px; margin: 8px 0; font-family: inherit; box-sizing: border-box; }
+        .lesson-admin-card { padding: 15px; margin-bottom: 10px; border-right: 5px solid var(--primary); }
+        .actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-small { padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; font-weight: bold; }
+        .btn-del { background: #FDECEA; color: #D63031; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">إدارة المحاضرات</div>
+    </div>
+
+    <div class="card form-section">
+        <h3 style="margin: 0 0 10px; font-size: 16px;">إضافة درس / محاضرة جديدة</h3>
+        <select id="subjectSelect"><option value="">اختر المادة...</option></select>
+        <input type="text" id="lessonTitle" placeholder="عنوان الدرس">
+        <input type="text" id="videoUrl" placeholder="رابط الفيديو (اختياري)">
+        <input type="text" id="pdfUrl" placeholder="رابط الملزمة PDF (اختياري)">
+        <div style="margin: 10px 0; font-size: 14px;">
+            <input type="checkbox" id="hasExam" style="width: auto;"> إضافة امتحان لهذه المحاضرة
+        </div>
+        <button class="btn-primary" onclick="addLesson()">نشر المحاضرة الآن 🚀</button>
+    </div>
+
+    <div id="adminLessonsList" style="padding: 10px;">
+        <!-- Loaded by JS -->
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        // Load subjects for selection
+        database.ref('Subjects').on('value', snap => {
+            const select = document.getElementById('subjectSelect');
+            select.innerHTML = '<option value="">اختر المادة...</option>';
+            snap.forEach(child => {
+                const sub = child.val();
+                select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+            });
+        });
+
+        function addLesson() {
+            const subject = document.getElementById('subjectSelect').value;
+            const title = document.getElementById('lessonTitle').value.trim();
+            const video = document.getElementById('videoUrl').value.trim();
+            const pdf = document.getElementById('pdfUrl').value.trim();
+            const exam = document.getElementById('hasExam').checked;
+
+            if(!subject || !title) return alert("يرجى اختيار المادة وعنوان الدرس");
+
+            const id = database.ref('Lectures').child(subject).push().key;
+            const data = { id, title, videoUrl: video, pdfUrl: pdf, hasExam: exam, duration: "متوفر" };
+
+            database.ref('Lectures').child(subject).child(id).set(data).then(() => {
+                alert("تمت إضافة المحاضرة بنجاح ✅");
+                document.getElementById('lessonTitle').value = "";
+                document.getElementById('videoUrl').value = "";
+                document.getElementById('pdfUrl').value = "";
+            });
+        }
+
+        function loadAllLessons() {
+            database.ref('Lectures').on('value', snap => {
+                const list = document.getElementById('adminLessonsList');
+                list.innerHTML = "";
+                if(snap.exists()) {
+                    snap.forEach(subjectSnap => {
+                        const subjectName = subjectSnap.key;
+                        subjectSnap.forEach(lessonSnap => {
+                            const lesson = lessonSnap.val();
+                            const card = document.createElement('div');
+                            card.className = "card lesson-admin-card";
+                            card.innerHTML = `
+                                <div style="font-size: 12px; color: var(--primary); font-weight: bold;">مادة: ${subjectName}</div>
+                                <div style="font-weight: bold; margin-top: 5px;">${lesson.title}</div>
+                                <div class="actions">
+                                    <button class="btn-small btn-del" onclick="deleteLesson('${subjectName}', '${lesson.id}')">حذف 🗑️</button>
+                                </div>
+                            `;
+                            list.appendChild(card);
+                        });
+                    });
+                }
+            });
+        }
+
+        function deleteLesson(sub, id) {
+            if(confirm("حذف هذه المحاضرة؟")) {
+                database.ref('Lectures').child(sub).child(id).remove();
+            }
+        }
+        loadAllLessons();
+    </script>
+</body>
+</html>

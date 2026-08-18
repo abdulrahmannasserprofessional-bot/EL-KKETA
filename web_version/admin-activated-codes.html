@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل التفعيل - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .activated-card { padding: 15px; margin-bottom: 10px; border-right: 5px solid var(--accent); }
+        .st-name { font-weight: bold; color: var(--primary); }
+        .st-meta { font-size: 11px; color: var(--text-sub); margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">سجل الأكواد المستخدمة</div>
+    </div>
+
+    <div id="activatedList" style="margin-top: -20px; padding: 10px;">
+        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل السجل...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        function loadActivated() {
+            database.ref('ActivationCodes').orderByChild('isUsed').equalTo(true).on('value', snap => {
+                const list = document.getElementById('activatedList');
+                list.innerHTML = "";
+                if(snap.exists()){
+                    let items = [];
+                    snap.forEach(child => {
+                        let data = child.val();
+                        data.code = child.key;
+                        items.push(data);
+                    });
+                    items.reverse().forEach(item => {
+                        const date = item.activatedAt ? new Date(item.activatedAt).toLocaleString('ar-EG') : 'غير مسجل';
+                        const card = document.createElement('div');
+                        card.className = "card activated-card";
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="st-name">${item.usedBy || 'طالب مجهول'}</span>
+                                <span style="font-weight: bold; color: var(--text-main); font-family: monospace;">${item.code}</span>
+                            </div>
+                            <div class="st-meta">📞 هاتف: ${item.phone || '----'}</div>
+                            <div class="st-meta">📅 تاريخ التفعيل: ${date}</div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد أكواد مستخدمة حالياً</div>`;
+                }
+            });
+        }
+        loadActivated();
+    </script>
+</body>
+</html>

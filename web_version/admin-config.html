@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات النظام - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section { margin-top: -30px; }
+        .input-group { margin-bottom: 20px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: var(--text-sub); }
+        input { width: 100%; padding: 15px; border: 2px solid #F0F2F9; border-radius: 15px; background: #F8F9FE; font-family: inherit; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">إعدادات النظام</div>
+    </div>
+
+    <div class="card form-section">
+        <div class="input-group">
+            <label>أقل رقم إصدار مسموح به (Force Update)</label>
+            <input type="number" id="minVersion" placeholder="مثلاً: 2">
+        </div>
+        <div class="input-group">
+            <label>رابط تحديث التطبيق</label>
+            <input type="text" id="updateUrl" placeholder="رابط التحميل المباشر">
+        </div>
+        <div class="input-group">
+            <label>رمز دخول الإدارة (Admin PIN)</label>
+            <input type="text" id="adminPin" placeholder="مثلاً: 1234">
+        </div>
+        <button class="btn-primary" onclick="saveConfig()">حفظ الإعدادات الآن ✅</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        // Load current config
+        database.ref('Settings').once('value').then(snap => {
+            if(snap.exists()){
+                const config = snap.val();
+                document.getElementById('minVersion').value = config.minVersion || 1;
+                document.getElementById('updateUrl').value = config.updateUrl || "";
+                document.getElementById('adminPin').value = config.adminPin || "1234";
+            }
+        });
+
+        function saveConfig() {
+            const updates = {
+                minVersion: parseInt(document.getElementById('minVersion').value) || 1,
+                updateUrl: document.getElementById('updateUrl').value.trim(),
+                adminPin: document.getElementById('adminPin').value.trim()
+            };
+
+            database.ref('Settings').update(updates).then(() => {
+                alert("تم حفظ الإعدادات بنجاح ✅");
+            }).catch(() => alert("فشل الحفظ"));
+        }
+    </script>
+</body>
+</html>

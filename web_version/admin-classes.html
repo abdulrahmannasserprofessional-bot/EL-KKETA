@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الفصول - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section { margin-top: -30px; }
+        .class-card { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .btn-del { color: var(--mistake); background: #FDECEA; border: none; padding: 8px; border-radius: 10px; cursor: pointer; }
+        input { width: 100%; padding: 15px; border: 2px solid #F0F2F9; border-radius: 15px; margin: 10px 0; font-family: inherit; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">إدارة الفصول الدراسية</div>
+    </div>
+
+    <div class="card form-section">
+        <h3 style="margin: 0; font-size: 16px;">إضافة فصل / صف جديد</h3>
+        <input type="text" id="className" placeholder="مثلاً: الصف الأول الثانوي">
+        <button class="btn-primary" onclick="addClass()">إضافة الفصل ➕</button>
+    </div>
+
+    <div id="classesList" style="padding: 10px;">
+        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل الفصول...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        function addClass() {
+            const name = document.getElementById('className').value.trim();
+            if(!name) return alert("يرجى كتابة اسم الفصل");
+
+            const id = database.ref('Classes').push().key;
+            database.ref('Classes/' + id).set({ id, name }).then(() => {
+                document.getElementById('className').value = "";
+                alert("تمت إضافة الفصل");
+            });
+        }
+
+        function loadClasses() {
+            database.ref('Classes').on('value', snap => {
+                const list = document.getElementById('classesList');
+                list.innerHTML = "";
+                if(snap.exists()){
+                    snap.forEach(child => {
+                        const item = child.val();
+                        const card = document.createElement('div');
+                        card.className = "card class-card";
+                        card.innerHTML = `
+                            <strong>🏫 ${item.name}</strong>
+                            <button class="btn-del" onclick="deleteClass('${item.id}')">🗑️</button>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد فصول حالياً</div>`;
+                }
+            });
+        }
+
+        function deleteClass(id) {
+            if(confirm("حذف هذا الفصل؟")) database.ref('Classes/' + id).remove();
+        }
+        loadClasses();
+    </script>
+</body>
+</html>

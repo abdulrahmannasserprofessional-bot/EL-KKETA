@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .register-card { background: white; width: 90%; max-width: 400px; padding: 40px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; }
+        .input-group { margin-bottom: 15px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: var(--text-sub); }
+        input { width: 100%; padding: 15px; border: 2px solid #F0F2F9; border-radius: 15px; background: #F8F9FE; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        .logo { width: 60px; height: 60px; background: white; border-radius: 15px; margin-bottom: 15px; display: inline-flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <div class="header-gradient" style="position: absolute; top: 0; left: 0; right: 0; height: 30vh; z-index: -1;"></div>
+    <div class="register-card">
+        <div class="logo">📝</div>
+        <h2 style="margin-top: 0;">إنشاء حساب طالب</h2>
+        <p style="color: var(--text-sub); margin-bottom: 30px;">انضم إلينا وابدأ رحلة التفوق</p>
+
+        <div class="input-group">
+            <label>الاسم بالكامل</label>
+            <input type="text" id="fullName" placeholder="أدخل اسمك الثلاثي">
+        </div>
+
+        <div class="input-group">
+            <label>رقم الواتساب</label>
+            <input type="tel" id="whatsapp" placeholder="01xxxxxxxxx">
+        </div>
+
+        <button class="btn-primary" onclick="register()" style="margin-top: 20px;">إنشاء الحساب الآن</button>
+        <a href="index.html" class="nav-item" style="display: block; margin-top: 20px; color: var(--primary); font-weight: bold; text-decoration: none;">لديك حساب بالفعل؟ سجل دخولك</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+        // Use same config as index.html
+        const firebaseConfig = { /* CONFIG WILL BE REPLACED BY USER */ };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function register() {
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('whatsapp').value.trim();
+
+            if (name === "" || phone.length < 10) {
+                alert("يرجى إدخال البيانات بشكل صحيح");
+                return;
+            }
+
+            const studentCode = generateCode(name, phone);
+            const userData = {
+                fullName: name,
+                whatsapp: phone,
+                studentCode: studentCode
+            };
+
+            database.ref('Students/' + studentCode).set(userData).then(() => {
+                localStorage.setItem('user', JSON.stringify(userData));
+                alert("تم إنشاء حسابك بنجاح! كود الدخول الخاص بك هو: " + studentCode);
+                window.location.href = "home.html";
+            }).catch(err => {
+                alert("حدث خطأ أثناء التسجيل");
+            });
+        }
+
+        function generateCode(name, phone) {
+            const mapping = {
+                "أ": "A", "ا": "A", "ب": "B", "ت": "T", "ث": "T", "ج": "J", "ح": "H", "خ": "K", "د": "D", "ذ": "D",
+                "ر": "R", "ز": "Z", "س": "S", "ش": "S", "ص": "S", "ض": "D", "ط": "T", "ظ": "Z", "ع": "A", "غ": "G",
+                "ف": "F", "ق": "Q", "ك": "K", "ل": "L", "م": "M", "ن": "N", "ه": "H", "و": "W", "ي": "Y"
+            };
+            const firstChar = name.charAt(0);
+            const englishChar = mapping[firstChar] || "S";
+            const lastFour = phone.slice(-4).padStart(4, '0');
+            return (englishChar + lastFour).toUpperCase();
+        }
+    </script>
+</body>
+</html>

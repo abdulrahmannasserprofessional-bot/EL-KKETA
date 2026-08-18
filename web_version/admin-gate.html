@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دخول الإدارة - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #121421; margin: 0; }
+        .admin-card { background: #1A1C2E; width: 90%; max-width: 350px; padding: 40px 30px; border-radius: 30px; text-align: center; border: 1px solid #25283D; }
+        .pin-input { width: 100%; padding: 15px; background: #25283D; border: 2px solid #2ECC71; border-radius: 15px; color: white; font-size: 24px; text-align: center; letter-spacing: 10px; margin: 20px 0; }
+        .lock-icon { font-size: 50px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="admin-card">
+        <div class="lock-icon">🔒</div>
+        <h2 style="color: white; margin: 0;">بوابة المسؤول</h2>
+        <p style="color: #A0A0A0; font-size: 14px; margin-top: 10px;">أدخل رمز التحقق للوصول للوحة التحكم</p>
+
+        <input type="password" id="adminPin" class="pin-input" placeholder="****" maxlength="6">
+
+        <button class="btn-primary" onclick="verifyPin()" style="background: #2ECC71;">دخول الإدارة</button>
+        <button onclick="history.back()" style="background: none; border: none; color: #A0A0A0; margin-top: 20px; font-family: inherit; cursor: pointer;">← العودة للخلف</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        function verifyPin() {
+            const entered = document.getElementById('adminPin').value;
+            if(!entered) return alert("يرجى إدخال الرمز");
+
+            database.ref('Settings/adminPin').once('value').then(snap => {
+                const correct = snap.val()?.toString() || "1234";
+                if(entered === correct) {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    window.location.href = "admin-panel.html";
+                } else {
+                    alert("الرمز غير صحيح! ❌");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

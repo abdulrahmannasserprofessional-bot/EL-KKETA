@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إرسال تنبيه - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .notif-form { margin-top: -30px; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #F0F2F9; border-radius: 20px; background: #F8F9FE; font-family: inherit; font-size: 16px; box-sizing: border-box; resize: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+        <div style="font-size: 22px; font-weight: bold;">إرسال تنبيه عام</div>
+    </div>
+
+    <div class="card notif-form">
+        <h3 style="margin-top: 0; font-size: 16px;">اكتب رسالتك لجميع الطلاب</h3>
+        <textarea id="notifMsg" placeholder="اكتب التنبيه هنا..."></textarea>
+        <button class="btn-primary" onclick="sendNotif()" style="margin-top: 20px;">إرسال التنبيه الآن 🚀</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+
+        function sendNotif() {
+            const msg = document.getElementById('notifMsg').value.trim();
+            if(!msg) return alert("يرجى كتابة الرسالة");
+
+            const ref = database.ref('Notifications');
+            const id = ref.push().key;
+
+            const data = {
+                id: id,
+                message: msg,
+                timestamp: Date.now()
+            };
+
+            Promise.all([
+                ref.child(id).set(data),
+                database.ref('Settings/LatestNotification').set(msg)
+            ]).then(() => {
+                alert("تم الإرسال بنجاح ✅");
+                document.getElementById('notifMsg').value = "";
+            }).catch(() => alert("فشل الإرسال"));
+        }
+    </script>
+</body>
+</html>

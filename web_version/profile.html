@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-img { width: 100px; height: 100px; background: white; border-radius: 50%; margin: -50px auto 15px; display: flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .info-row { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid #F0F2F9; }
+        .info-icon { width: 40px; height: 40px; background: #F4F7FF; border-radius: 12px; display: flex; justify-content: center; align-items: center; margin-left: 15px; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="header-gradient" style="height: 180px;">
+        <div style="font-size: 22px; font-weight: bold;">الملف الشخصي</div>
+    </div>
+
+    <div class="card" style="margin-top: -30px; text-align: center;">
+        <div class="profile-img">👤</div>
+        <h2 id="profName" style="margin: 0; font-size: 22px;">جاري التحميل...</h2>
+        <p id="profCode" style="color: var(--text-sub); margin: 5px 0 20px;">كود الطالب: ----</p>
+
+        <div style="text-align: right; padding-top: 10px;">
+            <h3 style="font-size: 16px; color: var(--text-main);">بيانات الحساب</h3>
+
+            <div class="info-row">
+                <div class="info-icon">📱</div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-sub);">رقم الواتساب المسجل</div>
+                    <div id="profPhone" style="font-weight: bold;">----</div>
+                </div>
+            </div>
+
+            <div class="info-row" style="border:none;">
+                <div class="info-icon">🔑</div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-sub);">حالة الحساب</div>
+                    <div style="font-weight: bold; color: var(--success);">نشط ومفعل</div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="btn-primary" style="margin-top: 20px; background: #FDECEA; color: #D63031;">تسجيل الخروج</button>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item">📖<br>المواد</a>
+        <a href="profile.html" class="nav-item active">👤<br>حسابي</a>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            document.getElementById('profName').innerText = user.fullName;
+            document.getElementById('profCode').innerText = "كود الطالب: " + user.studentCode;
+            document.getElementById('profPhone').innerText = user.whatsapp || "غير متوفر";
+        } else {
+            window.location.href = "index.html";
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

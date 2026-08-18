@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاضرات - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .lesson-card { display: flex; align-items: center; justify-content: space-between; }
+        .lesson-info { flex: 1; text-align: right; }
+        .lesson-title { font-weight: bold; font-size: 16px; color: var(--text-main); }
+        .lesson-meta { font-size: 12px; color: var(--text-sub); margin-top: 5px; }
+        .lesson-actions { display: flex; gap: 8px; margin-top: 15px; }
+        .action-btn { flex: 1; padding: 10px; border-radius: 12px; border: none; font-family: inherit; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-video { background: #E8EAFF; color: var(--primary); }
+        .btn-pdf { background: #FFF4E8; color: #E17055; }
+        .btn-quiz { background: #E8F8F5; color: #00B894; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient">
+        <div class="back-btn" onclick="history.back()">⬅️</div>
+        <div id="subjectTitle" style="font-size: 22px; font-weight: bold;">المحاضرات</div>
+    </div>
+
+    <div id="lessonsList" style="margin-top: -20px; padding-bottom: 20px;">
+        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل المحاضرات...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item active">📖<br>المواد</a>
+        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        if (subject) document.getElementById('subjectTitle').innerText = subject;
+
+        function loadLessons() {
+            if (!subject) return;
+            database.ref('Lectures').child(subject).on('value', (snapshot) => {
+                const list = document.getElementById('lessonsList');
+                list.innerHTML = "";
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const lesson = child.val();
+                        const card = document.createElement('div');
+                        card.className = "card lesson-card";
+                        card.style.flexDirection = "column";
+                        card.innerHTML = `
+                            <div class="lesson-info" style="width: 100%;">
+                                <div class="lesson-title">${lesson.title}</div>
+                                <div class="lesson-meta">⏱️ مدة المحاضرة: ${lesson.duration || 'غير محدد'}</div>
+                            </div>
+                            <div class="lesson-actions" style="width: 100%;">
+                                ${lesson.videoUrl ? `<button class="action-btn btn-video" onclick="window.open('${lesson.videoUrl}')">📺 فيديو</button>` : ''}
+                                ${lesson.pdfUrl ? `<button class="action-btn btn-pdf" onclick="window.open('${lesson.pdfUrl}')">📄 ملزمة</button>` : ''}
+                                ${lesson.hasExam ? `<button class="action-btn btn-quiz" onclick="startExam()">📝 امتحان</button>` : ''}
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else {
+                    list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد محاضرات لهذه المادة حالياً</div>`;
+                }
+            });
+        }
+
+        function startExam() {
+            // Fetch exam and go to quiz.html
+            database.ref('Exams').limitToLast(1).once('value').then(snap => {
+                if (snapshot.exists()) {
+                    const exam = Object.values(snap.val())[0];
+                    window.location.href = `quiz.html?exam=${encodeURIComponent(exam.jsonCode)}`;
+                }
+            });
+        }
+
+        loadLessons();
+    </script>
+</body>
+</html>

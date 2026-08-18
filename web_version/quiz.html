@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الامتحان - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .timer-box { background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 12px; font-weight: bold; }
+        .progress-text { font-size: 14px; font-weight: bold; opacity: 0.9; margin-top: 10px; display: block; }
+        .option-btn { width: 100%; padding: 18px; background: white; border: 2px solid #F0F2F9; border-radius: 20px; margin-bottom: 12px; font-family: inherit; font-size: 16px; cursor: pointer; transition: 0.2s; text-align: right; }
+        .option-btn:hover { border-color: var(--primary); }
+        .option-btn.selected { border-color: var(--primary); border-width: 3px; }
+        .feedback-card { display: none; margin-top: 20px; border-width: 2px; border-style: solid; }
+        .correct-ans-box { background: #EBFAEF; padding: 15px; border-radius: 15px; margin: 10px 0; border: 1px solid #D5F5E3; }
+        .wrong-ans-box { background: #FDEDEC; padding: 15px; border-radius: 15px; margin: 10px 0; border: 1px solid #FADBD8; }
+    </style>
+</head>
+<body>
+    <div class="header-gradient" style="height: 120px; padding-top: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+            <span id="progressText" class="timer-box" style="background: none;">السؤال 1 / 50</span>
+            <span id="timer" class="timer-box">60:00</span>
+        </div>
+    </div>
+
+    <div style="margin-top: -30px; padding: 10px;">
+        <div class="card" style="text-align: center; font-size: 18px; font-weight: bold; min-height: 100px; display: flex; align-items: center; justify-content: center;">
+            <div id="questionText">جاري تحميل السؤال...</div>
+        </div>
+
+        <div id="optionsContainer" style="padding: 0 15px;">
+            <!-- Buttons will be here -->
+        </div>
+
+        <div id="feedbackCard" class="card feedback-card">
+            <h3 id="statusText" style="margin: 0;"></h3>
+            <div id="correctAnswerBox" class="correct-ans-box" style="display:none;">
+                <div style="font-size: 12px; color: var(--success); font-weight: bold;">💡 الإجابة الصحيحة هي:</div>
+                <div id="correctAnswerText" style="font-weight: bold; margin-top: 5px;"></div>
+            </div>
+            <p id="explanationText" style="color: var(--text-sub); font-size: 14px; line-height: 1.6;"></p>
+            <button id="nextBtn" class="btn-primary" style="margin-top: 15px;">السؤال التالي</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentIndex = 0;
+        let timerSeconds = 60 * 60;
+
+        // Demo questions generator (same as Android)
+        function generateDemo() {
+            let list = [];
+            for(let i=1; i<=25; i++) {
+                list.push({ id: i, text: `سؤال اختياري تجريبي ${i}: ما هو ناتج 5 + ${i}؟`, options: [`${5+i}`, `${10+i}`, `${i*2}`, "غير ذلك"], correct: 0, explanation: `الناتج هو **${5+i}**.` });
+            }
+            for(let i=1; i<=25; i++) {
+                list.push({ id: i+25, text: `سؤال صح أم خطأ ${i}: هل الرقم ${i*2} زوجي؟`, options: ["صح ✅", "خطأ ❌"], correct: 0, explanation: "نعم، هو رقم زوجي." });
+            }
+            return list.sort(() => Math.random() - 0.5);
+        }
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            const interval = setInterval(() => {
+                timerSeconds--;
+                let m = Math.floor(timerSeconds / 60);
+                let s = timerSeconds % 60;
+                timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if (timerSeconds < 300) timerEl.style.color = "#D63031";
+                if (timerSeconds <= 0) { clearInterval(interval); alert("انتهى الوقت!"); location.href="home.html"; }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = questions[currentIndex];
+            document.getElementById('progressText').innerText = `السؤال ${currentIndex + 1} / ${questions.length}`;
+            document.getElementById('questionText').innerText = q.text;
+            document.getElementById('feedbackCard').style.display = "none";
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = "";
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            const q = questions[currentIndex];
+            const isCorrect = idx === q.correct;
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => b.disabled = true);
+            btns[idx].classList.add('selected');
+
+            const card = document.getElementById('feedbackCard');
+            const status = document.getElementById('statusText');
+            const correctBox = document.getElementById('correctAnswerBox');
+
+            card.style.display = "block";
+            if (isCorrect) {
+                status.innerText = "إجابة صحيحة مذهل! ✨";
+                status.style.color = "var(--success)";
+                card.style.borderColor = "var(--success)";
+                correctBox.style.display = "none";
+            } else {
+                status.innerText = "للأسف إجابة خاطئة ❌";
+                status.style.color = "var(--mistake)";
+                card.style.borderColor = "var(--mistake)";
+                correctBox.style.display = "block";
+                correctBox.className = "wrong-ans-box";
+                document.getElementById('correctAnswerText').innerText = q.options[q.correct];
+
+                // Save mistake (Simple version for demo)
+                let mistakes = JSON.parse(localStorage.getItem('mistakes_list') || "[]");
+                mistakes.push({ subjectName: "تجريبي", questionText: q.text, explanation: q.explanation });
+                localStorage.setItem('mistakes_list', JSON.stringify(mistakes));
+            }
+
+            document.getElementById('explanationText').innerHTML = q.explanation.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+            document.getElementById('nextBtn').onclick = () => {
+                currentIndex++;
+                if (currentIndex < questions.length) showQuestion();
+                else { alert("مبروك! أنهيت الامتحان."); location.href="home.html"; }
+            };
+        }
+
+        // Init
+        questions = generateDemo();
+        startTimer();
+        showQuestion();
+    </script>
+</body>
+</html>
