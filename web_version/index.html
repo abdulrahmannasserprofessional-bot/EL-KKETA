@@ -549,8 +549,39 @@
                     return;
                 }
 
-                // 3. Check Students
+                // 3. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
+
+                // فحص قاعدة بيانات MySQL أولاً
+                try {
+                    const resSql = await fetch(`https://backendapi-pi.vercel.app/api/students?search=${encodeURIComponent(upperCode)}`);
+                    const dataSql = await resSql.json();
+                    if (dataSql.success && dataSql.students && dataSql.students.length > 0) {
+                        const sqlStudent = dataSql.students.find(s => s.student_code.toUpperCase() === upperCode);
+                        if (sqlStudent) {
+                            if (sqlStudent.is_banned == 1 || sqlStudent.is_banned === true) {
+                                btn.textContent = "دخول للمنصة 🚀";
+                                btn.style.opacity = "1";
+                                btn.disabled = false;
+                                Swal.fire({
+                                    title: '🚫 حسابك موقوف ومعطل',
+                                    html: `عزيزي الطالب <strong>${sqlStudent.full_name}</strong>،<br>تم إيقاف وتعطيل حسابك من قبل إدارة المنصة!<br>يرجى التواصل مع الدعم الفني.`,
+                                    icon: 'error',
+                                    confirmButtonText: 'حسناً فهمت',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                return;
+                            }
+
+                            localStorage.setItem('user', JSON.stringify(sqlStudent));
+                            localStorage.setItem('studentCode', upperCode);
+                            showToast("تم تسجيل الدخول بنجاح 🎉", "success");
+                            setTimeout(() => location.href = "home.html", 800);
+                            return;
+                        }
+                    }
+                } catch(e) {}
+
                 const snapStudent = await database.ref('Students/' + upperCode).once('value');
                 if (snapStudent.exists()) {
                     const studentData = snapStudent.val();
@@ -558,8 +589,13 @@
                         btn.textContent = "دخول للمنصة 🚀";
                         btn.style.opacity = "1";
                         btn.disabled = false;
-                        const reason = studentData.banReason ? ` (السبب: ${studentData.banReason})` : "";
-                        showToast(`🚫 حسابك موقوف حالياً${reason}، يرجى التواصل مع الإدارة.`, "error");
+                        Swal.fire({
+                            title: '🚫 حسابك موقوف ومعطل',
+                            text: 'تم إيقاف وتعطيل حسابك من قبل إدارة المنصة! يرجى التواصل مع الدعم الفني.',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً فهمت',
+                            confirmButtonColor: '#EF4444'
+                        });
                         return;
                     }
 
