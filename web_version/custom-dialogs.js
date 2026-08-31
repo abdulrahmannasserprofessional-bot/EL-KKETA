@@ -151,12 +151,18 @@
 
         if (typeof confirmText === 'function') {
             onConfirmCb = confirmText;
+            actualConfirmText = 'نعم، متأكد';
             if (typeof cancelText === 'function') {
                 onCancelCb = cancelText;
+                actualCancelText = 'إلغاء';
             }
-        } else {
-            if (typeof confirmText === 'string' && confirmText.trim()) actualConfirmText = confirmText;
-            if (typeof cancelText === 'string' && cancelText.trim()) actualCancelText = cancelText;
+        } else if (typeof confirmText === 'string') {
+            if (confirmText.includes('=>') || confirmText.includes('{') || confirmText.includes('function') || confirmText.includes('localStorage')) {
+                actualConfirmText = 'نعم، خروج 🚪';
+            } else {
+                actualConfirmText = confirmText.trim() || 'نعم، متأكد';
+            }
+            if (typeof cancelText === 'string') actualCancelText = cancelText.trim() || 'إلغاء';
         }
 
         return new Promise(resolve => {

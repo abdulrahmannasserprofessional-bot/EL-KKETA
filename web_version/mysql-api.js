@@ -81,6 +81,16 @@ const ElkhetaAPI = {
         return await res.json();
     },
 
+    async deleteCode(id) {
+        const res = await fetch(`${API_BASE_URL}/codes/${id}`, { method: 'DELETE' });
+        return await res.json();
+    },
+
+    async clearUsedCodes() {
+        const res = await fetch(`${API_BASE_URL}/codes/clear-used`, { method: 'DELETE' });
+        return await res.json();
+    },
+
     // 5. الامتحانات والأسئلة
     async getExams(grade = '') {
         const url = grade ? `${API_BASE_URL}/exams?grade=${encodeURIComponent(grade)}` : `${API_BASE_URL}/exams`;
@@ -115,6 +125,24 @@ const ElkhetaAPI = {
         return await res.json();
     },
 
+    async updateStudent(studentData) {
+        const res = await fetch(`${API_BASE_URL}/students/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(studentData)
+        });
+        return await res.json();
+    },
+
+    async rechargeStudent(studentCode, amount) {
+        const res = await fetch(`${API_BASE_URL}/students/recharge-wallet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_code: studentCode, amount: amount })
+        });
+        return await res.json();
+    },
+
     async toggleBan(studentCode, isBanned) {
         const res = await fetch(`${API_BASE_URL}/students/toggle-ban`, {
             method: 'POST',
@@ -129,6 +157,13 @@ const ElkhetaAPI = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ student_code: studentCode })
+        });
+        return await res.json();
+    },
+
+    async deleteStudent(studentCode) {
+        const res = await fetch(`${API_BASE_URL}/students/${encodeURIComponent(studentCode)}`, {
+            method: 'DELETE'
         });
         return await res.json();
     },

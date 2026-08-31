@@ -17,6 +17,7 @@ router.get('/students', studentsController.getStudents);
 router.post('/students/toggle-ban', studentsController.toggleBan);
 router.post('/students/reset-device', studentsController.resetDevice);
 router.post('/students/update', studentsController.updateStudent);
+router.post('/students/recharge-wallet', studentsController.rechargeStudentWallet);
 router.delete('/students/:student_code', studentsController.deleteStudent);
 
 // 3. مسارات الكورسات والمحاضرات (Lectures)
