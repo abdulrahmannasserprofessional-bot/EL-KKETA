@@ -126,7 +126,7 @@ exports.studentAuth = async (req, res) => {
         const [result] = await db.query(
             `INSERT INTO students (student_code, full_name, phone, parent_phone, grade, device_id)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [student_code.trim(), full_name || 'طالب جديد', phone || '', parent_phone || '', grade || 'الصف الثالث الثانوي', device_id || null]
+            [student_code.trim(), full_name || 'طالب جديد', phone || '', parent_phone || '', grade || 'فرقة رابعة خدمة اجتماعية', device_id || null]
         );
 
         const newStudentId = result.insertId;
@@ -141,7 +141,7 @@ exports.studentAuth = async (req, res) => {
                 student_code,
                 full_name: full_name || 'طالب جديد',
                 phone: phone || '',
-                grade: grade || 'الصف الثالث الثانوي',
+                grade: grade || 'فرقة رابعة خدمة اجتماعية',
                 wallet_balance: 0.00,
                 device_id
             }
