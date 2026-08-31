@@ -7,20 +7,22 @@ const apiRoutes = require('./routes/api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const path = require('path');
+
 // تفعيل CORS و معالجة JSON
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// مسار لوحة التحكم الرئيسية
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
 // مسار الترحيب والواجهة الأساسية
 app.get('/', (req, res) => {
-    res.json({
-        platform: 'منصة الخطة التعليمية - ELKHETA',
-        service: 'MySQL REST API Server',
-        status: 'Online 🚀',
-        version: '1.0.0',
-        documentation: '/api/health'
-    });
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // تركيب مسارات الـ API
