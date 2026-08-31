@@ -7,13 +7,6 @@ const lecturesController = require('../controllers/lecturesController');
 const codesController = require('../controllers/codesController');
 const examsController = require('../controllers/examsController');
 const settingsController = require('../controllers/settingsController');
-const { getAdminHtml } = require('../views/adminHtml');
-
-// مسار لوحة التحكم عبر API
-router.get('/admin', (req, res) => {
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(getAdminHtml());
-});
 
 // 1. مسارات المصادقة والتسجيل (Auth)
 router.post('/auth/admin/login', authController.adminLogin);
@@ -44,9 +37,12 @@ router.post('/exams/save', examsController.saveExam);
 router.post('/exams/submit', examsController.submitExam);
 router.delete('/exams/:id', examsController.deleteExam);
 
-// 6. مسارات الإعدادات وفحص السيرفر (Settings & Health)
+// 6. مسارات الإعدادات والمشرفين وفحص السيرفر (Settings & Supervisors)
 router.get('/settings', settingsController.getSettings);
 router.post('/settings', settingsController.updateSettings);
+router.get('/supervisors', settingsController.getSupervisors);
+router.post('/supervisors', settingsController.addSupervisor);
+router.delete('/supervisors/:id', settingsController.deleteSupervisor);
 router.get('/health', settingsController.testDb);
 
 module.exports = router;

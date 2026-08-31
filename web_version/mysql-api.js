@@ -133,7 +133,27 @@ const ElkhetaAPI = {
         return await res.json();
     },
 
-    // 7. إعدادات المنصة والصيانة
+    // 7. إدارة المشرفين والصلاحيات
+    async getSupervisors() {
+        const res = await fetch(`${API_BASE_URL}/supervisors`);
+        return await res.json();
+    },
+
+    async addSupervisor(username, password, role = 'supervisor') {
+        const res = await fetch(`${API_BASE_URL}/supervisors`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, role })
+        });
+        return await res.json();
+    },
+
+    async deleteSupervisor(id) {
+        const res = await fetch(`${API_BASE_URL}/supervisors/${id}`, { method: 'DELETE' });
+        return await res.json();
+    },
+
+    // 8. إعدادات المنصة والصيانة
     async getSettings() {
         const res = await fetch(`${API_BASE_URL}/settings`);
         return await res.json();

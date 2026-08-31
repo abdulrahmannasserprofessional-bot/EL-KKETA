@@ -121,11 +121,11 @@
             <form onsubmit="handleLogin(event)">
                 <div style="text-align: right; margin-bottom: 16px;">
                     <label class="form-label">اسم المستخدم</label>
-                    <input type="text" id="adm_user" class="form-control" placeholder="admin" value="admin" required>
+                    <input type="text" id="adm_user" class="form-control" placeholder="admin أو اسم المشرف" value="admin" required>
                 </div>
                 <div style="text-align: right; margin-bottom: 20px;">
                     <label class="form-label">كلمة المرور</label>
-                    <input type="password" id="adm_pass" class="form-control" placeholder="••••••••" value="admin123456" required>
+                    <input type="password" id="adm_pass" class="form-control" placeholder="••••••••" value="2862005" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 800; justify-content: center;">
                     تسجيل الدخول <i class="fa-solid fa-arrow-left"></i>
@@ -142,7 +142,7 @@
             </div>
             <div>
                 <h3 style="font-size: 16px; font-weight: 800;">منصة الخطة</h3>
-                <span style="font-size: 11px; color: var(--text-muted);">MySQL Live Admin</span>
+                <span style="font-size: 11px; color: var(--text-muted);" id="userRoleBadge">المسؤول العام</span>
             </div>
         </div>
 
@@ -156,12 +156,12 @@
             <li><div class="menu-link" onclick="switchTab('codes')"><i class="fa-solid fa-ticket"></i><span>أكواد الشحن والتفعيل</span></div></li>
             <li><div class="menu-link" onclick="switchTab('exams')"><i class="fa-solid fa-file-circle-question"></i><span>الامتحانات والواجبات</span></div></li>
 
-            <div class="menu-title">الإعدادات</div>
-            <li><div class="menu-link" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i><span>إعدادات المنصة</span></div></li>
+            <div class="menu-title">الإعدادات والصلاحيات</div>
+            <li><div class="menu-link" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i><span>إعدادات المنصة والمشرفين</span></div></li>
         </ul>
 
         <div style="padding: 15px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 12px; font-weight: 700;">مدير النظام</span>
+            <div id="currentUserLabel" style="font-size: 12px; font-weight: 700;">المسؤول العام</div>
             <button class="btn btn-secondary" style="padding: 4px 8px; color: var(--danger);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
     </aside>
@@ -170,7 +170,10 @@
     <div class="main-wrapper">
         <header class="top-navbar">
             <div style="font-size: 18px; font-weight: 800;" id="pageTitle">نظرة عامة على المنصة</div>
-            <span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> TiDB MySQL Online</span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="roleHeaderBadge" class="badge badge-info">المسؤول العام 👑</span>
+                <span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> TiDB MySQL Online</span>
+            </div>
         </header>
 
         <main class="content-body">
@@ -320,36 +323,61 @@
                 </div>
             </section>
 
-            <!-- 6. الإعدادات -->
+            <!-- 6. الإعدادات والمشرفين -->
             <section id="tab-settings" class="tab-content">
-                <div class="panel-card" style="max-width: 600px;">
-                    <div class="panel-header">
-                        <div class="panel-title"><i class="fa-solid fa-sliders" style="color: var(--primary);"></i> إعدادات المنصة</div>
-                    </div>
-                    <div class="panel-body">
-                        <form onsubmit="saveSettings(event)">
-                            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                    <span style="font-weight: 800; font-size: 14px;">وضع الصيانة</span>
-                                    <input type="checkbox" id="set_maintenance" style="width: 20px; height: 20px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+                    <!-- إعدادات المنصة -->
+                    <div class="panel-card" style="margin:0;">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fa-solid fa-sliders" style="color: var(--primary);"></i> إعدادات المنصة والبوابة</div>
+                        </div>
+                        <div class="panel-body">
+                            <form onsubmit="saveSettings(event)">
+                                <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <span style="font-weight: 800; font-size: 14px;">وضع الصيانة</span>
+                                        <input type="checkbox" id="set_maintenance" style="width: 20px; height: 20px;">
+                                    </div>
+                                    <input type="text" id="set_msg" class="form-control" placeholder="رسالة الصيانة...">
                                 </div>
-                                <input type="text" id="set_msg" class="form-control" placeholder="رسالة الصيانة...">
-                            </div>
 
-                            <div style="margin-bottom: 14px;">
-                                <label class="form-label">رقم واتساب الدعم الفني:</label>
-                                <input type="text" id="set_whatsapp" class="form-control" dir="ltr">
-                            </div>
+                                <div style="margin-bottom: 14px;">
+                                    <label class="form-label">رقم واتساب الدعم الفني:</label>
+                                    <input type="text" id="set_whatsapp" class="form-control" dir="ltr">
+                                </div>
 
-                            <div style="margin-bottom: 20px;">
-                                <label class="form-label">شريط التنبيهات العلوي:</label>
-                                <input type="text" id="set_notice" class="form-control">
-                            </div>
+                                <div style="margin-bottom: 20px;">
+                                    <label class="form-label">شريط التنبيهات العلوي:</label>
+                                    <input type="text" id="set_notice" class="form-control">
+                                </div>
 
-                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; justify-content: center;">
-                                <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
-                            </button>
-                        </form>
+                                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; justify-content: center;">
+                                    <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- إدارة المشرفين (للمسؤول فقط) -->
+                    <div class="panel-card" id="supervisorsPanel" style="margin:0;">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fa-solid fa-user-shield" style="color: var(--accent);"></i> حسابات المشرفين (كلمات المرور)</div>
+                            <button class="btn btn-primary" style="padding:4px 10px; font-size:12px;" onclick="openAddSupervisorModal()"><i class="fa-solid fa-plus"></i> إضافة مشرف</button>
+                        </div>
+                        <div class="panel-body" style="padding: 0;">
+                            <div class="table-responsive">
+                                <table class="custom-table" id="supervisorsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>اسم المستخدم</th>
+                                            <th>الصلاحية</th>
+                                            <th style="text-align: center;">إجراء</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -358,8 +386,11 @@
 
     <script>
         let allStudents = [];
+        let isSuperAdmin = false;
 
         if (sessionStorage.getItem('isMysqlAdmin')) {
+            isSuperAdmin = sessionStorage.getItem('adminRole') === 'super_admin';
+            applyRolePermissions();
             document.getElementById('loginOverlay').style.display = 'none';
             loadData();
         }
@@ -371,6 +402,10 @@
             const res = await ElkhetaAPI.adminLogin(u, p);
             if (res.success) {
                 sessionStorage.setItem('isMysqlAdmin', 'true');
+                sessionStorage.setItem('adminRole', res.admin.role || 'supervisor');
+                sessionStorage.setItem('adminUsername', res.admin.username || 'admin');
+                isSuperAdmin = !!res.admin.is_super_admin;
+                applyRolePermissions();
                 document.getElementById('loginOverlay').style.display = 'none';
                 loadData();
             } else {
@@ -378,8 +413,29 @@
             }
         }
 
+        function applyRolePermissions() {
+            const role = sessionStorage.getItem('adminRole');
+            const username = sessionStorage.getItem('adminUsername') || 'المستخدم';
+
+            if (role === 'super_admin') {
+                document.getElementById('userRoleBadge').textContent = 'المسؤول العام 👑';
+                document.getElementById('roleHeaderBadge').textContent = 'المسؤول العام (صلاحيات كاملة) 👑';
+                document.getElementById('currentUserLabel').textContent = `${username} (مدير)`;
+                document.getElementById('supervisorsPanel').style.display = 'block';
+            } else {
+                document.getElementById('userRoleBadge').textContent = 'مشرف المنصة 🛡️';
+                document.getElementById('roleHeaderBadge').textContent = 'مشرف (صلاحيات محددة) 🛡️';
+                document.getElementById('roleHeaderBadge').className = 'badge badge-warning';
+                document.getElementById('currentUserLabel').textContent = `${username} (مشرف)`;
+                // إخفاء إدارة المشرفين عن المشرف العادي
+                document.getElementById('supervisorsPanel').style.display = 'none';
+            }
+        }
+
         function logout() {
             sessionStorage.removeItem('isMysqlAdmin');
+            sessionStorage.removeItem('adminRole');
+            sessionStorage.removeItem('adminUsername');
             location.reload();
         }
 
@@ -390,7 +446,6 @@
         }
 
         async function loadData() {
-            // Stats
             const [s, l, c, e] = await Promise.all([
                 ElkhetaAPI.getStudents(),
                 ElkhetaAPI.getLectures(),
@@ -425,12 +480,89 @@
                 document.getElementById('set_whatsapp').value = st.settings.support_whatsapp || '';
                 document.getElementById('set_notice').value = st.settings.notice_bar || '';
             }
+
+            // Supervisors
+            if (isSuperAdmin) {
+                loadSupervisors();
+            }
+        }
+
+        async function loadSupervisors() {
+            const res = await ElkhetaAPI.getSupervisors();
+            const tbody = document.querySelector('#supervisorsTable tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.supervisors.length > 0) {
+                res.supervisors.forEach(sup => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight:700;">${sup.username}</td>
+                            <td><span class="badge ${sup.role === 'super_admin' ? 'badge-danger' : 'badge-info'}">${sup.role === 'super_admin' ? 'مسؤول عام' : 'مشرف'}</span></td>
+                            <td style="text-align:center;">
+                                ${sup.id == 1 ? '<span style="color:#94A3B8; font-size:11px;">رئيسي</span>' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delSupervisor(${sup.id})"><i class="fa-solid fa-trash"></i></button>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openAddSupervisorModal() {
+            Swal.fire({
+                title: 'إضافة مشرف جديد وتعيين كلمة مروره',
+                html: `
+                    <div style="text-align:right;">
+                        <label style="font-size:12px; font-weight:bold;">اسم المستخدم للمشرف:</label>
+                        <input id="new_sup_user" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="مثال: supervisor1">
+                        <label style="font-size:12px; font-weight:bold;">كلمة المرور الخاصة به:</label>
+                        <input id="new_sup_pass" type="password" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="••••••••">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ المشرف',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => {
+                    const u = document.getElementById('new_sup_user').value.trim();
+                    const p = document.getElementById('new_sup_pass').value.trim();
+                    if (!u || !p) {
+                        Swal.showValidationMessage('اسم المستخدم وكلمة المرور مطلوبان');
+                        return false;
+                    }
+                    return { username: u, password: p, role: 'supervisor' };
+                }
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    const res = await ElkhetaAPI.addSupervisor(r.value.username, r.value.password, r.value.role);
+                    if (res.success) {
+                        Swal.fire('تمت الإضافة', 'تم إنشاء حساب المشرف بنجاح ويمكنه الدخول الآن', 'success');
+                        loadSupervisors();
+                    } else {
+                        Swal.fire('خطأ', res.error || 'فشلت العملية', 'error');
+                    }
+                }
+            });
+        }
+
+        async function delSupervisor(id) {
+            Swal.fire({
+                title: 'حذف المشرف؟',
+                text: 'هل أنت متأكد من حذف هذا الحساب؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                confirmButtonColor: '#EF4444'
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    await ElkhetaAPI.deleteSupervisor(id);
+                    Swal.fire('تم الحذف', 'تم مسح حساب المشرف', 'success');
+                    loadSupervisors();
+                }
+            });
         }
 
         function renderStudents(list) {
             const tbody = document.querySelector('#studentsTable tbody');
             tbody.innerHTML = '';
-            if (list.length === 0) {
+            if (!list || list.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">لا يوجد طلاب مسجلون</td></tr>';
                 return;
             }
