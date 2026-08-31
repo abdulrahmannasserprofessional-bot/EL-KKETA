@@ -15,26 +15,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const fs = require('fs');
+const { getAdminHtml } = require('./views/adminHtml');
 
 // مسار لوحة التحكم الرئيسية
-const sendAdminHtml = (req, res) => {
-    const filePath = path.join(__dirname, 'public', 'admin.html');
-    if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(fs.readFileSync(filePath, 'utf8'));
-    }
-    res.json({
-        platform: 'منصة الخطة التعليمية - ELKHETA',
-        service: 'MySQL REST API Server',
-        status: 'Online 🚀',
-        version: '1.0.0',
-        documentation: '/api/health'
-    });
-};
+app.get('/admin', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(getAdminHtml());
+});
 
-app.get('/admin', sendAdminHtml);
-app.get('/', sendAdminHtml);
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(getAdminHtml());
+});
 
 // تركيب مسارات الـ API
 app.use('/api', apiRoutes);
