@@ -1,9 +1,9 @@
 const db = require('../config/db');
 
-// جلب جميع الطلاب مع فلتر وبحث
+// جلب جميع الطلاب
 exports.getStudents = async (req, res) => {
     try {
-        const { search, grade } = req.query;
+        const { search } = req.query;
         let query = 'SELECT * FROM students WHERE 1=1';
         const params = [];
 
@@ -11,11 +11,6 @@ exports.getStudents = async (req, res) => {
             query += ' AND (student_code LIKE ? OR full_name LIKE ? OR phone LIKE ? OR parent_phone LIKE ?)';
             const term = `%${search}%`;
             params.push(term, term, term, term);
-        }
-
-        if (grade) {
-            query += ' AND grade = ?';
-            params.push(grade);
         }
 
         query += ' ORDER BY id DESC';
@@ -27,7 +22,7 @@ exports.getStudents = async (req, res) => {
     }
 };
 
-// تبديل حالة الحظر
+// تبديل حالة الحظر وتحديثها في MySQL و Firebase معاً بشكل دائم
 exports.toggleBan = async (req, res) => {
     try {
         const { student_code, is_banned } = req.body;
@@ -35,14 +30,39 @@ exports.toggleBan = async (req, res) => {
             return res.status(400).json({ success: false, error: 'كود الطالب مطلوب' });
         }
 
-        await db.query('UPDATE students SET is_banned = ? WHERE student_code = ?', [is_banned ? 1 : 0, student_code]);
-        res.json({ success: true, message: is_banned ? 'تم قفل وتعطيل حساب الطالب بنجاح' : 'تم تفعيل حساب الطالب بنجاح' });
+        const codeUpper = student_code.trim().toUpperCase();
+        const banStatus = is_banned ? 1 : 0;
+        const banBool = is_banned ? true : false;
+
+        // 1. تحديث في قاعدة بيانات MySQL
+        await db.query('UPDATE students SET is_banned = ? WHERE UPPER(student_code) = ?', [banStatus, codeUpper]);
+
+        // 2. تحديث متزامن في Firebase Realtime Database
+        try {
+            await fetch(`https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app/Students/${codeUpper}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    isBanned: banBool,
+                    is_banned: banStatus,
+                    banReason: banBool ? 'موقوف من قبل الإدارة' : ''
+                })
+            });
+        } catch (fbErr) {
+            console.error('Firebase sync error:', fbErr.message);
+        }
+
+        res.json({
+            success: true,
+            is_banned: banStatus,
+            message: banStatus ? 'تم حظر وتعطيل حساب الطالب بشكل دائم' : 'تم فك الحظر وتفعيل الحساب بنجاح'
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// فك قفل الجهاز
+// فك قفل الجهاز في MySQL و Firebase
 exports.resetDevice = async (req, res) => {
     try {
         const { student_code } = req.body;
@@ -50,8 +70,19 @@ exports.resetDevice = async (req, res) => {
             return res.status(400).json({ success: false, error: 'كود الطالب مطلوب' });
         }
 
-        await db.query('UPDATE students SET device_id = NULL WHERE student_code = ?', [student_code]);
-        res.json({ success: true, message: 'تم فك قفل الجهاز بنجاح' });
+        const codeUpper = student_code.trim().toUpperCase();
+
+        await db.query('UPDATE students SET device_id = NULL WHERE UPPER(student_code) = ?', [codeUpper]);
+
+        try {
+            await fetch(`https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app/Students/${codeUpper}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deviceId: null, device_id: null })
+            });
+        } catch (e) {}
+
+        res.json({ success: true, message: 'تم فك قفل الجهاز للطالب بنجاح' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -60,54 +91,44 @@ exports.resetDevice = async (req, res) => {
 // تعديل بيانات طالب كاملة
 exports.updateStudent = async (req, res) => {
     try {
-        const { student_code, full_name, phone, parent_phone, grade, wallet_balance } = req.body;
+        const { student_code, full_name, phone, parent_phone } = req.body;
         if (!student_code) {
             return res.status(400).json({ success: false, error: 'كود الطالب مطلوب' });
         }
+
+        const codeUpper = student_code.trim().toUpperCase();
 
         await db.query(
             `UPDATE students SET
                 full_name = ?,
                 phone = ?,
                 parent_phone = ?,
-                grade = ?,
-                wallet_balance = ?
-             WHERE student_code = ?`,
-            [full_name || 'طالب', phone || '', parent_phone || '', grade || 'الصف الثالث الثانوي', wallet_balance || 0, student_code]
+                grade = 'فرقة رابعة خدمة اجتماعية'
+             WHERE UPPER(student_code) = ?`,
+            [full_name || 'طالب', phone || '', parent_phone || '', codeUpper]
         );
 
-        res.json({ success: true, message: 'تم حفظ وتعديل بيانات الطالب في MySQL بنجاح' });
+        // تحديث في Firebase
+        try {
+            await fetch(`https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app/Students/${codeUpper}.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fullName: full_name || 'طالب',
+                    whatsapp: phone || '',
+                    parentWhatsapp: parent_phone || '',
+                    grade: 'فرقة رابعة خدمة اجتماعية'
+                })
+            });
+        } catch (e) {}
+
+        res.json({ success: true, message: 'تم حفظ وتعديل بيانات الطالب بنجاح' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
-// شحن رصيد في محفظة الطالب مباشرة من الإدارة
-exports.rechargeStudentWallet = async (req, res) => {
-    try {
-        const { student_code, amount } = req.body;
-        if (!student_code || !amount) {
-            return res.status(400).json({ success: false, error: 'كود الطالب والمبلغ مطلوبان' });
-        }
-
-        await db.query(
-            'UPDATE students SET wallet_balance = wallet_balance + ? WHERE student_code = ?',
-            [parseFloat(amount), student_code]
-        );
-
-        const [updated] = await db.query('SELECT wallet_balance FROM students WHERE student_code = ?', [student_code]);
-
-        res.json({
-            success: true,
-            message: `تم شحن ${amount} ج.م بنجاح`,
-            new_balance: updated[0] ? updated[0].wallet_balance : 0
-        });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-};
-
-// حذف طالب نهائياً
+// حذف طالب نهائياً من MySQL و Firebase
 exports.deleteStudent = async (req, res) => {
     try {
         const { student_code } = req.params;
@@ -115,8 +136,17 @@ exports.deleteStudent = async (req, res) => {
             return res.status(400).json({ success: false, error: 'كود الطالب مطلوب' });
         }
 
-        await db.query('DELETE FROM students WHERE student_code = ?', [student_code]);
-        res.json({ success: true, message: 'تم حذف الطالب نهائياً من قاعدة البيانات' });
+        const codeUpper = student_code.trim().toUpperCase();
+
+        await db.query('DELETE FROM students WHERE UPPER(student_code) = ?', [codeUpper]);
+
+        try {
+            await fetch(`https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app/Students/${codeUpper}.json`, {
+                method: 'DELETE'
+            });
+        } catch (e) {}
+
+        res.json({ success: true, message: 'تم حذف الطالب نهائياً من كافة قواعد البيانات' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
