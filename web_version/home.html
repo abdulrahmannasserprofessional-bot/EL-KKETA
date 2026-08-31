@@ -2,65 +2,566 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرئيسية - ELKHETA</title>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+        }
+        if (window.caches) {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2.5">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3B82F6">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192?text=🎓">
     <style>
-        :root { --primary: #0984E3; --bg: #F8F9FE; }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 80px; }
-        .header { background: linear-gradient(45deg, #74b9ff, #0984E3); padding: 50px 20px; color: white; border-radius: 0 0 40px 40px; text-align: center; }
-        .welcome-card { background: #E8EAFF; margin: -40px 20px 20px; padding: 25px; border-radius: 30px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
-        .card { background: white; padding: 20px; border-radius: 25px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
-        .card:hover { transform: scale(1.05); }
-        .card i { font-size: 35px; display: block; margin-bottom: 10px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 70px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-radius: 25px 25px 0 0; }
-        .nav-item { text-align: center; color: #BCBCBC; font-size: 12px; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .welcome-card {
+            background: linear-gradient(135deg, #E8EAFF 0%, #F4F7FF 100%);
+            margin-top: -45px;
+            position: relative;
+            z-index: 10;
+            text-align: right;
+            border: 1px solid #E8ECFF;
+        }
+        body.dark-theme .welcome-card {
+            background: linear-gradient(135deg, #1E1E2E 0%, #2A2A3D 100%);
+        }
+
+        .user-stats-strip {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            border-radius: 18px;
+            padding: 12px 18px;
+            margin: 10px 0;
+            border: 1px solid #EEF2FF;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .stat-badge-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px; 
+            padding: 10px 20px; 
+            margin-bottom: 30px;
+        }
+        .dash-item { 
+            margin: 0; 
+            text-align: right; 
+            cursor: pointer; 
+            padding: 24px 20px; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.4);
+            position: relative;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            animation: slideUp 0.6s ease-out backwards;
+        }
+        
+        .dash-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+            z-index: 1;
+            border-radius: 20px;
+        }
+
+        .dash-item > * { position: relative; z-index: 2; }
+
+        .dash-item:hover { 
+            transform: translateY(-5px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(9,132,227,0.15); 
+        }
+        .dash-icon { 
+            font-size: 32px; 
+            margin-bottom: 12px; 
+            display: inline-block; 
+            background: rgba(255,255,255,0.8);
+            padding: 10px;
+            border-radius: 14px;
+            width: fit-content;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease; 
+        }
+        .dash-item:hover .dash-icon { transform: scale(1.1) rotate(-5deg); }
+        .dash-item strong {
+            font-size: 16px;
+            color: #1E293B;
+            font-weight: 800;
+        }
+        .dash-item p {
+            font-size: 12px;
+            color: #64748B;
+            margin: 4px 0 0 0;
+            font-weight: 600;
+        }
+
+        /* Specific Card Gradients */
+        .card-courses { background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border: 1px solid #C7D2FE; animation-delay: 0.1s; }
+        .card-courses .dash-icon { color: #4F46E5; }
+        
+        .card-planner { background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); border: 1px solid #FED7AA; animation-delay: 0.2s; }
+        .card-planner .dash-icon { color: #EA580C; }
+
+        .card-map { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border: 1px solid #BBF7D0; animation-delay: 0.3s; }
+        .card-map .dash-icon { color: #16A34A; }
+
+        .card-mistakes { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 1px solid #FECACA; animation-delay: 0.4s; }
+        .card-mistakes .dash-icon { color: #DC2626; }
+
+        .card-leaderboard { background: linear-gradient(135deg, #FEFCE8 0%, #FEF9C3 100%); border: 1px solid #FEF08A; grid-column: span 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 20px 30px; animation-delay: 0.5s; }
+        .card-leaderboard .dash-icon { margin-bottom: 0; background: transparent; box-shadow: none; font-size: 45px; }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dark Theme Support */
+        body.dark-theme .dash-item { background: #1E293B; border-color: rgba(255,255,255,0.05); }
+        body.dark-theme .dash-item strong { color: #F1F5F9; }
+        body.dark-theme .dash-item p { color: #94A3B8; }
+        body.dark-theme .dash-icon { background: rgba(0,0,0,0.2); }
+        
+        body.dark-theme .card-courses { background: linear-gradient(135deg, rgba(79,70,229,0.2) 0%, rgba(67,56,202,0.2) 100%); border-color: rgba(79,70,229,0.3); }
+        body.dark-theme .card-planner { background: linear-gradient(135deg, rgba(234,88,12,0.2) 0%, rgba(194,65,12,0.2) 100%); border-color: rgba(234,88,12,0.3); }
+        body.dark-theme .card-map { background: linear-gradient(135deg, rgba(22,163,74,0.2) 0%, rgba(21,128,61,0.2) 100%); border-color: rgba(22,163,74,0.3); }
+        body.dark-theme .card-mistakes { background: linear-gradient(135deg, rgba(220,38,38,0.2) 0%, rgba(185,28,28,0.2) 100%); border-color: rgba(220,38,38,0.3); }
+        body.dark-theme .card-leaderboard { background: linear-gradient(135deg, rgba(234,179,8,0.15) 0%, rgba(202,138,4,0.15) 100%); border-color: rgba(234,179,8,0.2); }
+
+        .notice-bar {
+            background: white;
+            margin: 10px 15px;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 13.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            border: 1px solid #EEF2FF;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .resume-widget {
+            margin: 10px 15px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
+            color: var(--text-main);
+            border-radius: 20px;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(9, 132, 227, 0.25);
+            transition: transform 0.2s ease;
+        }
+        .resume-widget:hover { transform: translateY(-3px); }
+
+        /* Drawer Styling Overrides for Calm Theme */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 5000;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #EEF2FF;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .drawer.active { right: 0; }
+
+        .drawer-header {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
+            padding: 40px 25px 25px 25px;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            border-radius: 0 0 25px 25px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(9, 132, 227, 0.2);
+        }
+
+        .drawer-item {
+            padding: 16px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: #2D3436;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 4px 15px;
+            border-radius: 12px;
+        }
+        .drawer-item:hover {
+            background: #F0F4FF;
+            color: #0984E3;
+            transform: translateX(-4px);
+        }
+
+        .logout-btn {
+            color: #D63031 !important;
+            background: #FFF0F0;
+            margin-top: auto !important;
+            margin-bottom: 20px !important;
+            border: 1px solid #FFE3E3;
+            justify-content: center;
+        }
+        .logout-btn:hover {
+            background: #FFE3E3;
+            color: #D63031 !important;
+            transform: translateY(-2px);
+        }
+
+        /* Missing Email Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 10000;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .otp-card {
+            background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 350px;
+            text-align: center; transform: translateY(20px); transition: transform 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .modal-overlay.active .otp-card { transform: translateY(0); }
+        
+        .otp-icon { font-size: 40px; margin-bottom: 10px; }
+        .otp-title { font-size: 18px; font-weight: 800; color: #2D3436; margin-bottom: 5px; }
+        .otp-desc { font-size: 13px; color: #636E72; margin-bottom: 20px; line-height: 1.5; }
+        
+        .email-input {
+            width: 100%; padding: 15px; border: 2px solid #EEF2FF; border-radius: 15px;
+            background: #F8F9FF; font-family: 'Cairo', sans-serif; text-align: center;
+            font-size: 16px; color: #2D3436; outline: none; margin-bottom: 15px;
+        }
+        .email-input:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1); }
+
+        .otp-input-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; direction: ltr; display: none; }
+        .otp-digit {
+            width: 50px; height: 50px; border: 2px solid #EEF2FF; border-radius: 12px;
+            font-size: 20px; font-weight: 800; text-align: center; background: #F8F9FF;
+            transition: all 0.2s; outline: none;
+        }
+        .otp-digit:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1); }
+        
+        .verify-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: var(--text-main); border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .verify-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108,92,231,0.3); }
+        .verify-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>ELKHETA</h2>
-    </div>
-
-    <div class="welcome-card">
-        <h2 id="userName">أهلاً بك يا طالب</h2>
-        <p style="color: #636E72; margin: 0;">رحلتك التعليمية الممتعة تبدأ الآن 🚀</p>
-    </div>
-
-    <div class="grid">
-        <div class="card" onclick="alert('قريباً')">
-            <span style="font-size: 40px;">📚</span>
-            <h3>المواد</h3>
-        </div>
-        <div class="card" onclick="alert('قريباً')">
-            <span style="font-size: 40px;">🔔</span>
-            <h3>التنبيهات</h3>
-        </div>
-        <div class="card" onclick="alert('قريباً')">
-            <span style="font-size: 40px;">🗺️</span>
-            <h3>الخريطة</h3>
-        </div>
-        <div class="card" onclick="alert('قريباً')">
-            <span style="font-size: 40px;">⚠️</span>
-            <h3>الأخطاء</h3>
-        </div>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active">🏠<br>الرئيسية</div>
-        <div class="nav-item">📖<br>المواد</div>
-        <div class="nav-item">👤<br>حسابي</div>
-    </div>
-
     <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+
+    <div class="header-gradient">
+        <div style="font-size: 24px; font-weight: 800; color: var(--text-main); text-shadow: 0 2px 10px rgba(0,0,0,0.15);">ELKHETA</div>
+        <div id="openDrawer" style="position: absolute; top: 35px; right: 20px; font-size: 20px; cursor: pointer; background: rgba(255,255,255,0.25); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 14px; color: var(--text-main); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">☰</div>
+        <div onclick="logout()" title="تسجيل الخروج" style="position: absolute; top: 35px; left: 20px; font-size: 20px; cursor: pointer; background: rgba(214, 48, 49, 0.9); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 14px; color: var(--text-main); box-shadow: 0 4px 10px rgba(214, 48, 49, 0.3); transition: transform 0.2s;">🚪</div>
+    </div>
+
+    <div class="card welcome-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span id="greetingText" style="font-size: 13px; color: #0984E3; font-weight: 800;">مرحباً بك! 👋</span>
+                <h2 id="userName" style="margin: 4px 0 0; font-size: 20px; color: #2D3436;">أهلاً بك يا طالب</h2>
+            </div>
+            <div style="font-size: 45px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">🚀</div>
+        </div>
+
+        <div class="user-stats-strip">
+            <div class="stat-badge-item">
+                <span style="font-size: 18px;">🔥</span>
+                <span>سلسلة: <span id="streakDays" style="color: var(--primary);">1 يوم</span></span>
+            </div>
+            <div class="stat-badge-item">
+                <span style="font-size: 18px;">🏆</span>
+                <span>نقاطك: <span id="userPoints" style="color: var(--accent);">0</span></span>
+            </div>
+            <div class="stat-badge-item">
+                <span style="font-size: 18px;">⭐</span>
+                <span id="userLevel">المستوى 1</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Message Banner from Admin -->
+    <div id="personalNoticeBar" class="notice-bar" style="display: none; background: linear-gradient(135deg, #4F46E5, #6366F1); color: white; margin-bottom: 12px;">
+        <span style="margin-left: 10px; font-size: 20px;">📢</span>
+        <div style="flex: 1;">
+            <div style="font-size: 11px; opacity: 0.9;">رسالة خاصة من إدارة المنصة:</div>
+            <div id="personalNoticeText" style="font-weight: 800; font-size: 14px; margin-top: 2px;"></div>
+        </div>
+        <button onclick="dismissPersonalNotice()" style="background: rgba(255,255,255,0.25); border: none; color: white; padding: 4px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px;">تم ✔️</button>
+    </div>
+
+    <!-- Latest Notice Bar -->
+    <div class="notice-bar">
+        <span style="margin-left: 10px; font-size: 18px;">🔔</span>
+        <span id="latestNotice" style="flex: 1;">جاري تحميل آخر التنبيهات...</span>
+    </div>
+
+    <!-- Resume Learning Shortcut Widget -->
+    <div id="resumeWidget" class="resume-widget" style="display: none;" onclick="resumeLastLesson()">
+        <div>
+            <div style="font-size: 11px; opacity: 0.85; text-transform: uppercase;">متابعة التعلم ⏯️</div>
+            <div id="resumeTitle" style="font-weight: bold; font-size: 15px; margin-top: 2px;">عنوان آخر درس</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.25); padding: 8px 14px; border-radius: 12px; font-weight: bold; font-size: 13px;">متابعة ⬅️</div>
+    </div>
+
+    <!-- Grid Menu -->
+    <div class="dashboard-grid">
+        <div class="dash-item card-courses" onclick="location.href='courses.html'">
+            <span class="dash-icon">📚</span>
+            <strong>المواد الدراسية</strong>
+            <p>ابدأ مذاكرة دروسك الآن</p>
+        </div>
+        
+        <div class="dash-item card-planner" onclick="location.href='planner.html'">
+            <span class="dash-icon">📅</span>
+            <strong>منظم الدراسة</strong>
+            <p>جدول مهامك اليومية</p>
+        </div>
+        
+        <div class="dash-item card-map" onclick="location.href='map.html'">
+            <span class="dash-icon">🗺️</span>
+            <strong>خريطة المنهج</strong>
+            <p>تتبع تقدمك في المواد</p>
+        </div>
+        
+        <div class="dash-item card-mistakes" onclick="location.href='mistakes.html'">
+            <span class="dash-icon">🧠</span>
+            <strong>سجل التعلم</strong>
+            <p>راجع أسئلتك الصعبة وأخطائك</p>
+        </div>
+        
+        <div class="dash-item card-leaderboard" onclick="location.href='leaderboard.html'">
+            <div>
+                <strong style="font-size: 20px;">أوائل المنصة</strong>
+                <p style="font-size: 14px; margin-top: 6px;">تنافس مع زملائك على الصدارة!</p>
+            </div>
+            <span class="dash-icon">🏆</span>
+        </div>
+    </div>
+
+    <!-- Drawer (Unified Content) -->
+    <div id="drawer" class="drawer">
+        <!-- User Profile (Drawer) -->
+        <div class="user-profile">
+            <!-- Logo placeholder -->
+        </div>
+        <div class="drawer-item" onclick="location.href='planner.html'"><span>📅</span> منظم الدراسة</div>
+
+        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')"><span>📞</span> تواصل مع الدعم</div>
+        <div class="drawer-item" onclick="window.open('https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn')"><span>💬</span> جروب الاستفسارات</div>
+        <div class="drawer-item" onclick="location.href='privacy.html'"><span>📜</span> سياسة الخصوصية</div>
+        <div class="drawer-item" onclick="location.href='admin-gate.html'"><span>🔐</span> لوحة الإدارة</div>
+        
+        <div class="drawer-item logout-btn" onclick="logout()"><span>🚪</span> تسجيل الخروج</div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item active">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item">📖<br>المواد</a>
+        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+    </div>
+
+    <!-- Missing Email Modal -->
+    <div class="modal-overlay" id="missingEmailModal">
+        <div class="otp-card">
+            <div class="otp-icon">✉️</div>
+            <div class="otp-title" id="emailModalTitle">أهلاً بك في التحديث الجديد!</div>
+            <div class="otp-desc" id="emailModalDesc">يرجى إضافة بريدك الإلكتروني لضمان التواصل وإرسال الإشعارات والنتائج.</div>
+            
+            <input type="email" id="updateEmailInput" class="email-input" placeholder="أدخل بريدك الإلكتروني" dir="ltr">
+            
+            <div class="otp-input-group" id="updateOtpGroup">
+                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
+                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
+                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
+                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
+            </div>
+            
+            <button class="verify-btn" id="updateEmailBtn" onclick="requestUpdateEmailOTP()">إرسال كود التفعيل 🚀</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="toast.js"></script>
+    
+    <script>
+        function requestUpdateEmailOTP() {
+            const emailInput = document.getElementById('updateEmailInput').value.trim();
+            if (!emailInput) {
+                showToast('يرجى إدخال البريد الإلكتروني', 'warning');
+                return;
+            }
+            if (user && user.studentCode) {
+                user.email = emailInput;
+                database.ref('Students/' + user.studentCode).update({ email: emailInput }).then(() => {
+                    localStorage.setItem('user', JSON.stringify(user));
+                    const modal = document.getElementById('missingEmailModal');
+                    if (modal) modal.classList.remove('active');
+                    showToast("تم حفظ بريدك الإلكتروني بنجاح 🎉", "success");
+                });
+            }
+        }
+
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+                showToast("تم التفعيل: المظهر المضيء ☀️", "info");
+            } else {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                showToast("تم التفعيل: المظهر الداكن 🌙", "info");
+            }
+        }
+
+
+        
         const user = JSON.parse(localStorage.getItem('user'));
+        const localDeviceId = localStorage.getItem('deviceId');
+        
         if (user) {
             document.getElementById('userName').innerText = "أهلاً بك يا " + user.fullName;
+            
+            // Dynamic Time Greeting
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                document.getElementById('greetingText').innerText = "صباح الخير والنشاط! ☀️";
+            } else if (hour >= 12 && hour < 18) {
+                document.getElementById('greetingText').innerText = "مساء الخير والهمة العالية! 🌤️";
+            } else {
+                document.getElementById('greetingText').innerText = "مساء الخير والهدوء! 🌙";
+            }
+
+            // Listen for personal message from admin
+            database.ref('Students/' + user.studentCode + '/personalMessage').on('value', (snap) => {
+                const msg = snap.val();
+                if (msg) {
+                    document.getElementById('personalNoticeBar').style.display = 'flex';
+                    document.getElementById('personalNoticeText').innerText = msg;
+                } else {
+                    document.getElementById('personalNoticeBar').style.display = 'none';
+                }
+            });
+
+            // Listen for ban status in real time
+            database.ref('Students/' + user.studentCode + '/isBanned').on('value', (snap) => {
+                if (snap.val() === true) {
+                    alert('⚠️ تم إيقاف هذا الحساب من قبل إدارة المنصة.');
+                    logout();
+                }
+            });
+
+            // Load user points & stats from Firebase
+            database.ref('Students/' + user.studentCode + '/stats').on('value', (snap) => {
+                const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
+                const points = stats.totalScore || 0;
+                document.getElementById('userPoints').innerText = points;
+
+                // Level calculation
+                const level = Math.floor(points / 200) + 1;
+                document.getElementById('userLevel').innerText = `مستوى ${level}`;
+            });
         } else {
             window.location.href = "index.html";
         }
+
+        function dismissPersonalNotice() {
+            if (user && user.studentCode) {
+                database.ref('Students/' + user.studentCode + '/personalMessage').remove();
+            }
+            document.getElementById('personalNoticeBar').style.display = 'none';
+        }
+
+        // Drawer Logic
+        const drawer = document.getElementById('drawer');
+        const overlay = document.getElementById('overlay');
+        document.getElementById('openDrawer').onclick = () => {
+            drawer.classList.add('active');
+            overlay.classList.add('active');
+        };
+        overlay.onclick = () => {
+            drawer.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        function logout() {
+            if (window.logoutStudent) {
+                window.logoutStudent();
+            } else {
+                localStorage.removeItem('user');
+                sessionStorage.clear();
+                window.location.href = "index.html";
+            }
+        }
+
+        database.ref('Settings/LatestNotification').on('value', (snap) => {
+            const notice = snap.val() || "لا توجد تنبيهات جديدة حالياً";
+            document.getElementById('latestNotice').innerText = notice;
+        });
+
+        // Resume Last Lesson Check
+        const lastSubject = localStorage.getItem('last_accessed_subject');
+        const lastLecture = localStorage.getItem('last_accessed_lecture');
+        if (lastSubject && lastLecture) {
+            document.getElementById('resumeWidget').style.display = 'flex';
+            document.getElementById('resumeTitle').innerText = `${lastSubject}: ${lastLecture}`;
+        }
+
+        function resumeLastLesson() {
+            if (lastSubject) {
+                location.href = `lectures.html?subject=${encodeURIComponent(lastSubject)}`;
+            }
+        }
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
+    <script src="student-drawer.js"></script>
 </body>
 </html>
+
+
+
+

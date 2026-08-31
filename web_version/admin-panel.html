@@ -1,58 +1,350 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>لوحة التحكم - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #F8F9FE; padding-bottom: 20px; }
-        .admin-header { background: #1A1C2E; padding: 50px 20px; color: white; border-radius: 0 0 35px 35px; text-align: center; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; margin-top: -30px; }
-        .admin-item { background: white; border-radius: 25px; padding: 25px 15px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; border: 1px solid #F0F2F9; }
-        .admin-item:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .admin-icon { font-size: 35px; margin-bottom: 10px; display: block; }
-        .logout-btn { background: #FDECEA; color: #D63031; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F8FAFC;
+            min-height: 100vh;
+            color: #1E293B;
+            padding-bottom: 30px;
+        }
+
+        /* ─── Header ─── */
+        .admin-header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 50px 20px 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+            top: -100px; right: -50px;
+            border-radius: 50%;
+        }
+        .admin-header::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%);
+            bottom: -50px; left: 20px;
+            border-radius: 50%;
+        }
+        .header-content { position: relative; z-index: 2; }
+        .header-icon {
+            width: 70px; height: 70px;
+            background: #FFFFFF;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 15px;
+        }
+        .header-title { font-size: 22px; font-weight: 900; letter-spacing: 0.5px;  color: #FFFFFF; }
+        .header-sub { font-size: 13px; color: rgba(0,0,0,0.6); margin-top: 5px;  color: rgba(255,255,255,0.8); }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            padding: 0 15px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+        .stat-card {
+            flex: 1;
+            background: #FFFFFF;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 20px;
+            padding: 16px 10px;
+            text-align: center;
+        }
+        .stat-val { font-size: 22px; font-weight: 900; color: #4F46E5; }
+        .stat-lbl { font-size: 11px; color: rgba(0,0,0,0.5); margin-top: 2px; }
+
+        /* Grid */
+        .section-title {
+            padding: 20px 20px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(0,0,0,0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 15px;
+        }
+        .admin-item {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 22px;
+            padding: 22px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 22px 22px 0 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .admin-item:active { transform: scale(0.95); }
+        .admin-item:hover { background: rgba(255,255,255,0.09); border-color: rgba(0,0,0,0.15); }
+        .admin-item:hover::before { opacity: 1; }
+
+        .item-icon {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+        }
+        .item-label { font-size: 13px; font-weight: 700; color: #1E293B; }
+        .item-desc { font-size: 10px; color: var(--text-sub); }
+
+        /* Color variants */
+        .blue .item-icon { background: rgba(99,102,241,0.2); }
+        .blue::before { background: linear-gradient(90deg, #6366F1, #818CF8); }
+        .green .item-icon { background: rgba(34,197,94,0.2); }
+        .green::before { background: linear-gradient(90deg, #22C55E, #4ADE80); }
+        .orange .item-icon { background: rgba(249,115,22,0.2); }
+        .orange::before { background: linear-gradient(90deg, #F97316, #FB923C); }
+        .pink .item-icon { background: rgba(236,72,153,0.2); }
+        .pink::before { background: linear-gradient(90deg, #EC4899, #F472B6); }
+        .cyan .item-icon { background: rgba(6,182,212,0.2); }
+        .cyan::before { background: linear-gradient(90deg, #06B6D4, #22D3EE); }
+        .yellow .item-icon { background: rgba(234,179,8,0.2); }
+        .yellow::before { background: linear-gradient(90deg, #EAB308, #FACC15); }
+        .purple .item-icon { background: rgba(168,85,247,0.2); }
+        .purple::before { background: linear-gradient(90deg, #A855F7, #C084FC); }
+        .red .item-icon { background: rgba(239,68,68,0.2); }
+        .red::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+
+        .logout-area { padding: 25px 15px 10px; }
+        .logout-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 18px;
+            color: #FCA5A5;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { background: rgba(239,68,68,0.2); }
+
+        .footer-note { text-align: center; font-size: 11px; color: rgba(0,0,0,0.15); margin-top: 15px; }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="admin-header">
-        <h2 style="margin: 0;">لوحة تحكم المنصة 🛠️</h2>
-        <p style="opacity: 0.8; font-size: 14px; margin-top: 8px;">مرحباً بك أيها المسؤول</p>
-    </div>
-
-    <div class="admin-grid">
-        <div class="admin-item" onclick="location.href='admin-students.html'">
-            <span class="admin-icon">👥</span>
-            <strong>إدارة الطلاب</strong>
-        </div>
-        <div class="admin-item" onclick="location.href='admin-notifications.html'">
-            <span class="admin-icon">🔔</span>
-            <strong>إرسال تنبيه</strong>
-        </div>
-        <div class="admin-item" onclick="location.href='admin-courses.html'">
-            <span class="admin-icon">📖</span>
-            <strong>إدارة المواد</strong>
-        </div>
-        <div class="admin-item" onclick="location.href='admin-codes.html'">
-            <span class="admin-icon">🔑</span>
-            <strong>توليد أكواد</strong>
-        </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 20px;">
-        <button class="logout-btn" onclick="adminLogout()">تسجيل الخروج من الإدارة</button>
-    </div>
-
     <script>
-        if(sessionStorage.getItem('isAdmin') !== 'true') {
-            window.location.href = "admin-gate.html";
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+    </script>
+
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="header-icon" id="adminHeaderIcon">🛠️</div>
+            <div class="header-title" id="adminHeaderTitle">لوحة تحكم المنصة</div>
+            <div class="header-sub" id="adminHeaderSub">إدارة كاملة لجميع أقسام منصة ELKHETA</div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-val" id="statStudents">—</div>
+            <div class="stat-lbl">طالب مسجل</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statLectures">—</div>
+            <div class="stat-lbl">محاضرة مرفوعة</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statCodes">—</div>
+            <div class="stat-lbl">كود متاح</div>
+        </div>
+    </div>
+
+    <div class="section-title" id="secContentTitle">📋 إدارة المحتوى وقاعدة البيانات</div>
+    <div class="admin-grid" id="gridContent">
+        <div class="admin-item blue" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); border: 2px solid #6366F1;" onclick="location.href='admin-mysql.html'">
+            <div class="item-icon" style="background: #4F46E5; color: white;">⚡</div>
+            <div class="item-label" style="color: #312E81; font-weight: 800;">لوحة MySQL السحابية</div>
+            <div class="item-desc" style="color: #4338CA; font-weight: 600;">إدارة قاعدة البيانات و REST API</div>
+        </div>
+        <div class="admin-item blue" data-perm="courses" onclick="location.href='admin-courses.html'">
+            <div class="item-icon">📖</div>
+            <div class="item-label">المواد الدراسية</div>
+            <div class="item-desc">إضافة وحذف المواد</div>
+        </div>
+        <div class="admin-item green" data-perm="lessons" onclick="location.href='admin-lectures.html'">
+            <div class="item-icon">📽️</div>
+            <div class="item-label">الدروس والامتحانات</div>
+            <div class="item-desc">رفع الدروس، الامتحانات، والملخصات</div>
+        </div>
+        <div class="admin-item pink" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+            <div class="item-icon">🔔</div>
+            <div class="item-label">إرسال تنبيه</div>
+            <div class="item-desc">إشعار لجميع الطلاب</div>
+        </div>
+    </div>
+
+    <div class="section-title" id="secUsersTitle">👤 إدارة المستخدمين والمنصة</div>
+    <div class="admin-grid" id="gridUsers">
+        <div class="admin-item cyan" data-perm="students" onclick="location.href='admin-students.html'">
+            <div class="item-icon">👥</div>
+            <div class="item-label">الطلاب</div>
+            <div class="item-desc">عرض وإدارة الحسابات</div>
+        </div>
+        <div class="admin-item yellow" data-perm="codes" onclick="location.href='admin-codes.html'">
+            <div class="item-icon">🔑</div>
+            <div class="item-label">أكواد التفعيل</div>
+            <div class="item-desc">توليد أكواد جديدة</div>
+        </div>
+        <div class="admin-item red" data-perm="otps" onclick="location.href='admin-otps.html'">
+            <div class="item-icon">🚨</div>
+            <div class="item-label">طوارئ OTP</div>
+            <div class="item-desc">أكواد التحقق المعلقة</div>
+        </div>
+        <div class="admin-item blue" data-perm="reports" onclick="location.href='admin-reports.html'">
+            <div class="item-icon">📊</div>
+            <div class="item-label">تقارير الطلاب</div>
+            <div class="item-desc">الرادار ونشاط الطالب</div>
+        </div>
+        <div class="admin-item yellow" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+            <div class="item-icon">📝</div>
+            <div class="item-label">تحليل أخطاء البابل شيت</div>
+            <div class="item-desc">متابعة الأسئلة الخاطئة وتفكير الطلاب</div>
+        </div>
+        <div class="admin-item purple" data-perm="config" onclick="location.href='admin-config.html'">
+            <div class="item-icon">🛠️</div>
+            <div class="item-label">الإعدادات وحلول الطلاب</div>
+            <div class="item-desc">حل مشاكل الدخول، فك الحظر، وإدارة المشرفين</div>
+        </div>
+    </div>
+
+    <div class="logout-area">
+        <button class="logout-btn" onclick="adminLogout()">🚪 تسجيل الخروج من الإدارة</button>
+    </div>
+    <div class="footer-note">ELKHETA Admin Panel — All rights reserved</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        const adminName = sessionStorage.getItem('adminName') || 'المدير العام';
+        const roleTitle = sessionStorage.getItem('adminRoleTitle') || '';
+        let permissions = {};
+
+        try {
+            permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+        } catch(e) { permissions = {}; }
+
+        // Update Header Info
+        if (role === 'master') {
+            document.getElementById('adminHeaderIcon').textContent = '👑';
+            document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
+            document.getElementById('adminHeaderSub').textContent = `مرحباً بك يا ${adminName} — صلاحيات كاملة`;
+        } else {
+            document.getElementById('adminHeaderIcon').textContent = '🛡️';
+            document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
+            document.getElementById('adminHeaderSub').textContent = `${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط`;
+
+            // Filter Items according to permissions
+            document.querySelectorAll('.admin-item[data-perm]').forEach(item => {
+                const permKey = item.getAttribute('data-perm');
+                
+                // Allow config if has troubleshoot or students perm
+                let hasAccess = false;
+                if (permKey === 'config') {
+                    hasAccess = permissions.config || permissions.troubleshoot || permissions.students;
+                } else {
+                    hasAccess = permissions[permKey] === true;
+                }
+
+                if (!hasAccess) {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Check if section grids are empty and hide headers
+            ['gridContent', 'gridUsers'].forEach(gridId => {
+                const grid = document.getElementById(gridId);
+                const visibleChildren = Array.from(grid.children).filter(c => c.style.display !== 'none');
+                if (visibleChildren.length === 0) {
+                    grid.style.display = 'none';
+                    if (gridId === 'gridContent') document.getElementById('secContentTitle').style.display = 'none';
+                    if (gridId === 'gridUsers') document.getElementById('secUsersTitle').style.display = 'none';
+                }
+            });
         }
+
         function adminLogout() {
             sessionStorage.clear();
-            window.location.href = "index.html";
+            window.location.href = "admin-gate.html";
         }
+
+        // Load stats
+        database.ref('Students').once('value', snap => {
+            document.getElementById('statStudents').textContent = snap.numChildren();
+        });
+        database.ref('Lectures').once('value', snap => {
+            let total = 0;
+            if (snap.exists()) {
+                snap.forEach(subSnap => { total += subSnap.numChildren(); });
+            }
+            document.getElementById('statLectures').textContent = total;
+        });
+        database.ref('ActivationCodes').orderByChild('isUsed').equalTo(false).once('value', snap => {
+            document.getElementById('statCodes').textContent = snap.numChildren();
+        });
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+

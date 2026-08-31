@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المجتمع الطلابي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .community-container {
+            max-width: 900px; margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
+            height: calc(100vh - 120px);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .filter-area {
+            padding: 15px; border-bottom: 1px solid var(--border);
+            display: flex; gap: 15px; background: rgba(0,0,0,0.02);
+        }
+        .filter-area select {
+            flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+            font-family: 'Cairo'; font-size: 14px; background: white; color: var(--text-main);
+        }
+        body.dark-theme .filter-area select { background: var(--bg); color: white; border-color: rgba(255,255,255,0.1); }
+        .chat-messages {
+            flex: 1; padding: 20px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        .msg-bubble {
+            background: white; padding: 12px 15px; border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 85%; align-self: flex-start;
+            border: 1px solid var(--border); position: relative;
+        }
+        .msg-bubble.admin-reply { background: #FFFBEB; border-color: #FDE68A; align-self: flex-end; }
+        body.dark-theme .msg-bubble { background: var(--bg); border-color: rgba(255,255,255,0.1); }
+        body.dark-theme .msg-bubble.admin-reply { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
+        .msg-sender { font-size: 11px; font-weight: bold; color: var(--text-sub); margin-bottom: 4px; display:flex; justify-content:space-between; gap:10px; }
+        .msg-sender .admin-badge { background:#F59E0B; color:white; padding:2px 6px; border-radius:4px; font-size:10px; }
+        .msg-text { font-size: 14px; color: var(--text-main); word-wrap: break-word; }
+        .msg-media img { max-width: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
+        .msg-media audio { max-width: 100%; margin-top: 8px; height:35px; }
+        
+        .chat-input-area {
+            padding: 15px; background: rgba(0,0,0,0.02);
+            border-top: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: center;
+        }
+        .chat-input-area textarea {
+            flex: 1; border: 1px solid var(--border); border-radius: 15px; padding: 10px;
+            font-family: 'Cairo'; font-size: 14px; resize: none; background: white; height: 45px;
+        }
+        body.dark-theme .chat-input-area textarea { background: var(--bg); color: white; border-color: rgba(255,255,255,0.1); }
+        .btn-send { background: #4F46E5; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        .del-btn { position: absolute; left: -10px; top: -10px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; opacity: 0; transition: 0.3s; border: none; }
+        .msg-bubble:hover .del-btn { opacity: 1; }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="header-gradient" style="height: 100px; padding-top: 20px; margin-bottom: 20px;">
+        <h2 style="color: white; text-align: center; margin:0;">إدارة المجتمع الطلابي 💬</h2>
+        <button onclick="window.location.href='admin-panel.html'" style="position: absolute; right: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Cairo';">العودة للوحة 🔙</button>
+    </div>
+
+    <div class="container" style="max-width: 900px;">
+        <div class="community-container">
+            <div class="filter-area">
+                <select id="subjectSelect" onchange="loadLectures()"><option value="">اختر المادة...</option></select>
+                <select id="lectureSelect" onchange="loadCommunity()"><option value="">اختر المحاضرة...</option></select>
+            </div>
+            
+            <div class="chat-messages" id="messagesArea">
+                <div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المادة والمحاضرة لعرض النقاشات.</div>
+            </div>
+            
+            <div class="chat-input-area" id="inputArea" style="display:none;">
+                <textarea id="adminMsgInput" placeholder="اكتب رد الإدارة هنا..."></textarea>
+                <button class="btn-send" onclick="sendAdminReply()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if (!sessionStorage.getItem('isAdmin')) window.location.href = 'admin-gate.html';
+
+        let currentSubject = '';
+        let currentLectureId = '';
+        let commUnsubscribe = null;
+
+        // Load Subjects
+        database.ref('Subjects').once('value').then(snap => {
+            const select = document.getElementById('subjectSelect');
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    const sub = child.val();
+                    select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+                });
+            }
+        });
+
+        function loadLectures() {
+            currentSubject = document.getElementById('subjectSelect').value;
+            const lSelect = document.getElementById('lectureSelect');
+            lSelect.innerHTML = '<option value="">اختر المحاضرة...</option>';
+            document.getElementById('messagesArea').innerHTML = '<div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المحاضرة.</div>';
+            document.getElementById('inputArea').style.display = 'none';
+            if(commUnsubscribe) database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
+            if(!currentSubject) return;
+
+            database.ref('Lectures').child(currentSubject).once('value').then(snap => {
+                if(snap.exists()) {
+                    snap.forEach(child => {
+                        const lec = child.val();
+                        lSelect.innerHTML += `<option value="${lec.id}">${lec.title}</option>`;
+                    });
+                }
+            });
+        }
+
+        function loadCommunity() {
+            currentLectureId = document.getElementById('lectureSelect').value;
+            const messagesArea = document.getElementById('messagesArea');
+            if(commUnsubscribe) database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
+            
+            if(!currentLectureId) {
+                messagesArea.innerHTML = '<div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المحاضرة.</div>';
+                document.getElementById('inputArea').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('inputArea').style.display = 'flex';
+            messagesArea.innerHTML = '<div style="text-align:center; padding:20px;">جاري التحميل...</div>';
+
+            commUnsubscribe = database.ref(`Community/${currentSubject}/${currentLectureId}`).on('value', snap => {
+                messagesArea.innerHTML = '';
+                if(!snap.exists()) {
+                    messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">لا توجد رسائل في هذه المحاضرة.</div>';
+                    return;
+                }
+                snap.forEach(child => {
+                    const msg = child.val();
+                    const msgId = child.key;
+                    const isAdmin = msg.isAdmin;
+                    let bubbleClass = isAdmin ? 'msg-bubble admin-reply' : 'msg-bubble';
+                    
+                    let mediaHtml = '';
+                    if(msg.type === 'image') mediaHtml = `<img src="${msg.mediaUrl}" onclick="window.open('${msg.mediaUrl}')">`;
+                    if(msg.type === 'audio') mediaHtml = `<audio controls src="${msg.mediaUrl}"></audio>`;
+                    
+                    let senderName = msg.senderName || 'طالب';
+                    if(isAdmin) senderName += ' <span class="admin-badge">إدمن المنصة</span>';
+
+                    const timeStr = new Date(msg.timestamp).toLocaleString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+                    
+                    messagesArea.innerHTML += `
+                        <div class="${bubbleClass}">
+                            <button class="del-btn" onclick="deleteMsg('${msgId}')">✖</button>
+                            <div class="msg-sender">${senderName} <span>${timeStr}</span></div>
+                            ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
+                            <div class="msg-media">${mediaHtml}</div>
+                        </div>
+                    `;
+                });
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            });
+        }
+
+        function sendAdminReply() {
+            const input = document.getElementById('adminMsgInput');
+            const text = input.value.trim();
+            if(!text || !currentLectureId) return;
+            
+            input.value = '';
+            database.ref(`Community/${currentSubject}/${currentLectureId}`).push({
+                senderName: 'الإدارة',
+                senderCode: 'admin',
+                isAdmin: true,
+                text: text,
+                type: 'text',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        function deleteMsg(msgId) {
+            Swal.fire({
+                title: "حذف الرسالة؟",
+                text: "هل أنت متأكد من حذف هذه الرسالة من المجتمع؟",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "نعم، احذف",
+                cancelButtonText: "إلغاء"
+            }).then(r => {
+                if(r.isConfirmed) {
+                    database.ref(`Community/${currentSubject}/${currentLectureId}/${msgId}`).remove();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

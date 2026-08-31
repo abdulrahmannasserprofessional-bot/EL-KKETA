@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظم الدراسة - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .planner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .add-task-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .add-task-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: inherit;
+            outline: none;
+        }
+        .add-task-box button {
+            width: auto;
+            padding: 0 20px;
+            height: 48px;
+            border-radius: 14px;
+            margin: 0;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: 0.2s;
+        }
+        .task-card.completed {
+            opacity: 0.6;
+        }
+        .task-card.completed .task-text {
+            text-decoration: line-through;
+        }
+        .task-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--mistake);
+            font-size: 18px;
+            cursor: pointer;
+            width: auto;
+            padding: 5px;
+        }
+
+        /* Pomodoro Timer Box */
+        .pomodoro-card {
+            background: linear-gradient(135deg, #0984E3 0%, #0652DD 100%);
+            color: var(--text-main);
+            border-radius: 25px;
+            padding: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(9, 132, 227, 0.25);
+        }
+        .pomo-timer-display {
+            font-size: 42px;
+            font-weight: bold;
+            font-family: 'Outfit', monospace;
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+        .pomo-btns {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pomo-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .pomo-btn:active { transform: scale(0.95); }
+        .pomo-btn.primary {
+            background: white;
+            color: var(--primary-dark);
+        }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>`n</head>
+<body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+
+    <div class="header-gradient" style="height: 120px; padding-top: 30px;">
+        <div class="back-btn" onclick="location.href='home.html'">🔙</div>
+        <div style="font-size: 22px; font-weight: bold;">منظم الدراسة والمذاكرة</div>
+    </div>
+
+    <div style="margin-top: -30px; padding: 10px;">
+        <!-- Pomodoro Focus Timer Widget -->
+        <div class="pomodoro-card">
+            <div style="font-size: 13px; opacity: 0.9; font-weight: bold;">⏳ مؤقت التركيز (Pomodoro Technique)</div>
+            <div id="pomoDisplay" class="pomo-timer-display">25:00</div>
+            <div style="font-size: 12px; opacity: 0.85;" id="pomoStatus">ركّز لمدة 25 دقيقة بدون تشتيت 🎯</div>
+            <div class="pomo-btns">
+                <button id="pomoToggleBtn" class="pomo-btn primary" onclick="togglePomodoro()">بدء المذاكرة ▶️</button>
+                <button class="pomo-btn" onclick="resetPomodoro()">إعادة ضبط 🔄</button>
+            </div>
+        </div>
+
+        <!-- Task Planner -->
+        <div class="card">
+            <div class="planner-header">
+                <h3 style="margin: 0; color: var(--text-main);">قائمة مهام المذاكرة</h3>
+                <span style="font-size: 13px; color: var(--text-sub);" id="taskCount">0 مهام</span>
+            </div>
+
+            <div class="add-task-box">
+                <input type="text" id="taskInput" placeholder="اكتب مادة أو درس للمذاكرة...">
+                <button onclick="addTask()" class="btn-primary">إضافة ➕</button>
+            </div>
+
+            <div id="taskList" class="task-list">
+                <div style="text-align: center; color: var(--text-sub); padding: 20px;">جاري تحميل المهام...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item">📖<br>المواد</a>
+        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="toast.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = "index.html";
+        }
+
+        const tasksRef = database.ref(`Students/${user.studentCode}/Tasks`);
+
+        // Load Tasks
+        tasksRef.on('value', (snap) => {
+            const listEl = document.getElementById('taskList');
+            listEl.innerHTML = "";
+            let count = 0;
+            
+            if (!snap.exists()) {
+                listEl.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 20px;">لا توجد مهام حالياً. ابدأ بإضافة مهمة جديدة!</div>`;
+                document.getElementById('taskCount').innerText = "0 مهام";
+                return;
+            }
+
+            snap.forEach((child) => {
+                const taskId = child.key;
+                const task = child.val();
+                count++;
+
+                const card = document.createElement('div');
+                card.className = `task-card ${task.completed ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="task-right">
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask('${taskId}', ${task.completed})">
+                            ${task.completed ? '✓' : ''}
+                        </div>
+                        <span class="task-text" style="color: var(--text-main); font-weight: bold;">${task.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTask('${taskId}')"></button>
+                `;
+                listEl.appendChild(card);
+            });
+
+            document.getElementById('taskCount').innerText = `${count} مهام`;
+        });
+
+        // Add Task
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (text === "") {
+                showToast("يرجى كتابة عنوان المهمة أولاً", "warning");
+                return;
+            }
+
+            tasksRef.push({
+                text: text,
+                completed: false,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                input.value = "";
+                showToast("تمت إضافة المهمة بنجاح 📋", "success");
+            });
+        }
+
+        // Toggle Task
+        function toggleTask(id, currentStatus) {
+            tasksRef.child(id).update({
+                completed: !currentStatus
+            }).then(() => {
+                if (!currentStatus) showToast("أحسنت! أتممت هذه المهمة 🌟", "success");
+            });
+        }
+
+        // Delete Task
+        function deleteTask(id) {
+            Swal.fire({title:"????? ?????",text:"?? ???? ???????? ??? ??? ???????",icon:"warning",showCancelButton:true,confirmButtonText:"???? ????",cancelButtonText:"?????"}).then((r) => { if(r.isConfirmed) { tasksRef.child(id).remove().then(() => showToast("?? ????? ?????", "info")); } })
+        }
+
+        // Handle enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Pomodoro Timer Logic
+        let pomoSeconds = 25 * 60;
+        let pomoInterval = null;
+        let isRunning = false;
+
+        function updatePomoDisplay() {
+            const m = Math.floor(pomoSeconds / 60);
+            const s = pomoSeconds % 60;
+            document.getElementById('pomoDisplay').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function togglePomodoro() {
+            const btn = document.getElementById('pomoToggleBtn');
+            const status = document.getElementById('pomoStatus');
+
+            if (isRunning) {
+                clearInterval(pomoInterval);
+                isRunning = false;
+                btn.innerText = "استئناف ▶️";
+                status.innerText = "المؤقت متوقف مؤقتاً ⏸️";
+            } else {
+                isRunning = true;
+                btn.innerText = "إيقاف مؤقت ⏸️";
+                status.innerText = "ركّز بكل طاقاتك الآن! 🧠🔥";
+                
+                pomoInterval = setInterval(() => {
+                    pomoSeconds--;
+                    updatePomoDisplay();
+                    if (pomoSeconds <= 0) {
+                        clearInterval(pomoInterval);
+                        isRunning = false;
+                        showToast("🎉 ممتاز! انتهت جلسة المذاكرة بنجاح! خذ استراحة 5 دقائق.", "success", 6000);
+                        btn.innerText = "بدء الجلسة التالية ▶️";
+                        pomoSeconds = 25 * 60;
+                        updatePomoDisplay();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetPomodoro() {
+            clearInterval(pomoInterval);
+            isRunning = false;
+            pomoSeconds = 25 * 60;
+            updatePomoDisplay();
+            document.getElementById('pomoToggleBtn').innerText = "بدء المذاكرة ▶️";
+            document.getElementById('pomoStatus').innerText = "ركّز لمدة 25 دقيقة بدون تشتيت 🎯";
+            showToast("تم إعادة ضبط المؤقت", "info");
+        }
+    </script>
+    <script src="student-drawer.js"></script>
+</body>
+</html>
+
+
+
+

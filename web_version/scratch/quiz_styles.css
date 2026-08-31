@@ -1,0 +1,158 @@
+
+        :root {
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --border-color: rgba(0,0,0,0.08);
+            --primary: #3B82F6;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+        :root.dark-theme {
+            --bg-color: #0F172A;
+            --card-bg: #1E293B;
+            --text-main: #F1F5F9;
+            --text-sub: #94A3B8;
+            --border-color: rgba(255,255,255,0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            direction: rtl;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* Header */
+        .quiz-header {
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        
+        .header-top {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .timer-box {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            padding: 6px 14px; border-radius: 12px;
+            font-weight: 800; font-size: 16px; color: var(--danger);
+        }
+        .timer-box.danger { animation: pulse 1s infinite; background: rgba(239,68,68,0.2); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        .progress-info {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; font-weight: bold; color: var(--text-sub);
+        }
+        
+        .progress-track {
+            height: 8px; background: var(--border-color);
+            border-radius: 99px; overflow: hidden; width: 100%;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #3B82F6, #6366F1);
+            border-radius: 99px; transition: width 0.4s ease;
+        }
+        
+        /* Main */
+        .quiz-body { padding: 20px; max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
+        
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+        
+        .question-type-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(59,130,246,0.1); color: var(--primary);
+            padding: 5px 12px; border-radius: 10px;
+            font-size: 13px; font-weight: bold; margin-bottom: 16px;
+        }
+        
+        .question-text {
+            font-size: 18px; font-weight: 800; line-height: 1.6;
+            margin-bottom: 24px; color: var(--text-main);
+        }
+        
+        /* Options */
+        .options-container { display: flex; flex-direction: column; gap: 12px; }
+        
+        .option-btn {
+            display: flex; align-items: center; gap: 12px;
+            width: 100%; padding: 14px 16px;
+            background: transparent;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-main); font-family: inherit; font-size: 15px; font-weight: bold;
+            text-align: right; cursor: pointer; transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(59,130,246,0.02); }
+        
+        .option-letter {
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            background: var(--border-color); border-radius: 8px;
+            font-size: 13px; color: var(--text-sub); transition: 0.2s;
+        }
+        
+        .option-btn.correct { border-color: var(--success); background: rgba(16,185,129,0.05); }
+        .option-btn.correct .option-letter { background: var(--success); color: white; }
+        
+        .option-btn.wrong { border-color: var(--danger); background: rgba(239,68,68,0.05); }
+        .option-btn.wrong .option-letter { background: var(--danger); color: white; }
+        
+        /* Feedback Card */
+        .feedback-card {
+            display: none;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 20px;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        
+        .feedback-card.correct-card { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.03); }
+        .feedback-card.wrong-card { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.03); }
+        
+        .feedback-status { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
+        .explanation-text { font-size: 15px; line-height: 1.6; color: var(--text-sub); margin-bottom: 20px; background: var(--bg-color); padding: 15px; border-radius: 12px; border: 1px dashed var(--border-color); }
+        
+        .next-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, var(--primary), #6366F1);
+            color: white; border: none; border-radius: 14px;
+            font-family: inherit; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: 0.2s;
+            box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+        }
+        .next-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(59,130,246,0.4); }
+        
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #1e293b; color: white; padding: 12px 24px;
+            border-radius: 12px; font-weight: bold; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    

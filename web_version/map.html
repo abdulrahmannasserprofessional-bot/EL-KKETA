@@ -1,27 +1,80 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>خريطة المنهج - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .map-card { display: flex; align-items: center; padding: 20px; }
-        .map-icon { width: 50px; height: 50px; background: #E8EAFF; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-left: 15px; }
-        .map-info { flex: 1; text-align: right; }
-        .map-title { font-weight: bold; font-size: 17px; }
-        .map-stats { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+        .timeline-container {
+            position: relative;
+            padding: 20px 15px 40px;
+            margin-top: -30px;
+        }
+        .timeline-line {
+            position: absolute;
+            top: 40px;
+            bottom: 40px;
+            right: 40px;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 2px;
+            z-index: 1;
+        }
+        .roadmap-node {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .node-badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .node-card {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
     <div class="header-gradient">
         <div class="back-btn" onclick="history.back()">⬅️</div>
-        <div style="font-size: 22px; font-weight: bold;">خريطة المنهج</div>
+        <div style="font-size: 22px; font-weight: bold;">خريطة المنهج التفاعلية 🗺️</div>
     </div>
 
-    <div id="mapList" style="margin-top: -20px; padding-bottom: 20px;">
-        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل الخريطة التعليمية...</div>
+    <div class="timeline-container" id="mapTimeline">
+        <div class="timeline-line"></div>
+        <div id="mapList">
+            <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل الخريطة التعليمية...</div>
+        </div>
     </div>
 
     <div class="bottom-nav">
@@ -41,23 +94,31 @@
 
                 if (snapshot.exists()) {
                     const subjects = snapshot.val();
+                    let step = 1;
                     for (const id in subjects) {
                         const sub = subjects[id];
                         const lecturesSnap = await database.ref('Lectures').child(sub.name).once('value');
                         const count = lecturesSnap.exists() ? Object.keys(lecturesSnap.val()).length : 0;
 
-                        const card = document.createElement('div');
-                        card.className = "card map-card";
-                        card.innerHTML = `
-                            <div class="map-icon">📍</div>
-                            <div class="map-info">
-                                <div class="map-title">مادة ${sub.name}</div>
-                                <div class="map-stats">تم إصدار ${count} محاضرة حتى الآن</div>
+                        const node = document.createElement('div');
+                        node.className = "roadmap-node";
+                        node.innerHTML = `
+                            <div class="node-badge" style="border-color: ${step % 2 === 0 ? 'var(--accent)' : 'var(--primary)'};">
+                                ${step % 2 === 0 ? '🎯' : '📚'}
                             </div>
-                            <div style="color: var(--primary); font-size: 20px;">⬅️</div>
+                            <div class="card node-card" onclick="location.href='lectures.html?subject=${encodeURIComponent(sub.name)}'">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <div style="font-size:11px; color:var(--primary); font-weight:bold;">المرحلة ${step}</div>
+                                        <div style="font-weight:bold; font-size:16px; margin-top:2px;">مادة ${sub.name}</div>
+                                        <div style="font-size:12px; color:var(--text-sub); margin-top:4px;">متاح ${count} محاضرة حتى الآن</div>
+                                    </div>
+                                    <div style="font-size:22px;">⬅️</div>
+                                </div>
+                            </div>
                         `;
-                        card.onclick = () => { location.href = `lessons.html?subject=${encodeURIComponent(sub.name)}`; };
-                        list.appendChild(card);
+                        list.appendChild(node);
+                        step++;
                     }
                 } else {
                     list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد بيانات للخريطة حالياً</div>`;
@@ -66,5 +127,12 @@
         }
         loadMap();
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
+    <script src="student-drawer.js"></script>
 </body>
 </html>
+
+
+

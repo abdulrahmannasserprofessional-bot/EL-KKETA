@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد أكواد الطوارئ - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
+
+        .page-header {
+            background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+            padding: 50px 20px 70px;
+            position: relative; overflow: hidden;
+            color: white;
+        }
+        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+        .back-btn {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; transition: background 0.2s; color: white;
+         color: #FFFFFF; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
+        .header-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 3px;  color: rgba(255,255,255,0.8); }
+
+        .content-card {
+            background: white; border-radius: 24px; padding: 25px; margin: -30px 20px 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; z-index: 5;
+            text-align: center;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white; border: none; padding: 15px 30px; border-radius: 16px;
+            font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700;
+            cursor: pointer; width: 100%; max-width: 300px;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); transition: transform 0.2s;
+            margin-bottom: 30px;
+        }
+        .generate-btn:hover { transform: translateY(-2px); }
+        .generate-btn:active { transform: scale(0.95); }
+
+        .otp-card {
+            border: 2px dashed #fca5a5; border-radius: 16px; padding: 20px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fef2f2;
+        }
+        .otp-info { text-align: right; }
+        .otp-info strong { font-size: 16px; color: #991b1b; display: block; }
+        .otp-info span { font-size: 13px; color: #b91c1c; }
+        
+        .otp-code {
+            background: white; color: #dc2626; font-weight: 900; font-size: 28px;
+            padding: 10px 20px; border-radius: 12px; letter-spacing: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #fecaca;
+        }
+
+        .empty-state {
+            text-align: center; padding: 20px; color: #94A3B8; font-weight: 700;
+        }
+
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+    </script>
+
+    <div class="page-header">
+        <div class="header-top">
+            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <div>
+                <div class="header-title">🚨 مولد أكواد الطوارئ</div>
+                <div class="header-sub">توليد أكواد التحقق يدوياً لتخطي توقف الإيميلات</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <p style="margin-bottom: 20px; color: #64748b; font-size: 14px;">
+            اضغط على الزر لتوليد كود مكون من 4 أرقام. <strong>صلاحية الكود هي ساعة واحدة فقط وتستخدم لمرة واحدة.</strong> أرسله للطالب الذي يواجه مشكلة في استلام الإيميل.
+        </p>
+        <button class="generate-btn" onclick="generateCode()">⚡ توليد كود جديد</button>
+        
+        <h3 style="text-align: right; margin-bottom: 15px; color: #1e293b; font-size: 16px;">الأكواد الفعالة حالياً:</h3>
+        <div id="otpList">
+            <div class="empty-state">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        function generateCode() {
+            // Generate a random 4 digit code
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            database.ref('EmergencyCodes').child(code).set({
+                active: true,
+                timestamp: Date.now()
+            }).then(() => {
+                // Done
+            }).catch(e => alert("حدث خطأ أثناء التوليد"));
+        }
+
+        database.ref('EmergencyCodes').on('value', snap => {
+            const list = document.getElementById('otpList');
+            list.innerHTML = "";
+            let hasData = false;
+            
+            if (snap.exists()) {
+                const now = Date.now();
+                snap.forEach(child => {
+                    const data = child.val();
+                    const code = child.key;
+                    
+                    const age = now - data.timestamp;
+                    if (data.active && age < 60 * 60 * 1000) { // Valid if active and < 1 hour
+                        hasData = true;
+                        const date = new Date(data.timestamp).toLocaleString('ar-EG');
+                        list.innerHTML += `
+                            <div class="otp-card">
+                                <div class="otp-info">
+                                    <strong>كود متاح للاستخدام</strong>
+                                    <span>🕒 تم التوليد: ${date}</span>
+                                </div>
+                                <div class="otp-code">${code}</div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            if (!hasData) {
+                list.innerHTML = `<div class="empty-state">✅ لا توجد أكواد طوارئ فعالة حالياً</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

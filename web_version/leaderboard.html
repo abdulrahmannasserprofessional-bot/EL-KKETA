@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أوائل المنصة - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .leaderboard-container {
+            max-width: 600px;
+            margin: -30px auto 80px;
+            padding: 0 15px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Top 3 Podium */
+        .podium {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            height: 220px;
+            padding-top: 40px;
+        }
+
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        }
+
+        .podium-item.first { animation-delay: 0s; z-index: 3; }
+        .podium-item.second { animation-delay: 0.15s; z-index: 2; }
+        .podium-item.third { animation-delay: 0.3s; z-index: 1; }
+
+        .podium-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin-bottom: -15px;
+            position: relative;
+            z-index: 2;
+            border: 3px solid;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .podium-item.first .podium-avatar { border-color: #fbbf24; width: 90px; height: 90px; font-size: 45px; } /* Gold */
+        .podium-item.second .podium-avatar { border-color: #94a3b8; } /* Silver */
+        .podium-item.third .podium-avatar { border-color: #b45309; } /* Bronze */
+
+        .podium-crown {
+            position: absolute;
+            top: -30px;
+            font-size: 30px;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+            animation: float 2s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .podium-base {
+            width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 25px;
+            border-radius: 16px 16px 0 0;
+            color: var(--text-main);
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .podium-item.first .podium-base { height: 160px; background: linear-gradient(135deg, #fbbf24, #f59e0b); width: 120px; }
+        .podium-item.second .podium-base { height: 120px; background: linear-gradient(135deg, #cbd5e1, #94a3b8); }
+        .podium-item.third .podium-base { height: 90px; background: linear-gradient(135deg, #d97706, #b45309); }
+
+        .podium-name { font-weight: 800; font-size: 14px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 5px; }
+        .podium-item.first .podium-name { font-size: 16px; }
+        .podium-score { font-size: 12px; opacity: 0.9; font-weight: bold; }
+        .podium-item.first .podium-score { font-size: 14px; }
+        
+        .podium-rank { font-size: 40px; font-weight: 900; opacity: 0.2; margin-top: auto; padding-bottom: 5px; }
+
+        /* List Items */
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rank-item {
+            background: var(--card-bg);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideUp 0.4s ease backwards;
+            transition: 0.3s;
+        }
+        
+        .rank-item:hover {
+            transform: translateY(-2px);
+            background: rgba(0,0,0,0.05);
+        }
+
+        /* Current user highlighting */
+        .rank-item.is-me {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .rank-number {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .rank-avatar {
+            font-size: 30px;
+            background: rgba(0,0,0,0.05);
+            width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+        }
+
+        .rank-info { flex: 1; overflow: hidden; }
+        .rank-name { font-weight: 800; font-size: 16px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rank-exams { font-size: 12px; color: var(--text-sub); }
+
+        .rank-score {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--primary);
+            text-align: left;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 5px 12px;
+            border-radius: 10px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-sub);
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-gradient" style="height: 180px; padding-top: 30px;">
+        <div class="back-btn" onclick="location.href='home.html'">🔙</div>
+        <div style="font-size: 24px; font-weight: 800; margin-top: 10px;">لوحة الشرف 🏆</div>
+        <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">أوائل منصة الخطة بناءً على إجمالي النقاط</div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div id="loadingState" class="loading-state">جاري سحب الترتيب... ⏳</div>
+        
+        <div id="podiumContainer" class="podium" style="display: none;">
+            <!-- Podium gets injected here -->
+        </div>
+
+        <div id="rankList" class="rank-list" style="display: none;">
+            <!-- Other ranks get injected here -->
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) window.location.href = "index.html";
+
+        const avatars = ['🧑‍🎓', '👨‍💻', '👩‍💻', '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🥷', '🕵️', '🧑‍🚀'];
+
+        function getAvatar(name) {
+            // Consistent avatar based on name length so it doesn't change randomly on refresh
+            return avatars[name.length % avatars.length];
+        }
+
+        database.ref('Leaderboard').orderByChild('score').once('value').then(snap => {
+            document.getElementById('loadingState').style.display = 'none';
+            
+            if (!snap.exists()) {
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('loadingState').textContent = 'لا يوجد طلاب في لوحة الشرف حتى الآن!';
+                return;
+            }
+
+            // Convert to array and sort descending
+            let students = [];
+            snap.forEach(child => {
+                students.push(child.val());
+            });
+            students.sort((a, b) => b.score - a.score);
+
+            // Separate Top 3
+            const top3 = students.slice(0, 3);
+            const others = students.slice(3, 50); // Limit to top 50 total
+
+            const podiumContainer = document.getElementById('podiumContainer');
+            const rankList = document.getElementById('rankList');
+
+            if (top3.length > 0) {
+                podiumContainer.style.display = 'flex';
+                
+                // Construct Podium HTML (Order: 2, 1, 3 for visual display)
+                let podiumHtml = '';
+                
+                // Second Place
+                if (top3[1]) {
+                    podiumHtml += `
+                        <div class="podium-item second">
+                            <div class="podium-avatar">${getAvatar(top3[1].fullName)}</div>
+                            <div class="podium-base">
+                                <div class="podium-name">${top3[1].fullName.split(' ')[0]}</div>
+                                <div class="podium-score">${top3[1].score} نقطة</div>
+                                <div class="podium-rank">2</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // First Place
+                if (top3[0]) {
+                    podiumHtml += `
+                        <div class="podium-item first">
+                            <div class="podium-crown">👑</div>
+                            <div class="podium-avatar">${getAvatar(top3[0].fullName)}</div>
+                            <div class="podium-base">
+                                <div class="podium-name">${top3[0].fullName.split(' ')[0]}</div>
+                                <div class="podium-score">${top3[0].score} نقطة</div>
+                                <div class="podium-rank">1</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Third Place
+                if (top3[2]) {
+                    podiumHtml += `
+                        <div class="podium-item third">
+                            <div class="podium-avatar">${getAvatar(top3[2].fullName)}</div>
+                            <div class="podium-base">
+                                <div class="podium-name">${top3[2].fullName.split(' ')[0]}</div>
+                                <div class="podium-score">${top3[2].score} نقطة</div>
+                                <div class="podium-rank">3</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                podiumContainer.innerHTML = podiumHtml;
+            }
+
+            if (others.length > 0 || students.length > 0) {
+                rankList.style.display = 'flex';
+                
+                let listHtml = '';
+                others.forEach((s, index) => {
+                    const actualRank = index + 4;
+                    const isMe = s.studentCode === user.studentCode;
+                    const examsTaken = s.examsTaken || 0;
+                    
+                    listHtml += `
+                        <div class="rank-item ${isMe ? 'is-me' : ''}" style="animation-delay: ${index * 0.05}s">
+                            <div class="rank-number">${actualRank}</div>
+                            <div class="rank-avatar">${getAvatar(s.fullName)}</div>
+                            <div class="rank-info">
+                                <div class="rank-name">${s.fullName} ${isMe ? '(أنت)' : ''}</div>
+                                <div class="rank-exams">أتم ${examsTaken} امتحانات</div>
+                            </div>
+                            <div class="rank-score">${s.score}</div>
+                        </div>
+                    `;
+                });
+                
+                rankList.innerHTML = listHtml;
+            }
+
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('loadingState').textContent = 'حدث خطأ أثناء تحميل لوحة الشرف!';
+        });
+    </script>
+    <script src="student-drawer.js"></script>
+</body>
+</html>
+
+
+

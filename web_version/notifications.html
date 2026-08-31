@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,18 @@
         .notif-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
         .notif-msg { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
         .notif-date { font-size: 11px; color: #BCBCBC; margin-top: 8px; }
+        
+        /* Report Styles */
+        .report-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #eee; margin-top: 15px; text-align: right; }
+        .report-header { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .report-row { margin-bottom: 8px; font-size: 14px; }
+        .report-row span { font-weight: bold; color: #1E293B; }
+        .report-grade { font-size: 16px; font-weight: bold; padding: 5px 10px; border-radius: 6px; display: inline-block; margin-top: 10px; }
+        .grade-pass { background: #DCFCE7; color: #166534; }
+        .grade-fail { background: #FEE2E2; color: #991B1B; }
+        .pdf-btn { margin-top: 15px; padding: 10px 15px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="header-gradient">
@@ -33,12 +44,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script>
-        // Firebase config
-        const firebaseConfig = { /* CONFIG */ };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
         function loadNotifications() {
             database.ref('Notifications').on('value', (snapshot) => {
                 const list = document.getElementById('notificationsList');
@@ -46,30 +53,88 @@
 
                 if (snapshot.exists()) {
                     let items = [];
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    const myCode = user ? user.studentCode : null;
+
                     snapshot.forEach(child => {
-                        items.push(child.val());
+                        const notif = child.val();
+                        // Show if global (no studentCode) or if it matches current user
+                        if (!notif.studentCode || notif.studentCode === myCode) {
+                            items.push(notif);
+                        }
                     });
-                    items.reverse().forEach(notif => {
-                        const date = new Date(notif.timestamp).toLocaleString('ar-EG');
-                        const card = document.createElement('div');
-                        card.className = "card notif-card";
-                        card.innerHTML = `
-                            <div class="notif-icon">🔔</div>
-                            <div style="flex: 1; text-align: right;">
-                                <div class="notif-title">تنبيه من المنصة</div>
-                                <div class="notif-msg">${notif.message}</div>
-                                <div class="notif-date">${date}</div>
-                            </div>
-                        `;
-                        list.appendChild(card);
-                    });
+
+                    if (items.length > 0) {
+                        items.reverse().forEach(notif => {
+                            const date = new Date(notif.timestamp).toLocaleString('ar-EG');
+                            const card = document.createElement('div');
+                            card.className = "card notif-card";
+                            card.style.flexDirection = "column";
+
+                            if (notif.type === 'essay_result') {
+                                const passClass = notif.status === 'approved' ? 'grade-pass' : 'grade-fail';
+                                const gradeText = notif.status === 'approved' ? `تم اعتماد الإجابة - الدرجة: ${notif.grade}` : `تم الرفض - الدرجة: ${notif.grade}`;
+                                
+                                card.innerHTML = `
+                                    <div style="display:flex; width: 100%;">
+                                        <div class="notif-icon">📄</div>
+                                        <div style="flex: 1; text-align: right;">
+                                            <div class="notif-title">نتيجة تصحيح سؤال مقالي</div>
+                                            <div class="notif-date">${date}</div>
+                                        </div>
+                                    </div>
+                                    <div class="report-card" id="report_${notif.id}">
+                                        <div class="report-header">تقرير تقييم سؤال مقالي</div>
+                                        <div class="report-row"><span>المادة:</span> ${notif.subject}</div>
+                                        <div class="report-row"><span>الامتحان:</span> ${notif.exam}</div>
+                                        <div class="report-row" style="margin-top: 15px;"><span>السؤال:</span><br>${notif.question}</div>
+                                        <div class="report-row" style="margin-top: 10px;"><span>الإجابة النموذجية:</span><br>${notif.explanation.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>
+                                        <div class="report-grade ${passClass}">${gradeText}</div>
+                                    </div>
+                                    <button class="pdf-btn" onclick="downloadPDF('report_${notif.id}', '${notif.subject}')">
+                                        📥 تحميل التقرير (PDF)
+                                    </button>
+                                `;
+                            } else {
+                                card.innerHTML = `
+                                    <div style="display:flex; width: 100%;">
+                                        <div class="notif-icon">🔔</div>
+                                        <div style="flex: 1; text-align: right;">
+                                            <div class="notif-title">تنبيه من المنصة</div>
+                                            <div class="notif-msg" style="white-space: pre-wrap;">${notif.message}</div>
+                                            <div class="notif-date">${date}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
+                            list.appendChild(card);
+                        });
+                    } else {
+                        list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد تنبيهات حالياً</div>`;
+                    }
                 } else {
                     list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا توجد تنبيهات حالياً</div>`;
                 }
             });
         }
 
+        function downloadPDF(elementId, subject) {
+            const element = document.getElementById(elementId);
+            const opt = {
+                margin:       0.5,
+                filename:     `تقرير_مقالي_${subject.replace(/ /g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
         loadNotifications();
     </script>
 </body>
 </html>
+
+
+

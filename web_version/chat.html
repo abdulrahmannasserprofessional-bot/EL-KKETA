@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شات مجتمعنا - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .chat-tool-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.2); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: 0.3s; color: var(--text-main); }
+        .chat-tool-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .chat-tool-btn.recording { background: #ef4444; animation: pulse 1.5s infinite; border-color: #ef4444; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .chat-img-preview { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .chat-audio-player { width: 220px; height: 40px; margin-top: 5px; }
+        .chat-bubble.admin { background: linear-gradient(135deg, #10b981, #059669); color: var(--text-main); border-bottom-left-radius: 0; margin-right: auto; }
+        .admin-badge { font-size: 14px; margin-left: 5px; }
+    </style>
+
+</head>
+<body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+
+    <div class="header-gradient" style="height: 120px; padding-top: 30px;">
+        <div class="back-btn" onclick="location.href='home.html'">🔙</div>
+        <div style="font-size: 22px; font-weight: bold;">شات مجتمع الطلاب 💬</div>
+    </div>
+
+    <div class="chat-container">
+        <div id="chatMessages" class="chat-messages">
+            <div style="text-align: center; color: var(--text-sub); padding: 20px;">جاري تحميل المحادثات...</div>
+        </div>
+
+        
+        <div class="chat-input-area" style="gap: 8px; flex-wrap: wrap;">
+            <label for="imageUpload" class="chat-tool-btn" title="إرسال صورة">📷</label>
+            <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
+            
+            <button id="micBtn" class="chat-tool-btn" onclick="toggleRecording()" title="تسجيل صوت">🎤</button>
+            
+            <input type="text" id="msgInput" placeholder="اكتب رسالتك هنا..." style="flex: 1;" onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()" class="btn-primary" id="sendBtn">إرسال 🚀</button>
+        </div>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="toast.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = "index.html";
+        }
+
+        const chatRef = database.ref('Chats/Global');
+
+        // Load Messages
+        chatRef.limitToLast(50).on('value', (snap) => {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = "";
+
+            if (!snap.exists()) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 20px;">كن أول من يرسل رسالة في هذا المجتمع! 🌟</div>`;
+                return;
+            }
+
+            snap.forEach((child) => {
+                const msg = child.val();
+                const isMyMessage = msg.senderCode === user.studentCode;
+
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${isMyMessage ? 'outgoing' : 'incoming'}`;
+                
+                // Format timestamp
+                const date = new Date(msg.timestamp);
+                const timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+                
+                let contentHtml = `<div>${msg.text}</div>`;
+                if (msg.fileType === 'image') {
+                    contentHtml = `<img src="${msg.fileUrl}" class="chat-img-preview" onclick="window.open(this.src)">`;
+                } else if (msg.fileType === 'audio') {
+                    contentHtml = `<audio controls src="${msg.fileUrl}" class="chat-audio-player"></audio>`;
+                }
+                
+                // Add Admin Badge if it's an admin message
+                let adminHtml = msg.isAdmin ? '<span class="admin-badge">👑 مشرف</span>' : (msg.status === 'pending' ? '<span style="font-size: 10px; color: #F59E0B; margin-right: 5px;">⏳ في انتظار رد مسؤول</span>' : '<span style="font-size: 10px; color: #10B981; margin-right: 5px;">✅ تم الرد</span>');
+                
+                bubble.innerHTML = `
+                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 4px; color: ${isMyMessage ? '#fff' : (msg.isAdmin ? '#f59e0b' : 'var(--primary)')};">
+                        ${msg.senderName} ${adminHtml}
+                    </div>
+                    ${contentHtml}
+                    <div class="chat-meta">
+                        <span>${timeStr}</span>
+                    </div>
+                `;
+                if (msg.isAdmin) bubble.classList.add('admin');
+
+                container.appendChild(bubble);
+            });
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        });
+
+        
+        const storage = firebase.storage();
+        
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // Toggle Recording
+        async function toggleRecording() {
+            const micBtn = document.getElementById('micBtn');
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    
+                    mediaRecorder.ondataavailable = e => {
+                        audioChunks.push(e.data);
+                    };
+                    
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        audioChunks = [];
+                        await uploadFile(audioBlob, 'audio');
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    micBtn.classList.add('recording');
+                    showToast('جاري تسجيل الصوت... 🎙️');
+                } catch (err) {
+                    console.error(err);
+                    showToast('يرجى السماح باستخدام الميكروفون', 'error');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                showToast('جاري رفع الصوت...', 'info');
+            }
+        }
+
+        // Upload Image
+        async function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showToast('جاري رفع الصورة...', 'info');
+            await uploadFile(file, 'image');
+            event.target.value = ''; // Reset
+        }
+
+        // Upload File to Firebase Storage
+        async function uploadFile(file, type) {
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            
+            try {
+                const ext = type === 'image' ? file.name.split('.').pop() : 'mp3';
+                const fileName = `chat_${Date.now()}_${user.studentCode}.${ext}`;
+                const storageRef = storage.ref('ChatFiles/' + fileName);
+                
+                await storageRef.put(file);
+                const downloadURL = await storageRef.getDownloadURL();
+                
+                await chatRef.push({
+                    status: 'pending',
+                    senderName: user.fullName,
+                    senderCode: user.studentCode,
+                    text: type === 'image' ? '📷 صورة' : '🎤 تسجيل صوتي',
+                    fileUrl: downloadURL,
+                    fileType: type,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                showToast('تم الإرسال بنجاح ✅', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('فشل الرفع! حاول مرة أخرى', 'error');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+
+        // Send Message
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (text === "") return;
+
+            chatRef.push({
+                senderName: user.fullName,
+                senderCode: user.studentCode,
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                input.value = "";
+                showToast("تم إرسال الرسالة للمجتمع 🚀", "success");
+            });
+        }
+
+        // Handle enter key
+        document.getElementById('msgInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

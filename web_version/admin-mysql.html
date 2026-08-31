@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم منصة الخطة - MySQL Cloud</title>
+    
+    <!-- الخطوط والأيقونات -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="mysql-api.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --accent: #4F46E5;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg-main: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; }
+
+        /* شاشة الدخول */
+        #loginOverlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .login-box {
+            background: #FFFFFF; width: 100%; max-width: 400px; border-radius: 24px; padding: 40px 30px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width); background: #FFFFFF; border-left: 1px solid var(--border); height: 100vh;
+            position: fixed; top: 0; right: 0; display: flex; flex-direction: column; z-index: 100;
+        }
+        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .sidebar-menu { flex: 1; padding: 15px 12px; list-style: none; overflow-y: auto; }
+        .menu-title { font-size: 11px; font-weight: 700; color: var(--text-muted); padding: 10px 14px 4px; text-transform: uppercase; }
+        .menu-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #475569; text-decoration: none;
+            border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 4px;
+        }
+        .menu-link i { font-size: 18px; width: 24px; text-align: center; color: #94A3B8; }
+        .menu-link:hover, .menu-link.active { background: #EEF2FF; color: var(--primary); font-weight: 700; }
+        .menu-link.active i { color: var(--primary); }
+
+        /* Main Content */
+        .main-wrapper { margin-right: var(--sidebar-width); flex: 1; min-height: 100vh; display: flex; flex-direction: column; width: calc(100% - var(--sidebar-width)); }
+        .top-navbar {
+            height: 70px; background: #FFFFFF; border-bottom: 1px solid var(--border); padding: 0 30px;
+            display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50;
+        }
+        .content-body { padding: 30px; flex: 1; }
+
+        /* Stats & Panels */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card {
+            background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        .stat-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .panel-card { background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 25px; overflow: hidden; }
+        .panel-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #FAFAFA; }
+        .panel-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .panel-body { padding: 24px; }
+
+        /* Buttons & Forms */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--primary); color: #FFF; }
+        .btn-success { background: var(--success); color: #FFF; }
+        .btn-danger { background: var(--danger); color: #FFF; }
+        .btn-secondary { background: #F1F5F9; color: #475569; }
+
+        .form-control { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        .form-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #334155; }
+
+        /* Table */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table.custom-table { width: 100%; border-collapse: collapse; text-align: right; }
+        table.custom-table th { background: #F8FAFC; color: #475569; font-size: 13px; font-weight: 700; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+        table.custom-table td { padding: 14px 18px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        table.custom-table tr:hover td { background: #F8FAFC; }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+        .badge-success { background: #DCFCE7; color: #15803D; }
+        .badge-danger { background: #FEE2E2; color: #B91C1C; }
+        .badge-warning { background: #FEF3C7; color: #B45309; }
+        .badge-info { background: #E0E7FF; color: #4338CA; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <div style="width:64px; height:64px; background:linear-gradient(135deg, #2563EB, #4F46E5); color:white; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px;">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">لوحة تحكم منصة الخطة</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">سيرفر MySQL السحابي المباشر</p>
+
+            <form onsubmit="handleLogin(event)">
+                <div style="text-align: right; margin-bottom: 16px;">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" id="adm_user" class="form-control" placeholder="admin" value="admin" required>
+                </div>
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" id="adm_pass" class="form-control" placeholder="••••••••" value="admin123456" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 800; justify-content: center;">
+                    تسجيل الدخول <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 16px; font-weight: 800;">منصة الخطة</h3>
+                <span style="font-size: 11px; color: var(--text-muted);">MySQL Live Admin</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <div class="menu-title">الرئيسية</div>
+            <li><div class="menu-link active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>نظرة عامة</span></div></li>
+
+            <div class="menu-title">إدارة المنظومة</div>
+            <li><div class="menu-link" onclick="switchTab('students')"><i class="fa-solid fa-user-graduate"></i><span>إدارة الطلاب</span></div></li>
+            <li><div class="menu-link" onclick="switchTab('lectures')"><i class="fa-solid fa-book-bookmark"></i><span>المحاضرات والدروس</span></div></li>
+            <li><div class="menu-link" onclick="switchTab('codes')"><i class="fa-solid fa-ticket"></i><span>أكواد الشحن والتفعيل</span></div></li>
+            <li><div class="menu-link" onclick="switchTab('exams')"><i class="fa-solid fa-file-circle-question"></i><span>الامتحانات والواجبات</span></div></li>
+
+            <div class="menu-title">الإعدادات</div>
+            <li><div class="menu-link" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i><span>إعدادات المنصة</span></div></li>
+        </ul>
+
+        <div style="padding: 15px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 700;">مدير النظام</span>
+            <button class="btn btn-secondary" style="padding: 4px 8px; color: var(--danger);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- مساحة المحتوى -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div style="font-size: 18px; font-weight: 800;" id="pageTitle">نظرة عامة على المنصة</div>
+            <span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> TiDB MySQL Online</span>
+        </header>
+
+        <main class="content-body">
+            <!-- 1. الرئيسية -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(37,99,235,0.1); color: var(--primary);"><i class="fa-solid fa-users"></i></div>
+                        <div><h3 id="statStudents" style="font-size: 24px; font-weight: 900;">0</h3><p style="font-size: 12px; color: var(--text-muted);">إجمالي الطلاب</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fa-solid fa-ticket"></i></div>
+                        <div><h3 id="statCodes" style="font-size: 24px; font-weight: 900;">0</h3><p style="font-size: 12px; color: var(--text-muted);">الأكواد المتاحة</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(139,92,246,0.1); color: #8B5CF6;"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div><h3 id="statLectures" style="font-size: 24px; font-weight: 900;">0</h3><p style="font-size: 12px; color: var(--text-muted);">المحاضرات المرفوعة</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fa-solid fa-file-signature"></i></div>
+                        <div><h3 id="statExams" style="font-size: 24px; font-weight: 900;">0</h3><p style="font-size: 12px; color: var(--text-muted);">الامتحانات المنشورة</p></div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-bolt" style="color: var(--primary);"></i> روابط سريعة</div>
+                    </div>
+                    <div class="panel-body" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="switchTab('students')"><i class="fa-solid fa-user-plus"></i> إدارة الطلاب</button>
+                        <button class="btn btn-success" onclick="openGenerateCodesModal()"><i class="fa-solid fa-plus-circle"></i> توليد أكواد شحن</button>
+                        <button class="btn btn-secondary" onclick="openAddLectureModal()"><i class="fa-solid fa-upload"></i> إضافة محاضرة</button>
+                        <button class="btn btn-secondary" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i> إعدادات المنصة</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. الطلاب -->
+            <section id="tab-students" class="tab-content">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-users" style="color: var(--primary);"></i> قائمة الطلاب المسجلين</div>
+                        <input type="text" class="form-control" style="max-width: 250px;" placeholder="ابحث بالاسم أو الكود..." oninput="searchStudents(this.value)">
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="studentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>كود الطالب</th>
+                                        <th>الاسم الكامل</th>
+                                        <th>رقم الهاتف</th>
+                                        <th>الصف الدراسي</th>
+                                        <th>رصيد المحفظة</th>
+                                        <th>قفل الجهاز</th>
+                                        <th>الحالة</th>
+                                        <th style="text-align: center;">إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. المحاضرات -->
+            <section id="tab-lectures" class="tab-content">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-book-bookmark" style="color: var(--primary);"></i> المحاضرات والدروس</div>
+                        <button class="btn btn-primary" onclick="openAddLectureModal()"><i class="fa-solid fa-plus"></i> إضافة محاضرة جديدة</button>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="lecturesTable">
+                                <thead>
+                                    <tr>
+                                        <th>عنوان المحاضرة</th>
+                                        <th>الصف الدراسي</th>
+                                        <th>رابط الفيديو</th>
+                                        <th>المذكرة (PDF)</th>
+                                        <th>السعر</th>
+                                        <th style="text-align: center;">إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. الأكواد -->
+            <section id="tab-codes" class="tab-content">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-ticket" style="color: var(--primary);"></i> أكواد الشحن والتفعيل</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-success" onclick="openGenerateCodesModal()"><i class="fa-solid fa-plus"></i> توليد حزمة أكواد</button>
+                            <button class="btn btn-danger" onclick="clearUsedCodes()"><i class="fa-solid fa-broom"></i> تنظيف المستخدم</button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="codesTable">
+                                <thead>
+                                    <tr>
+                                        <th>الكود</th>
+                                        <th>القيمة</th>
+                                        <th>الحالة</th>
+                                        <th>المستخدم</th>
+                                        <th>تاريخ الاستخدام</th>
+                                        <th style="text-align: center;">إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. الامتحانات -->
+            <section id="tab-exams" class="tab-content">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-file-circle-question" style="color: var(--primary);"></i> الامتحانات والواجبات</div>
+                        <button class="btn btn-primary" onclick="openAddExamModal()"><i class="fa-solid fa-plus"></i> إنشاء امتحان جديد</button>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="examsTable">
+                                <thead>
+                                    <tr>
+                                        <th>عنوان الامتحان</th>
+                                        <th>الصف الدراسي</th>
+                                        <th>عدد الأسئلة</th>
+                                        <th>المدة</th>
+                                        <th>الدرجة الكلية</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. الإعدادات -->
+            <section id="tab-settings" class="tab-content">
+                <div class="panel-card" style="max-width: 600px;">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-sliders" style="color: var(--primary);"></i> إعدادات المنصة</div>
+                    </div>
+                    <div class="panel-body">
+                        <form onsubmit="saveSettings(event)">
+                            <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-weight: 800; font-size: 14px;">وضع الصيانة</span>
+                                    <input type="checkbox" id="set_maintenance" style="width: 20px; height: 20px;">
+                                </div>
+                                <input type="text" id="set_msg" class="form-control" placeholder="رسالة الصيانة...">
+                            </div>
+
+                            <div style="margin-bottom: 14px;">
+                                <label class="form-label">رقم واتساب الدعم الفني:</label>
+                                <input type="text" id="set_whatsapp" class="form-control" dir="ltr">
+                            </div>
+
+                            <div style="margin-bottom: 20px;">
+                                <label class="form-label">شريط التنبيهات العلوي:</label>
+                                <input type="text" id="set_notice" class="form-control">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; justify-content: center;">
+                                <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let allStudents = [];
+
+        if (sessionStorage.getItem('isMysqlAdmin')) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            loadData();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('adm_user').value;
+            const p = document.getElementById('adm_pass').value;
+            const res = await ElkhetaAPI.adminLogin(u, p);
+            if (res.success) {
+                sessionStorage.setItem('isMysqlAdmin', 'true');
+                document.getElementById('loginOverlay').style.display = 'none';
+                loadData();
+            } else {
+                Swal.fire('خطأ', res.error || 'بيانات الدخول غير صحيحة', 'error');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isMysqlAdmin');
+            location.reload();
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
+        }
+
+        async function loadData() {
+            // Stats
+            const [s, l, c, e] = await Promise.all([
+                ElkhetaAPI.getStudents(),
+                ElkhetaAPI.getLectures(),
+                ElkhetaAPI.getCodes(),
+                ElkhetaAPI.getExams()
+            ]);
+
+            if (s.success) {
+                document.getElementById('statStudents').textContent = s.count;
+                allStudents = s.students;
+                renderStudents(allStudents);
+            }
+            if (l.success) {
+                document.getElementById('statLectures').textContent = l.count;
+                renderLectures(l.lectures);
+            }
+            if (c.success) {
+                const unused = c.codes.filter(x => !x.is_used).length;
+                document.getElementById('statCodes').textContent = unused;
+                renderCodes(c.codes);
+            }
+            if (e.success) {
+                document.getElementById('statExams').textContent = e.count;
+                renderExams(e.exams);
+            }
+
+            // Settings
+            const st = await ElkhetaAPI.getSettings();
+            if (st.success && st.settings) {
+                document.getElementById('set_maintenance').checked = !!st.settings.is_maintenance;
+                document.getElementById('set_msg').value = st.settings.maintenance_message || '';
+                document.getElementById('set_whatsapp').value = st.settings.support_whatsapp || '';
+                document.getElementById('set_notice').value = st.settings.notice_bar || '';
+            }
+        }
+
+        function renderStudents(list) {
+            const tbody = document.querySelector('#studentsTable tbody');
+            tbody.innerHTML = '';
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">لا يوجد طلاب مسجلون</td></tr>';
+                return;
+            }
+            list.forEach(st => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${st.student_code}</span></td>
+                        <td style="font-weight:700;">${st.full_name}</td>
+                        <td dir="ltr" style="text-align:right;">${st.phone || '—'}</td>
+                        <td><span class="badge badge-info">${st.grade || '—'}</span></td>
+                        <td style="font-weight:800; color:var(--success);">${st.wallet_balance} ج.م</td>
+                        <td>${st.device_id ? `<button class="btn btn-secondary" style="padding:3px 6px; font-size:11px;" onclick="resetDev('${st.student_code}')"><i class="fa-solid fa-mobile-screen"></i> فك</button>` : '<span style="color:#94A3B8; font-size:12px;">غير مقترن</span>'}</td>
+                        <td>${st.is_banned ? '<span class="badge badge-danger">موقوف</span>' : '<span class="badge badge-success">نشط</span>'}</td>
+                        <td style="text-align:center;">
+                            <button class="btn ${st.is_banned ? 'btn-success' : 'btn-secondary'}" style="padding:4px 8px; font-size:11px;" onclick="toggleBan('${st.student_code}', ${st.is_banned ? 0 : 1})"><i class="fa-solid ${st.is_banned ? 'fa-unlock' : 'fa-ban'}"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function searchStudents(val) {
+            const f = allStudents.filter(s => s.student_code.includes(val) || s.full_name.includes(val));
+            renderStudents(f);
+        }
+
+        async function toggleBan(code, status) {
+            await ElkhetaAPI.toggleBan(code, status);
+            loadData();
+        }
+
+        async function resetDev(code) {
+            await ElkhetaAPI.resetDevice(code);
+            Swal.fire('تم الفك', 'تم فك قفل الجهاز للطالب بنجاح', 'success');
+            loadData();
+        }
+
+        function renderLectures(list) {
+            const tbody = document.querySelector('#lecturesTable tbody');
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد محاضرات</td></tr>';
+                return;
+            }
+            list.forEach(l => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:700;">${l.title}</td>
+                        <td><span class="badge badge-info">${l.grade}</span></td>
+                        <td>${l.video_url ? `<a href="${l.video_url}" target="_blank" class="badge badge-success" style="text-decoration:none;"><i class="fa-solid fa-play"></i> فيديو</a>` : '—'}</td>
+                        <td>${l.pdf_url ? `<a href="${l.pdf_url}" target="_blank" class="badge badge-warning" style="text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> PDF</a>` : '—'}</td>
+                        <td>${l.is_free ? '<span class="badge badge-success">مجانية</span>' : `${l.price} ج.م`}</td>
+                        <td style="text-align:center;"><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delLec(${l.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openAddLectureModal() {
+            Swal.fire({
+                title: 'إضافة محاضرة جديدة',
+                html: `
+                    <div style="text-align:right;">
+                        <label style="font-size:12px; font-weight:bold;">عنوان المحاضرة:</label>
+                        <input id="l_title" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="شرح الفصل الأول">
+                        <label style="font-size:12px; font-weight:bold;">الصف الدراسي:</label>
+                        <input id="l_grade" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="الصف الثالث الثانوي">
+                        <label style="font-size:12px; font-weight:bold;">رابط الفيديو:</label>
+                        <input id="l_vid" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="https://...">
+                        <label style="font-size:12px; font-weight:bold;">رابط PDF:</label>
+                        <input id="l_pdf" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="https://...">
+                        <label style="font-size:12px; font-weight:bold;">السعر (ج.م):</label>
+                        <input id="l_price" type="number" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="50">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'إضافة في MySQL',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => ({
+                    title: document.getElementById('l_title').value.trim(),
+                    grade: document.getElementById('l_grade').value.trim(),
+                    video_url: document.getElementById('l_vid').value.trim(),
+                    pdf_url: document.getElementById('l_pdf').value.trim(),
+                    price: document.getElementById('l_price').value
+                })
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    await ElkhetaAPI.saveLecture(r.value);
+                    Swal.fire('تمت الإضافة', 'تم نشر المحاضرة بنجاح', 'success');
+                    loadData();
+                }
+            });
+        }
+
+        async function delLec(id) {
+            await ElkhetaAPI.deleteLecture(id);
+            loadData();
+        }
+
+        function renderCodes(list) {
+            const tbody = document.querySelector('#codesTable tbody');
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد أكواد</td></tr>';
+                return;
+            }
+            list.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span style="font-family:monospace; font-weight:800; background:#F1F5F9; padding:3px 8px; border-radius:6px; border:1px dashed #CBD5E1;">${c.code}</span></td>
+                        <td style="font-weight:700; color:var(--primary);">${c.value} ج.م</td>
+                        <td>${c.is_used ? '<span class="badge badge-warning">مستخدم</span>' : '<span class="badge badge-success">متاح</span>'}</td>
+                        <td>${c.used_by_student_code || '—'}</td>
+                        <td style="font-size:12px; color:var(--text-muted);">${c.used_at || '—'}</td>
+                        <td style="text-align:center;"><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delCode(${c.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openGenerateCodesModal() {
+            Swal.fire({
+                title: 'توليد حزمة أكواد شحن جديدة',
+                html: `
+                    <div style="text-align:right;">
+                        <label style="font-size:12px; font-weight:bold;">عدد الأكواد:</label>
+                        <input id="c_count" type="number" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="10">
+                        <label style="font-size:12px; font-weight:bold;">بادئة الكود (Prefix):</label>
+                        <input id="c_pref" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="KHETA">
+                        <label style="font-size:12px; font-weight:bold;">القيمة (ج.م):</label>
+                        <input id="c_val" type="number" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="100">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'توليد وحفظ في MySQL',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => ({
+                    count: document.getElementById('c_count').value,
+                    prefix: document.getElementById('c_pref').value,
+                    value: document.getElementById('c_val').value
+                })
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    await ElkhetaAPI.generateCodes(r.value.count, r.value.prefix, r.value.value);
+                    Swal.fire('تم بنجاح', 'تم إنشاء الأكواد في MySQL', 'success');
+                    loadData();
+                }
+            });
+        }
+
+        async function delCode(id) {
+            await fetch(`https://backendapi-pi.vercel.app/api/codes/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        async function clearUsedCodes() {
+            await fetch('https://backendapi-pi.vercel.app/api/codes/clear-used', { method: 'DELETE' });
+            Swal.fire('تم التنظيف', 'تم مسح الأكواد المستخدمة', 'success');
+            loadData();
+        }
+
+        function renderExams(list) {
+            const tbody = document.querySelector('#examsTable tbody');
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد امتحانات</td></tr>';
+                return;
+            }
+            list.forEach(e => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:700;">${e.title}</td>
+                        <td><span class="badge badge-info">${e.grade}</span></td>
+                        <td><span class="badge badge-warning">${e.questions_count} سؤال</span></td>
+                        <td>${e.duration_minutes} دقيقة</td>
+                        <td style="font-weight:800; color:var(--success);">${e.total_marks} درجة</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openAddExamModal() {
+            Swal.fire({
+                title: 'إنشاء امتحان جديد',
+                html: `
+                    <div style="text-align:right;">
+                        <label style="font-size:12px; font-weight:bold;">عنوان الامتحان:</label>
+                        <input id="e_title" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="امتحان الباب الأول">
+                        <label style="font-size:12px; font-weight:bold;">الصف الدراسي:</label>
+                        <input id="e_grade" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="الصف الثالث الثانوي">
+                        <label style="font-size:12px; font-weight:bold;">المدة (بالدقائق):</label>
+                        <input id="e_dur" type="number" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="45">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'إنشاء في MySQL',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => ({
+                    title: document.getElementById('e_title').value.trim(),
+                    grade: document.getElementById('e_grade').value.trim(),
+                    duration_minutes: document.getElementById('e_dur').value,
+                    questions: [{ question: 'سؤال تجريبي', options: ['أ','ب','ج','د'], correct_option: 'A' }]
+                })
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    await ElkhetaAPI.saveExam(r.value);
+                    Swal.fire('تم النشر', 'تم نشر الامتحان بنجاح', 'success');
+                    loadData();
+                }
+            });
+        }
+
+        async function saveSettings(e) {
+            e.preventDefault();
+            await ElkhetaAPI.saveSettings({
+                is_maintenance: document.getElementById('set_maintenance').checked,
+                maintenance_message: document.getElementById('set_msg').value.trim(),
+                support_whatsapp: document.getElementById('set_whatsapp').value.trim(),
+                notice_bar: document.getElementById('set_notice').value.trim()
+            });
+            Swal.fire('تم الحفظ', 'تم تحديث إعدادات المنصة في MySQL بنجاح', 'success');
+        }
+    </script>
+</body>
+</html>

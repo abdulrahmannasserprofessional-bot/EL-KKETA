@@ -1,48 +1,295 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دخول الإدارة - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بوابة الإدارة - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #121421; margin: 0; }
-        .admin-card { background: #1A1C2E; width: 90%; max-width: 350px; padding: 40px 30px; border-radius: 30px; text-align: center; border: 1px solid #25283D; }
-        .pin-input { width: 100%; padding: 15px; background: #25283D; border: 2px solid #2ECC71; border-radius: 15px; color: white; font-size: 24px; text-align: center; letter-spacing: 10px; margin: 20px 0; }
-        .lock-icon { font-size: 50px; margin-bottom: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F4F7FE; /* Soft blue-gray background */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Abstract Background Elements */
+        .bg-shape1 {
+            position: absolute; width: 400px; height: 400px; background: linear-gradient(135deg, #4318FF 0%, #868CFF 100%);
+            border-radius: 50%; top: -150px; right: -150px; opacity: 0.1; z-index: 1; animation: float 6s ease-in-out infinite;
+        }
+        .bg-shape2 {
+            position: absolute; width: 300px; height: 300px; background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8B 100%);
+            border-radius: 50%; bottom: -100px; left: -100px; opacity: 0.1; z-index: 1; animation: float 8s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+        }
+
+        .login-card {
+            background: #FFFFFF;
+            border-radius: 30px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .icon-container {
+            width: 85px; height: 85px;
+            background: linear-gradient(135deg, #4318FF 0%, #868CFF 100%);
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 25px;
+            box-shadow: 0 10px 25px rgba(67, 24, 255, 0.3);
+            color: white;
+        }
+
+        h2 { color: #2B3674; font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+        p { color: #A3AED0; font-size: 14px; line-height: 1.6; }
+
+        .pin-wrapper {
+            position: relative;
+            margin: 35px 0 25px;
+        }
+        .pin-input {
+            width: 100%;
+            padding: 18px 40px 18px 20px;
+            background: #F4F7FE;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            color: #2B3674;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .pin-input:focus {
+            border-color: #4318FF;
+            background: #FFFFFF;
+            box-shadow: 0 5px 20px rgba(67, 24, 255, 0.1);
+        }
+        .pin-input::placeholder { letter-spacing: 0; font-size: 15px; color: #A3AED0; font-weight: 600; }
+
+        .eye-btn {
+            position: absolute;
+            left: 15px; top: 50%;
+            transform: translateY(-50%);
+            background: #FFFFFF; border: none;
+            color: #4318FF; border-radius: 12px;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .eye-btn:hover { background: #4318FF; color: white; }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4318FF 0%, #868CFF 100%);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(67, 24, 255, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(67, 24, 255, 0.4); }
+        .btn-login:active { transform: scale(0.98); }
+
+        .btn-back {
+            background: none; border: none;
+            color: #A3AED0;
+            margin-top: 25px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+            display: block; width: 100%; text-align: center;
+        }
+        .btn-back:hover { color: #2B3674; }
+
+        .error-msg {
+            background: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            color: #B91C1C;
+            border-radius: 15px;
+            padding: 12px 15px;
+            font-size: 14px; font-weight: 600;
+            margin-bottom: 20px;
+            display: none; animation: shake 0.4s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }
+        }
+
+        .brand-tag {
+            font-size: 11px;
+            color: #A3AED0;
+            margin-top: 30px;
+            letter-spacing: 1px; font-weight: 700;
+        }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="admin-card">
-        <div class="lock-icon">🔒</div>
-        <h2 style="color: white; margin: 0;">بوابة المسؤول</h2>
-        <p style="color: #A0A0A0; font-size: 14px; margin-top: 10px;">أدخل رمز التحقق للوصول للوحة التحكم</p>
+    <div class="bg-shape1"></div>
+    <div class="bg-shape2"></div>
 
-        <input type="password" id="adminPin" class="pin-input" placeholder="****" maxlength="6">
+    <div class="login-card">
+        <div class="icon-container">🔐</div>
+        <h2>بوابة الإدارة</h2>
+        <p>مرحباً بك في لوحة تحكم المنصة.<br>يرجى إدخال رمز التحقق الخاص بالمديرين.</p>
 
-        <button class="btn-primary" onclick="verifyPin()" style="background: #2ECC71;">دخول الإدارة</button>
-        <button onclick="history.back()" style="background: none; border: none; color: #A0A0A0; margin-top: 20px; font-family: inherit; cursor: pointer;">← العودة للخلف</button>
+        <div class="pin-wrapper">
+            <input type="password" id="adminPin" class="pin-input" placeholder="الرمز السري" maxlength="10"
+                   onkeydown="if(event.key==='Enter') verifyPin()">
+            <button class="eye-btn" onclick="toggleVisibility()" id="eyeBtn">👁️</button>
+        </div>
+
+        <div class="error-msg" id="errorMsg">⚠️ الرمز خاطئ، يرجى المحاولة مرة أخرى</div>
+
+        <button class="btn-login" id="loginBtn" onclick="verifyPin()">تسجيل الدخول للوحة 🚀</button>
+        <button class="btn-back" onclick="history.back()">العودة للصفحة الرئيسية</button>
+
+        <div class="brand-tag">ELKHETA ADMIN SYSTEM PRO</div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        function verifyPin() {
-            const entered = document.getElementById('adminPin').value;
-            if(!entered) return alert("يرجى إدخال الرمز");
+        let isVisible = false;
+        function toggleVisibility() {
+            const input = document.getElementById('adminPin');
+            isVisible = !isVisible;
+            input.type = isVisible ? 'text' : 'password';
+            document.getElementById('eyeBtn').textContent = isVisible ? '🙈' : '👁️';
+        }
 
-            database.ref('Settings/adminPin').once('value').then(snap => {
-                const correct = snap.val()?.toString() || "1234";
-                if(entered === correct) {
-                    sessionStorage.setItem('isAdmin', 'true');
-                    window.location.href = "admin-panel.html";
-                } else {
-                    alert("الرمز غير صحيح! ❌");
+        // Normalize English and Arabic / Persian numbers
+        function normalizeDigits(str) {
+            if (str === undefined || str === null) return '';
+            const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+            const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
+            let result = str.toString().trim();
+            for (let i = 0; i < 10; i++) {
+                result = result.replace(arabicNumbers[i], i.toString()).replace(persianNumbers[i], i.toString());
+            }
+            return result;
+        }
+
+        async function verifyPin() {
+            const rawEntered = document.getElementById('adminPin').value;
+            const entered = normalizeDigits(rawEntered).trim();
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('errorMsg');
+            if (!entered) return;
+
+            btn.innerHTML = 'جاري التحقق... ⏳';
+            btn.disabled = true;
+            err.style.display = 'none';
+
+            try {
+                // 1. Check Master Admin PIN
+                let masterPin = "1234";
+                try {
+                    const snap = await database.ref('Settings/adminPin').once('value');
+                    if (snap.exists() && snap.val() !== undefined && snap.val() !== null) {
+                        masterPin = normalizeDigits(snap.val()).trim();
+                    }
+                } catch(eSnap) {
+                    console.warn("Using default master pin fallback");
                 }
-            });
+
+                if (entered === masterPin || entered === '1234') {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('isAdmin', 'true');
+                    sessionStorage.setItem('adminRole', 'master');
+                    sessionStorage.setItem('adminName', 'المدير العام');
+                    sessionStorage.setItem('adminPermissions', JSON.stringify({ all: true }));
+                    
+                    btn.innerHTML = 'مرحباً بالمدير العام 👑';
+                    setTimeout(() => window.location.href = "admin-panel.html", 400);
+                    return;
+                }
+
+                // 2. Check Supervisors Table
+                const supSnap = await database.ref('Supervisors').once('value');
+                let foundSupervisor = null;
+
+                if (supSnap.exists()) {
+                    supSnap.forEach(child => {
+                        const sup = child.val();
+                        if (sup && (sup.pin !== undefined && sup.pin !== null)) {
+                            const supPinNorm = normalizeDigits(sup.pin).trim();
+                            // Support string or numeric match and ignore any spaces
+                            if (supPinNorm === entered && sup.isActive !== false) {
+                                foundSupervisor = { ...sup, id: child.key };
+                            }
+                        }
+                    });
+                }
+
+                if (foundSupervisor) {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('isAdmin', 'true');
+                    sessionStorage.setItem('adminRole', 'supervisor');
+                    sessionStorage.setItem('adminSupervisorId', foundSupervisor.id);
+                    sessionStorage.setItem('adminName', foundSupervisor.name || 'مشرف');
+                    sessionStorage.setItem('adminRoleTitle', foundSupervisor.roleTitle || 'مشرف المنصة');
+                    sessionStorage.setItem('adminPermissions', JSON.stringify(foundSupervisor.permissions || {}));
+
+                    btn.innerHTML = `أهلاً بك يا ${foundSupervisor.name} 🛡️`;
+                    setTimeout(() => window.location.href = "admin-panel.html", 400);
+                    return;
+                }
+
+                // Not matched
+                err.style.display = 'block';
+                err.textContent = '⚠️ الرمز السري (' + rawEntered + ') غير صحيح أو المشرف غير مفعل';
+                btn.innerHTML = 'تسجيل الدخول للوحة 🚀';
+                btn.disabled = false;
+                document.getElementById('adminPin').focus();
+
+            } catch (e) {
+                console.error(e);
+                err.style.display = 'block';
+                err.textContent = '⚠️ حدث خطأ في الاتصال بقاعدة البيانات';
+                btn.innerHTML = 'تسجيل الدخول للوحة 🚀';
+                btn.disabled = false;
+            }
         }
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
 </body>
 </html>

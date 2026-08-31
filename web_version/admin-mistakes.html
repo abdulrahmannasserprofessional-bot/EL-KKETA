@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل أخطاء البابل شيت - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
+
+        .page-header {
+            background: linear-gradient(135deg, #4F46E5, #3730A3);
+            padding: 50px 20px 70px;
+            position: relative; overflow: hidden;
+            color: white;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            bottom: -80px; left: -30px; border-radius: 50%;
+        }
+        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+        .back-btn {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; transition: background 0.2s; color: white; text-decoration: none;
+         color: #FFFFFF; }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
+
+        .main-container {
+            max-width: 600px;
+            margin: -40px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .filter-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #334155;
+            background-color: #F8FAFC;
+            outline: none;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 15px center;
+            background-size: 20px;
+        }
+        select:focus { border-color: #4F46E5; background-color: #FFFFFF; }
+
+        .mistake-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-right: 5px solid #EF4444;
+            transition: transform 0.2s;
+        }
+        .mistake-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        
+        .exam-badge {
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+            color: #3730A3;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #1E293B;
+        }
+
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #FEE2E2;
+            color: #B91C1C;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .correct-answer {
+            background: linear-gradient(to left, #F0FDF4, #DCFCE7);
+            border: 1px solid #BBF7D0;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .choices-list {
+            margin-top: 15px;
+        }
+        .choice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #F8FAFC;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #E2E8F0;
+        }
+        .choice-text { font-size: 14px; font-weight: 600; color: #475569; }
+        .choice-count {
+            background: #EF4444; color: white;
+            padding: 2px 8px; border-radius: 20px;
+            font-size: 12px; font-weight: bold;
+        }
+
+        .loader { text-align: center; padding: 40px; color: #64748B; font-weight: bold; display: none; }
+        .empty-state { text-align: center; padding: 40px; color: #94A3B8; font-weight: bold; display: none; }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="page-header">
+        <div class="header-top">
+            <a href="admin-panel.html" class="back-btn">⬅️</a>
+            <div>
+                <div class="header-title">تحليل أخطاء البابل شيت</div>
+                <div style="font-size: 13px; opacity: 0.9;">متابعة تفكير الطلاب والأسئلة الشائعة الخطأ</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="filter-card">
+            <div style="font-size: 14px; font-weight: bold; color: #64748B; margin-bottom: 10px;">اختر المادة לעرض إحصائياتها:</div>
+            <select id="subjectSelect" onchange="renderSubjectMistakes()">
+                <option value="">جاري تحميل المواد...</option>
+            </select>
+        </div>
+
+        <div id="loader" class="loader">جاري تحميل البيانات... ⏳</div>
+        <div id="emptyState" class="empty-state">لا توجد أي أخطاء مسجلة لهذه المادة 🌟</div>
+        <div id="mistakesContainer"></div>
+    </div>
+
+    <script>
+        // Check Admin
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            window.location.href = 'admin-gate.html';
+        }
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        if (role !== 'master') {
+            try {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+                if (!perms.mistakes) {
+                    alert("⛔ ليس لديك صلاحية للوصول إلى تحليل أخطاء البابل شيت");
+                    window.location.href = "admin-panel.html";
+                }
+            } catch(e) {}
+        }
+
+        let analyticsData = {};
+
+        // Load Analytics from Firebase
+        document.getElementById('loader').style.display = 'block';
+        database.ref('ExamAnalytics').once('value').then(snap => {
+            document.getElementById('loader').style.display = 'none';
+            if (snap.exists()) {
+                analyticsData = snap.val();
+                populateSubjects();
+            } else {
+                document.getElementById('subjectSelect').innerHTML = '<option value="">لا توجد بيانات</option>';
+            }
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('loader').innerText = "حدث خطأ في تحميل البيانات.";
+        });
+
+        function populateSubjects() {
+            const select = document.getElementById('subjectSelect');
+            select.innerHTML = '<option value="">-- اختر المادة --</option>';
+            
+            const subjects = Object.keys(analyticsData);
+            subjects.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderSubjectMistakes() {
+            const subject = document.getElementById('subjectSelect').value;
+            const container = document.getElementById('mistakesContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            container.innerHTML = '';
+            emptyState.style.display = 'none';
+
+            if (!subject) return;
+
+            const subjectData = analyticsData[subject];
+            if (!subjectData) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            // Flatten exams and sort questions by totalMistakes desc
+            let allQuestions = [];
+            for (const examId in subjectData) {
+                const questionsObj = subjectData[examId];
+                for (const qId in questionsObj) {
+                    allQuestions.push({
+                        examId: examId,
+                        ...questionsObj[qId]
+                    });
+                }
+            }
+
+            if (allQuestions.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            // Sort by mistakes count
+            allQuestions.sort((a, b) => (b.totalMistakes || 0) - (a.totalMistakes || 0));
+
+            allQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'mistake-card';
+
+                // Format Explanation
+                let formattedExp = (q.explanation || 'لا يوجد تعليل متاح').replace(/\*\*(.*?)\*\*/g, '<b style="color:#166534; background:rgba(187, 247, 208, 0.5); padding:0 4px; border-radius:4px;">$1</b>');
+
+                // Generate choices list
+                let choicesHTML = '';
+                if (q.choices && typeof q.choices === 'object') {
+                    const sortedChoices = Object.entries(q.choices).sort((a, b) => b[1] - a[1]);
+                    sortedChoices.forEach(([choiceText, count]) => {
+                        const displayChoice = choiceText.replace(/_/g, '.'); // Restore dot if we escaped it
+                        choicesHTML += `
+                            <div class="choice-item">
+                                <div class="choice-text"> ${displayChoice}</div>
+                                <div class="choice-count">${count} طلاب</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    choicesHTML = '<div style="font-size: 13px; color: #94A3B8;">لا توجد تفاصيل للإجابات الخاطئة القديمة</div>';
+                }
+
+                card.innerHTML = `
+                    <div class="exam-badge">📝 ${q.examId}</div>
+                    <div class="stats-badge" style="float: left;">⚠️ أخطأ فيه ${q.totalMistakes || 0} طالب</div>
+                    <div style="clear: both;"></div>
+                    
+                    <div class="question-text">${q.questionText || 'نص السؤال غير متوفر'}</div>
+                    
+                    <div class="correct-answer">
+                        <div style="font-size: 13px; color: #166534; font-weight: bold; margin-bottom: 5px;">✅ الإجابة الصحيحة:</div>
+                        <div style="font-size: 15px; color: #15803D; margin-bottom: 10px; font-weight: bold;">${q.correctAnswer || 'غير محدد'}</div>
+                        
+                        <div style="font-size: 13px; color: #166534; font-weight: bold; margin-bottom: 5px;">💡 التعليل:</div>
+                        <div style="font-size: 14px; color: #15803D; line-height: 1.5;">${formattedExp}</div>
+                    </div>
+
+                    <div style="font-size: 14px; font-weight: bold; color: #334155; margin-top: 20px;">الإجابات التي اختارها الطلاب بالخطأ:</div>
+                    <div class="choices-list">
+                        ${choicesHTML}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

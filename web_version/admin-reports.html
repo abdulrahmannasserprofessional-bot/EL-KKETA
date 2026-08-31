@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقارير الطلاب ورادار المنصة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; color: #1E293B; min-height: 100vh; padding-bottom: 40px; }
+        .page-header { background: linear-gradient(135deg, #1E40AF, #3B82F6); padding: 50px 20px 70px; position: relative; overflow: hidden; }
+        .page-header::after { content: ''; position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%); bottom: -80px; right: -30px; border-radius: 50%; }
+        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+        .back-btn { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #fff; transition: background 0.2s; }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
+        .header-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+
+        .search-card { margin: -30px 15px 20px; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); border-radius: 24px; padding: 22px; position: relative; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 14px; font-weight: 700; color: #475569; margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 14px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; font-family: 'Cairo', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; }
+        .form-input:focus { border-color: #3B82F6; background: #FFF; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
+        .btn-search { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563EB, #3B82F6); border: none; border-radius: 14px; color: #FFF; font-size: 16px; font-weight: 800; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(59,130,246,0.3); }
+        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59,130,246,0.4); }
+
+        .report-card { display: none; margin: 0 15px; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .report-header { background: #F8FAFC; padding: 20px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: flex-start; }
+        .student-info h2 { font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 5px; }
+        .student-info p { font-size: 14px; color: #64748B; display: flex; align-items: center; gap: 5px; }
+        .btn-print { background: #10B981; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+        .btn-print:hover { background: #059669; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; border-bottom: 1px solid #E2E8F0; }
+        .stat-box { background: #F0F9FF; border: 1px solid #BAE6FD; padding: 15px; border-radius: 16px; text-align: center; }
+        .stat-val { font-size: 24px; font-weight: 900; color: #0284C7; }
+        .stat-lbl { font-size: 12px; color: #0369A1; font-weight: 700; margin-top: 5px; }
+
+        .timeline-container { padding: 20px; }
+        .timeline-title { font-size: 16px; font-weight: 800; color: #1E293B; margin-bottom: 15px; }
+        .timeline { position: relative; border-right: 2px solid #E2E8F0; padding-right: 20px; margin-right: 10px; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-item::before { content: ''; position: absolute; width: 12px; height: 12px; background: #3B82F6; border: 3px solid #FFF; border-radius: 50%; right: -27px; top: 3px; box-shadow: 0 0 0 2px #E2E8F0; }
+        .log-action { font-size: 14px; font-weight: 700; color: #334155; }
+        .log-time { font-size: 11px; color: #94A3B8; margin-top: 3px; }
+
+        .toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1E293B; color: #FFF; padding: 12px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; z-index: 9999; transition: transform 0.35s ease; white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Report print wrapper */
+        #printArea { background: white; }
+    </style>
+</head>
+<body>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+    </script>
+
+    <div class="page-header">
+        <div class="header-top">
+            <div class="back-btn" onclick="location.href='admin-panel.html'">➔</div>
+            <div>
+                <div class="header-title">تقارير الطلاب 📊</div>
+                <div class="header-sub">ابحث عن طالب لاستخراج تقرير شامل وسجل نشاطه (الرادار)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-card">
+        <div class="form-group">
+            <label class="form-label">كود الطالب (بحث اختياري)</label>
+            <input type="text" id="searchCode" class="form-input" placeholder="ابحث بكود الطالب لعرض تقريره الخاص (مثال: KH1234)">
+        </div>
+        <button class="btn-search" onclick="searchStudent()">🔍 بحث واستخراج التقرير</button>
+    </div>
+
+    <div class="report-card" id="globalRadarCard" style="display: block; margin-bottom: 20px;">
+        <div class="timeline-container">
+            <div class="timeline-title">الرادار المباشر لجميع الطلاب (الأحدث أولاً) 📡</div>
+            <div class="timeline" id="globalTimelineList">
+                <p style="font-size:13px; color:#94A3B8;">جاري تحميل النشاطات...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-card" id="reportCard">
+        <div id="printArea">
+            <div class="report-header">
+                <div class="student-info">
+                    <h2 id="stName">اسم الطالب</h2>
+                    <p><span>🔑</span> <span id="stCode">KH0000</span></p>
+                    <p><span>📱</span> <span id="stPhone">010...</span></p>
+                </div>
+                <button class="btn-print" onclick="printReport()" id="printBtn">🖨️ طباعة التقرير</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val" id="statLogins">0</div>
+                    <div class="stat-lbl">تسجيل دخول</div>
+                </div>
+                <div class="stat-box" style="background:#F0FDF4; border-color:#BBF7D0;">
+                    <div class="stat-val" style="color:#16A34A;" id="statActions">0</div>
+                    <div class="stat-lbl">إجمالي النشاطات</div>
+                </div>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-title">رادار النشاط (الأحدث أولاً) 📡</div>
+                <div class="timeline" id="timelineList">
+                    <!-- Logs will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        if (role !== 'master') {
+            try {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+                if (!perms.reports) {
+                    alert("⛔ ليس لديك صلاحية للوصول إلى تقارير ورادار الطلاب");
+                    window.location.href = "admin-panel.html";
+                }
+            } catch(e) {}
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Load global radar initially
+        database.ref('ActivityLogs').limitToLast(200).on('value', snap => {
+            const logsList = [];
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    logsList.push(child.val());
+                });
+            }
+            logsList.sort((a, b) => b.timestamp - a.timestamp);
+            const timelineHtml = logsList.length === 0 
+                ? '<p style="font-size:13px; color:#94A3B8;">لا يوجد نشاط مسجل حتى الآن.</p>'
+                : logsList.map(log => `
+                    <div class="timeline-item">
+                        <div class="log-action">
+                            <strong style="color:#2563EB;">${log.studentName || 'طالب'} (${log.studentCode || 'بدون كود'})</strong>: 
+                            ${log.action}
+                        </div>
+                        <div class="log-time">${new Date(log.timestamp).toLocaleString('ar-EG')}</div>
+                    </div>
+                `).join('');
+
+            document.getElementById('globalTimelineList').innerHTML = timelineHtml;
+        });
+
+        async function searchStudent() {
+            const code = document.getElementById('searchCode').value.trim().toUpperCase();
+            if(!code) {
+                // Show global radar if search is cleared
+                document.getElementById('globalRadarCard').style.display = 'block';
+                document.getElementById('reportCard').style.display = 'none';
+                return;
+            }
+
+            // Hide global radar while searching
+            document.getElementById('globalRadarCard').style.display = 'none';
+
+            const btn = document.querySelector('.btn-search');
+            btn.innerText = "جاري البحث...";
+
+            try {
+                // Fetch Student Data
+                const stSnap = await database.ref('Students/' + code).once('value');
+                if(!stSnap.exists()) {
+                    btn.innerText = "🔍 بحث واستخراج التقرير";
+                    document.getElementById('globalRadarCard').style.display = 'block'; // Restore global view
+                    return showToast('الطالب غير موجود');
+                }
+                const stData = stSnap.val();
+                
+                // Update UI
+                document.getElementById('stName').innerText = stData.fullName || stData.name || 'غير محدد';
+                document.getElementById('stCode').innerText = code;
+                document.getElementById('stPhone').innerText = stData.whatsapp || stData.phone || 'لا يوجد';
+
+                // Fetch Activity Logs for this student
+                const logsSnap = await database.ref('ActivityLogs').orderByChild('studentCode').equalTo(code).once('value');
+                const logsList = [];
+                let loginCount = 0;
+
+                if(logsSnap.exists()) {
+                    logsSnap.forEach(child => {
+                        const log = child.val();
+                        logsList.push(log);
+                        if(log.action && log.action.includes('تسجيل الدخول')) loginCount++;
+                    });
+                }
+
+                // Sort logs by timestamp descending
+                logsList.sort((a, b) => b.timestamp - a.timestamp);
+
+                document.getElementById('statLogins').innerText = loginCount;
+                document.getElementById('statActions').innerText = logsList.length;
+
+                const timelineHtml = logsList.length === 0 
+                    ? '<p style="font-size:13px; color:#94A3B8;">لا يوجد نشاط مسجل لهذا الطالب حتى الآن.</p>'
+                    : logsList.map(log => `
+                        <div class="timeline-item">
+                            <div class="log-action">${log.action}</div>
+                            <div class="log-time">${new Date(log.timestamp).toLocaleString('ar-EG')}</div>
+                        </div>
+                    `).join('');
+
+                document.getElementById('timelineList').innerHTML = timelineHtml;
+                
+                document.getElementById('reportCard').style.display = 'block';
+                btn.innerText = "🔍 بحث واستخراج التقرير";
+            } catch (err) {
+                console.error(err);
+                showToast("حدث خطأ في جلب البيانات");
+                btn.innerText = "🔍 بحث واستخراج التقرير";
+            }
+        }
+
+        function printReport() {
+            showToast("جاري تجهيز تقرير الـ PDF...");
+            const printBtn = document.getElementById('printBtn');
+            printBtn.style.display = 'none'; // Hide print button in PDF
+            
+            const element = document.getElementById('printArea');
+            const studentName = document.getElementById('stName').innerText;
+            
+            html2pdf().set({
+                margin: 10,
+                filename: 'تقرير_طالب_' + studentName.replace(/\s+/g, '_') + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(element).save().then(() => {
+                printBtn.style.display = 'flex'; // Restore button
+                showToast("تم تحميل التقرير بنجاح ✅");
+            });
+        }
+    </script>
+</body>
+</html>

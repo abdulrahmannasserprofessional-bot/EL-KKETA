@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +12,7 @@
         .btn-del { color: var(--mistake); background: #FDECEA; border: none; padding: 8px; border-radius: 10px; cursor: pointer; }
         input { width: 100%; padding: 15px; border: 2px solid #F0F2F9; border-radius: 15px; margin: 10px 0; font-family: inherit; box-sizing: border-box; }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="header-gradient">
@@ -57,7 +58,7 @@
                         card.className = "card class-card";
                         card.innerHTML = `
                             <strong>🏫 ${item.name}</strong>
-                            <button class="btn-del" onclick="deleteClass('${item.id}')">🗑️</button>
+                            <button class="btn-del" onclick="deleteClass('${item.id}')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         `;
                         list.appendChild(card);
                     });
@@ -68,9 +69,16 @@
         }
 
         function deleteClass(id) {
-            if(confirm("حذف هذا الفصل؟")) database.ref('Classes/' + id).remove();
+            Swal.fire({title:"????? ?????",text:"?? ??? ??????",icon:"warning",showCancelButton:true,confirmButtonText:"???? ????",cancelButtonText: "إلغاء"}).then((r) => { if(r.isConfirmed) { database.ref('Classes/' + id).remove(); } })
         }
         loadClasses();
     </script>
 </body>
 </html>
+
+
+
+
+
+
+

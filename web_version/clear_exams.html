@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مسح الامتحانات القديمة</title>
+</head>
+<body>
+    <h1>جاري فحص ومسح الامتحانات القديمة التالفة...</h1>
+    <h2 id="status">الرجاء الانتظار...</h2>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        database.ref('Exams').once('value').then(snap => {
+            let count = 0;
+            const updates = {};
+            snap.forEach(child => {
+                const val = child.val();
+                if (val && typeof val === 'object' && !Array.isArray(val) && (val.title || val.name || val.examName || val.questions)) {
+                    updates[child.key] = null;
+                    count++;
+                } else if (val && typeof val === 'object' && !Array.isArray(val) && !val.title && !val.name && !val.examName && !val.questions && !Object.keys(val).some(k => typeof val[k] === 'object')) {
+                     // Empty corrupted objects
+                     updates[child.key] = null;
+                     count++;
+                }
+            });
+
+            if (count > 0) {
+                database.ref('Exams').update(updates).then(() => {
+                    document.getElementById('status').innerText = '✅ تم مسح ' + count + ' امتحان قديم/تالف بنجاح! يمكنك إغلاق هذه الصفحة الآن والرجوع للوحة التحكم.';
+                }).catch(err => {
+                    document.getElementById('status').innerText = ' حدث خطأ أثناء المسح: ' + err.message;
+                });
+            } else {
+                document.getElementById('status').innerText = '✅ لم يتم العثور على امتحانات تالفة. كل شيء سليم!';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

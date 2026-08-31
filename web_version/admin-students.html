@@ -4,63 +4,394 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إدارة الطلاب - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        .st-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; }
-        .st-info { text-align: right; }
-        .st-name { font-weight: bold; font-size: 16px; color: var(--text-main); }
-        .st-code { font-size: 12px; color: #E17055; font-weight: bold; margin-top: 3px; }
-        .delete-btn { color: #D63031; font-size: 20px; cursor: pointer; background: #FDECEA; padding: 8px; border-radius: 10px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
+
+        .page-header {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            padding: 50px 20px 70px;
+            position: relative; overflow: hidden;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%);
+            bottom: -80px; left: -30px; border-radius: 50%;
+        }
+        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+        .back-btn {
+            width: 40px; height: 40px;
+            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; transition: background 0.2s;
+         color: #FFFFFF; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
+        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
+
+        /* Search */
+        .search-wrap {
+            margin: -30px 15px 0;
+            position: relative; z-index: 10;
+        }
+        .search-input {
+            width: 100%;
+            padding: 16px 18px 16px 48px;
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 18px;
+            color: #1E293B;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-input:focus { border-color: #38BDF8; background: rgba(56,189,248,0.06); }
+        .search-input::placeholder { color: rgba(0,0,0,0.25); }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+
+        /* Stats */
+        .stats-row {
+            display: flex; gap: 10px;
+            padding: 15px 15px 0;
+        }
+        .stat-pill {
+            flex: 1; background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: 14px; padding: 12px 10px; text-align: center;
+        }
+        .stat-val { font-size: 20px; font-weight: 900; color: #38BDF8; }
+        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+        .list-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 15px 8px; }
+        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.4); }
+        .count-badge { background: rgba(56,189,248,0.15); color: #38BDF8; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+
+        .student-card {
+            margin: 0 15px 10px;
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex; align-items: center; gap: 14px;
+            transition: all 0.2s;
+        }
+        .student-card:hover { border-color: rgba(56,189,248,0.2); }
+
+        .avatar {
+            width: 48px; height: 48px; min-width: 48px;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 900;
+            background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3));
+            color: #38BDF8;
+        }
+        .student-info { flex: 1; }
+        .student-name { font-size: 15px; font-weight: 700; color: #1E293B; }
+        .student-code {
+            display: inline-block;
+            font-size: 12px; font-weight: 700;
+            color: #FB923C;
+            background: rgba(249,115,22,0.12);
+            border-radius: 6px; padding: 2px 8px;
+            margin-top: 4px; font-family: monospace;
+        }
+        .student-phone { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+
+        .student-actions { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+        .btn-delete {
+            width: 36px; height: 36px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 15px; transition: all 0.2s;
+        }
+        .btn-delete:hover { background: rgba(239,68,68,0.25); }
+
+        .student-score {
+            font-size: 11px; color: #34D399; font-weight: 700;
+            background: rgba(52,211,153,0.1); border-radius: 6px; padding: 2px 7px;
+        }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(0,0,0,0.3); }
+        .empty-state div { font-size: 45px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        .toast {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: #1E293B; border: 1px solid rgba(0,0,0,0.15);
+            color: #1E293B; padding: 14px 24px; border-radius: 16px;
+            font-size: 14px; font-weight: 600; z-index: 99999;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); max-width: 90vw; text-align: center;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ─── Confirm Modal ─── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px); z-index: 99998;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 340px;
+            text-align: center;
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
+        .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
+        .modal-msg { font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.7; margin-bottom: 24px; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
+        .modal-btn.cancel { background: rgba(255,255,255,0.07); color: rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.1); }
+        .modal-btn.cancel:hover { background: rgba(255,255,255,0.12); }
+        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #1E293B; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+        .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="header-gradient">
-        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
-        <div style="font-size: 22px; font-weight: bold;">إدارة الطلاب</div>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        if (role !== 'master') {
+            try {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+                if (!perms.students) {
+                    alert("⛔ ليس لديك صلاحية للوصول إلى إدارة الطلاب");
+                    window.location.href = "admin-panel.html";
+                }
+            } catch(e) {}
+        }
+    </script>
+
+    <div class="page-header">
+        <div class="header-top">
+            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <div>
+                <div class="header-title">👥 إدارة الطلاب</div>
+                <div class="header-sub">عرض وإدارة جميع حسابات الطلاب</div>
+            </div>
+        </div>
     </div>
 
-    <div id="studentsList" style="margin-top: -20px; padding: 10px;">
-        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل قائمة الطلاب...</div>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="ابحث باسم الطالب أو كوده..." oninput="filterStudents()">
     </div>
+
+    <div class="stats-row">
+        <div class="stat-pill">
+            <div class="stat-val" id="totalStudents">—</div>
+            <div class="stat-lbl">إجمالي الطلاب</div>
+        </div>
+        <div class="stat-pill">
+            <div class="stat-val" id="activeToday">—</div>
+            <div class="stat-lbl">نشط اليوم</div>
+        </div>
+        <div class="stat-pill">
+            <div class="stat-val" id="avgScore">—</div>
+            <div class="stat-lbl">متوسط الدرجات</div>
+        </div>
+    </div>
+
+    <div class="list-header">
+        <span class="list-title">قائمة الطلاب المسجلين</span>
+        <span class="count-badge" id="countBadge">جاري التحميل...</span>
+    </div>
+
+    <div id="studentsList">
+        <div class="empty-state"><div>👥</div><p>جاري تحميل قائمة الطلاب...</p></div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+            <div class="modal-title">تأكيد الحذف</div>
+            <div class="modal-msg" id="modalMsg">هل أنت متأكد؟</div>
+            <div class="modal-btns">
+                <button class="modal-btn cancel" onclick="closeModal()">إلغاء</button>
+                <button class="modal-btn confirm-del" id="modalConfirmBtn">حذف نهائياً </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        let allStudents = [];
 
-        function loadStudents() {
-            database.ref('Students').on('value', (snapshot) => {
-                const list = document.getElementById('studentsList');
-                list.innerHTML = "";
-                if(snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const st = child.val();
-                        const card = document.createElement('div');
-                        card.className = "card st-card";
-                        card.innerHTML = `
-                            <div class="st-info">
-                                <div class="st-name">${st.fullName}</div>
-                                <div class="st-code">كود: ${st.studentCode}</div>
-                                <div style="font-size: 11px; color: #636E72;">📞 ${st.whatsapp}</div>
-                            </div>
-                            <div class="delete-btn" onclick="deleteStudent('${st.studentCode}')">🗑️</div>
-                        `;
-                        list.appendChild(card);
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        let pendingDeleteFn = null;
+        function showConfirm(message, onConfirm) { Swal.fire({
+        title: "تأكيد",
+        html: message,
+        icon: "warning", color: "#1E293B",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "نعم، متأكد",
+        cancelButtonText: "إلغاء"
+    }).then((result) => { if (result.isConfirmed && onConfirm) { onConfirm(); } }); }
+        function closeModal() { document.getElementById('confirmModal').classList.remove('open'); pendingDeleteFn = null; }
+        document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        function getInitial(name) {
+            return name ? name.trim().charAt(0) : '؟';
+        }
+
+        database.ref('Students').on('value', snap => {
+            allStudents = [];
+            let totalScore = 0, scoreCount = 0;
+
+            if (snap.exists()) {
+                snap.forEach(child => { allStudents.push(child.val()); });
+                // Calc avg score
+                allStudents.forEach(s => {
+                    if (s.stats && s.stats.averageScore) {
+                        totalScore += s.stats.averageScore;
+                        scoreCount++;
+                    }
+                });
+            }
+
+            document.getElementById('totalStudents').textContent = allStudents.length;
+            document.getElementById('activeToday').textContent = '—';
+            document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) + '%' : '—';
+            document.getElementById('countBadge').textContent = allStudents.length + ' طالب';
+
+            renderStudents(allStudents);
+        });
+
+        let studentDeleteMap = {};
+
+        function renderStudents(list) {
+            const container = document.getElementById('studentsList');
+            container.innerHTML = "";
+            studentDeleteMap = {};
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div>👥</div><p>لا يوجد طلاب مطابقون</p></div>`;
+                return;
+            }
+            list.forEach((st, idx) => {
+                const deleteId = 'st_del_' + idx;
+                studentDeleteMap[deleteId] = { code: st.studentCode, name: st.fullName || 'غير محدد' };
+                const score = st.stats?.averageScore ? `<span class="student-score">${st.stats.averageScore}% متوسط</span>` : '';
+                
+                let warningBadge = '';
+                if(st.isBanned) warningBadge = `<span style="background:#FEE2E2; color:#B91C1C; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800; margin-right:5px;">🚫 موقوف نهائياً</span>`;
+                else if(st.warnings > 0) warningBadge = `<span style="background:#FEF3C7; color:#B45309; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800; margin-right:5px;">⚠️ إنذار (${st.warnings}/3)</span>`;
+
+                const card = document.createElement('div');
+                card.className = "student-card";
+                card.innerHTML = `
+                    <div class="avatar">${getInitial(st.fullName)}</div>
+                    <div class="student-info">
+                        <div class="student-name">${st.fullName || 'غير محدد'} ${warningBadge}</div>
+                        <div class="student-code">${st.studentCode || '—'}</div>
+                        <div class="student-phone">📞 ${st.whatsapp || 'غير محدد'}</div>
+                        ${st.joinDate ? `<div style="font-size: 11px; color: #94A3B8; margin-top: 4px;">📅 انضم: ${new Date(st.joinDate).toLocaleDateString('ar-EG')}</div>` : ''}
+                    </div>
+                    <div class="student-actions">
+                        ${score}
+                        <div class="btn-delete" style="background:#DCFCE7; color:#166534;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${st.fullName || ''}', '${st.studentCode || ''}')" title="إرسال الكود في الواتساب">💬</div>
+                        <div class="btn-delete" style="background:#F0FDF4; color:#166534;" onclick="liftWarning('${st.studentCode}')" title="تصفير قيود الأجهزة وفك الحظر">🔓</div>
+                        <div class="btn-delete" data-id="${deleteId}" title="حذف الطالب"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            container.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const ref = studentDeleteMap[btn.dataset.id];
+                    if (!ref) return;
+                    showConfirm(
+                        `هل أنت متأكد من حذف حساب الطالب؟<br><br><strong style="color:#DC2626">${ref.name}</strong><br><br>لا يمكن التراجع عن هذا الإجراء!`,
+                        () => database.ref('Students/' + ref.code).remove().then(() => showToast(" تم حذف حساب الطالب بنجاح"))
+                    );
+                });
+            });
+        }
+
+        function liftWarning(code) {
+            Swal.fire({
+                title: 'رفع الإنذار؟',
+                text: 'هل تريد إلغاء الحظر، تصفير الإنذارات، والسماح لهذا الطالب بالدخول من جهاز جديد؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'نعم، السماح للطالب',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    database.ref('Students/' + code).update({
+                        warnings: 0,
+                        isBanned: false,
+                        registeredDevice: null,
+                        forgivenMessage: true
+                    }).then(() => {
+                        showToast("✅ تم تصفير جهاز الطالب ورفع الإنذار بنجاح!");
+                        
+                        // Also log this in activity logs
+                        database.ref('ActivityLogs').push({
+                            studentCode: code,
+                            studentName: 'الإدارة',
+                            action: 'عملية إدارية: تم رفع الحظر/الإنذارات وتصفير الجهاز.',
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }).catch(err => {
+                        console.error(err);
+                        showToast("❌ حدث خطأ", "error");
                     });
-                } else {
-                    list.innerHTML = `<div style="text-align:center; padding:50px; color:#BCBCBC;">لا يوجد طلاب مسجلون حالياً</div>`;
                 }
             });
         }
 
-        function deleteStudent(code) {
-            if(confirm("هل أنت متأكد من حذف هذا الطالب؟")) {
-                database.ref('Students/' + code).remove();
-            }
+        function sendStudentWhatsApp(phone, name, code) {
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالب'} في منصة الخطة 🎓\nكود الدخول الخاص بحسابك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
+            window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
         }
-        loadStudents();
+
+        function filterStudents() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!q) return renderStudents(allStudents);
+            renderStudents(allStudents.filter(s =>
+                (s.fullName || '').toLowerCase().includes(q) ||
+                (s.studentCode || '').toLowerCase().includes(q) ||
+                (s.whatsapp || '').includes(q)
+            ));
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+

@@ -1,67 +1,1347 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إعدادات النظام - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>إعدادات المنصة وحل مشاكل الطلاب - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .form-section { margin-top: -30px; }
-        .input-group { margin-bottom: 20px; text-align: right; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: var(--text-sub); }
-        input { width: 100%; padding: 15px; border: 2px solid #F0F2F9; border-radius: 15px; background: #F8F9FE; font-family: inherit; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --secondary: #6366F1;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 40px 20px 60px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 22px; font-weight: 900; }
+        .header-sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+        /* Container */
+        .container {
+            max-width: 850px;
+            margin: -30px auto 0;
+            padding: 0 15px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Navigation Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Filter Chips */
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .filter-chip {
+            background: #F1F5F9;
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            color: var(--text-sub);
+        }
+        .filter-chip.active {
+            background: #1E293B;
+            color: white;
+            border-color: #1E293B;
+        }
+
+        /* Card Box */
+        .card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Input Fields */
+        .input-group {
+            margin-bottom: 18px;
+            text-align: right;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: #F8FAFC;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Search input */
+        .search-box-wrap {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .search-box-wrap input {
+            padding-right: 48px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .search-icon-inside {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #94A3B8;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-2px); }
+        
+        .btn-action {
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+        .btn-action.success { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+        .btn-action.warning { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+        .btn-action.danger { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        .btn-action.primary { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
+        .btn-action.dark { background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
+        .btn-action:hover { transform: translateY(-1px); }
+
+        /* Student & Supervisor Result Cards */
+        .student-trouble-card, .supervisor-card {
+            background: #FFFFFF;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .student-trouble-card:hover, .supervisor-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+        .st-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .st-name { font-size: 17px; font-weight: 900; color: var(--text-main); }
+        .st-code-pill {
+            background: #EEF2FF;
+            color: #4F46E5;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: 900;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .st-code-pill:hover { background: #E0E7FF; }
+        .st-detail { font-size: 13px; color: var(--text-sub); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+
+        .st-actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Permissions tags */
+        .perm-badges-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0;
+        }
+        .perm-badge {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Toggle Row */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info h4 { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 3px; }
+        .toggle-info p { font-size: 12px; color: var(--text-sub); }
+
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CBD5E1; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #10B981; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Quick Fix Banner */
+        .quick-fix-banner {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            border: 2px dashed #6EE7B7;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="header-gradient">
-        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
-        <div style="font-size: 22px; font-weight: bold;">إعدادات النظام</div>
+
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        const currentRole = sessionStorage.getItem('adminRole') || 'master';
+    </script>
+
+    <div class="page-header">
+        <div class="header-top">
+            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <div>
+                <div class="header-title">🛠️ مركز إعدادات وتحكم الطلاب</div>
+                <div class="header-sub">التحكم في حسابات الطلاب، فك الحظر، الصلاحيات، وتعديل الدرجات</div>
+            </div>
+            <div style="width:44px;"></div>
+        </div>
     </div>
 
-    <div class="card form-section">
-        <div class="input-group">
-            <label>أقل رقم إصدار مسموح به (Force Update)</label>
-            <input type="number" id="minVersion" placeholder="مثلاً: 2">
+    <div class="container">
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" id="btnTabTroubleshoot" onclick="switchTab('troubleshoot', this)">🔍 حل مشاكل والتحكم بالطلاب</button>
+            <button class="tab-btn" id="btnTabSupervisors" onclick="switchTab('supervisors', this)">👥 إدارة المشرفين</button>
+            <button class="tab-btn" id="btnTabSettings" onclick="switchTab('settings', this)">⚙️ إعدادات المنصة</button>
+            <button class="tab-btn" id="btnTabAddStudent" onclick="switchTab('addStudent', this)">➕ إضافة طالب</button>
         </div>
-        <div class="input-group">
-            <label>رابط تحديث التطبيق</label>
-            <input type="text" id="updateUrl" placeholder="رابط التحميل المباشر">
+
+        <!-- TAB 1: Student Troubleshooter & Advanced Controls -->
+        <div id="tabTroubleshoot">
+            <!-- One-Click Global Fix -->
+            <div class="quick-fix-banner">
+                <div>
+                    <h3 style="color:#065F46; font-size:16px; font-weight:900; margin-bottom:4px;">🌟 فك الحظر الشامل وتصفير كل الأجهزة</h3>
+                    <p style="color:#047857; font-size:12px;">بنقرة واحدة، إلغاء حظر أي طالب معلق وتصفير قيود الأجهزة لجميع المسجلين فوراً.</p>
+                </div>
+                <button class="btn-action success" onclick="unbanAllStudents()" style="padding:12px 20px; font-size:14px;">
+                    🔓 فك حظر الجميع الآن
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>🔍 لوحة التحكم السريع في حسابات الطلاب</span>
+                    <span id="studentsTotalCountBadge" style="font-size:12px; background:#EEF2FF; color:#4F46E5; padding:4px 10px; border-radius:10px;">—</span>
+                </div>
+                
+                <div class="search-box-wrap">
+                    <span class="search-icon-inside">🔍</span>
+                    <input type="text" id="troubleSearch" placeholder="ابحث باسم الطالب، رقم الواتساب، أو كود الطالب..." oninput="searchStudentTrouble()">
+                </div>
+
+                <!-- Filter Chips -->
+                <div class="filter-chips">
+                    <button class="filter-chip active" onclick="setStudentFilter('all', this)">الكل</button>
+                    <button class="filter-chip" onclick="setStudentFilter('active', this)">🟢 الحسابات النشطة</button>
+                    <button class="filter-chip" onclick="setStudentFilter('banned', this)">🚫 الحسابات الموقوفة</button>
+                    <button class="filter-chip" onclick="setStudentFilter('warnings', this)">⚠️ أصحاب الإنذارات</button>
+                </div>
+
+                <div id="troubleResults">
+                    <div style="text-align:center; padding:30px; color:#94A3B8; font-weight:700;">
+                        جاري تحميل بيانات الطلاب...
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="input-group">
-            <label>رمز دخول الإدارة (Admin PIN)</label>
-            <input type="text" id="adminPin" placeholder="مثلاً: 1234">
+
+        <!-- TAB 2: Supervisors & Roles Management (Master Admin) -->
+        <div id="tabSupervisors" style="display: none;">
+            <div class="card">
+                <div class="card-title">
+                    <span>👥 قائمة مشرفي المنصة والصلاحيات</span>
+                    <button class="btn-action primary" onclick="openAddSupervisorModal()">➕ إضافة مشرف جديد</button>
+                </div>
+                <p style="color:#64748B; font-size:13px; margin-bottom:20px;">
+                    يمكنك إضافة مشرفين للمنصة، وتحديد رقم سري خاص بكل مشرف مع تحديد المهام المصرح له بالدخول إليها فقط.
+                </p>
+
+                <div id="supervisorsList">
+                    <div style="text-align:center; padding:30px; color:#94A3B8; font-weight:700;">
+                        جاري تحميل قائمة المشرفين...
+                    </div>
+                </div>
+            </div>
         </div>
-        <button class="btn-primary" onclick="saveConfig()">حفظ الإعدادات الآن ✅</button>
+
+        <!-- TAB 3: System Settings -->
+        <div id="tabSettings" style="display: none;">
+            <div class="card">
+                <div class="card-title">
+                    <span>🛡️ مفاتيح وسياسات الأمان والتسجيل</span>
+                </div>
+
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <h4>📱 السماح بالدخول من أي جهاز (إلغاء قفل الأجهزة)</h4>
+                        <p>عند التعطيل، يستطيع الطالب فتح حسابه من الموبايل والكمبيوتر وأي متصفح بحرية تامة دون حظر أو إنذارات.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleDeviceLock">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <h4>✉️ التحقق من البريد الإلكتروني (OTP)</h4>
+                        <p>تفعيل أو إيقاف إرسال كود التأكيد للإيميل عند إنشاء حساب جديد.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleEmailOtp">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <h4>🚧 وضع الصيانة (Maintenance Mode)</h4>
+                        <p>إغلاق المنصة مؤقتاً للطلاب وعرض شاشة الصيانة أثناء تحديث الدروس.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleMaintenance">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📞 أرقام الدعم والتواصل مع الطلاب</span>
+                </div>
+
+                <div class="input-group">
+                    <label>رقم واتساب الدعم الفني المباشر</label>
+                    <input type="tel" id="supportWhatsapp" placeholder="مثلاً: 201158210358">
+                </div>
+
+                <div class="input-group">
+                    <label>رابط جروب واتساب المنصة</label>
+                    <input type="url" id="supportGroupUrl" placeholder="https://chat.whatsapp.com/...">
+                </div>
+
+                <div class="input-group">
+                    <label>رسالة وضع الصيانة (تظهر للطلاب عند التفعيل)</label>
+                    <textarea id="maintenanceMsg" rows="2" placeholder="جاري تحديث المنصة ورفع محاضرات جديدة، سنعود قريباً..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>رمز دخول الإدارة للمدير العام (Master Admin PIN)</label>
+                    <input type="text" id="adminPin" placeholder="1234">
+                </div>
+
+                <div class="input-group">
+                    <label>رقم الإصدار الظاهري</label>
+                    <input type="text" id="publicVersion" placeholder="5.0.0">
+                </div>
+
+                <button class="btn-primary" onclick="saveSettings()">حفظ إعدادات المنصة الآن ✅</button>
+            </div>
+        </div>
+
+        <!-- TAB 4: Quick Add Student -->
+        <div id="tabAddStudent" style="display: none;">
+            <div class="card">
+                <div class="card-title">
+                    <span>➕ إنشاء حساب طالب فوري من قبل الإدارة</span>
+                </div>
+
+                <div class="input-group">
+                    <label>الاسم بالكامل</label>
+                    <input type="text" id="newStName" placeholder="أدخل اسم الطالب الثلاثي">
+                </div>
+
+                <div class="input-group">
+                    <label>رقم الواتساب</label>
+                    <input type="tel" id="newStPhone" placeholder="01xxxxxxxxx">
+                </div>
+
+                <div class="input-group">
+                    <label>كود الطالب (اتركه فارغاً للتوليد التلقائي)</label>
+                    <input type="text" id="newStCode" placeholder="مثال: KH1000 أو اتركه فارغاً">
+                </div>
+
+                <div class="input-group">
+                    <label>البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="newStEmail" placeholder="student@gmail.com">
+                </div>
+
+                <button class="btn-primary" onclick="quickAddStudent()">إنشاء وتفعيل الحساب فوراً 🚀</button>
+            </div>
+        </div>
+
     </div>
 
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script>
-        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
 
-        // Load current config
-        database.ref('Settings').once('value').then(snap => {
-            if(snap.exists()){
-                const config = snap.val();
-                document.getElementById('minVersion').value = config.minVersion || 1;
-                document.getElementById('updateUrl').value = config.updateUrl || "";
-                document.getElementById('adminPin').value = config.adminPin || "1234";
+    <script>
+        let allStudentsList = [];
+        let allSupervisorsList = [];
+        let currentStudentFilter = 'all';
+
+        // Role-based visibility
+        if (currentRole !== 'master') {
+            document.getElementById('btnTabSupervisors').style.display = 'none';
+            document.getElementById('btnTabSettings').style.display = 'none';
+        }
+
+        // Tab Switching
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.getElementById('tabTroubleshoot').style.display = (tabId === 'troubleshoot') ? 'block' : 'none';
+            document.getElementById('tabSupervisors').style.display = (tabId === 'supervisors') ? 'block' : 'none';
+            document.getElementById('tabSettings').style.display = (tabId === 'settings') ? 'block' : 'none';
+            document.getElementById('tabAddStudent').style.display = (tabId === 'addStudent') ? 'block' : 'none';
+        }
+
+        function setStudentFilter(filter, chip) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentStudentFilter = filter;
+            searchStudentTrouble();
+        }
+
+        // Load Students
+        database.ref('Students').on('value', snap => {
+            allStudentsList = [];
+            if(snap.exists()) {
+                snap.forEach(c => {
+                    const val = c.val();
+                    if(val) allStudentsList.push(val);
+                });
+            }
+            document.getElementById('studentsTotalCountBadge').textContent = `إجمالي: ${allStudentsList.length} طالب`;
+            searchStudentTrouble();
+        });
+
+        // Load Supervisors (Master only)
+        database.ref('Supervisors').on('value', snap => {
+            allSupervisorsList = [];
+            if(snap.exists()) {
+                snap.forEach(c => {
+                    allSupervisorsList.push({ id: c.key, ...c.val() });
+                });
+            }
+            renderSupervisors();
+        });
+
+        // Load Settings
+        database.ref('Settings').on('value', snap => {
+            if(snap.exists()) {
+                const s = snap.val();
+                document.getElementById('toggleDeviceLock').checked = s.deviceLockEnabled === true;
+                document.getElementById('toggleEmailOtp').checked = s.emailOtpEnabled === true;
+                document.getElementById('toggleMaintenance').checked = s.maintenanceMode === true;
+
+                document.getElementById('supportWhatsapp').value = s.supportWhatsapp || "201158210358";
+                document.getElementById('supportGroupUrl').value = s.supportGroupUrl || "https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn";
+                document.getElementById('maintenanceMsg').value = s.maintenanceMsg || "جاري تحديث المنصة ورفع محاضرات جديدة، سنعود قريباً...";
+                document.getElementById('adminPin').value = s.adminPin || "1234";
+                document.getElementById('publicVersion').value = s.publicVersion || "5.0.0";
             }
         });
 
-        function saveConfig() {
+        // Save Settings
+        function saveSettings() {
             const updates = {
-                minVersion: parseInt(document.getElementById('minVersion').value) || 1,
-                updateUrl: document.getElementById('updateUrl').value.trim(),
-                adminPin: document.getElementById('adminPin').value.trim()
+                deviceLockEnabled: document.getElementById('toggleDeviceLock').checked,
+                emailOtpEnabled: document.getElementById('toggleEmailOtp').checked,
+                maintenanceMode: document.getElementById('toggleMaintenance').checked,
+                supportWhatsapp: document.getElementById('supportWhatsapp').value.trim(),
+                supportGroupUrl: document.getElementById('supportGroupUrl').value.trim(),
+                maintenanceMsg: document.getElementById('maintenanceMsg').value.trim(),
+                adminPin: document.getElementById('adminPin').value.trim(),
+                publicVersion: document.getElementById('publicVersion').value.trim() || "5.0.0"
             };
 
             database.ref('Settings').update(updates).then(() => {
-                alert("تم حفظ الإعدادات بنجاح ✅");
-            }).catch(() => alert("فشل الحفظ"));
+                Swal.fire('تم الحفظ بنجاح ✅', 'تم تحديث كافة إعدادات المنصة وسياسات الأمان.', 'success');
+            }).catch(e => {
+                console.error(e);
+                Swal.fire('خطأ ❌', 'فشل في حفظ الإعدادات', 'error');
+            });
+        }
+
+        function normalizeDigits(str) {
+            if (str === undefined || str === null) return '';
+            const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+            const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
+            let result = str.toString().trim();
+            for (let i = 0; i < 10; i++) {
+                result = result.replace(arabicNumbers[i], i.toString()).replace(persianNumbers[i], i.toString());
+            }
+            return result;
+        }
+
+        // ──────────────────────────────────────────
+        // SUPERVISOR MANAGEMENT LOGIC
+        // ──────────────────────────────────────────
+        const PERMISSION_DEFINITIONS = [
+            { key: 'lessons', label: '📽️ الدروس والامتحانات والمذكرات' },
+            { key: 'students', label: '👥 إدارة الطلاب وحل المشاكل وتصفير الأجهزة' },
+            { key: 'codes', label: '🔑 توليد أكواد التفعيل' },
+            { key: 'notifications', label: '🔔 إرسال الإشعارات والتنبيهات' },
+            { key: 'courses', label: '📖 إدارة المواد الدراسية' },
+            { key: 'reports', label: '📊 تقارير الطلاب ورادار الأداء' },
+            { key: 'mistakes', label: '📝 تحليل أخطاء البابل شيت' },
+            { key: 'otps', label: '🚨 طوارئ OTP' }
+        ];
+
+        function renderSupervisors() {
+            const container = document.getElementById('supervisorsList');
+            if(!container) return;
+            container.innerHTML = "";
+
+            if(allSupervisorsList.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#94A3B8; font-weight:700;">
+                        لا يوجد مشرفين مضافين حالياً.<br>
+                        اضغط على زر "➕ إضافة مشرف جديد" لإضافة أول مشرف للمنصة.
+                    </div>
+                `;
+                return;
+            }
+
+            allSupervisorsList.forEach(sup => {
+                const card = document.createElement('div');
+                card.className = "supervisor-card";
+
+                const isAct = sup.isActive !== false;
+                const statusBadge = isAct
+                    ? `<span style="background:#DCFCE7; color:#166534; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">🟢 مفعل</span>`
+                    : `<span style="background:#FEE2E2; color:#991B1B; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">⏸️ معطل</span>`;
+
+                const perms = sup.permissions || {};
+                let permBadgesHtml = '';
+                PERMISSION_DEFINITIONS.forEach(def => {
+                    if (perms[def.key]) {
+                        permBadgesHtml += `<span class="perm-badge">${def.label}</span>`;
+                    }
+                });
+
+                if(!permBadgesHtml) {
+                    permBadgesHtml = `<span style="color:#94A3B8; font-size:12px;">(لا توجد صلاحيات ممنوحة)</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="st-header">
+                        <div>
+                            <div class="st-name">🛡️ ${sup.name || 'مشرف بدون اسم'} ${statusBadge}</div>
+                            <div style="font-size:13px; color:#6366F1; font-weight:700; margin-top:2px;">${sup.roleTitle || 'مشرف المنصة'}</div>
+                        </div>
+                        <div>
+                            <span class="st-code-pill" onclick="copyText('${sup.pin}')" title="اضغط لنسخ الرقم السري">
+                                🔑 PIN: <strong>${sup.pin}</strong> 📋
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <div style="font-size:12px; font-weight:800; color:#64748B; margin-bottom:5px;">المهام والصلاحيات المصرح بها:</div>
+                        <div class="perm-badges-wrap">
+                            ${permBadgesHtml}
+                        </div>
+                    </div>
+
+                    ${sup.createdAt ? `<div class="st-detail" style="margin-top:10px;">📅 أضيف بتاريخ: <strong>${new Date(sup.createdAt).toLocaleDateString('ar-EG')}</strong></div>` : ''}
+
+                    <div class="st-actions-bar">
+                        <button class="btn-action primary" onclick="openEditSupervisorModal('${sup.id}')">
+                            ✏️ تعديل البيانات والصلاحيات
+                        </button>
+                        <button class="btn-action warning" onclick="toggleSupervisorStatus('${sup.id}', ${isAct})">
+                            ${isAct ? '⏸️ إيقاف مؤقت' : '▶️ إعادة تفعيل'}
+                        </button>
+                        <button class="btn-action danger" onclick="deleteSupervisor('${sup.id}', '${sup.name}')">
+                            🗑️ حذف المشرف
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Generate unique electronic PIN
+        function generateRandomPin() {
+            let pin;
+            do {
+                pin = Math.floor(1000 + Math.random() * 9000).toString();
+            } while (allSupervisorsList.some(s => s.pin === pin));
+            return pin;
+        }
+
+        // Open Add Supervisor Modal (With Electronic Code Generation)
+        function openAddSupervisorModal() {
+            const autoPin = generateRandomPin();
+
+            let permsCheckboxesHtml = '';
+            PERMISSION_DEFINITIONS.forEach(def => {
+                permsCheckboxesHtml += `
+                    <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; margin-bottom:6px; cursor:pointer; font-size:13px; font-weight:700; color:#334155;">
+                        <input type="checkbox" class="sup-perm-cb" id="perm_${def.key}" style="width:18px; height:18px; accent-color:#4F46E5;">
+                        <span>${def.label}</span>
+                    </label>
+                `;
+            });
+
+            Swal.fire({
+                title: '➕ إضافة مشرف جديد (توليد كود إلكتروني)',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; max-height:65vh; overflow-y:auto; padding:5px 10px;">
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">اسم المشرف بالكامل:</label>
+                        <input id="supName" placeholder="مثال: أ/ أحمد محمود" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700;">
+
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">المسمى الوظيفي:</label>
+                        <input id="supRoleTitle" value="مشرف المنصة" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px; font-family:'Cairo',sans-serif; font-weight:700;">
+
+                        <label style="font-size:13px; font-weight:800; color:#4F46E5; display:block; margin-bottom:5px;">🔑 كود الدخول الإلكتروني المولد للمشرف (PIN):</label>
+                        <div style="display:flex; gap:8px; margin-bottom:15px;">
+                            <input id="supPin" value="${autoPin}" style="flex:1; padding:10px; border:2px solid #4F46E5; border-radius:10px; font-size:18px; font-weight:900; text-align:center; color:#1E1B4B; background:#EEF2FF; letter-spacing:4px;">
+                            <button type="button" onclick="document.getElementById('supPin').value = generateRandomPin();" style="background:#F1F5F9; border:1px solid #CBD5E1; padding:0 12px; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">🎲 توليد كود جديد</button>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <label style="font-size:13px; font-weight:800; color:#1E293B;">حدد المهام المصرح بها للمشرف:</label>
+                            <button type="button" onclick="document.querySelectorAll('.sup-perm-cb').forEach(cb => cb.checked = true);" style="background:none; border:none; color:#4F46E5; font-size:12px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">✔️ تحديد الكل</button>
+                        </div>
+                        <div>
+                            ${permsCheckboxesHtml}
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ وتفعيل المشرف 🚀',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                preConfirm: () => {
+                    const name = document.getElementById('supName').value.trim();
+                    const pin = normalizeDigits(document.getElementById('supPin').value).trim();
+                    const roleTitle = document.getElementById('supRoleTitle').value.trim();
+
+                    if (!name || !pin) {
+                        Swal.showValidationMessage('يرجى كتابة اسم المشرف والتأكد من وجود الكود');
+                        return false;
+                    }
+
+                    const perms = {};
+                    PERMISSION_DEFINITIONS.forEach(def => {
+                        perms[def.key] = document.getElementById(`perm_${def.key}`).checked;
+                    });
+
+                    return { name, pin, roleTitle, permissions: perms };
+                }
+            }).then(res => {
+                if(res.isConfirmed && res.value) {
+                    const newSup = {
+                        ...res.value,
+                        isActive: true,
+                        createdAt: Date.now()
+                    };
+
+                    database.ref('Supervisors').push(newSup).then(() => {
+                        const copyMsg = `مرحباً بك يا ${newSup.name} في إدارة منصة الخطة التعليمية 🎓\nكود الدخول الإلكتروني الخاص بك (PIN): ${newSup.pin}\nرابط الدخول المباشر للمنصة: https://elkheta2026.web.app`;
+
+                        Swal.fire({
+                            title: 'تم إنشاء حساب المشرف بنجاح! 🎉',
+                            html: `
+                                <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                                    <p style="font-size:14px; margin-bottom:12px;">تم تسجيل المشرف <strong>${newSup.name}</strong> (${newSup.roleTitle}).</p>
+                                    <div style="background:#EEF2FF; border:2px dashed #6366F1; border-radius:14px; padding:15px; text-align:center; margin-bottom:15px;">
+                                        <div style="font-size:12px; color:#4F46E5; font-weight:800;">🔑 كود الدخول الإلكتروني (PIN):</div>
+                                        <div style="font-size:28px; font-weight:900; color:#1E1B4B; letter-spacing:4px; margin:5px 0;">${newSup.pin}</div>
+                                        <div style="font-size:12px; color:#64748B;">يدخل به مباشرة من صفحة الدخول أو بوابة الإدارة</div>
+                                    </div>
+                                    <button onclick="navigator.clipboard.writeText('${copyMsg}'); showToast('تم نسخ بيانات المشرف 📋', 'success');" style="width:100%; background:#10B981; color:white; border:none; padding:12px; border-radius:12px; font-weight:900; cursor:pointer; font-family:'Cairo',sans-serif;">📋 نسخ بيانات المشرف للإرسال عبر واتساب</button>
+                                </div>
+                            `,
+                            icon: 'success',
+                            confirmButtonText: 'إغلاق'
+                        });
+                    }).catch(err => {
+                        console.error(err);
+                        Swal.fire('خطأ', 'حدث خطأ أثناء حفظ المشرف في قاعدة البيانات', 'error');
+                    });
+                }
+            });
+        }
+
+        // Open Edit Supervisor Modal
+        function openEditSupervisorModal(supId) {
+            const sup = allSupervisorsList.find(s => s.id === supId);
+            if(!sup) return;
+
+            const perms = sup.permissions || {};
+            let permsCheckboxesHtml = '';
+            PERMISSION_DEFINITIONS.forEach(def => {
+                const isChecked = perms[def.key] ? 'checked' : '';
+                permsCheckboxesHtml += `
+                    <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; margin-bottom:6px; cursor:pointer; font-size:13px; font-weight:700; color:#334155;">
+                        <input type="checkbox" id="edit_perm_${def.key}" ${isChecked} style="width:18px; height:18px; accent-color:#4F46E5;">
+                        <span>${def.label}</span>
+                    </label>
+                `;
+            });
+
+            Swal.fire({
+                title: '✏️ تعديل بيانات وصلاحيات المشرف',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; max-height:65vh; overflow-y:auto; padding:5px 10px;">
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">اسم المشرف:</label>
+                        <input id="editSupName" value="${sup.name || ''}" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px;">
+
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">المسمى الوظيفي:</label>
+                        <input id="editSupRoleTitle" value="${sup.roleTitle || ''}" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px;">
+
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">الرقم السري للدخول (PIN):</label>
+                        <input id="editSupPin" value="${sup.pin || ''}" style="width:100%; padding:10px; margin-bottom:15px; border:2px solid #E2E8F0; border-radius:10px;">
+
+                        <label style="font-size:13px; font-weight:800; color:#4F46E5; display:block; margin-bottom:8px;">تعديل الصلاحيات الممنوحة:</label>
+                        <div>
+                            ${permsCheckboxesHtml}
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات ✅',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                preConfirm: () => {
+                    const name = document.getElementById('editSupName').value.trim();
+                    const pin = normalizeDigits(document.getElementById('editSupPin').value).trim();
+                    const roleTitle = document.getElementById('editSupRoleTitle').value.trim();
+
+                    if (!name || !pin) {
+                        Swal.showValidationMessage('يرجى كتابة اسم المشرف والرقم السري');
+                        return false;
+                    }
+
+                    const updatedPerms = {};
+                    PERMISSION_DEFINITIONS.forEach(def => {
+                        updatedPerms[def.key] = document.getElementById(`edit_perm_${def.key}`).checked;
+                    });
+
+                    return { name, pin, roleTitle, permissions: updatedPerms };
+                }
+            }).then(res => {
+                if(res.isConfirmed && res.value) {
+                    database.ref('Supervisors/' + supId).update(res.value).then(() => {
+                        Swal.fire('تم الحفظ ✅', 'تم تحديث بيانات وصلاحيات المشرف بنجاح.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Toggle Supervisor Status
+        function toggleSupervisorStatus(supId, currentActive) {
+            database.ref('Supervisors/' + supId).update({ isActive: !currentActive }).then(() => {
+                Swal.fire({
+                    title: currentActive ? 'تم إيقاف الحساب ⏸️' : 'تم تفعيل الحساب ▶️',
+                    icon: 'info',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        }
+
+        // Delete Supervisor
+        function deleteSupervisor(supId, name) {
+            Swal.fire({
+                title: 'حذف المشرف ⚠️',
+                text: `هل أنت متأكد من حذف حساب المشرف (${name})؟ لن يتمكن من تسجيل الدخول بعد الآن.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، احذف المشرف',
+                cancelButtonText: 'إلغاء'
+            }).then(res => {
+                if(res.isConfirmed) {
+                    database.ref('Supervisors/' + supId).remove().then(() => {
+                        Swal.fire('تم الحذف 🗑️', 'تم حذف المشرف بنجاح.', 'success');
+                    });
+                }
+            });
+        }
+
+        // ──────────────────────────────────────────
+        // ADVANCED STUDENT CONTROLS & TROUBLESHOOTER
+        // ──────────────────────────────────────────
+        function searchStudentTrouble() {
+            const q = (document.getElementById('troubleSearch').value || '').trim().toLowerCase();
+            const container = document.getElementById('troubleResults');
+            
+            let list = allStudentsList;
+
+            // Apply Status Filter
+            if (currentStudentFilter === 'banned') {
+                list = list.filter(s => s.isBanned === true);
+            } else if (currentStudentFilter === 'warnings') {
+                list = list.filter(s => (s.warnings || 0) > 0);
+            } else if (currentStudentFilter === 'active') {
+                list = list.filter(s => s.isBanned !== true);
+            }
+
+            if(!q) {
+                renderTroubleStudents(list.slice().reverse(), container);
+                return;
+            }
+
+            const matches = list.filter(s => 
+                (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+                (s.studentCode && s.studentCode.toLowerCase().includes(q)) ||
+                (s.whatsapp && s.whatsapp.includes(q)) ||
+                (s.email && s.email.toLowerCase().includes(q))
+            );
+
+            renderTroubleStudents(matches, container);
+        }
+
+        function renderTroubleStudents(students, container) {
+            container.innerHTML = "";
+
+            if(students.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8; font-weight:700;">لا يوجد طلاب مطابقين للبحث أو الفلتر المحدد 🔍</div>`;
+                return;
+            }
+
+            students.forEach(st => {
+                const card = document.createElement('div');
+                card.className = "student-trouble-card";
+
+                const isBanned = st.isBanned === true;
+                let statusBadge = `<span style="background:#DCFCE7; color:#166534; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">🟢 نشط</span>`;
+                if(isBanned) statusBadge = `<span style="background:#FEE2E2; color:#991B1B; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">🚫 موقوف</span>`;
+                else if(st.warnings > 0) statusBadge = `<span style="background:#FEF3C7; color:#B45309; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">⚠️ ${st.warnings} إنذار</span>`;
+
+                const points = st.stats?.totalScore || 0;
+                const phone = st.whatsapp || 'غير مسجل';
+                const cleanPhone = phone.replace(/[^0-9]/g, '');
+                const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+                const waMessage = encodeURIComponent(`أهلاً بك يا ${st.fullName || 'طالب'} في منصة الخطة 🎓\nكود الدخول الخاص بحسابك هو: ${st.studentCode}\nرابط المنصة: https://elkheta2026.web.app`);
+
+                card.innerHTML = `
+                    <div class="st-header">
+                        <div>
+                            <div class="st-name">${st.fullName || 'بدون اسم'} ${statusBadge}</div>
+                            <div style="margin-top:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <span class="st-code-pill" onclick="copyText('${st.studentCode}')" title="اضغط لنسخ الكود">
+                                    🔑 ${st.studentCode} 📋
+                                </span>
+                                <span style="font-size:12px; background:#FEF3C7; color:#B45309; padding:3px 8px; border-radius:6px; font-weight:800;">
+                                    🏆 ${points} نقطة
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="st-detail">📞 الواتساب: <strong>${phone}</strong></div>
+                    <div class="st-detail">✉️ البريد: <strong>${st.email || 'غير محدد'}</strong></div>
+                    ${st.banReason ? `<div class="st-detail" style="color:#DC2626;">⚠️ سبب الإيقاف: <strong>${st.banReason}</strong></div>` : ''}
+                    ${st.personalMessage ? `<div class="st-detail" style="color:#4F46E5;">📢 رسالة خاصة مرسلة: <strong>${st.personalMessage}</strong></div>` : ''}
+                    ${st.joinDate ? `<div class="st-detail">📅 تاريخ الانضمام: <strong>${new Date(st.joinDate).toLocaleDateString('ar-EG')}</strong></div>` : ''}
+
+                    <div class="st-actions-bar">
+                        <button class="btn-action success" onclick="window.open('https://wa.me/${waNumber}?text=${waMessage}', '_blank')">
+                            💬 واتساب
+                        </button>
+                        <button class="btn-action warning" onclick="unbanAndResetStudent('${st.studentCode}')">
+                            🔓 فك الحظر وتصفير الأجهزة
+                        </button>
+                        <button class="btn-action ${isBanned ? 'success' : 'danger'}" onclick="toggleBanStudent('${st.studentCode}', ${isBanned})">
+                            ${isBanned ? '🟢 إلغاء الإيقاف' : '🚫 إيقاف الحساب'}
+                        </button>
+                        <button class="btn-action primary" onclick="managePointsModal('${st.studentCode}', ${points})">
+                            🏆 تعديل النقاط
+                        </button>
+                        <button class="btn-action warning" onclick="resetExamsModal('${st.studentCode}', '${st.fullName || ''}')">
+                            🔄 إعادة الامتحانات
+                        </button>
+                        <button class="btn-action dark" onclick="sendPersonalNotice('${st.studentCode}', '${st.fullName || ''}')">
+                            📢 رسالة تنبيه
+                        </button>
+                        <button class="btn-action primary" onclick="editStudentModal('${st.studentCode}')">
+                            ✏️ تعديل البيانات
+                        </button>
+                        <button class="btn-action dark" onclick="location.href='admin-reports.html?search=${st.studentCode}'">
+                            📊 نشاط الطالب
+                        </button>
+                        <button class="btn-action danger" onclick="deleteStudent('${st.studentCode}', '${st.fullName || ''}')">
+                            🗑️ حذف الحساب
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function copyText(txt) {
+            navigator.clipboard.writeText(txt);
+            Swal.fire({
+                title: 'تم النسخ! 📋',
+                text: `تم النسخ للحافظة: (${txt})`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        // Unban & Reset Single Student
+        function unbanAndResetStudent(code) {
+            database.ref('Students/' + code).update({
+                isBanned: false,
+                warnings: 0,
+                banReason: null,
+                registeredDevices: null,
+                registeredDevice: null,
+                forgivenMessage: true
+            }).then(() => {
+                database.ref('ActiveSessions/' + code).remove();
+                Swal.fire('تم الحل بنجاح! 🌟', 'تم إلغاء الحظر وتصفير قيود الأجهزة لهذا الطالب ليستطيع الدخول فوراً.', 'success');
+            });
+        }
+
+        // Toggle Ban Student with Reason
+        function toggleBanStudent(code, isCurrentlyBanned) {
+            if (isCurrentlyBanned) {
+                database.ref('Students/' + code).update({
+                    isBanned: false,
+                    banReason: null
+                }).then(() => {
+                    Swal.fire('تم إلغاء الإيقاف 🟢', 'تم تفعيل حساب الطالب بنجاح.', 'success');
+                });
+            } else {
+                Swal.fire({
+                    title: '🚫 إيقاف حساب الطالب',
+                    html: `
+                        <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                            <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:6px;">سبب الإيقاف (يظهر للطالب عند محاولة الدخول):</label>
+                            <input id="banReasonInput" placeholder="مثال: يرجى سداد الاشتراك أو التواصل مع الإدارة" style="width:100%; padding:10px; border:2px solid #E2E8F0; border-radius:10px;">
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'إيقاف الحساب الآن 🚫',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#EF4444',
+                    preConfirm: () => {
+                        return document.getElementById('banReasonInput').value.trim() || 'يرجى مراجعة إدارة المنصة';
+                    }
+                }).then(res => {
+                    if (res.isConfirmed && res.value) {
+                        database.ref('Students/' + code).update({
+                            isBanned: true,
+                            banReason: res.value
+                        }).then(() => {
+                            database.ref('ActiveSessions/' + code).remove();
+                            Swal.fire('تم إيقاف الحساب 🚫', `تم حظر دخول الطالب بالسبب: ${res.value}`, 'info');
+                        });
+                    }
+                });
+            }
+        }
+
+        // Manage Student Points
+        function managePointsModal(code, currentPoints) {
+            Swal.fire({
+                title: '🏆 تعديل نقاط الطالب',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                        <p style="font-size:14px; color:#64748B; margin-bottom:10px;">النقاط الحالية: <strong style="color:#4F46E5;">${currentPoints}</strong></p>
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:6px;">إجمالي النقاط الجديد:</label>
+                        <input type="number" id="newPointsInput" value="${currentPoints}" style="width:100%; padding:10px; border:2px solid #E2E8F0; border-radius:10px; font-size:16px; font-weight:800;">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ النقاط ✅',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                preConfirm: () => {
+                    const pts = parseInt(document.getElementById('newPointsInput').value);
+                    return isNaN(pts) ? 0 : pts;
+                }
+            }).then(res => {
+                if (res.isConfirmed && res.value !== undefined) {
+                    database.ref('Students/' + code + '/stats/totalScore').set(res.value).then(() => {
+                        Swal.fire('تم تحديث النقاط 🎉', `أصبحت نقاط الطالب: ${res.value}`, 'success');
+                    });
+                }
+            });
+        }
+
+        // Reset Student Exams
+        function resetExamsModal(code, name) {
+            Swal.fire({
+                title: '🔄 إعادة الامتحانات للطالب',
+                text: `هل تريد تصفير محاولات ونتائج الامتحانات للطالب (${name}) ليتمكن من إعادة حل الاختبارات من البداية؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#F59E0B',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، تصفير الامتحانات',
+                cancelButtonText: 'إلغاء'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    database.ref('ExamSubmissions/' + code).remove().then(() => {
+                        database.ref('Mistakes/' + code).remove();
+                        Swal.fire('تم التصفير بنجاح! 🔄', 'يستطيع الطالب الآن إعادة أداء كافة الامتحانات.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Send Personal Notice to Student
+        function sendPersonalNotice(code, name) {
+            Swal.fire({
+                title: `📢 إرسال تنبيه خاص لـ (${name})`,
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                        <label style="font-size:13px; font-weight:800; color:#64748B; display:block; margin-bottom:6px;">نص التنبيه:</label>
+                        <textarea id="personalMsgInput" rows="3" placeholder="مثال: أحسنت في حل امتحان الفيزياء الأخير! استمر في التفوق..." style="width:100%; padding:10px; border:2px solid #E2E8F0; border-radius:10px;"></textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'إرسال التنبيه 🚀',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                preConfirm: () => {
+                    return document.getElementById('personalMsgInput').value.trim();
+                }
+            }).then(res => {
+                if (res.isConfirmed && res.value) {
+                    database.ref('Students/' + code).update({
+                        personalMessage: res.value,
+                        personalMessageTime: Date.now()
+                    }).then(() => {
+                        Swal.fire('تم الإرسال 📢', 'سيظهر التنبيه للطالب فور دخوله حسابه.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Edit Student Modal
+        function editStudentModal(code) {
+            const st = allStudentsList.find(s => s.studentCode === code);
+            if(!st) return;
+
+            Swal.fire({
+                title: 'تعديل بيانات الطالب ✏️',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                        <label style="font-size:13px; font-weight:800; color:#64748B;">اسم الطالب:</label>
+                        <input id="editName" value="${st.fullName || ''}" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px;">
+                        
+                        <label style="font-size:13px; font-weight:800; color:#64748B;">رقم الواتساب:</label>
+                        <input id="editPhone" value="${st.whatsapp || ''}" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px;">
+                        
+                        <label style="font-size:13px; font-weight:800; color:#64748B;">البريد الإلكتروني:</label>
+                        <input id="editEmail" value="${st.email || ''}" style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #E2E8F0; border-radius:10px;">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات ✅',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                preConfirm: () => {
+                    return {
+                        fullName: document.getElementById('editName').value.trim(),
+                        whatsapp: document.getElementById('editPhone').value.trim(),
+                        email: document.getElementById('editEmail').value.trim()
+                    };
+                }
+            }).then((res) => {
+                if(res.isConfirmed && res.value) {
+                    database.ref('Students/' + code).update(res.value).then(() => {
+                        Swal.fire('تم التعديل ✅', 'تم تحديث بيانات الطالب بنجاح.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Delete Student
+        function deleteStudent(code, name) {
+            Swal.fire({
+                title: 'تأكيد الحذف ⚠️',
+                text: `هل أنت متأكد من حذف حساب الطالب (${name})؟ لن يتمكن من تسجيل الدخول بعد الآن.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، احذف الحساب',
+                cancelButtonText: 'إلغاء'
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    database.ref('Students/' + code).remove().then(() => {
+                        database.ref('ActiveSessions/' + code).remove();
+                        Swal.fire('تم الحذف 🗑️', 'تم حذف حساب الطالب نهائياً.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Unban ALL Students
+        function unbanAllStudents() {
+            Swal.fire({
+                title: 'فك الحظر الشامل 🌟',
+                text: 'هل تريد إلغاء حظر جميع الطلاب وتصفير الإنذارات وقيود الأجهزة للجميع دفعة واحدة؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، فك الحظر للجميع',
+                cancelButtonText: 'إلغاء'
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    database.ref('Students').once('value').then(snap => {
+                        if(snap.exists()) {
+                            const updates = {};
+                            snap.forEach(child => {
+                                updates[child.key + '/isBanned'] = false;
+                                updates[child.key + '/banReason'] = null;
+                                updates[child.key + '/warnings'] = 0;
+                                updates[child.key + '/registeredDevices'] = null;
+                                updates[child.key + '/registeredDevice'] = null;
+                            });
+                            database.ref('Students').update(updates).then(() => {
+                                database.ref('ActiveSessions').remove();
+                                Swal.fire('تمت العملية بنجاح! 🎉', 'تم تصفير الأجهزة وإلغاء حظر كافة الطلاب.', 'success');
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Quick Add Student
+        function quickAddStudent() {
+            const name = document.getElementById('newStName').value.trim();
+            const phone = document.getElementById('newStPhone').value.trim();
+            let code = document.getElementById('newStCode').value.trim().toUpperCase();
+            const email = document.getElementById('newStEmail').value.trim() || 'student@elkheta.com';
+
+            if(!name || phone.length < 10) {
+                Swal.fire('تنبيه ⚠️', 'يرجى إدخال اسم الطالب ورقم الواتساب بشكل صحيح.', 'warning');
+                return;
+            }
+
+            if(!code) {
+                const map = {"أ":"A","إ":"E","آ":"A","ا":"A","ب":"B","ت":"T","ث":"T","ج":"J","ح":"H","خ":"K","د":"D","ذ":"D","ر":"R","ز":"Z","س":"S","ش":"S","ص":"S","ض":"D","ط":"T","ظ":"Z","ع":"A","غ":"G","ف":"F","ق":"Q","ك":"K","ل":"L","م":"M","ن":"N","ه":"H","و":"W","ي":"Y","ؤ":"O","ئ":"E"};
+                let firstChar = name.charAt(0).toUpperCase();
+                let ch = map[firstChar] || (/[A-Z]/.test(firstChar) ? firstChar : "S");
+                code = ch.toUpperCase() + phone.slice(-4).padStart(4, '0');
+            }
+
+            const newUserData = {
+                fullName: name,
+                whatsapp: phone,
+                email: email,
+                studentCode: code,
+                joinDate: Date.now()
+            };
+
+            database.ref('Students/' + code).set(newUserData).then(() => {
+                Swal.fire({
+                    title: 'تم إنشاء الحساب بنجاح! 🎉',
+                    html: `
+                        <div style="font-family:'Cairo'; font-size:16px;">
+                            تم تفعيل حساب الطالب: <strong>${name}</strong><br>
+                            كود الدخول: <strong style="color:#4F46E5; font-size:20px;">${code}</strong>
+                        </div>
+                    `,
+                    icon: 'success'
+                });
+
+                document.getElementById('newStName').value = '';
+                document.getElementById('newStPhone').value = '';
+                document.getElementById('newStCode').value = '';
+                document.getElementById('newStEmail').value = '';
+            }).catch(e => {
+                console.error(e);
+                Swal.fire('خطأ ❌', 'تعذر حفظ حساب الطالب', 'error');
+            });
         }
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
 </body>
 </html>

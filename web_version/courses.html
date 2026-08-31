@@ -1,45 +1,420 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المواد - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>المواد الدراسية - ELKHETA</title>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
+        }
+        if (window.caches) {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        .subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; margin-top: -30px; }
-        .sub-card { background: white; border-radius: 25px; padding: 20px; text-align: center; position: relative; overflow: hidden; border: 1px solid #F0F2F9; }
-        .color-tag { position: absolute; top: 0; right: 0; width: 6px; height: 40px; }
-        .sub-icon { width: 50px; height: 50px; background: #F4F7FF; border-radius: 15px; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
-        .sub-name { font-weight: bold; font-size: 16px; display: block; margin-bottom: 5px; }
-        .sub-desc { font-size: 11px; color: var(--text-sub); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --border: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 40px 20px 60px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            bottom: -80px; right: -30px; border-radius: 50%;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 22px; font-weight: 900; }
+        .header-sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+        /* Search Wrap */
+        .search-wrap {
+            max-width: 600px;
+            margin: -25px auto 20px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-main);
+            outline: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 38px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #94A3B8;
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Grid */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        @media (max-width: 380px) {
+            .subjects-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Subject Card */
+        .subject-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px 18px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .subject-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
+        }
+        .subject-card:active { transform: scale(0.98); }
+
+        .subject-color-strip {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+        }
+
+        .subject-icon-box {
+            width: 65px;
+            height: 65px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 12px;
+            background: #EEF2FF;
+            transition: transform 0.25s;
+        }
+        .subject-card:hover .subject-icon-box {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .subject-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .subject-badge {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            background: #EEF2FF;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-top: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94A3B8;
+        }
+        .empty-state div { font-size: 50px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; font-weight: 700; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #EEF2FF;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #A3AED0;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            transition: all 0.2s;
+        }
+        .nav-item.active { color: #3B82F6; }
+        .nav-item span { font-size: 20px; }
     </style>
 </head>
 <body>
-    <div class="header-gradient">
-        <div style="font-size: 22px; font-weight: bold;">المواد الدراسية</div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <div class="page-header">
+        <div class="header-top">
+            <a href="home.html" class="back-btn">⬅️</a>
+            <div>
+                <div class="header-title">📚 المواد الدراسية</div>
+                <div class="header-sub">اختر المادة واستكشف الدروس والامتحانات</div>
+            </div>
+            <div style="width:44px;"></div>
+        </div>
     </div>
 
-    <div class="subjects-grid" id="subjectsList">
-        <!-- Demo subjects -->
-        <div class="sub-card" onclick="location.href='quiz.html'">
-            <div class="color-tag" style="background: #0984E3;"></div>
-            <div class="sub-icon">⚛️</div>
-            <span class="sub-name">فيزياء</span>
-            <span class="sub-desc">استكشاف المحاضرات</span>
-        </div>
-        <div class="sub-card">
-            <div class="color-tag" style="background: #27AE60;"></div>
-            <div class="sub-icon">🧪</div>
-            <span class="sub-name">كيمياء</span>
-            <span class="sub-desc">استكشاف المحاضرات</span>
+    <div class="search-wrap">
+        <input type="text" class="search-input" id="searchSubjectInput" placeholder="ابحث باسم المادة..." oninput="filterSubjects()">
+        <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="container">
+        <div id="subjectsContainer" class="subjects-grid">
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div>⏳</div>
+                <p>جاري تحميل المواد الدراسية...</p>
+            </div>
         </div>
     </div>
 
+    <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
-        <a href="courses.html" class="nav-item active">📖<br>المواد</a>
-        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+        <a href="home.html" class="nav-item"><span>🏠</span>الرئيسية</a>
+        <a href="courses.html" class="nav-item active"><span>📖</span>المواد</a>
+        <a href="profile.html" class="nav-item"><span>👤</span>حسابي</a>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const ICONS_MAP = {
+            'فيزياء': '⚛️', 'كيمياء': '🧪', 'أحياء': '🧬', 'رياضيات': '📐',
+            'لغة عربية': '📖', 'عربي': '📖', 'لغة إنجليزية': '🔤', 'إنجليزي': '🔤',
+            'تاريخ': '🏛️', 'جغرافيا': '🌍', 'فلسفة': '💭', 'علم نفس': '🧠',
+            'جيولوجيا': '🌋', 'فرنساوي': '🗼', 'لغة فرنسية': '🗼', 'ألماني': '🥨',
+            'إيطالي': '🍕', 'حاسب آلي': '💻', 'كمبيوتر': '💻', 'تربية وطنية': '🇪🇬'
+        };
+
+        const GRADIENTS = [
+            'linear-gradient(90deg, #4F46E5, #818CF8)',
+            'linear-gradient(90deg, #059669, #34D399)',
+            'linear-gradient(90deg, #D97706, #FBBF24)',
+            'linear-gradient(90deg, #DC2626, #F87171)',
+            'linear-gradient(90deg, #7C3AED, #A78BFA)',
+            'linear-gradient(90deg, #0891B2, #22D3EE)',
+            'linear-gradient(90deg, #BE185D, #F472B6)'
+        ];
+
+        let allSubjects = [];
+        let lectureCounts = {};
+
+        // Fast Instant Cache Load (0ms UI lag)
+        const cachedSubjects = sessionStorage.getItem('elkheta_cached_subjects');
+        if (cachedSubjects) {
+            try {
+                allSubjects = JSON.parse(cachedSubjects);
+                if (allSubjects.length > 0) renderSubjects(allSubjects);
+            } catch(e) {}
+        }
+
+        function normalizeArabic(str) {
+            return (str || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+        }
+
+        let isInitialLoad = true;
+
+        // Real-Time Live Sync (Zero-refresh updates!)
+        function initRealtimeSubjects() {
+            database.ref('Subjects').on('value', snap => {
+                const rawSubjects = [];
+                const normMap = {};
+
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const sub = child.val();
+                        if (sub && sub.name) {
+                            const n = normalizeArabic(sub.name);
+                            normMap[n] = sub.name;
+                            rawSubjects.push({ id: child.key, name: sub.name, norm: n });
+                        }
+                    });
+                }
+
+                database.ref('Lectures').on('value', lecSnap => {
+                    lectureCounts = {};
+                    const finalSubjects = [...rawSubjects];
+                    const existingNorms = new Set(rawSubjects.map(s => s.norm));
+
+                    if (lecSnap.exists()) {
+                        lecSnap.forEach(subSnap => {
+                            const subKey = subSnap.key;
+                            const n = normalizeArabic(subKey);
+                            const count = subSnap.numChildren();
+                            
+                            // Map count to both key and original subject name
+                            lectureCounts[subKey] = count;
+                            if (normMap[n]) lectureCounts[normMap[n]] = count;
+
+                            if (!existingNorms.has(n)) {
+                                existingNorms.add(n);
+                                finalSubjects.push({ id: subKey, name: subKey, norm: n });
+                            }
+                        });
+                    }
+
+                    allSubjects = finalSubjects;
+                    sessionStorage.setItem('elkheta_cached_subjects', JSON.stringify(allSubjects));
+                    renderSubjects(allSubjects);
+
+                    if (!isInitialLoad && typeof showToast === 'function') {
+                        // Handled specifically by detailed broadcast banner
+                    }
+                    isInitialLoad = false;
+                });
+            });
+        }
+
+        initRealtimeSubjects();
+
+        function renderSubjects(subjects) {
+            const container = document.getElementById('subjectsContainer');
+            container.innerHTML = "";
+
+            if (subjects.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div>📚</div>
+                        <p>لا توجد مواد دراسية مضافة حالياً.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            subjects.forEach((sub, idx) => {
+                const count = lectureCounts[sub.name] || 0;
+                const icon = ICONS_MAP[sub.name] || '📚';
+                const grad = GRADIENTS[idx % GRADIENTS.length];
+
+                const card = document.createElement('div');
+                card.className = "subject-card";
+                card.onclick = () => {
+                    localStorage.setItem('last_accessed_subject', sub.name);
+                    location.href = `lectures.html?subject=${encodeURIComponent(sub.name)}`;
+                };
+
+                card.innerHTML = `
+                    <div class="subject-color-strip" style="background: ${grad};"></div>
+                    <div class="subject-icon-box">${icon}</div>
+                    <div class="subject-name">${sub.name}</div>
+                    <div class="subject-badge">${count > 0 ? `${count} محاضرات 📽️` : 'ابدأ المذاكرة 🚀'}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterSubjects() {
+            const q = (document.getElementById('searchSubjectInput').value || '').trim().toLowerCase();
+            if (!q) {
+                renderSubjects(allSubjects);
+                return;
+            }
+            const filtered = allSubjects.filter(s => s.name.toLowerCase().includes(q));
+            renderSubjects(filtered);
+        }
+    </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
+    <script src="student-drawer.js"></script>
 </body>
 </html>

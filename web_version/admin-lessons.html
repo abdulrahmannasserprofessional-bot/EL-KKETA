@@ -3,107 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الدروس - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>إدارة المحاضرات - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        .form-section { margin-top: -30px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #F0F2F9; border-radius: 12px; margin: 8px 0; font-family: inherit; box-sizing: border-box; }
-        .lesson-admin-card { padding: 15px; margin-bottom: 10px; border-right: 5px solid var(--primary); }
-        .actions { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-small { padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; font-weight: bold; }
-        .btn-del { background: #FDECEA; color: #D63031; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
+
+        .page-header {
+            background: linear-gradient(135deg, #1E1B4B, #312E81);
+            padding: 50px 20px 70px;
+            position: relative; overflow: hidden;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
+            bottom: -80px; right: -30px; border-radius: 50%;
+        }
+        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+        .back-btn {
+            width: 40px; height: 40px;
+            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; transition: background 0.2s;
+         color: #FFFFFF; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
+        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
+
+        .add-card {
+            margin: -30px 15px 0;
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 24px;
+            padding: 22px;
+            position: relative; z-index: 10;
+        }
+        .add-card h3 { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.6); margin-bottom: 14px; }
+
+        .form-group { margin-bottom: 10px; }
+        .form-label { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 6px; display: block; font-weight: 600; }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 13px 16px;
+            background: #F8FAFC;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            color: #1E293B;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus { border-color: #818CF8; background: rgba(129,140,248,0.07); }
+        .form-input::placeholder { color: rgba(0,0,0,0.2); }
+        .form-select option { background: #FFFFFF; color: #1E293B; }
+
+        .duration-row { display: flex; gap: 8px; }
+        .duration-row .form-input { flex: 1; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4F46E5, #818CF8);
+            border: none; border-radius: 14px;
+            color: #1E293B; font-size: 15px; font-weight: 700;
+            font-family: 'Cairo', sans-serif; cursor: pointer;
+            margin-top: 14px; transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(99,102,241,0.35);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.5); }
+        .btn-submit:active { transform: scale(0.98); }
+
+        .list-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 15px 10px; }
+        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.4); }
+        .count-badge { background: rgba(129,140,248,0.15); color: #818CF8; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+
+        .subject-group { margin: 0 15px 18px; }
+        .subject-group-header {
+            background: rgba(129,140,248,0.1);
+            border: 1px solid rgba(129,140,248,0.2);
+            border-radius: 14px 14px 0 0;
+            padding: 11px 16px;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 700; color: #4F46E5;
+        }
+        .lesson-item {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.07);
+            border-top: none;
+            padding: 13px 16px;
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 10px;
+        }
+        .lesson-item:last-child { border-radius: 0 0 14px 14px; }
+        .lesson-info { flex: 1; }
+        .lesson-title { font-size: 14px; font-weight: 700; color: #1E293B; }
+        .lesson-meta { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+        .meta-pill {
+            font-size: 11px; padding: 3px 9px; border-radius: 6px; font-weight: 600;
+        }
+        .pill-video { background: rgba(99,102,241,0.15); color: #818CF8; }
+        .pill-pdf { background: rgba(249,115,22,0.15); color: #FB923C; }
+        .pill-nodata { background: #F8FAFC; color: rgba(0,0,0,0.3); }
+
+        .btn-delete {
+            width: 40px; height: 40px; min-width: 34px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; transition: all 0.2s;
+        }
+        .btn-delete:hover { background: rgba(239,68,68,0.25); }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: rgba(0,0,0,0.3); }
+        .empty-state div { font-size: 40px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        .toast {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
+            background: #1E293B; border: 1px solid rgba(0,0,0,0.15);
+            color: #1E293B; padding: 14px 24px; border-radius: 16px;
+            font-size: 14px; font-weight: 600; z-index: 99999;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); max-width: 90vw; text-align: center;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ─── Confirm Modal ─── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px); z-index: 99998;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 340px;
+            text-align: center;
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
+        .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
+        .modal-msg { font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.7; margin-bottom: 24px; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
+        .modal-btn.cancel { background: rgba(255,255,255,0.07); color: rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.1); }
+        .modal-btn.cancel:hover { background: rgba(255,255,255,0.12); }
+        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #1E293B; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+        .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="header-gradient">
-        <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
-        <div style="font-size: 22px; font-weight: bold;">إدارة المحاضرات</div>
-    </div>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        if (role !== 'master') {
+            try {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+                if (!perms.lessons) {
+                    alert("⛔ ليس لديك صلاحية للوصول إلى قسم المحاضرات والامتحانات");
+                    window.location.href = "admin-panel.html";
+                }
+            } catch(e) {}
+    </script>
 
-    <div class="card form-section">
-        <h3 style="margin: 0 0 10px; font-size: 16px;">إضافة درس / محاضرة جديدة</h3>
-        <select id="subjectSelect"><option value="">اختر المادة...</option></select>
-        <input type="text" id="lessonTitle" placeholder="عنوان الدرس">
-        <input type="text" id="videoUrl" placeholder="رابط الفيديو (اختياري)">
-        <input type="text" id="pdfUrl" placeholder="رابط الملزمة PDF (اختياري)">
-        <div style="margin: 10px 0; font-size: 14px;">
-            <input type="checkbox" id="hasExam" style="width: auto;"> إضافة امتحان لهذه المحاضرة
+    <div class="page-header">
+        <div class="header-top">
+            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <div>
+                <div class="header-title">📽️ إدارة المحاضرات</div>
+                <div class="header-sub">أضف دروساً جديدة وربطها بالمواد</div>
+            </div>
         </div>
-        <button class="btn-primary" onclick="addLesson()">نشر المحاضرة الآن 🚀</button>
     </div>
 
-    <div id="adminLessonsList" style="padding: 10px;">
-        <!-- Loaded by JS -->
+    <div class="add-card" style="background: #ffffff; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 30px;">
+        <h3 style="font-size: 18px; color: #1E293B; margin-bottom: 25px; display: flex; align-items: center; gap: 8px;">
+            <span style="background: rgba(79, 70, 229, 0.1); color: #4F46E5; padding: 6px; border-radius: 10px;">✨</span> 
+            إضافة محتوى جديد
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">📚 المادة الدراسية</label>
+                <select id="subjectSelect" class="form-select" style="background: #F8FAFC;">
+                    <option value="">اختر المادة...</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">🏷️ الفصل / الباب (اختياري)</label>
+                <input type="text" id="lessonChapter" class="form-input" placeholder="مثال: الفصل الأول">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label class="form-label">✍️ عنوان المحاضرة أو الامتحان</label>
+            <input type="text" id="lessonTitle" class="form-input" placeholder="مثال: المحاضرة 1 - مقدمة في المادة" style="font-size: 15px; padding: 15px;">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label class="form-label">📝 وصف المحاضرة ومحتوياتها (اختياري)</label>
+            <textarea id="lessonDesc" class="form-input" style="min-height: 80px; resize: vertical; padding: 15px;" placeholder="مثال: هذه المحاضرة تحتوي على فيديو شرح، وملخص PDF، وامتحان بابل شيت..."></textarea>
+        </div>
+
+        <div style="background: linear-gradient(145deg, #F8FAFC, #F1F5F9); border: 1px solid #E2E8F0; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <h4 style="margin: 0 0 15px 0; color: #334155; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                📺 المرفقات الأساسية (فيديو / ملخص)
+            </h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="color: #64748B;">رابط الفيديو (اختياري)</label>
+                    <input type="url" id="videoUrl" class="form-input" placeholder="https://..." style="background: #ffffff;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="color: #64748B;">رابط ملخص PDF (اختياري)</label>
+                    <input type="url" id="pdfUrl" class="form-input" placeholder="https://..." style="background: #ffffff;">
+                </div>
+            </div>
+        </div>
+
+        <div style="background: linear-gradient(145deg, #F0FDF4, #DCFCE7); border: 1px solid #BBF7D0; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="margin: 0; color: #166534; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    📝 امتحان إلكتروني مدمج
+                </h4>
+            </div>
+            
+            <!-- Code Helper Box -->
+            <div style="background: #ffffff; border: 1px solid #BBF7D0; border-radius: 12px; padding: 12px; margin-bottom: 15px;">
+                <div style="font-size: 12px; font-weight: bold; color: #15803D; margin-bottom: 8px;">📋 صيغ الأسئلة الجاهزة (انسخ ما تحتاجه وضع فاصلة , بين كل سؤال):</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    
+                    <!-- MCQ -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
+                        <button onclick="copyHelperText(this)" style="position: absolute; top: 5px; right: 5px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; color: #475569; font-weight: bold; width: auto; box-shadow: none;">📋 نسخ</button>
+                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 15px; color: #334155;">{
+  "text": "سؤال اختياري؟",
+  "options": ["أ", "ب", "ج", "د"],
+  "correctAnswerIndex": 0,
+  "explanation": "تفسير الإجابة"
+}</div>
+                    </div>
+
+                    <!-- True/False -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
+                        <button onclick="copyHelperText(this)" style="position: absolute; top: 5px; right: 5px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; color: #475569; font-weight: bold; width: auto; box-shadow: none;">📋 نسخ</button>
+                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 15px; color: #334155;">{
+  "text": "السؤال هنا صح أم خطأ؟",
+  "options": ["✅", "❌"],
+  "correctAnswerIndex": 0,
+  "explanation": "التفسير"
+}</div>
+                    </div>
+
+                    <!-- Essay -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
+                        <button onclick="copyHelperText(this)" style="position: absolute; top: 5px; right: 5px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; color: #475569; font-weight: bold; width: auto; box-shadow: none;">📋 نسخ</button>
+                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 15px; color: #334155;">{
+  "type": "essay",
+  "text": "بم تفسر: كذا؟",
+  "modelAnswer": "اكتب الإجابة النموذجية أو التفسير هنا ليظهر للطالب بعد إنهاء الامتحان..."
+}</div>
+                    </div>
+
+                    <!-- Matching -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
+                        <button onclick="copyHelperText(this)" style="position: absolute; top: 5px; right: 5px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; color: #475569; font-weight: bold; width: auto; box-shadow: none;">📋 نسخ</button>
+                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 15px; color: #334155;">{
+  "type": "matching",
+  "text": "صل:",
+  "pairs": [
+    {"left":"1", "right":"A"}
+  ]
+}</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <textarea id="examJson" class="form-input" style="min-height: 180px; resize: vertical; font-family: monospace; direction: ltr; text-align: left; background: #ffffff; border-color: #86EFAC; font-size: 13px;" placeholder="[
+  قم بلصق أو كتابة أسئلتك هنا...
+]"></textarea>
+                <span style="font-size: 11px; color: #15803D; display: block; margin-top: 8px; font-weight: 600;">💡 تلميح: الأقواس المربعة [ ] يجب أن تكون في البداية والنهاية.</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">⏱️ مدة العرض (اختياري)</label>
+                <input type="text" id="duration" class="form-input" placeholder="مثال: 45 دقيقة">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">⏳ جدولة النشر (اختياري)</label>
+                <input type="datetime-local" id="lessonUnlockTime" class="form-input">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="addLesson()" style="padding: 16px; font-size: 16px; letter-spacing: 0.5px;">🚀 نشر المحتوى الآن</button>
     </div>
+
+    <div class="list-header">
+        <span class="list-title">جميع المحاضرات المنشورة</span>
+        <span class="count-badge" id="lessonCount">جاري التحميل...</span>
+    </div>
+
+    <div id="adminLessonsList">
+        <div class="empty-state"><div>📽️</div><p>جاري تحميل المحاضرات...</p></div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+            <div class="modal-title">تأكيد الحذف</div>
+            <div class="modal-msg" id="modalMsg">هل أنت متأكد؟</div>
+            <div class="modal-btns">
+                <button class="modal-btn cancel" onclick="closeModal()">إلغاء</button>
+                <button class="modal-btn confirm-del" id="modalConfirmBtn">حذف نهائياً </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        if(sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        const templates = {
+            bubble: `[
+  {
+    "text": "السؤال الأول (اختياري): ما هي عاصمة مصر؟",
+    "options": ["الإسكندرية", "القاهرة", "الأقصر", "أسوان"],
+    "correctAnswerIndex": 1,
+    "explanation": "القاهرة هي العاصمة، وتتميز بموقعها الاستراتيجي."
+  }
+]`,
+            essay: `[
+  {
+    "type": "essay",
+    "text": "بم تفسر: أهمية دراسة التاريخ؟",
+    "modelAnswer": "لأنه يساعد على فهم الماضي وتجارب الأمم السابقة واستشراف المستقبل."
+  }
+]`,
+            matching: `[
+  {
+    "type": "matching",
+    "text": "صل الكلمات بمعانيها:",
+    "pairs": [
+      { "left": "كتاب", "right": "Book" },
+      { "left": "قلم", "right": "Pen" },
+      { "left": "مدرسة", "right": "School" }
+    ]
+  }
+]`
+        };
 
-        // Load subjects for selection
+        function changeTemplate() {
+            const select = document.getElementById('examTypeSelect');
+            const textarea = document.getElementById('examJson');
+            if (!select || !textarea) return;
+            
+            if (select.value && templates[select.value]) {
+                textarea.value = templates[select.value];
+            } else {
+                textarea.value = ""; // Clear if default is selected
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        let pendingDeleteFn = null;
+        function showConfirm(message, onConfirm) { Swal.fire({
+        title: "تأكيد",
+        html: message,
+        icon: "warning", color: "#1E293B",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "نعم، متأكد",
+        cancelButtonText: "إلغاء"
+    }).then((result) => { if (result.isConfirmed && onConfirm) { onConfirm(); } }); }
+        function closeModal() { document.getElementById('confirmModal').classList.remove('open'); pendingDeleteFn = null; }
+        document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+        // Load subjects
         database.ref('Subjects').on('value', snap => {
             const select = document.getElementById('subjectSelect');
             select.innerHTML = '<option value="">اختر المادة...</option>';
-            snap.forEach(child => {
-                const sub = child.val();
-                select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
-            });
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const sub = child.val();
+                    select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+                });
+            }
         });
+
+        let editingLessonId = null;
+        let editingSubject = null;
+        window.allLessonsMap = {};
+
+        function copyHelperText(btn) {
+            const container = btn.parentElement;
+            const snippet = container.querySelector('.code-snippet').innerText;
+            // Clean up the comment part to only copy JSON
+            let cleanJson = snippet;
+            if (snippet.includes('//')) {
+                cleanJson = snippet.split('\n').slice(1).join('\n');
+            }
+            navigator.clipboard.writeText(cleanJson).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "✅ تم النسخ";
+                btn.style.background = "#D1FAE5";
+                btn.style.color = "#065F46";
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = "#E2E8F0";
+                    btn.style.color = "#475569";
+                }, 2000);
+            });
+        }
+
+        function startEditLessonByKey(key) {
+            const lesson = window.allLessonsMap[key];
+            if (!lesson) return;
+            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, lesson.jsonCode, lesson.duration, lesson.chapter, lesson.unlockTime);
+        }
+
+        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr) {
+            editingLessonId = id;
+            editingSubject = subject;
+            
+            document.getElementById('subjectSelect').value = subject;
+            document.getElementById('lessonTitle').value = title;
+            document.getElementById('lessonDesc').value = desc && desc !== 'undefined' ? desc : "";
+            document.getElementById('videoUrl').value = video && video !== 'undefined' ? video : "";
+            document.getElementById('pdfUrl').value = pdf && pdf !== 'undefined' ? pdf : "";
+            document.getElementById('examJson').value = examJson && examJson !== 'undefined' ? examJson : "";
+            document.getElementById('duration').value = duration && duration !== 'undefined' ? duration : "";
+            document.getElementById('lessonChapter').value = chapter && chapter !== 'undefined' ? chapter : "";
+            
+            if (unlockTimeStr && unlockTimeStr !== 'undefined' && unlockTimeStr !== 'null') {
+                // Convert timestamp to YYYY-MM-DDThh:mm
+                const date = new Date(parseInt(unlockTimeStr));
+                const tzoffset = date.getTimezoneOffset() * 60000;
+                const localISOTime = (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
+                document.getElementById('lessonUnlockTime').value = localISOTime;
+            } else {
+                document.getElementById('lessonUnlockTime').value = "";
+            }
+            
+            const btn = document.querySelector('.btn-submit');
+            btn.innerHTML = "💾 حفظ التعديلات";
+            btn.style.background = "linear-gradient(135deg, #10B981, #34D399)";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function addLesson() {
             const subject = document.getElementById('subjectSelect').value;
             const title = document.getElementById('lessonTitle').value.trim();
+            const desc = document.getElementById('lessonDesc').value.trim();
             const video = document.getElementById('videoUrl').value.trim();
             const pdf = document.getElementById('pdfUrl').value.trim();
-            const exam = document.getElementById('hasExam').checked;
+            const examJson = document.getElementById('examJson').value.trim();
+            const duration = document.getElementById('duration').value.trim() || 'متوفر';
+            const chapter = document.getElementById('lessonChapter').value.trim();
+            const unlockInput = document.getElementById('lessonUnlockTime').value;
+            const unlockTime = unlockInput ? new Date(unlockInput).getTime() : null;
 
-            if(!subject || !title) return alert("يرجى اختيار المادة وعنوان الدرس");
+            if (!subject) return showToast("يرجى اختيار المادة الدراسية أولاً");
+            if (!title) return showToast("يرجى كتابة عنوان المحاضرة أو الامتحان");
+            if (!video && !pdf && !examJson) return showToast("يجب إضافة رابط فيديو، أو ملخص PDF، أو امتحان على الأقل");
 
-            const id = database.ref('Lectures').child(subject).push().key;
-            const data = { id, title, videoUrl: video, pdfUrl: pdf, hasExam: exam, duration: "متوفر" };
+            const data = { title, description: desc, videoUrl: video, pdfUrl: pdf, jsonCode: examJson, duration, chapter, unlockTime };
 
-            database.ref('Lectures').child(subject).child(id).set(data).then(() => {
-                alert("تمت إضافة المحاضرة بنجاح ✅");
-                document.getElementById('lessonTitle').value = "";
-                document.getElementById('videoUrl').value = "";
-                document.getElementById('pdfUrl').value = "";
-            });
+            if (editingLessonId) {
+                if (subject !== editingSubject) {
+                    database.ref('Lectures').child(editingSubject).child(editingLessonId).remove();
+                }
+                data.id = editingLessonId;
+                database.ref('Lectures').child(subject).child(editingLessonId).set(data).then(() => {
+                    showToast("تم تعديل المحتوى بنجاح ✅");
+                    resetForm();
+                }).catch(() => showToast("حدث خطأ في التعديل ❌"));
+            } else {
+                const id = database.ref('Lectures').child(subject).push().key;
+                data.id = id;
+                database.ref('Lectures').child(subject).child(id).set(data).then(() => {
+                    let itemType = "محاضرة";
+                    if (examJson && !video && !pdf) itemType = "امتحان";
+                    else if (video && !examJson) itemType = "فيديو محاضرة";
+                    else if (pdf && !video && !examJson) itemType = "ملخص PDF";
+
+                    database.ref('Settings/latestAddedContent').set({
+                        type: itemType,
+                        title: title,
+                        subject: subject,
+                        message: `🎉 تمت إضافة ${itemType} جديدة: (${title}) في مادة (${subject}) 🚀`,
+                        timestamp: Date.now()
+                    });
+
+                    showToast("تمت الإضافة ونشر التنبيه لجميع الطلاب بنجاح ✅");
+                    resetForm();
+                }).catch(() => showToast("حدث خطأ أثناء الإضافة ❌"));
+            }
         }
+
+        function resetForm() {
+            editingLessonId = null;
+            editingSubject = null;
+            document.getElementById('lessonTitle').value = "";
+            document.getElementById('lessonDesc').value = "";
+            document.getElementById('videoUrl').value = "";
+            document.getElementById('pdfUrl').value = "";
+            document.getElementById('examJson').value = "";
+            document.getElementById('duration').value = "";
+            document.getElementById('lessonChapter').value = "";
+            document.getElementById('lessonUnlockTime').value = "";
+            
+            const btn = document.querySelector('.btn-submit');
+            btn.innerHTML = "🚀 نشر المحتوى الآن";
+            btn.style.background = "linear-gradient(135deg, #4F46E5, #818CF8)";
+        }
+
+        let lessonDeleteMap = {};
 
         function loadAllLessons() {
             database.ref('Lectures').on('value', snap => {
-                const list = document.getElementById('adminLessonsList');
-                list.innerHTML = "";
-                if(snap.exists()) {
+                const container = document.getElementById('adminLessonsList');
+                container.innerHTML = "";
+                lessonDeleteMap = {};
+                let totalLessons = 0;
+
+                if (snap.exists()) {
                     snap.forEach(subjectSnap => {
                         const subjectName = subjectSnap.key;
+                        let lessonsInSubject = 0;
+                        const lessonItems = [];
+
                         subjectSnap.forEach(lessonSnap => {
                             const lesson = lessonSnap.val();
-                            const card = document.createElement('div');
-                            card.className = "card lesson-admin-card";
-                            card.innerHTML = `
-                                <div style="font-size: 12px; color: var(--primary); font-weight: bold;">مادة: ${subjectName}</div>
-                                <div style="font-weight: bold; margin-top: 5px;">${lesson.title}</div>
-                                <div class="actions">
-                                    <button class="btn-small btn-del" onclick="deleteLesson('${subjectName}', '${lesson.id}')">حذف 🗑️</button>
+                            const firebaseKey = lessonSnap.key;
+                            totalLessons++;
+                            lessonsInSubject++;
+
+                            const deleteId = `ldel_${totalLessons}`;
+                            lessonDeleteMap[deleteId] = { subject: subjectName, id: firebaseKey, title: lesson.title };
+                            window.allLessonsMap[firebaseKey] = { ...lesson, subjectName, firebaseKey };
+
+                            const videoPill = lesson.videoUrl ? `<span class="meta-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> يوجد فيديو</span>` : `<span class="meta-pill pill-nodata">لا يوجد فيديو</span>`;
+                            const pdfPill = lesson.pdfUrl ? `<span class="meta-pill"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> يوجد PDF</span>` : `<span class="meta-pill pill-nodata">لا يوجد PDF</span>`;
+                            const examPill = lesson.jsonCode ? `<span class="meta-pill pill-success"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> امتحان مرفق</span>` : `<span class="meta-pill pill-nodata">بدون امتحان</span>`;
+                            
+                            let lockPill = `<span class="meta-pill pill-nodata">⏱ متوفر</span>`;
+                            if (lesson.unlockTime) {
+                                const lockDate = new Date(lesson.unlockTime);
+                                const isLockedNow = Date.now() < lesson.unlockTime;
+                                const lockStyle = isLockedNow ? 'background: rgba(245, 158, 11, 0.15); color: #D97706;' : 'background: rgba(16, 185, 129, 0.15); color: #059669;';
+                                const lockIcon = isLockedNow ? '🔒 مبرمجة لـ' : '🔓 متاحة منذ';
+                                lockPill = `<span class="meta-pill" style="${lockStyle}">${lockIcon}: ${lockDate.toLocaleDateString('ar-EG')} ${lockDate.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}</span>`;
+                            }
+
+                            lessonItems.push(`
+                                <div class="lesson-item">
+                                    <div class="lesson-info">
+                                        <div class="lesson-title">${lesson.title}</div>
+                                        <div class="lesson-meta">
+                                            ${videoPill}
+                                            ${pdfPill}
+                                            ${examPill}
+                                            <span class="meta-pill pill-nodata">⏳ ${lesson.duration || 'غير محدد'}</span>
+                                            ${lesson.chapter ? `<span class="meta-pill pill-nodata">📖 ${lesson.chapter}</span>` : ''}
+                                            ${lockPill}
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; gap:8px;">
+                                        <div class="btn-edit" style="width: 40px; height: 40px; min-width: 34px; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s;" onclick="startEditLessonByKey('${firebaseKey}')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></div>
+                                        <div class="btn-delete" data-id="${deleteId}"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+                                    </div>
                                 </div>
+                            `);
+                        });
+
+                        if (lessonsInSubject > 0) {
+                            const group = document.createElement('div');
+                            group.className = 'subject-group';
+                            group.innerHTML = `
+                                <div class="subject-group-header">
+                                    📚 ${subjectName}
+                                    <span style="margin-right: auto; font-size: 11px; background: rgba(129,140,248,0.2); padding: 2px 8px; border-radius: 6px;">${lessonsInSubject} محاضرة</span>
+                                </div>
+                                ${lessonItems.join('')}
                             `;
-                            list.appendChild(card);
+                            container.appendChild(group);
+                        }
+                    });
+                    document.getElementById('lessonCount').textContent = totalLessons + ' محاضرة';
+
+                    container.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const ref = lessonDeleteMap[btn.dataset.id];
+                            if (!ref) return;
+                            showConfirm(
+                                `هل أنت متأكد من حذف هذه المحاضرة؟<br><br><strong style="color:#DC2626">${ref.title}</strong>`,
+                                () => database.ref('Lectures').child(ref.subject).child(ref.id).remove()
+                                    .then(() => showToast(" تم حذف المحاضرة بنجاح"))
+                            );
                         });
                     });
+                } else {
+                    container.innerHTML = `<div class="empty-state"><div>📽️</div><p>لا توجد محاضرات منشورة حالياً</p></div>`;
+                    document.getElementById('lessonCount').textContent = '0 محاضرة';
                 }
             });
         }
 
-        function deleteLesson(sub, id) {
-            if(confirm("حذف هذه المحاضرة؟")) {
-                database.ref('Lectures').child(sub).child(id).remove();
-            }
-        }
         loadAllLessons();
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
