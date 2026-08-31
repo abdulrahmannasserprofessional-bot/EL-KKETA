@@ -7,6 +7,13 @@ const lecturesController = require('../controllers/lecturesController');
 const codesController = require('../controllers/codesController');
 const examsController = require('../controllers/examsController');
 const settingsController = require('../controllers/settingsController');
+const { getAdminHtml } = require('../views/adminHtml');
+
+// مسار لوحة التحكم عبر API
+router.get('/admin', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(getAdminHtml());
+});
 
 // 1. مسارات المصادقة والتسجيل (Auth)
 router.post('/auth/admin/login', authController.adminLogin);
