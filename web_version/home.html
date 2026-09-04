@@ -18,6 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.5">
     <link rel="manifest" href="manifest.json">
+    <script src="mysql-api.js"></script>
     <meta name="theme-color" content="#3B82F6">
     <link rel="apple-touch-icon" href="https://via.placeholder.com/192?text=🎓">
     <style>
@@ -462,7 +463,8 @@
         const localDeviceId = localStorage.getItem('deviceId');
         
         if (user) {
-            document.getElementById('userName').innerText = "أهلاً بك يا " + user.fullName;
+            document.getElementById('userName').innerText = "أهلاً بك يا " + (user.fullName || user.full_name || 'طالب');
+            ElkhetaAPI.logActivity(user.studentCode || user.student_code || user.code, user.fullName || user.full_name, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
             
             // Dynamic Time Greeting
             const hour = new Date().getHours();

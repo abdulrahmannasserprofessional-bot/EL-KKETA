@@ -3,18 +3,18 @@ const db = require('../config/db');
 // تسجيل حركة / نشاط جديد للطالب
 exports.logActivity = async (req, res) => {
     try {
-        const { student_code, student_name, action, details } = req.body;
+        const { student_code, student_name, action, details } = req.body || {};
         if (!student_code || !action) {
             return res.status(400).json({ success: false, error: 'كود الطالب والنشاط مطلوبان' });
         }
 
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-        const userAgent = req.headers['user-agent'] || '';
+        const ip = (req.headers && req.headers['x-forwarded-for']) || req.ip || (req.socket && req.socket.remoteAddress) || '';
+        const userAgent = (req.headers && req.headers['user-agent']) || '';
 
         await db.query(
             `INSERT INTO student_activity_logs (student_code, student_name, action, details, ip_address, user_agent)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [student_code.trim().toUpperCase(), student_name || 'طالب', action, details || '', ip, userAgent]
+            [student_code.trim().toUpperCase(), student_name || 'طالب', action, details || '', String(ip).slice(0, 100), String(userAgent).slice(0, 500)]
         );
 
         res.json({ success: true, message: 'تم تسجيل النشاط بنجاح' });
@@ -26,7 +26,7 @@ exports.logActivity = async (req, res) => {
 // جلب سجل النشاط والمراقبة الحية
 exports.getActivityLogs = async (req, res) => {
     try {
-        const { student_code, search, limit = 100 } = req.query;
+        const { student_code, search, limit = 100 } = req.query || {};
         let query = 'SELECT * FROM student_activity_logs WHERE 1=1';
         const params = [];
 
@@ -41,8 +41,8 @@ exports.getActivityLogs = async (req, res) => {
             params.push(term, term, term, term);
         }
 
-        query += ' ORDER BY id DESC LIMIT ?';
-        params.push(parseInt(limit) || 100);
+        const safeLimit = Math.min(Math.max(parseInt(limit) || 100, 1), 500);
+        query += ` ORDER BY id DESC LIMIT ${safeLimit}`;
 
         const [rows] = await db.query(query, params);
         res.json({ success: true, count: rows.length, logs: rows });
@@ -51,7 +51,7 @@ exports.getActivityLogs = async (req, res) => {
     }
 };
 
-// جلب الطلاب المتصلين والنشطين حالياً (في آخر 15 دقيقة)
+// جلب الطلاب المتصلين والنشطين حالياً (في آخر 30 دقيقة)
 exports.getLiveActiveStudents = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -65,7 +65,7 @@ exports.getLiveActiveStudents = async (req, res) => {
                 COUNT(id) as actions_count
             FROM student_activity_logs
             WHERE created_at >= NOW() - INTERVAL 30 MINUTE
-            GROUP BY student_code, student_name, user_agent
+            GROUP BY student_code, student_name, action, details, user_agent
             ORDER BY last_seen DESC
         `);
 
