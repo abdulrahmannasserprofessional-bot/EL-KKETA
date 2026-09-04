@@ -1,1281 +1,344 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم والإدارة - منصة الخطة (فرقة رابعة)</title>
-    
-    <!-- الخطوط والأيقونات -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="mysql-api.js"></script>
-
+    <title>لوحة التحكم - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --accent: #4F46E5;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --danger: #EF4444;
-            --bg-main: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F8FAFC;
+            min-height: 100vh;
+            color: #1E293B;
+            padding-bottom: 30px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
-
-        /* شاشة الدخول */
-        #loginOverlay {
-            position: fixed; inset: 0; z-index: 10000;
-            background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%);
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-box {
-            background: #FFFFFF; width: 100%; max-width: 420px; border-radius: 28px; padding: 40px 30px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-        }
-
-        /* ─── الهيدر الرئيسي ─── */
+        /* ─── Header ─── */
         .admin-header {
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-            padding: 45px 20px 75px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 50px 20px 70px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            color: #FFFFFF;
         }
         .admin-header::before {
-            content: ''; position: absolute; width: 350px; height: 350px;
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
             background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
-            top: -100px; right: -50px; border-radius: 50%;
+            top: -100px; right: -50px;
+            border-radius: 50%;
+        }
+        .admin-header::after {
+            content: '';
+            position: absolute;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%);
+            bottom: -50px; left: 20px;
+            border-radius: 50%;
         }
         .header-content { position: relative; z-index: 2; }
         .header-icon {
-            width: 68px; height: 68px;
+            width: 70px; height: 70px;
             background: #FFFFFF;
-            color: var(--primary);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,0,0,0.2);
             border-radius: 22px;
             display: flex; align-items: center; justify-content: center;
             font-size: 32px;
-            margin: 0 auto 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            margin: 0 auto 15px;
         }
-        .header-title { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
-        .header-sub { font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 4px; font-weight: 600; }
+        .header-title { font-size: 22px; font-weight: 900; letter-spacing: 0.5px;  color: #FFFFFF; }
+        .header-sub { font-size: 13px; margin-top: 5px;  color: rgba(255,255,255,0.85); }
 
-        /* شريط الإحصائيات العلوي */
+        /* Stats row */
         .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            display: flex;
             gap: 12px;
-            padding: 0 18px;
-            margin-top: -36px;
+            padding: 0 15px;
+            margin-top: -30px;
             position: relative;
             z-index: 10;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
         }
         .stat-card {
+            flex: 1;
             background: #FFFFFF;
-            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,0,0,0.1);
             border-radius: 20px;
-            padding: 16px 12px;
+            padding: 16px 10px;
             text-align: center;
-            box-shadow: 0 8px 20px -4px rgba(0,0,0,0.06);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        .stat-card:hover { transform: translateY(-3px); }
-        .stat-val { font-size: 24px; font-weight: 900; color: var(--primary); }
-        .stat-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+        .stat-val { font-size: 22px; font-weight: 900; color: #4F46E5; }
+        .stat-lbl { font-size: 11px; color: rgba(0,0,0,0.5); margin-top: 2px; }
 
-        /* شبكة الكروت الرئيسية */
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
+        /* Grid */
         .section-title {
-            padding: 28px 4px 12px;
+            padding: 20px 20px 8px;
             font-size: 13px;
-            font-weight: 800;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: rgba(0,0,0,0.4);
+            letter-spacing: 1px;
             text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         .admin-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 15px;
         }
-        .admin-card {
+        .admin-item {
             background: #FFFFFF;
-            border: 1.5px solid var(--border);
-            border-radius: 22px;
-            padding: 22px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            text-decoration: none;
-            color: var(--text-main);
-            box-shadow: 0 4px 15px -2px rgba(0,0,0,0.03);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 20px 15px;
+            text-align: center;
             cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            color: #1E293B;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
-        .admin-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 15px 30px -5px rgba(37,99,235,0.12);
+        .admin-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08);
+            border-color: #CBD5E1;
         }
-        .card-icon {
-            width: 54px; height: 54px;
+        .admin-item:active { transform: scale(0.97); }
+
+        .item-icon {
+            width: 50px; height: 50px;
             border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
             font-size: 24px;
-            flex-shrink: 0;
         }
-        .card-info h3 { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
-        .card-info p { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .item-label { font-size: 14px; font-weight: 700; color: #1E293B; }
+        .item-desc { font-size: 11px; color: #64748B; margin-top: -4px; }
 
-        /* النوافذ المودال الداخلية */
-        .custom-modal {
-            display: none; position: fixed; inset: 0; z-index: 9999;
-            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px);
-            align-items: center; justify-content: center; padding: 20px;
+        /* Colors */
+        .admin-item.blue .item-icon { background: #EEF2FF; color: #4F46E5; }
+        .admin-item.green .item-icon { background: #ECFDF5; color: #10B981; }
+        .admin-item.yellow .item-icon { background: #FFFBEB; color: #F59E0B; }
+        .admin-item.pink .item-icon { background: #FDF2F8; color: #EC4899; }
+        .admin-item.purple .item-icon { background: #F5F3FF; color: #8B5CF6; }
+        .admin-item.cyan .item-icon { background: #ECFEFF; color: #06B6D4; }
+        .admin-item.red .item-icon { background: #FEF2F2; color: #EF4444; }
+
+        /* Logout */
+        .logout-area { text-align: center; margin-top: 30px; padding: 0 15px; }
+        .logout-btn {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #EF4444;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
         }
-        .custom-modal.active { display: flex; }
-        .modal-content {
-            background: #FFFFFF; width: 100%; max-width: 900px; max-height: 90vh;
-            border-radius: 26px; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); animation: popModal 0.25s ease-out;
-        }
-        @keyframes popModal { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal-header {
-            padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex;
-            align-items: center; justify-content: space-between; background: #F8FAFC;
-        }
-        .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
-
-        /* الأزرار والجداول */
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; text-decoration: none; }
-        .btn-primary { background: var(--primary); color: #FFF; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-success { background: var(--success); color: #FFF; }
-        .btn-danger { background: var(--danger); color: #FFF; }
-        .btn-warning { background: var(--warning); color: #FFF; }
-        .btn-secondary { background: #F1F5F9; color: #475569; }
-        .btn-secondary:hover { background: #E2E8F0; }
-
-        .form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table.custom-table { width: 100%; border-collapse: collapse; text-align: right; }
-        table.custom-table th { background: #F8FAFC; color: #475569; font-size: 13px; font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-        table.custom-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
-        table.custom-table tr:hover td { background: #F8FAFC; }
-
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
-        .badge-success { background: #DCFCE7; color: #15803D; }
-        .badge-danger { background: #FEE2E2; color: #B91C1C; }
-        .badge-warning { background: #FEF3C7; color: #B45309; }
-        .badge-info { background: #E0E7FF; color: #4338CA; }
-
-        /* ستايل بطاقات الأسئلة في منشئ الامتحانات */
-        .q-card {
-            background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px;
-            position: relative; transition: all 0.2s;
-        }
-        .q-card:hover { border-color: var(--primary); }
-        .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .q-num { font-weight: 800; font-size: 14px; color: var(--primary); }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        @media (max-width: 600px) { .options-grid { grid-template-columns: 1fr; } }
-        .opt-item { display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; }
+        .logout-btn:hover { background: #FEE2E2; }
+        .footer-note { text-align: center; font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginOverlay">
-        <div class="login-box">
-            <div class="header-icon" style="width:64px; height:64px; background:linear-gradient(135deg, #2563EB, #4F46E5); color:white; border-radius:18px; margin-bottom:16px;">
-                <i class="fa-solid fa-graduation-cap"></i>
-            </div>
-            <h2 style="font-size: 21px; font-weight: 800; margin-bottom: 4px;">لوحة تحكم منصة الخطة</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">فرقة رابعة خدمة اجتماعية</p>
-
-            <form onsubmit="handleLogin(event)">
-                <div style="text-align: right; margin-bottom: 16px;">
-                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">اسم المستخدم</label>
-                    <input type="text" id="adm_user" class="form-control" placeholder="admin أو اسم المشرف" value="admin" required>
-                </div>
-                <div style="text-align: right; margin-bottom: 20px;">
-                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">كلمة المرور</label>
-                    <input type="password" id="adm_pass" class="form-control" placeholder="••••••••" value="2862005" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-weight: 800; justify-content: center;">
-                    دخول لوحة التحكم <i class="fa-solid fa-arrow-left"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- الهيدر الرئيسي -->
-    <header class="admin-header">
-        <div class="header-content">
-            <div class="header-icon"><i class="fa-solid fa-graduation-cap"></i></div>
-            <h1 class="header-title">منصة الخطة - لوحة الإدارة</h1>
-            <p class="header-sub">🎓 فرقة رابعة خدمة اجتماعية | <span id="adminRoleDisplay">المسؤول العام 👑</span></p>
-        </div>
-    </header>
-
-    <!-- شريط الإحصائيات -->
-    <section class="stats-row">
-        <div class="stat-card" onclick="openModal('studentsModal')" style="cursor:pointer;">
-            <div class="stat-val" id="statStudents">40</div>
-            <div class="stat-lbl">👥 طلاب الفرقة الرابعة</div>
-        </div>
-        <div class="stat-card" onclick="openModal('activityModal')" style="cursor:pointer;">
-            <div class="stat-val" style="color:var(--success);" id="statActive">0</div>
-            <div class="stat-lbl">🟢 المتصلين الآن</div>
-        </div>
-        <div class="stat-card" onclick="openModal('lecturesModal')" style="cursor:pointer;">
-            <div class="stat-val" style="color:#8B5CF6;" id="statLectures">0</div>
-            <div class="stat-lbl">📚 المحاضرات والدروس</div>
-        </div>
-        <div class="stat-card" onclick="openModal('examsModal')" style="cursor:pointer;">
-            <div class="stat-val" style="color:var(--warning);" id="statExams">0</div>
-            <div class="stat-lbl">📝 الامتحانات المنشورة</div>
-        </div>
-    </section>
-
-    <!-- المحتوى والبطاقات الرئيسية -->
-    <main class="container">
-        <div class="section-title"><i class="fa-solid fa-layer-group"></i> إدارة المنظومة وقاعدة البيانات</div>
-        
-        <div class="admin-grid">
-            <!-- 1. إدارة الطلاب -->
-            <div class="admin-card" onclick="openModal('studentsModal')">
-                <div class="card-icon" style="background: rgba(37,99,235,0.1); color: var(--primary);">
-                    <i class="fa-solid fa-user-graduate"></i>
-                </div>
-                <div class="card-info">
-                    <h3>إدارة وحسابات الطلاب</h3>
-                    <p>عرض الأحدث، تعديل البيانات، حظر/فك الحظر، قفل الأجهزة</p>
-                </div>
-            </div>
-
-            <!-- 2. مراقبة الأجهزة والنشاط الحي -->
-            <div class="admin-card" onclick="openModal('activityModal')" style="border-color: rgba(16,185,129,0.3);">
-                <div class="card-icon" style="background: rgba(16,185,129,0.1); color: var(--success);">
-                    <i class="fa-solid fa-satellite-dish"></i>
-                </div>
-                <div class="card-info">
-                    <h3>مراقبة الأجهزة والنشاط الحي 📡</h3>
-                    <p>بث مباشر لكل طالب يدخل المنصة وما يشاهده لحظة بلحظة</p>
-                </div>
-            </div>
-
-            <!-- 3. المحاضرات والدروس -->
-            <div class="admin-card" onclick="openModal('lecturesModal')">
-                <div class="card-icon" style="background: rgba(139,92,246,0.1); color: #8B5CF6;">
-                    <i class="fa-solid fa-book-bookmark"></i>
-                </div>
-                <div class="card-info">
-                    <h3>المحاضرات والدروس</h3>
-                    <p>رفع روابط الفيديو، مذكرات PDF، وإتاحتها مجاناً للطلاب</p>
-                </div>
-            </div>
-
-            <!-- 4. منشئ وقوالب الامتحانات -->
-            <div class="admin-card" onclick="openModal('examsModal')" style="border-color: rgba(245,158,11,0.4);">
-                <div class="card-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);">
-                    <i class="fa-solid fa-file-signature"></i>
-                </div>
-                <div class="card-info">
-                    <h3>منشئ ونماذج الامتحانات 📝</h3>
-                    <p>قوالب جاهزة (اختياري / صح وخطأ / استيراد سريع / بنوك أسئلة)</p>
-                </div>
-            </div>
-
-            <!-- 5. حسابات المشرفين (للمسؤول) -->
-            <div class="admin-card" id="cardSupervisors" onclick="openModal('supervisorsModal')">
-                <div class="card-icon" style="background: rgba(79,70,229,0.1); color: var(--accent);">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <div class="card-info">
-                    <h3>إدارة المشرفين والصلاحيات</h3>
-                    <p>إنشاء حسابات المشرفين وتعيين كلمات المرور الخاصة بهم</p>
-                </div>
-            </div>
-
-            <!-- 6. إعدادات المنصة والصيانة -->
-            <div class="admin-card" onclick="openModal('settingsModal')">
-                <div class="card-icon" style="background: rgba(239,68,68,0.1); color: var(--danger);">
-                    <i class="fa-solid fa-sliders"></i>
-                </div>
-                <div class="card-info">
-                    <h3>إعدادات المنصة والبوابة</h3>
-                    <p>وضع الصيانة، شريط التنبيهات، رقم واتساب الدعم الفني</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px;">
-            <button class="btn btn-secondary" onclick="logout()" style="color: var(--danger); font-weight: 800;">
-                <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج من لوحة الإدارة
-            </button>
-        </div>
-    </main>
-
-    <!-- ─── Modal 1: إدارة الطلاب ─── -->
-    <div id="studentsModal" class="custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-user-graduate" style="color:var(--primary);"></i> إدارة طلاب فرقة رابعة خدمة اجتماعية</h3>
-                <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('studentsModal')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-                    <button class="btn btn-secondary" onclick="toggleStudentSort()"><i class="fa-solid fa-arrow-down-short-wide"></i> <span id="sortBtnText">الترتيب: الأحدث أولاً ⬇️</span></button>
-                    <input type="text" class="form-control" style="max-width:300px;" placeholder="ابحث بالاسم، الكود، أو الهاتف..." oninput="searchStudents(this.value)">
-                </div>
-                <div class="table-responsive">
-                    <table class="custom-table" id="studentsTable">
-                        <thead>
-                            <tr>
-                                <th style="width:40px; text-align:center;">#</th>
-                                <th>كود الطالب</th>
-                                <th>الاسم الكامل</th>
-                                <th>رقم هاتف الطالب</th>
-                                <th>قفل الجهاز</th>
-                                <th>الحالة</th>
-                                <th style="text-align:center;">إجراءات الإدارة</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 2: مراقبة الأجهزة والنشاط الحي ─── -->
-    <div id="activityModal" class="custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-satellite-dish" style="color:var(--success);"></i> مراقبة الأجهزة والنشاط الحي 📡</h3>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn btn-primary" style="padding:4px 10px; font-size:12px;" onclick="loadActivity()"><i class="fa-solid fa-rotate"></i> تحديث</button>
-                    <button class="btn btn-danger" style="padding:4px 10px; font-size:12px;" onclick="clearLogs()"><i class="fa-solid fa-trash"></i> مسح</button>
-                    <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('activityModal')"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div style="margin-bottom:12px;">
-                    <input type="text" class="form-control" placeholder="ابحث في سجل النشاط (اسم الطالب، الكود، المحتوى)..." oninput="filterActivity(this.value)">
-                </div>
-                <div class="table-responsive">
-                    <table class="custom-table" id="activityTable">
-                        <thead>
-                            <tr>
-                                <th style="width:40px; text-align:center;">#</th>
-                                <th>الوقت والتاريخ</th>
-                                <th>كود الطالب</th>
-                                <th>الاسم</th>
-                                <th>النشاط</th>
-                                <th>التفاصيل</th>
-                                <th>نوع الجهاز</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 3: المحاضرات والدروس ─── -->
-    <div id="lecturesModal" class="custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-book-bookmark" style="color:#8B5CF6;"></i> المحاضرات والدروس</h3>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn btn-primary" style="padding:4px 10px; font-size:12px;" onclick="openAddLectureModal()"><i class="fa-solid fa-plus"></i> إضافة محاضرة</button>
-                    <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('lecturesModal')"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="custom-table" id="lecturesTable">
-                        <thead>
-                            <tr>
-                                <th>عنوان المحاضرة</th>
-                                <th>الفيديو</th>
-                                <th>المذكرة</th>
-                                <th>الحالة</th>
-                                <th style="text-align:center;">إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 4: الامتحانات والواجبات ومنشئ الأسئلة ─── -->
-    <div id="examsModal" class="custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-file-signature" style="color:var(--warning);"></i> إدارة ونماذج الامتحانات</h3>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn btn-success" style="padding:4px 12px; font-size:13px;" onclick="openExamBuilder()"><i class="fa-solid fa-wand-magic-sparkles"></i> إنشاء امتحان بنموذج وقوالب 🪄</button>
-                    <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('examsModal')"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <!-- قوالب ونماذج سريعة -->
-                <div style="background:#EEF2FF; border:1.5px dashed #6366F1; border-radius:18px; padding:16px; margin-bottom:20px;">
-                    <div style="font-size:13px; font-weight:800; color:#3730A3; margin-bottom:10px;">
-                        ⚡ قوالب ونماذج امتحانات جاهزة للفرقة الرابعة (إنشاء فوري):
-                    </div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button class="btn btn-primary" onclick="loadTemplate('mcq5')"><i class="fa-solid fa-list-check"></i> نموذج اختيار من متعدد (5 أسئلة)</button>
-                        <button class="btn btn-primary" onclick="loadTemplate('mcq10')"><i class="fa-solid fa-list-check"></i> نموذج اختيار من متعدد (10 أسئلة)</button>
-                        <button class="btn btn-warning" onclick="loadTemplate('tf5')"><i class="fa-solid fa-square-check"></i> نموذج صح وخطأ (5 أسئلة)</button>
-                        <button class="btn btn-secondary" onclick="openBulkImportModal()"><i class="fa-solid fa-paste"></i> استيراد سريع (لصق أسئلة جاهزة)</button>
-                    </div>
-                </div>
-
-                <h4 style="font-size:14px; font-weight:800; margin-bottom:12px; color:#1E293B;">📋 الامتحانات المنشورة حالياً:</h4>
-                <div class="table-responsive">
-                    <table class="custom-table" id="examsTable">
-                        <thead>
-                            <tr>
-                                <th>عنوان الامتحان</th>
-                                <th>عدد الأسئلة</th>
-                                <th>المدة</th>
-                                <th>الدرجة الكلية</th>
-                                <th style="text-align:center;">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 4.1: منشئ ومحرر الأسئلة المباشر ─── -->
-    <div id="examBuilderModal" class="custom-modal">
-        <div class="modal-content" style="max-width:960px;">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-pen-ruler" style="color:var(--primary);"></i> محرر ومنشئ أسئلة الامتحان</h3>
-                <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('examBuilderModal')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <!-- إعدادات الامتحان -->
-                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:16px; padding:16px; margin-bottom:20px;">
-                    <div>
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">عنوان الامتحان:</label>
-                        <input id="eb_title" class="form-control" placeholder="امتحان الفصل الأول - مادة التخطيط">
-                    </div>
-                    <div>
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">المدة (بالدقائق):</label>
-                        <input id="eb_dur" type="number" class="form-control" value="30">
-                    </div>
-                    <div>
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">الدرجة الكلية:</label>
-                        <input id="eb_marks" type="number" class="form-control" value="20">
-                    </div>
-                </div>
-
-                <!-- قائمة الأسئلة -->
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                    <h4 style="font-size:14px; font-weight:800;">بنك أسئلة الامتحان (<span id="eb_q_count">0</span> أسئلة):</h4>
-                    <button class="btn btn-success" onclick="addNewQuestion()"><i class="fa-solid fa-plus"></i> إضافة سؤال جديد</button>
-                </div>
-
-                <div id="questionsContainer"></div>
-
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn btn-primary" style="flex:1; padding:14px; justify-content:center; font-size:15px;" onclick="saveCompleteExam()">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> حفظ ونشر الامتحان للطلاب 🚀
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeModal('examBuilderModal')">إلغاء</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 4.2: استيراد سريع للأسئلة بنص مباشر ─── -->
-    <div id="bulkImportModal" class="custom-modal">
-        <div class="modal-content" style="max-width:650px;">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-paste" style="color:var(--primary);"></i> استيراد أسئلة بنص مباشر (Bulk Import)</h3>
-                <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('bulkImportModal')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px; line-height:1.6;">
-                    الصق أسئلتك هنا بأي تنسيق، وسيقوم النظام بتحويلها تلقائياً إلى أسئلة امتحان!<br>
-                    <strong>مثال:</strong><br>
-                    1. ما هو مفهوم التخطيط؟<br>
-                    أ) عملية مستمرة<br>
-                    ب) نشاط عشوائي<br>
-                    ج) عمل فردي<br>
-                    د) لا شيء مما سبق<br>
-                    الإجابة: أ
-                </p>
-                <textarea id="bulkText" class="form-control" style="height:200px; font-size:13px; font-family:monospace; margin-bottom:14px;" placeholder="الصق الأسئلة هنا..."></textarea>
-                <button class="btn btn-primary" style="width:100%; padding:12px; justify-content:center;" onclick="processBulkImport()">
-                    تحويل واستيراد الأسئلة للمحرر 🪄
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 5: المشرفين ─── -->
-    <div id="supervisorsModal" class="custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-user-shield" style="color:var(--accent);"></i> حسابات المشرفين</h3>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn btn-primary" style="padding:4px 10px; font-size:12px;" onclick="openAddSupervisorModal()"><i class="fa-solid fa-plus"></i> إضافة مشرف</button>
-                    <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('supervisorsModal')"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="custom-table" id="supervisorsTable">
-                        <thead>
-                            <tr>
-                                <th>اسم المستخدم</th>
-                                <th>الصلاحية</th>
-                                <th style="text-align:center;">إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── Modal 6: إعدادات المنصة ─── -->
-    <div id="settingsModal" class="custom-modal">
-        <div class="modal-content" style="max-width:550px;">
-            <div class="modal-header">
-                <h3 style="font-size:16px; font-weight:800;"><i class="fa-solid fa-sliders" style="color:var(--danger);"></i> إعدادات المنصة والبوابة</h3>
-                <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('settingsModal')"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="saveSettings(event)">
-                    <div style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:16px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-weight:800; font-size:14px;">وضع الصيانة</span>
-                            <input type="checkbox" id="set_maintenance" style="width:20px; height:20px;">
-                        </div>
-                        <input type="text" id="set_msg" class="form-control" placeholder="رسالة الصيانة التي تظهر للطلاب...">
-                    </div>
-
-                    <div style="margin-bottom:14px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">رقم واتساب الدعم الفني:</label>
-                        <input type="text" id="set_whatsapp" class="form-control" dir="ltr">
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">شريط التنبيهات العلوي:</label>
-                        <input type="text" id="set_notice" class="form-control">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; justify-content:center;">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
-        let allStudents = [];
-        let allLogs = [];
-        let allExams = [];
-        let isSuperAdmin = false;
-        let studentSortOrder = 'desc';
-        let currentQuestions = [];
-
-        if (sessionStorage.getItem('isMysqlAdmin') || sessionStorage.getItem('isAdmin')) {
-            isSuperAdmin = sessionStorage.getItem('adminRole') === 'super_admin' || !sessionStorage.getItem('adminRole');
-            document.getElementById('loginOverlay').style.display = 'none';
-            applyRolePermissions();
-            loadData();
-            loadActivity();
-            setInterval(loadActivity, 15000);
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('adm_user').value.trim();
-            const p = document.getElementById('adm_pass').value.trim();
-            const res = await ElkhetaAPI.adminLogin(u, p);
-            if (res.success) {
-                sessionStorage.setItem('isMysqlAdmin', 'true');
-                sessionStorage.setItem('isAdmin', 'true');
-                sessionStorage.setItem('adminRole', res.admin.role || 'super_admin');
-                sessionStorage.setItem('adminUsername', res.admin.username || 'admin');
-                isSuperAdmin = (res.admin.role === 'super_admin' || res.admin.is_super_admin === true);
-                applyRolePermissions();
-                document.getElementById('loginOverlay').style.display = 'none';
-                loadData();
-                loadActivity();
-                setInterval(loadActivity, 15000);
-            } else {
-                Swal.fire('خطأ', res.error || 'بيانات الدخول غير صحيحة', 'error');
-            }
-        }
-
-        function applyRolePermissions() {
-            const role = sessionStorage.getItem('adminRole');
-            const supCard = document.getElementById('cardSupervisors');
-            if (role === 'super_admin' || isSuperAdmin) {
-                document.getElementById('adminRoleDisplay').textContent = 'المسؤول العام 👑';
-                if (supCard) supCard.style.display = 'flex';
-            } else {
-                document.getElementById('adminRoleDisplay').textContent = 'مشرف المنصة 🛡️';
-                if (supCard) supCard.style.display = 'none';
-            }
-        }
-
-        function logout() {
-            sessionStorage.clear();
-            localStorage.removeItem('isAdmin');
-            location.reload();
-        }
-
-        function openModal(id) {
-            document.getElementById(id).classList.add('active');
-            if (id === 'activityModal') loadActivity();
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        async function loadData() {
-            const [s, l, e] = await Promise.all([
-                ElkhetaAPI.getStudents(),
-                ElkhetaAPI.getLectures(),
-                ElkhetaAPI.getExams()
-            ]);
-
-            if (s.success) {
-                document.getElementById('statStudents').textContent = s.count;
-                allStudents = s.students;
-                renderStudents(allStudents);
-            }
-            if (l.success) {
-                document.getElementById('statLectures').textContent = l.count;
-                renderLectures(l.lectures);
-            }
-            if (e.success) {
-                document.getElementById('statExams').textContent = e.count;
-                allExams = e.exams;
-                renderExams(allExams);
-            }
-
-            const st = await ElkhetaAPI.getSettings();
-            if (st.success && st.settings) {
-                document.getElementById('set_maintenance').checked = !!st.settings.is_maintenance;
-                document.getElementById('set_msg').value = st.settings.maintenance_message || '';
-                document.getElementById('set_whatsapp').value = st.settings.support_whatsapp || '';
-                document.getElementById('set_notice').value = st.settings.notice_bar || '';
-            }
-
-            if (isSuperAdmin) loadSupervisors();
-        }
-
-        /* ─── قسم منشئ الامتحانات والنماذج ─── */
-        function openExamBuilder() {
-            currentQuestions = [];
-            addNewQuestion();
-            document.getElementById('eb_title').value = 'امتحان جديد - فرقة رابعة خدمة اجتماعية';
-            document.getElementById('eb_dur').value = '30';
-            document.getElementById('eb_marks').value = '20';
-            openModal('examBuilderModal');
-        }
-
-        function loadTemplate(type) {
-            openExamBuilder();
-            currentQuestions = [];
-            if (type === 'mcq5' || type === 'mcq10') {
-                const count = type === 'mcq5' ? 5 : 10;
-                document.getElementById('eb_title').value = `امتحان اختيار من متعدد (${count} أسئلة)`;
-                document.getElementById('eb_dur').value = count * 3;
-                document.getElementById('eb_marks').value = count * 2;
-                for (let i = 1; i <= count; i++) {
-                    currentQuestions.push({
-                        question: `سؤال ${i}: اكتب نص السؤال هنا...`,
-                        options: ['الخيار الأول', 'الخيار الثاني', 'الخيار الثالث', 'الخيار الرابع'],
-                        correctOption: 'A'
-                    });
-                }
-            } else if (type === 'tf5') {
-                document.getElementById('eb_title').value = 'امتحان صح وخطأ (5 أسئلة)';
-                document.getElementById('eb_dur').value = '15';
-                document.getElementById('eb_marks').value = '10';
-                for (let i = 1; i <= 5; i++) {
-                    currentQuestions.push({
-                        question: `عبارة ${i}: اكتب العبارة هنا لتقييم صحتها...`,
-                        options: ['صح ✔️', 'خطأ ❌', '', ''],
-                        correctOption: 'A'
-                    });
-                }
-            }
-            renderQuestionsBuilder();
-        }
-
-        function addNewQuestion() {
-            currentQuestions.push({
-                question: '',
-                options: ['', '', '', ''],
-                correctOption: 'A'
-            });
-            renderQuestionsBuilder();
-        }
-
-        function removeQuestion(index) {
-            currentQuestions.splice(index, 1);
-            if (currentQuestions.length === 0) addNewQuestion();
-            renderQuestionsBuilder();
-        }
-
-        function renderQuestionsBuilder() {
-            const container = document.getElementById('questionsContainer');
-            document.getElementById('eb_q_count').textContent = currentQuestions.length;
-            container.innerHTML = '';
-
-            currentQuestions.forEach((q, idx) => {
-                container.innerHTML += `
-                    <div class="q-card">
-                        <div class="q-header">
-                            <span class="q-num"><i class="fa-solid fa-circle-question"></i> السؤال ${idx + 1}</span>
-                            <button class="btn btn-danger" style="padding:2px 8px; font-size:11px;" onclick="removeQuestion(${idx})"><i class="fa-solid fa-trash"></i> حذف السؤال</button>
-                        </div>
-                        <input class="form-control" style="margin-bottom:10px; font-weight:700;" placeholder="اكتب نص السؤال هنا..." value="${q.question}" oninput="currentQuestions[${idx}].question = this.value">
-                        
-                        <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">الخيارات المتاحة (اختر الإجابة الصحيحة بالضغط على الدائرة):</div>
-                        <div class="options-grid">
-                            <div class="opt-item">
-                                <input type="radio" name="correct_${idx}" value="A" ${q.correctOption === 'A' ? 'checked' : ''} onchange="currentQuestions[${idx}].correctOption = 'A'">
-                                <span style="font-weight:bold; color:var(--primary);">أ:</span>
-                                <input class="form-control" style="border:none; padding:4px;" placeholder="الخيار (أ)" value="${q.options[0] || ''}" oninput="currentQuestions[${idx}].options[0] = this.value">
-                            </div>
-                            <div class="opt-item">
-                                <input type="radio" name="correct_${idx}" value="B" ${q.correctOption === 'B' ? 'checked' : ''} onchange="currentQuestions[${idx}].correctOption = 'B'">
-                                <span style="font-weight:bold; color:var(--primary);">ب:</span>
-                                <input class="form-control" style="border:none; padding:4px;" placeholder="الخيار (ب)" value="${q.options[1] || ''}" oninput="currentQuestions[${idx}].options[1] = this.value">
-                            </div>
-                            <div class="opt-item">
-                                <input type="radio" name="correct_${idx}" value="C" ${q.correctOption === 'C' ? 'checked' : ''} onchange="currentQuestions[${idx}].correctOption = 'C'">
-                                <span style="font-weight:bold; color:var(--primary);">ج:</span>
-                                <input class="form-control" style="border:none; padding:4px;" placeholder="الخيار (ج)" value="${q.options[2] || ''}" oninput="currentQuestions[${idx}].options[2] = this.value">
-                            </div>
-                            <div class="opt-item">
-                                <input type="radio" name="correct_${idx}" value="D" ${q.correctOption === 'D' ? 'checked' : ''} onchange="currentQuestions[${idx}].correctOption = 'D'">
-                                <span style="font-weight:bold; color:var(--primary);">د:</span>
-                                <input class="form-control" style="border:none; padding:4px;" placeholder="الخيار (د)" value="${q.options[3] || ''}" oninput="currentQuestions[${idx}].options[3] = this.value">
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        async function saveCompleteExam() {
-            const title = document.getElementById('eb_title').value.trim();
-            const dur = parseInt(document.getElementById('eb_dur').value) || 30;
-            const marks = parseInt(document.getElementById('eb_marks').value) || 20;
-
-            if (!title) {
-                Swal.fire('تنبيه', 'يرجى كتابة عنوان الامتحان', 'warning');
-                return;
-            }
-
-            const validQuestions = currentQuestions.filter(q => q.question.trim().length > 0);
-            if (validQuestions.length === 0) {
-                Swal.fire('تنبيه', 'يرجى كتابة سؤال واحد على الأقل', 'warning');
-                return;
-            }
-
-            const examPayload = {
-                title: title,
-                grade: 'فرقة رابعة خدمة اجتماعية',
-                duration_minutes: dur,
-                total_marks: marks,
-                questions: validQuestions.map(q => ({
-                    question_text: q.question,
-                    option_a: q.options[0] || '',
-                    option_b: q.options[1] || '',
-                    option_c: q.options[2] || '',
-                    option_d: q.options[3] || '',
-                    correct_option: q.correctOption || 'A'
-                }))
-            };
-
-            const res = await ElkhetaAPI.saveExam(examPayload);
-            if (res.success) {
-                Swal.fire('تم النشر بنجاح 🎉', `تم إنشاء وحفظ الامتحان ونشره لجميع طلاب الفرقة الرابعة بنجاح!`, 'success');
-                closeModal('examBuilderModal');
-                loadData();
-            } else {
-                Swal.fire('خطأ', res.error || 'فشل حفظ الامتحان', 'error');
-            }
-        }
-
-        function openBulkImportModal() {
-            document.getElementById('bulkText').value = '';
-            openModal('bulkImportModal');
-        }
-
-        function processBulkImport() {
-            const text = document.getElementById('bulkText').value.trim();
-            if (!text) return;
-
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-            currentQuestions = [];
-            let currQ = null;
-
-            lines.forEach(line => {
-                if (line.match(/^(\d+[\.\-\)]|س\s*:|س\d+)/i) || (currQ && currQ.options.filter(o=>o).length >= 4)) {
-                    if (currQ && currQ.question) currentQuestions.push(currQ);
-                    currQ = { question: line.replace(/^(\d+[\.\-\)]|س\s*:|س\d+)\s*/i, ''), options: ['', '', '', ''], correctOption: 'A' };
-                } else if (line.match(/^(أ|1|A)[\.\-\)]/i) && currQ) {
-                    currQ.options[0] = line.replace(/^(أ|1|A)[\.\-\)]\s*/i, '');
-                } else if (line.match(/^(ب|2|B)[\.\-\)]/i) && currQ) {
-                    currQ.options[1] = line.replace(/^(ب|2|B)[\.\-\)]\s*/i, '');
-                } else if (line.match(/^(ج|3|C)[\.\-\)]/i) && currQ) {
-                    currQ.options[2] = line.replace(/^(ج|3|C)[\.\-\)]\s*/i, '');
-                } else if (line.match(/^(د|4|D)[\.\-\)]/i) && currQ) {
-                    currQ.options[3] = line.replace(/^(د|4|D)[\.\-\)]\s*/i, '');
-                } else if (line.match(/^(الإجابة|الاجابة|الإجابه|answer)\s*:\s*(.*)/i) && currQ) {
-                    const ans = line.match(/^(الإجابة|الاجابة|الإجابه|answer)\s*:\s*(.*)/i)[2].trim();
-                    if (ans.includes('أ') || ans.includes('1') || ans.toUpperCase() === 'A') currQ.correctOption = 'A';
-                    else if (ans.includes('ب') || ans.includes('2') || ans.toUpperCase() === 'B') currQ.correctOption = 'B';
-                    else if (ans.includes('ج') || ans.includes('3') || ans.toUpperCase() === 'C') currQ.correctOption = 'C';
-                    else if (ans.includes('د') || ans.includes('4') || ans.toUpperCase() === 'D') currQ.correctOption = 'D';
-                }
-            });
-
-            if (currQ && currQ.question) currentQuestions.push(currQ);
-
-            if (currentQuestions.length > 0) {
-                closeModal('bulkImportModal');
-                openExamBuilder();
-                renderQuestionsBuilder();
-                Swal.fire('تم التحويل 🪄', `تم استيراد ${currentQuestions.length} أسئلة بنجاح إلى المحرر!`, 'success');
-            } else {
-                Swal.fire('تنبيه', 'لم يتم التعرف على أي أسئلة في النص المدخل', 'warning');
-            }
-        }
-
-        function renderExams(list) {
-            const tbody = document.querySelector('#examsTable tbody');
-            tbody.innerHTML = '';
-            if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد امتحانات منشورة حالياً</td></tr>';
-                return;
-            }
-            list.forEach(e => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:700;">${e.title}</td>
-                        <td><span class="badge badge-warning">${e.questions_count || 0} سؤال</span></td>
-                        <td>${e.duration_minutes} دقيقة</td>
-                        <td style="font-weight:800; color:var(--success);">${e.total_marks} درجة</td>
-                        <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
-                            <button class="btn btn-primary" style="padding:4px 8px; font-size:11px;" title="عرض الأسئلة" onclick="previewExam(${e.id})"><i class="fa-solid fa-eye"></i> معاينة</button>
-                            <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" title="حذف الامتحان" onclick="delExam(${e.id})"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function previewExam(id) {
-            const ex = allExams.find(x => x.id === id);
-            if (!ex) return;
-
-            let qsHtml = '<div style="text-align:right; max-height:400px; overflow-y:auto;">';
-            if (ex.questions && ex.questions.length > 0) {
-                ex.questions.forEach((q, i) => {
-                    qsHtml += `
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:12px; margin-bottom:10px;">
-                            <strong style="color:var(--primary); font-size:13px;">س ${i+1}: ${q.question_text}</strong>
-                            <div style="font-size:12px; margin-top:6px; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                                <span style="${q.correct_option === 'A' ? 'color:#10B981; font-weight:bold;' : ''}">أ) ${q.option_a || '—'}</span>
-                                <span style="${q.correct_option === 'B' ? 'color:#10B981; font-weight:bold;' : ''}">ب) ${q.option_b || '—'}</span>
-                                <span style="${q.correct_option === 'C' ? 'color:#10B981; font-weight:bold;' : ''}">ج) ${q.option_c || '—'}</span>
-                                <span style="${q.correct_option === 'D' ? 'color:#10B981; font-weight:bold;' : ''}">د) ${q.option_d || '—'}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                qsHtml += '<p style="color:#94A3B8;">لا توجد أسئلة مسجلة في هذا الامتحان</p>';
-            }
-            qsHtml += '</div>';
-
-            Swal.fire({
-                title: `معاينة: ${ex.title}`,
-                html: qsHtml,
-                confirmButtonText: 'إغلاق المعاينة'
-            });
-        }
-
-        async function delExam(id) {
-            Swal.fire({
-                title: 'حذف الامتحان؟',
-                text: 'هل أنت متأكد من حذف هذا الامتحان وكافة أسئلته؟',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، احذف',
-                confirmButtonColor: '#EF4444'
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    await ElkhetaAPI.deleteExam(id);
-                    Swal.fire('تم الحذف', 'تم مسح الامتحان بنجاح', 'success');
-                    loadData();
-                }
-            });
-        }
-
-        /* ─── بقية الدوال العامة ─── */
-        async function loadActivity() {
-            try {
-                const [logsRes, liveRes] = await Promise.all([
-                    ElkhetaAPI.getActivityLogs('', '', 100),
-                    ElkhetaAPI.getLiveActiveStudents()
-                ]);
-                if (liveRes.success) document.getElementById('statActive').textContent = liveRes.count;
-                if (logsRes.success) {
-                    allLogs = logsRes.logs;
-                    renderActivity(allLogs);
-                }
-            } catch(e) {}
-        }
-
-        function renderActivity(list) {
-            const tbody = document.querySelector('#activityTable tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:25px; color:#94A3B8;">لا توجد نشاطات مسجلة بعد</td></tr>';
-                return;
-            }
-
-            list.forEach((log, idx) => {
-                const dateStr = new Date(log.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                let actionBadge = `<span class="badge badge-info">${log.action}</span>`;
-                if (log.action.includes('دخول') || log.action.includes('الرئيسية')) actionBadge = `<span class="badge badge-success">${log.action}</span>`;
-                else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) actionBadge = `<span class="badge badge-primary">${log.action}</span>`;
-                else if (log.action.includes('امتحان')) actionBadge = `<span class="badge badge-warning">${log.action}</span>`;
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
-                        <td style="font-size:12px; color:#64748B; font-weight:700;" dir="ltr">${dateStr}</td>
-                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:2px 6px; border-radius:6px; font-family:monospace;">${log.student_code}</span></td>
-                        <td style="font-weight:700;">${log.student_name || 'طالب'}</td>
-                        <td>${actionBadge}</td>
-                        <td style="font-weight:600; color:#334155;">${log.details || '—'}</td>
-                        <td style="font-size:12px; color:#94A3B8;">${log.user_agent ? (log.user_agent.includes('Mobile') ? '📱 هاتف' : '💻 كمبيوتر') : '—'}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function filterActivity(query) {
-            const q = query.toLowerCase().trim();
-            const f = allLogs.filter(l =>
-                (l.student_code && l.student_code.toLowerCase().includes(q)) ||
-                (l.student_name && l.student_name.toLowerCase().includes(q)) ||
-                (l.action && l.action.toLowerCase().includes(q)) ||
-                (l.details && l.details.toLowerCase().includes(q))
-            );
-            renderActivity(f);
-        }
-
-        async function clearLogs() {
-            await ElkhetaAPI.clearActivityLogs();
-            loadActivity();
-        }
-
-        function toggleStudentSort() {
-            studentSortOrder = studentSortOrder === 'desc' ? 'asc' : 'desc';
-            document.getElementById('sortBtnText').textContent = studentSortOrder === 'desc' ? 'الترتيب: الأحدث أولاً ⬇️' : 'الترتيب: الأقدم أولاً ⬆️';
-            renderStudents(allStudents);
-        }
-
-        function renderStudents(list) {
-            const tbody = document.querySelector('#studentsTable tbody');
-            tbody.innerHTML = '';
-            if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94A3B8;">لا يوجد طلاب مسجلون</td></tr>';
-                return;
-            }
-
-            const sorted = [...list].sort((a, b) => {
-                const idA = a.id || 0;
-                const idB = b.id || 0;
-                return studentSortOrder === 'desc' ? (idB - idA) : (idA - idB);
-            });
-
-            sorted.forEach((st, idx) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
-                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${st.student_code}</span></td>
-                        <td style="font-weight:700;">${st.full_name}</td>
-                        <td dir="ltr" style="text-align:right;">${st.phone ? `<a href="tel:${st.phone}" style="color:#2563EB; text-decoration:none; font-weight:700;">${st.phone}</a>` : '<span style="color:#CBD5E1;">—</span>'}</td>
-                        <td>${st.device_id ? `<button class="btn btn-secondary" style="padding:3px 6px; font-size:11px;" onclick="resetDev('${st.student_code}')"><i class="fa-solid fa-mobile-screen"></i> فك</button>` : '<span style="color:#94A3B8; font-size:12px;">غير مقترن</span>'}</td>
-                        <td>${st.is_banned ? '<span class="badge badge-danger">موقوف 🚫</span>' : '<span class="badge badge-success">نشط ⚡</span>'}</td>
-                        <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
-                            <button class="btn btn-primary" style="padding:5px 9px; font-size:12px;" title="تعديل بيانات الطالب" onclick="openEditStudentModal('${st.student_code}')"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn ${st.is_banned ? 'btn-success' : 'btn-warning'}" style="padding:5px 9px; font-size:12px;" title="${st.is_banned ? 'فك الحظر' : 'حظر الحساب'}" onclick="toggleBan('${st.student_code}', ${st.is_banned ? 0 : 1})"><i class="fa-solid ${st.is_banned ? 'fa-unlock' : 'fa-ban'}"></i></button>
-                            <button class="btn btn-danger" style="padding:5px 9px; font-size:12px;" title="حذف الطالب" onclick="deleteStudentAccount('${st.student_code}', '${st.full_name}')"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function searchStudents(val) {
-            const v = val.toLowerCase().trim();
-            const f = allStudents.filter(s =>
-                (s.student_code && s.student_code.toLowerCase().includes(v)) ||
-                (s.full_name && s.full_name.toLowerCase().includes(v)) ||
-                (s.phone && s.phone.includes(v))
-            );
-            renderStudents(f);
-        }
-
-        function openEditStudentModal(code) {
-            const st = allStudents.find(s => s.student_code === code);
-            if (!st) return;
-
-            Swal.fire({
-                title: `تعديل بيانات الطالب (${st.student_code})`,
-                html: `
-                    <div style="text-align:right;">
-                        <label style="font-size:12px; font-weight:bold;">الاسم الكامل:</label>
-                        <input id="ed_name" class="swal2-input" style="width:100%; margin:4px 0 10px;" value="${st.full_name || ''}">
-                        
-                        <label style="font-size:12px; font-weight:bold;">رقم هاتف الطالب:</label>
-                        <input id="ed_phone" class="swal2-input" style="width:100%; margin:4px 0 10px;" dir="ltr" value="${st.phone || ''}">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'حفظ التعديلات',
-                cancelButtonText: 'إلغاء',
-                preConfirm: () => ({
-                    student_code: st.student_code,
-                    full_name: document.getElementById('ed_name').value.trim(),
-                    phone: document.getElementById('ed_phone').value.trim(),
-                    parent_phone: ''
-                })
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    const res = await ElkhetaAPI.updateStudent(r.value);
-                    if (res.success) {
-                        Swal.fire('تم الحفظ 🎉', 'تم تحديث بيانات الطالب بنجاح', 'success');
-                        loadData();
-                    } else {
-                        Swal.fire('خطأ', res.error || 'فشل التعديل', 'error');
-                    }
-                }
-            });
-        }
-
-        async function toggleBan(code, status) {
-            const res = await ElkhetaAPI.toggleBan(code, status);
-            Swal.fire({
-                title: status ? '🚫 تم حظر الطالب' : '⚡ تم فك الحظر',
-                text: res.message || (status ? 'تم إيقاف حساب الطالب ولن يستطيع فتحه أبداً حتى تفك الحظر' : 'تم تفعيل الحساب بنجاح'),
-                icon: status ? 'warning' : 'success',
-                confirmButtonText: 'حسناً'
-            });
-            loadData();
-        }
-
-        async function resetDev(code) {
-            await ElkhetaAPI.resetDevice(code);
-            Swal.fire('تم الفك', 'تم فك قفل الجهاز للطالب بنجاح', 'success');
-            loadData();
-        }
-
-        async function deleteStudentAccount(code, name) {
-            Swal.fire({
-                title: `حذف حساب الطالب: ${name}؟`,
-                text: 'تحذير: سيتم مسح بيانات الطالب وسجلاته نهائياً من قاعدة البيانات!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، احذف الطالب',
-                confirmButtonColor: '#EF4444',
-                cancelButtonText: 'إلغاء'
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    const res = await ElkhetaAPI.deleteStudent(code);
-                    if (res.success) {
-                        Swal.fire('تم الحذف', res.message, 'success');
-                        loadData();
-                    }
-                }
-            });
-        }
-
-        function renderLectures(list) {
-            const tbody = document.querySelector('#lecturesTable tbody');
-            tbody.innerHTML = '';
-            if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد محاضرات</td></tr>';
-                return;
-            }
-            list.forEach(l => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:700;">${l.title}</td>
-                        <td>${l.video_url ? `<a href="${l.video_url}" target="_blank" class="badge badge-success" style="text-decoration:none;"><i class="fa-solid fa-play"></i> فتح الفيديو</a>` : '—'}</td>
-                        <td>${l.pdf_url ? `<a href="${l.pdf_url}" target="_blank" class="badge badge-warning" style="text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> فتح PDF</a>` : '—'}</td>
-                        <td><span class="badge badge-success">مجانية ⚡</span></td>
-                        <td style="text-align:center;"><button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delLec(${l.id})"><i class="fa-solid fa-trash"></i></button></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openAddLectureModal() {
-            Swal.fire({
-                title: 'إضافة محاضرة جديدة (فرقة رابعة)',
-                html: `
-                    <div style="text-align:right;">
-                        <label style="font-size:12px; font-weight:bold;">عنوان المحاضرة:</label>
-                        <input id="l_title" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="شرح الفصل الأول">
-
-                        <label style="font-size:12px; font-weight:bold;">رابط الفيديو (YouTube / Bunny / Drive):</label>
-                        <input id="l_vid" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="https://...">
-                        
-                        <label style="font-size:12px; font-weight:bold;">رابط المذكرة (PDF):</label>
-                        <input id="l_pdf" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="https://...">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'نشر المحاضرة في المنصة',
-                cancelButtonText: 'إلغاء',
-                preConfirm: () => ({
-                    title: document.getElementById('l_title').value.trim(),
-                    grade: 'فرقة رابعة خدمة اجتماعية',
-                    video_url: document.getElementById('l_vid').value.trim(),
-                    pdf_url: document.getElementById('l_pdf').value.trim(),
-                    is_free: 1,
-                    price: 0
-                })
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    await ElkhetaAPI.saveLecture(r.value);
-                    Swal.fire('تمت الإضافة 🎉', 'تم نشر المحاضرة بنجاح لجميع الطلاب', 'success');
-                    loadData();
-                }
-            });
-        }
-
-        async function delLec(id) {
-            await ElkhetaAPI.deleteLecture(id);
-            loadData();
-        }
-
-        async function loadSupervisors() {
-            const res = await ElkhetaAPI.getSupervisors();
-            const tbody = document.querySelector('#supervisorsTable tbody');
-            tbody.innerHTML = '';
-            if (res.success && res.supervisors.length > 0) {
-                res.supervisors.forEach(sup => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-weight:700;">${sup.username}</td>
-                            <td><span class="badge ${sup.role === 'super_admin' ? 'badge-danger' : 'badge-info'}">${sup.role === 'super_admin' ? 'مسؤول عام' : 'مشرف'}</span></td>
-                            <td style="text-align:center;">
-                                ${sup.id == 1 ? '<span style="color:#94A3B8; font-size:11px;">الرئيسي</span>' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delSupervisor(${sup.id})"><i class="fa-solid fa-trash"></i></button>`}
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-
-        function openAddSupervisorModal() {
-            Swal.fire({
-                title: 'إضافة مشرف جديد وتعيين كلمة مروره',
-                html: `
-                    <div style="text-align:right;">
-                        <label style="font-size:12px; font-weight:bold;">اسم المستخدم للمشرف:</label>
-                        <input id="new_sup_user" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="مثال: supervisor1">
-                        <label style="font-size:12px; font-weight:bold;">كلمة المرور الخاصة به:</label>
-                        <input id="new_sup_pass" type="password" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="••••••••">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'حفظ المشرف',
-                cancelButtonText: 'إلغاء',
-                preConfirm: () => {
-                    const u = document.getElementById('new_sup_user').value.trim();
-                    const p = document.getElementById('new_sup_pass').value.trim();
-                    if (!u || !p) {
-                        Swal.showValidationMessage('اسم المستخدم وكلمة المرور مطلوبان');
-                        return false;
-                    }
-                    return { username: u, password: p, role: 'supervisor' };
-                }
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    const res = await ElkhetaAPI.addSupervisor(r.value.username, r.value.password, r.value.role);
-                    if (res.success) {
-                        Swal.fire('تمت الإضافة 🎉', 'تم إنشاء حساب المشرف بنجاح', 'success');
-                        loadSupervisors();
-                    }
-                }
-            });
-        }
-
-        async function delSupervisor(id) {
-            await ElkhetaAPI.deleteSupervisor(id);
-            loadSupervisors();
-        }
-
-        async function saveSettings(e) {
-            e.preventDefault();
-            await ElkhetaAPI.saveSettings({
-                is_maintenance: document.getElementById('set_maintenance').checked,
-                maintenance_message: document.getElementById('set_msg').value.trim(),
-                support_whatsapp: document.getElementById('set_whatsapp').value.trim(),
-                notice_bar: document.getElementById('set_notice').value.trim()
-            });
-            Swal.fire('تم الحفظ 🎉', 'تم تحديث إعدادات المنصة بنجاح', 'success');
-            closeModal('settingsModal');
+        if(sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            window.location.href = "admin-gate.html";
         }
     </script>
+
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="header-icon" id="adminHeaderIcon">👑</div>
+            <div class="header-title" id="adminHeaderTitle">لوحة تحكم المنصة</div>
+            <div class="header-sub" id="adminHeaderSub">مرحباً بك — صلاحيات كاملة</div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-val" id="statStudents">40</div>
+            <div class="stat-lbl">طالب مسجل</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statLectures">0</div>
+            <div class="stat-lbl">محاضرة مرفوعة</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statCodes">0</div>
+            <div class="stat-lbl">كود متاح</div>
+        </div>
+    </div>
+
+    <div class="section-title" id="secContentTitle">📋 إدارة المحتوى وقاعدة البيانات</div>
+    <div class="admin-grid" id="gridContent">
+        <div class="admin-item blue" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); border: 2px solid #6366F1;" onclick="location.href='admin-mysql.html'">
+            <div class="item-icon" style="background: #4F46E5; color: white;">⚡</div>
+            <div class="item-label" style="color: #312E81; font-weight: 800;">لوحة MySQL السحابية</div>
+            <div class="item-desc" style="color: #4338CA; font-weight: 600;">إدارة قاعدة البيانات و REST API</div>
+        </div>
+        <div class="admin-item blue" data-perm="courses" onclick="location.href='admin-courses.html'">
+            <div class="item-icon">📖</div>
+            <div class="item-label">المواد الدراسية</div>
+            <div class="item-desc">إضافة وحذف المواد</div>
+        </div>
+        <div class="admin-item green" data-perm="lessons" onclick="location.href='admin-lessons.html'">
+            <div class="item-icon">📽️</div>
+            <div class="item-label">الدروس والامتحانات</div>
+            <div class="item-desc">رفع الدروس، الامتحانات، والملخصات</div>
+        </div>
+        <div class="admin-item pink" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+            <div class="item-icon">🔔</div>
+            <div class="item-label">إرسال تنبيه</div>
+            <div class="item-desc">إشعار لجميع الطلاب</div>
+        </div>
+    </div>
+
+    <div class="section-title" id="secUsersTitle">👤 إدارة المستخدمين والمنصة</div>
+    <div class="admin-grid" id="gridUsers">
+        <div class="admin-item cyan" data-perm="students" onclick="location.href='admin-students.html'">
+            <div class="item-icon">👥</div>
+            <div class="item-label">الطلاب</div>
+            <div class="item-desc">عرض وإدارة الحسابات</div>
+        </div>
+        <div class="admin-item yellow" data-perm="codes" onclick="location.href='admin-codes.html'">
+            <div class="item-icon">🔑</div>
+            <div class="item-label">أكواد التفعيل</div>
+            <div class="item-desc">توليد أكواد جديدة</div>
+        </div>
+        <div class="admin-item red" data-perm="otps" onclick="location.href='admin-otps.html'">
+            <div class="item-icon">🚨</div>
+            <div class="item-label">طوارئ OTP</div>
+            <div class="item-desc">أكواد التحقق المعلقة</div>
+        </div>
+        <div class="admin-item blue" data-perm="reports" onclick="location.href='admin-reports.html'">
+            <div class="item-icon">📊</div>
+            <div class="item-label">تقارير الطلاب</div>
+            <div class="item-desc">الرادار ونشاط الطالب</div>
+        </div>
+        <div class="admin-item yellow" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+            <div class="item-icon">📝</div>
+            <div class="item-label">تحليل أخطاء البابل شيت</div>
+            <div class="item-desc">متابعة الأسئلة الخاطئة وتفكير الطلاب</div>
+        </div>
+        <div class="admin-item purple" data-perm="config" onclick="location.href='admin-config.html'">
+            <div class="item-icon">🛠️</div>
+            <div class="item-label">الإعدادات وحلول الطلاب</div>
+            <div class="item-desc">حل مشاكل الدخول، فك الحظر، وإدارة المشرفين</div>
+        </div>
+    </div>
+
+    <div class="logout-area">
+        <button class="logout-btn" onclick="adminLogout()">🚪 تسجيل الخروج من الإدارة</button>
+    </div>
+    <div class="footer-note">ELKHETA Admin Panel — All rights reserved</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        const adminName = sessionStorage.getItem('adminName') || 'المدير العام';
+        const roleTitle = sessionStorage.getItem('adminRoleTitle') || '';
+        let permissions = {};
+
+        try {
+            permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+        } catch(e) { permissions = {}; }
+
+        // Update Header Info
+        if (role === 'master' || role === 'super_admin') {
+            document.getElementById('adminHeaderIcon').textContent = '👑';
+            document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
+            document.getElementById('adminHeaderSub').textContent = `مرحباً بك يا ${adminName} — صلاحيات كاملة`;
+        } else {
+            document.getElementById('adminHeaderIcon').textContent = '🛡️';
+            document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
+            document.getElementById('adminHeaderSub').textContent = `${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط`;
+
+            // Filter Items according to permissions
+            document.querySelectorAll('.admin-item[data-perm]').forEach(item => {
+                const permKey = item.getAttribute('data-perm');
+                let hasAccess = false;
+                if (permKey === 'config') {
+                    hasAccess = permissions.config || permissions.troubleshoot || permissions.students;
+                } else {
+                    hasAccess = permissions[permKey] === true;
+                }
+
+                if (!hasAccess) {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Check if section grids are empty and hide headers
+            ['gridContent', 'gridUsers'].forEach(gridId => {
+                const grid = document.getElementById(gridId);
+                const visibleChildren = Array.from(grid.children).filter(c => c.style.display !== 'none');
+                if (visibleChildren.length === 0) {
+                    grid.style.display = 'none';
+                    if (gridId === 'gridContent') document.getElementById('secContentTitle').style.display = 'none';
+                    if (gridId === 'gridUsers') document.getElementById('secUsersTitle').style.display = 'none';
+                }
+            });
+        }
+
+        function adminLogout() {
+            sessionStorage.clear();
+            localStorage.removeItem('isAdmin');
+            window.location.href = "admin-gate.html";
+        }
+
+        // Load stats from Firebase & MySQL in real-time
+        database.ref('Students').on('value', snap => {
+            if (snap.exists()) {
+                document.getElementById('statStudents').textContent = snap.numChildren();
+            } else {
+                document.getElementById('statStudents').textContent = '0';
+            }
+        });
+        database.ref('Lectures').on('value', snap => {
+            let total = 0;
+            if (snap.exists()) {
+                snap.forEach(subSnap => { total += subSnap.numChildren(); });
+            }
+            document.getElementById('statLectures').textContent = total;
+        });
+        database.ref('ActivationCodes').orderByChild('isUsed').equalTo(false).on('value', snap => {
+            if (snap.exists()) {
+                document.getElementById('statCodes').textContent = snap.numChildren();
+            } else {
+                document.getElementById('statCodes').textContent = '0';
+            }
+        });
+    </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
 </body>
 </html>

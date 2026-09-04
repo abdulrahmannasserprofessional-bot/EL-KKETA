@@ -162,9 +162,9 @@
 </head>
 <body>
     <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) window.location.href = "admin-gate.html";
         const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master') {
+        if (role !== 'master' && role !== 'super_admin') {
             try {
                 const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
                 if (!perms.lessons) {
@@ -172,6 +172,7 @@
                     window.location.href = "admin-panel.html";
                 }
             } catch(e) {}
+        }
     </script>
 
     <div class="page-header">

@@ -203,9 +203,14 @@
         </div>
     </div>
 
-    <div class="list-header">
-        <span class="list-title">قائمة الطلاب المسجلين</span>
-        <span class="count-badge" id="countBadge">جاري التحميل...</span>
+    <div class="list-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+            <span class="list-title">قائمة الطلاب المسجلين</span>
+            <span class="count-badge" id="countBadge">جاري التحميل...</span>
+        </div>
+        <button id="sortToggleBtn" onclick="toggleSortOrder()" style="background:#EEF2FF; border:1px solid #C7D2FE; color:#4338CA; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Cairo', sans-serif;">
+            ⬇️ الترتيب: من الأحدث للأقدم
+        </button>
     </div>
 
     <div id="studentsList">
@@ -231,7 +236,23 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
+        const API_BASE = "https://backendapi-pi.vercel.app/api";
         let allStudents = [];
+        let sortDesc = true; // Default newest first
+
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            window.location.href = "admin-gate.html";
+        }
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        if (role !== 'master' && role !== 'super_admin') {
+            try {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+                if (!perms.students) {
+                    alert("⛔ ليس لديك صلاحية للوصول إلى إدارة الطلاب");
+                    window.location.href = "admin-panel.html";
+                }
+            } catch(e) {}
+        }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -239,22 +260,15 @@
             setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        let pendingDeleteFn = null;
-        function showConfirm(message, onConfirm) { Swal.fire({
-        title: "تأكيد",
-        html: message,
-        icon: "warning", color: "#1E293B",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "نعم، متأكد",
-        cancelButtonText: "إلغاء"
-    }).then((result) => { if (result.isConfirmed && onConfirm) { onConfirm(); } }); }
-        function closeModal() { document.getElementById('confirmModal').classList.remove('open'); pendingDeleteFn = null; }
-        document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
         function getInitial(name) {
             return name ? name.trim().charAt(0) : '؟';
+        }
+
+        function toggleSortOrder() {
+            sortDesc = !sortDesc;
+            const btn = document.getElementById('sortToggleBtn');
+            btn.innerHTML = sortDesc ? '⬇️ الترتيب: من الأحدث للأقدم' : '⬆️ الترتيب: من الأقدم للأحدث';
+            filterStudents();
         }
 
         database.ref('Students').on('value', snap => {
@@ -262,7 +276,11 @@
             let totalScore = 0, scoreCount = 0;
 
             if (snap.exists()) {
-                snap.forEach(child => { allStudents.push(child.val()); });
+                snap.forEach(child => { 
+                    const val = child.val();
+                    val.firebaseKey = child.key;
+                    allStudents.push(val); 
+                });
                 // Calc avg score
                 allStudents.forEach(s => {
                     if (s.stats && s.stats.averageScore) {
@@ -273,96 +291,161 @@
             }
 
             document.getElementById('totalStudents').textContent = allStudents.length;
-            document.getElementById('activeToday').textContent = '—';
+            document.getElementById('activeToday').textContent = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length || '—';
             document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) + '%' : '—';
             document.getElementById('countBadge').textContent = allStudents.length + ' طالب';
 
-            renderStudents(allStudents);
+            filterStudents();
         });
-
-        let studentDeleteMap = {};
 
         function renderStudents(list) {
             const container = document.getElementById('studentsList');
             container.innerHTML = "";
-            studentDeleteMap = {};
 
             if (list.length === 0) {
                 container.innerHTML = `<div class="empty-state"><div>👥</div><p>لا يوجد طلاب مطابقون</p></div>`;
                 return;
             }
-            list.forEach((st, idx) => {
-                const deleteId = 'st_del_' + idx;
-                studentDeleteMap[deleteId] = { code: st.studentCode, name: st.fullName || 'غير محدد' };
+
+            // Sort
+            const sorted = [...list].sort((a, b) => {
+                const dateA = a.joinDate || a.createdAt || 0;
+                const dateB = b.joinDate || b.createdAt || 0;
+                return sortDesc ? (dateB - dateA) : (dateA - dateB);
+            });
+
+            sorted.forEach((st, idx) => {
+                const numBadge = `<span style="background: #E0E7FF; color: #3730A3; font-weight: 800; font-size: 11px; padding: 2px 7px; border-radius: 6px; margin-left: 6px;">#${idx + 1}</span>`;
                 const score = st.stats?.averageScore ? `<span class="student-score">${st.stats.averageScore}% متوسط</span>` : '';
                 
-                let warningBadge = '';
-                if(st.isBanned) warningBadge = `<span style="background:#FEE2E2; color:#B91C1C; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800; margin-right:5px;">🚫 موقوف نهائياً</span>`;
-                else if(st.warnings > 0) warningBadge = `<span style="background:#FEF3C7; color:#B45309; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800; margin-right:5px;">⚠️ إنذار (${st.warnings}/3)</span>`;
+                let statusBadge = `<span style="background:#DCFCE7; color:#166534; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">🟢 نشط</span>`;
+                if(st.isBanned) {
+                    statusBadge = `<span style="background:#FEE2E2; color:#B91C1C; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">🚫 محظور</span>`;
+                } else if(st.warnings > 0) {
+                    statusBadge = `<span style="background:#FEF3C7; color:#B45309; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">⚠️ إنذار (${st.warnings}/3)</span>`;
+                }
 
                 const card = document.createElement('div');
                 card.className = "student-card";
                 card.innerHTML = `
                     <div class="avatar">${getInitial(st.fullName)}</div>
                     <div class="student-info">
-                        <div class="student-name">${st.fullName || 'غير محدد'} ${warningBadge}</div>
-                        <div class="student-code">${st.studentCode || '—'}</div>
+                        <div class="student-name">
+                            ${numBadge}
+                            ${st.fullName || 'غير محدد'} 
+                            ${statusBadge}
+                        </div>
+                        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:4px;">
+                            <span class="student-code">${st.studentCode || '—'}</span>
+                            <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:6px;">فرقة رابعة خدمة اجتماعية</span>
+                        </div>
                         <div class="student-phone">📞 ${st.whatsapp || 'غير محدد'}</div>
-                        ${st.joinDate ? `<div style="font-size: 11px; color: #94A3B8; margin-top: 4px;">📅 انضم: ${new Date(st.joinDate).toLocaleDateString('ar-EG')}</div>` : ''}
+                        ${st.joinDate ? `<div style="font-size: 11px; color: #94A3B8; margin-top: 3px;">📅 انضم: ${new Date(st.joinDate).toLocaleDateString('ar-EG')}</div>` : ''}
                     </div>
                     <div class="student-actions">
                         ${score}
-                        <div class="btn-delete" style="background:#DCFCE7; color:#166534;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${st.fullName || ''}', '${st.studentCode || ''}')" title="إرسال الكود في الواتساب">💬</div>
-                        <div class="btn-delete" style="background:#F0FDF4; color:#166534;" onclick="liftWarning('${st.studentCode}')" title="تصفير قيود الأجهزة وفك الحظر">🔓</div>
-                        <div class="btn-delete" data-id="${deleteId}" title="حذف الطالب"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-delete" style="background:#DCFCE7; color:#166534; border:none;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${st.fullName || ''}', '${st.studentCode || ''}')" title="إرسال الكود في الواتساب">💬</button>
+                            <button class="btn-delete" style="background:${st.isBanned ? '#FEE2E2' : '#F0FDF4'}; color:${st.isBanned ? '#DC2626' : '#166534'}; border:none;" onclick="toggleStudentBan('${st.studentCode}', ${st.isBanned ? 'true' : 'false'})" title="${st.isBanned ? 'فك الحظر' : 'حظر الطالب'}">${st.isBanned ? '🔓' : '🚫'}</button>
+                            <button class="btn-delete" style="background:#EFF6FF; color:#1D4ED8; border:none;" onclick="resetStudentDevice('${st.studentCode}')" title="تصفير الجهاز">🔄</button>
+                            <button class="btn-delete" style="background:#FEF2F2; color:#DC2626; border:none;" onclick="deleteStudentDirect('${st.studentCode}', '${st.fullName || 'الطالب'}')" title="حذف الطالب">🗑️</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
+        }
 
-            container.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const ref = studentDeleteMap[btn.dataset.id];
-                    if (!ref) return;
-                    showConfirm(
-                        `هل أنت متأكد من حذف حساب الطالب؟<br><br><strong style="color:#DC2626">${ref.name}</strong><br><br>لا يمكن التراجع عن هذا الإجراء!`,
-                        () => database.ref('Students/' + ref.code).remove().then(() => showToast(" تم حذف حساب الطالب بنجاح"))
-                    );
-                });
+        async function toggleStudentBan(code, isCurrentlyBanned) {
+            const newBanState = !isCurrentlyBanned;
+            const actionText = newBanState ? 'حظر الطالب' : 'فك حظر الطالب';
+            
+            Swal.fire({
+                title: `${actionText}؟`,
+                text: newBanState ? 'لن يتمكن الطالب من دخول المنصة حتى يقوم المسؤول بفك الحظر.' : 'سيتمكن الطالب من الدخول واستئناف الدراسة فوراً.',
+                icon: newBanState ? 'warning' : 'info',
+                showCancelButton: true,
+                confirmButtonColor: newBanState ? '#DC2626' : '#10B981',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، نفذ الإجراء',
+                cancelButtonText: 'إلغاء'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    // Update Firebase
+                    await database.ref('Students/' + code).update({
+                        isBanned: newBanState,
+                        warnings: newBanState ? 3 : 0,
+                        bannedReason: newBanState ? 'تم الحظر بواسطة الإدارة' : null,
+                        bannedAt: newBanState ? Date.now() : null
+                    });
+
+                    // Sync MySQL API
+                    try {
+                        await fetch(`${API_BASE}/students/${code}/ban`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ isBanned: newBanState, reason: newBanState ? 'إداري' : '' })
+                        });
+                    } catch(e) {}
+
+                    showToast(`✅ تم ${actionText} بنجاح!`);
+                }
             });
         }
 
-        function liftWarning(code) {
+        async function resetStudentDevice(code) {
             Swal.fire({
-                title: 'رفع الإنذار؟',
-                text: 'هل تريد إلغاء الحظر، تصفير الإنذارات، والسماح لهذا الطالب بالدخول من جهاز جديد؟',
+                title: 'تصفير جهاز الطالب؟',
+                text: 'سيتم مسح بصمة الجهاز الحالية والسماح للطالب بتسجيل الدخول من جهاز جديد.',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#10B981',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'نعم، السماح للطالب',
+                confirmButtonColor: '#3B82F6',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، تصفير الجهاز',
                 cancelButtonText: 'إلغاء'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    database.ref('Students/' + code).update({
-                        warnings: 0,
-                        isBanned: false,
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    await database.ref('Students/' + code).update({
                         registeredDevice: null,
+                        deviceId: null,
+                        warnings: 0,
                         forgivenMessage: true
-                    }).then(() => {
-                        showToast("✅ تم تصفير جهاز الطالب ورفع الإنذار بنجاح!");
-                        
-                        // Also log this in activity logs
-                        database.ref('ActivityLogs').push({
-                            studentCode: code,
-                            studentName: 'الإدارة',
-                            action: 'عملية إدارية: تم رفع الحظر/الإنذارات وتصفير الجهاز.',
-                            timestamp: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    }).catch(err => {
-                        console.error(err);
-                        showToast("❌ حدث خطأ", "error");
                     });
+
+                    try {
+                        await fetch(`${API_BASE}/students/${code}/reset-device`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    } catch(e) {}
+
+                    showToast("✅ تم تصفير جهاز الطالب بنجاح!");
+                }
+            });
+        }
+
+        function deleteStudentDirect(code, name) {
+            Swal.fire({
+                title: 'حذف حساب الطالب؟',
+                html: `هل أنت متأكد تماماً من حذف حساب الطالب:<br><b style="color:#DC2626; font-size:16px;">${name}</b> (${code})؟<br>لا يمكن التراجع عن هذا الإجراء.`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، حذف نهائياً',
+                cancelButtonText: 'إلغاء'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    await database.ref('Students/' + code).remove();
+
+                    try {
+                        await fetch(`${API_BASE}/students/${code}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    } catch(e) {}
+
+                    showToast("🗑️ تم حذف حساب الطالب بنجاح");
                 }
             });
         }
