@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الإدارة المباشرة - منصة الخطة (فرقة رابعة خدمة اجتماعية)</title>
+    <title>لوحة الإدارة المباشرة والمراقبة - منصة الخطة (فرقة رابعة خدمة اجتماعية)</title>
     
     <!-- الخطوط والأيقونات -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,7 +68,7 @@
         .content-body { padding: 30px; flex: 1; }
 
         /* Stats & Panels */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .stat-card {
             background: #FFFFFF; border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px; display: flex; align-items: center; gap: 18px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
@@ -150,8 +150,9 @@
         </div>
 
         <ul class="sidebar-menu">
-            <div class="menu-title">الرئيسية</div>
+            <div class="menu-title">الرئيسية والمراقبة</div>
             <li><div class="menu-link active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>نظرة عامة</span></div></li>
+            <li><div class="menu-link" onclick="switchTab('activity')"><i class="fa-solid fa-satellite-dish" style="color:#10B981;"></i><span>مراقبة الأجهزة والنشاط الحي 📡</span></div></li>
 
             <div class="menu-title">إدارة الطلاب والمحتوى</div>
             <li><div class="menu-link" onclick="switchTab('students')"><i class="fa-solid fa-user-graduate"></i><span id="sidebarStudentsText">إدارة الطلاب</span></div></li>
@@ -185,11 +186,15 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background: rgba(37,99,235,0.1); color: var(--primary);"><i class="fa-solid fa-users"></i></div>
-                        <div><h3 id="statStudents" style="font-size: 26px; font-weight: 900;">39</h3><p style="font-size: 13px; color: var(--text-muted);">إجمالي طلاب الفرقة الرابعة</p></div>
+                        <div><h3 id="statStudents" style="font-size: 26px; font-weight: 900;">0</h3><p style="font-size: 13px; color: var(--text-muted);">إجمالي طلاب الفرقة الرابعة</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="fa-solid fa-satellite-dish"></i></div>
+                        <div><h3 id="statActive" style="font-size: 26px; font-weight: 900;">0</h3><p style="font-size: 13px; color: var(--text-muted);">الطلاب المتصلين الآن 🟢</p></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: rgba(139,92,246,0.1); color: #8B5CF6;"><i class="fa-solid fa-graduation-cap"></i></div>
-                        <div><h3 id="statLectures" style="font-size: 26px; font-weight: 900;">0</h3><p style="font-size: 13px; color: var(--text-muted);">المحاضرات والدروس المنشورة</p></div>
+                        <div><h3 id="statLectures" style="font-size: 26px; font-weight: 900;">0</h3><p style="font-size: 13px; color: var(--text-muted);">المحاضرات المنشورة</p></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--warning);"><i class="fa-solid fa-file-signature"></i></div>
@@ -203,21 +208,53 @@
                     </div>
                     <div class="panel-body" style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <button class="btn btn-primary" onclick="switchTab('students')"><i class="fa-solid fa-user-plus"></i> إدارة الطلاب وحظر/فك الحسابات</button>
+                        <button class="btn btn-success" onclick="switchTab('activity')"><i class="fa-solid fa-satellite-dish"></i> مراقبة الأجهزة والنشاط الحي 📡</button>
                         <button class="btn btn-secondary" onclick="openAddLectureModal()"><i class="fa-solid fa-upload"></i> إضافة محاضرة جديدة</button>
                         <button class="btn btn-secondary" onclick="openAddExamModal()"><i class="fa-solid fa-plus"></i> إنشاء امتحان جديد</button>
-                        <button class="btn btn-secondary" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i> إعدادات المنصة والمشرفين</button>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. الطلاب -->
+            <!-- 2. مراقبة الأجهزة والنشاط الحي -->
+            <section id="tab-activity" class="tab-content">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-satellite-dish" style="color: var(--success);"></i> مراقبة الأجهزة وحركات الطلاب الحية (Live Stream)</div>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="loadActivity()"><i class="fa-solid fa-rotate"></i> تحديث فوري</button>
+                            <button class="btn btn-danger" onclick="clearLogs()"><i class="fa-solid fa-trash"></i> مسح السجل</button>
+                            <input type="text" class="form-control" style="max-width: 260px;" placeholder="بحث بالطالب أو النشاط..." oninput="filterActivity(this.value)">
+                        </div>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="custom-table" id="activityTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align:center;">#</th>
+                                        <th>الوقت والتاريخ</th>
+                                        <th>كود الطالب</th>
+                                        <th>اسم الطالب</th>
+                                        <th>النشاط الذي قام به</th>
+                                        <th>التفاصيل والمحتوى</th>
+                                        <th>الجهاز / المتصفح</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. الطلاب -->
             <section id="tab-students" class="tab-content">
                 <div class="panel-card">
                     <div class="panel-header">
                         <div class="panel-title"><i class="fa-solid fa-users" style="color: var(--primary);"></i> قائمة طلاب فرقة رابعة خدمة اجتماعية</div>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                             <button class="btn btn-secondary" onclick="toggleStudentSort()" id="sortBtn"><i class="fa-solid fa-arrow-down-short-wide"></i> <span id="sortBtnText">الترتيب: الأحدث أولاً ⬇️</span></button>
-                            <input type="text" class="form-control" style="max-width: 320px;" placeholder="ابحث بالاسم، الكود، أو رقم الهاتف..." oninput="searchStudents(this.value)">
+                            <input type="text" class="form-control" style="max-width: 300px;" placeholder="ابحث بالاسم، الكود، أو الهاتف..." oninput="searchStudents(this.value)">
                         </div>
                     </div>
                     <div class="panel-body" style="padding: 0;">
@@ -229,7 +266,6 @@
                                         <th>كود الطالب</th>
                                         <th>الاسم الكامل</th>
                                         <th>رقم هاتف الطالب</th>
-                                        <th>هاتف ولي الأمر</th>
                                         <th>قفل الجهاز</th>
                                         <th>حالة الحساب</th>
                                         <th style="text-align: center;">إجراءات الإدارة</th>
@@ -242,7 +278,7 @@
                 </div>
             </section>
 
-            <!-- 3. المحاضرات -->
+            <!-- 4. المحاضرات -->
             <section id="tab-lectures" class="tab-content">
                 <div class="panel-card">
                     <div class="panel-header">
@@ -268,7 +304,7 @@
                 </div>
             </section>
 
-            <!-- 4. الامتحانات -->
+            <!-- 5. الامتحانات -->
             <section id="tab-exams" class="tab-content">
                 <div class="panel-card">
                     <div class="panel-header">
@@ -293,7 +329,7 @@
                 </div>
             </section>
 
-            <!-- 5. الإعدادات والمشرفين -->
+            <!-- 6. الإعدادات والمشرفين -->
             <section id="tab-settings" class="tab-content">
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; align-items:start;">
                     <!-- إعدادات المنصة -->
@@ -356,7 +392,9 @@
 
     <script>
         let allStudents = [];
+        let allLogs = [];
         let isSuperAdmin = false;
+        let studentSortOrder = 'desc'; // 'desc' = أحدث أولاً, 'asc' = أقدم أولاً
 
         // Auto check login session
         if (sessionStorage.getItem('isMysqlAdmin')) {
@@ -364,6 +402,8 @@
             applyRolePermissions();
             document.getElementById('loginOverlay').style.display = 'none';
             loadData();
+            loadActivity();
+            setInterval(loadActivity, 15000); // تحديث دوري لسجل النشاط كل 15 ثانية
         }
 
         async function handleLogin(e) {
@@ -379,6 +419,8 @@
                 applyRolePermissions();
                 document.getElementById('loginOverlay').style.display = 'none';
                 loadData();
+                loadActivity();
+                setInterval(loadActivity, 15000);
             } else {
                 Swal.fire('خطأ', res.error || 'بيانات الدخول غير صحيحة', 'error');
             }
@@ -414,6 +456,7 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${t}`).classList.add('active');
+            if (t === 'activity') loadActivity();
         }
 
         async function loadData() {
@@ -454,79 +497,80 @@
             }
         }
 
-        async function loadSupervisors() {
-            const res = await ElkhetaAPI.getSupervisors();
-            const tbody = document.querySelector('#supervisorsTable tbody');
-            tbody.innerHTML = '';
-            if (res.success && res.supervisors.length > 0) {
-                res.supervisors.forEach(sup => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-weight:700;">${sup.username}</td>
-                            <td><span class="badge ${sup.role === 'super_admin' ? 'badge-danger' : 'badge-info'}">${sup.role === 'super_admin' ? 'مسؤول عام' : 'مشرف'}</span></td>
-                            <td style="text-align:center;">
-                                ${sup.id == 1 ? '<span style="color:#94A3B8; font-size:11px;">الرئيسي</span>' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delSupervisor(${sup.id})"><i class="fa-solid fa-trash"></i></button>`}
-                            </td>
-                        </tr>
-                    `;
-                });
+        async function loadActivity() {
+            const [logsRes, liveRes] = await Promise.all([
+                ElkhetaAPI.getActivityLogs('', '', 100),
+                ElkhetaAPI.getLiveActiveStudents()
+            ]);
+
+            if (liveRes.success) {
+                document.getElementById('statActive').textContent = liveRes.count;
+            }
+
+            if (logsRes.success) {
+                allLogs = logsRes.logs;
+                renderActivity(allLogs);
             }
         }
 
-        function openAddSupervisorModal() {
-            Swal.fire({
-                title: 'إضافة مشرف جديد وتعيين كلمة مروره',
-                html: `
-                    <div style="text-align:right;">
-                        <label style="font-size:12px; font-weight:bold;">اسم المستخدم للمشرف:</label>
-                        <input id="new_sup_user" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="مثال: supervisor1">
-                        <label style="font-size:12px; font-weight:bold;">كلمة المرور الخاصة به:</label>
-                        <input id="new_sup_pass" type="password" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="••••••••">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'حفظ المشرف',
-                cancelButtonText: 'إلغاء',
-                preConfirm: () => {
-                    const u = document.getElementById('new_sup_user').value.trim();
-                    const p = document.getElementById('new_sup_pass').value.trim();
-                    if (!u || !p) {
-                        Swal.showValidationMessage('اسم المستخدم وكلمة المرور مطلوبان');
-                        return false;
-                    }
-                    return { username: u, password: p, role: 'supervisor' };
-                }
-            }).then(async r => {
-                if (r.isConfirmed) {
-                    const res = await ElkhetaAPI.addSupervisor(r.value.username, r.value.password, r.value.role);
-                    if (res.success) {
-                        Swal.fire('تمت الإضافة 🎉', 'تم إنشاء حساب المشرف بنجاح ويمكنه الدخول الآن', 'success');
-                        loadSupervisors();
-                    } else {
-                        Swal.fire('خطأ', res.error || 'فشلت العملية', 'error');
-                    }
-                }
+        function renderActivity(list) {
+            const tbody = document.querySelector('#activityTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد نشاطات مسجلة بعد</td></tr>';
+                return;
+            }
+
+            list.forEach((log, idx) => {
+                const dateStr = new Date(log.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + new Date(log.created_at).toLocaleDateString('ar-EG');
+                
+                let actionBadge = `<span class="badge badge-info">${log.action}</span>`;
+                if (log.action.includes('دخول')) actionBadge = `<span class="badge badge-success"><i class="fa-solid fa-right-to-bracket"></i> ${log.action}</span>`;
+                else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) actionBadge = `<span class="badge badge-primary"><i class="fa-solid fa-play"></i> ${log.action}</span>`;
+                else if (log.action.includes('امتحان')) actionBadge = `<span class="badge badge-warning"><i class="fa-solid fa-file-pen"></i> ${log.action}</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
+                        <td style="font-size:12px; color:#64748B; font-weight:700;" dir="ltr">${dateStr}</td>
+                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${log.student_code}</span></td>
+                        <td style="font-weight:700;">${log.student_name || 'طالب'}</td>
+                        <td>${actionBadge}</td>
+                        <td style="font-weight:600; color:#334155;">${log.details || '—'}</td>
+                        <td style="font-size:11px; color:#94A3B8; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${log.user_agent || ''}">${log.user_agent ? (log.user_agent.includes('Mobile') ? '📱 هاتف' : '💻 كمبيوتر') : '—'}</td>
+                    </tr>
+                `;
             });
         }
 
-        async function delSupervisor(id) {
+        function filterActivity(query) {
+            const q = query.toLowerCase().trim();
+            const f = allLogs.filter(l =>
+                (l.student_code && l.student_code.toLowerCase().includes(q)) ||
+                (l.student_name && l.student_name.toLowerCase().includes(q)) ||
+                (l.action && l.action.toLowerCase().includes(q)) ||
+                (l.details && l.details.toLowerCase().includes(q))
+            );
+            renderActivity(f);
+        }
+
+        async function clearLogs() {
             Swal.fire({
-                title: 'حذف المشرف؟',
-                text: 'هل أنت متأكد من حذف هذا الحساب؟',
+                title: 'مسح سجل النشاط؟',
+                text: 'هل أنت متأكد من مسح كافة سجلات نشاط الطلاب؟',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'نعم، احذف',
+                confirmButtonText: 'نعم، مسح السجل',
                 confirmButtonColor: '#EF4444'
             }).then(async r => {
                 if (r.isConfirmed) {
-                    await ElkhetaAPI.deleteSupervisor(id);
-                    Swal.fire('تم الحذف', 'تم مسح حساب المشرف', 'success');
-                    loadSupervisors();
+                    await ElkhetaAPI.clearActivityLogs();
+                    Swal.fire('تم المسح', 'تم مسح السجل بنجاح', 'success');
+                    loadActivity();
                 }
             });
         }
-
-        let studentSortOrder = 'desc'; // 'desc' = أحدث أولاً, 'asc' = أقدم أولاً
 
         function toggleStudentSort() {
             studentSortOrder = studentSortOrder === 'desc' ? 'asc' : 'desc';
@@ -541,11 +585,10 @@
             const tbody = document.querySelector('#studentsTable tbody');
             tbody.innerHTML = '';
             if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">لا يوجد طلاب مسجلون</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94A3B8;">لا يوجد طلاب مسجلون</td></tr>';
                 return;
             }
 
-            // تطبيق الترتيب
             const sorted = [...list].sort((a, b) => {
                 const idA = a.id || 0;
                 const idB = b.id || 0;
@@ -559,7 +602,6 @@
                         <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${st.student_code}</span></td>
                         <td style="font-weight:700;">${st.full_name}</td>
                         <td dir="ltr" style="text-align:right;">${st.phone ? `<a href="tel:${st.phone}" style="color:#2563EB; text-decoration:none; font-weight:700;">${st.phone}</a>` : '<span style="color:#CBD5E1;">—</span>'}</td>
-                        <td dir="ltr" style="text-align:right;">${st.parent_phone ? `<a href="tel:${st.parent_phone}" style="color:#0F172A; text-decoration:none;">${st.parent_phone}</a>` : '<span style="color:#CBD5E1;">—</span>'}</td>
                         <td>${st.device_id ? `<button class="btn btn-secondary" style="padding:3px 6px; font-size:11px;" onclick="resetDev('${st.student_code}')"><i class="fa-solid fa-mobile-screen"></i> فك</button>` : '<span style="color:#94A3B8; font-size:12px;">غير مقترن</span>'}</td>
                         <td>${st.is_banned ? '<span class="badge badge-danger">موقوف 🚫</span>' : '<span class="badge badge-success">نشط ⚡</span>'}</td>
                         <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
@@ -577,8 +619,7 @@
             const f = allStudents.filter(s =>
                 (s.student_code && s.student_code.toLowerCase().includes(v)) ||
                 (s.full_name && s.full_name.toLowerCase().includes(v)) ||
-                (s.phone && s.phone.includes(v)) ||
-                (s.parent_phone && s.parent_phone.includes(v))
+                (s.phone && s.phone.includes(v))
             );
             renderStudents(f);
         }
@@ -596,9 +637,6 @@
                         
                         <label style="font-size:12px; font-weight:bold;">رقم هاتف الطالب:</label>
                         <input id="ed_phone" class="swal2-input" style="width:100%; margin:4px 0 10px;" dir="ltr" value="${st.phone || ''}">
-                        
-                        <label style="font-size:12px; font-weight:bold;">رقم هاتف ولي الأمر:</label>
-                        <input id="ed_parent_phone" class="swal2-input" style="width:100%; margin:4px 0 10px;" dir="ltr" value="${st.parent_phone || ''}">
                     </div>
                 `,
                 showCancelButton: true,
@@ -608,13 +646,13 @@
                     student_code: st.student_code,
                     full_name: document.getElementById('ed_name').value.trim(),
                     phone: document.getElementById('ed_phone').value.trim(),
-                    parent_phone: document.getElementById('ed_parent_phone').value.trim()
+                    parent_phone: ''
                 })
             }).then(async r => {
                 if (r.isConfirmed) {
                     const res = await ElkhetaAPI.updateStudent(r.value);
                     if (res.success) {
-                        Swal.fire('تم الحفظ 🎉', 'تم تحديث بيانات الطالب في MySQL و Firebase بنجاح', 'success');
+                        Swal.fire('تم الحفظ 🎉', 'تم تحديث بيانات الطالب بنجاح', 'success');
                         loadData();
                     } else {
                         Swal.fire('خطأ', res.error || 'فشل التعديل', 'error');
@@ -765,6 +803,78 @@
                     await ElkhetaAPI.saveExam(r.value);
                     Swal.fire('تم النشر 🎉', 'تم نشر الامتحان بنجاح لجميع الطلاب', 'success');
                     loadData();
+                }
+            });
+        }
+
+        async function loadSupervisors() {
+            const res = await ElkhetaAPI.getSupervisors();
+            const tbody = document.querySelector('#supervisorsTable tbody');
+            tbody.innerHTML = '';
+            if (res.success && res.supervisors.length > 0) {
+                res.supervisors.forEach(sup => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight:700;">${sup.username}</td>
+                            <td><span class="badge ${sup.role === 'super_admin' ? 'badge-danger' : 'badge-info'}">${sup.role === 'super_admin' ? 'مسؤول عام' : 'مشرف'}</span></td>
+                            <td style="text-align:center;">
+                                ${sup.id == 1 ? '<span style="color:#94A3B8; font-size:11px;">الرئيسي</span>' : `<button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delSupervisor(${sup.id})"><i class="fa-solid fa-trash"></i></button>`}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openAddSupervisorModal() {
+            Swal.fire({
+                title: 'إضافة مشرف جديد وتعيين كلمة مروره',
+                html: `
+                    <div style="text-align:right;">
+                        <label style="font-size:12px; font-weight:bold;">اسم المستخدم للمشرف:</label>
+                        <input id="new_sup_user" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="مثال: supervisor1">
+                        <label style="font-size:12px; font-weight:bold;">كلمة المرور الخاصة به:</label>
+                        <input id="new_sup_pass" type="password" class="swal2-input" style="width:100%; margin:4px 0 10px;" placeholder="••••••••">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ المشرف',
+                cancelButtonText: 'إلغاء',
+                preConfirm: () => {
+                    const u = document.getElementById('new_sup_user').value.trim();
+                    const p = document.getElementById('new_sup_pass').value.trim();
+                    if (!u || !p) {
+                        Swal.showValidationMessage('اسم المستخدم وكلمة المرور مطلوبان');
+                        return false;
+                    }
+                    return { username: u, password: p, role: 'supervisor' };
+                }
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    const res = await ElkhetaAPI.addSupervisor(r.value.username, r.value.password, r.value.role);
+                    if (res.success) {
+                        Swal.fire('تمت الإضافة 🎉', 'تم إنشاء حساب المشرف بنجاح ويمكنه الدخول الآن', 'success');
+                        loadSupervisors();
+                    } else {
+                        Swal.fire('خطأ', res.error || 'فشلت العملية', 'error');
+                    }
+                }
+            });
+        }
+
+        async function delSupervisor(id) {
+            Swal.fire({
+                title: 'حذف المشرف؟',
+                text: 'هل أنت متأكد من حذف هذا الحساب؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                confirmButtonColor: '#EF4444'
+            }).then(async r => {
+                if (r.isConfirmed) {
+                    await ElkhetaAPI.deleteSupervisor(id);
+                    Swal.fire('تم الحذف', 'تم مسح حساب المشرف', 'success');
+                    loadSupervisors();
                 }
             });
         }

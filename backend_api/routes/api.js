@@ -7,6 +7,7 @@ const lecturesController = require('../controllers/lecturesController');
 const codesController = require('../controllers/codesController');
 const examsController = require('../controllers/examsController');
 const settingsController = require('../controllers/settingsController');
+const activityController = require('../controllers/activityController');
 
 // 1. مسارات المصادقة والتسجيل (Auth)
 router.post('/auth/admin/login', authController.adminLogin);
@@ -19,6 +20,12 @@ router.post('/students/reset-device', studentsController.resetDevice);
 router.post('/students/update', studentsController.updateStudent);
 router.post('/students/recharge-wallet', studentsController.rechargeStudentWallet);
 router.delete('/students/:student_code', studentsController.deleteStudent);
+
+// 3. مسارات مراقبة الأجهزة والنشاط الحي (Activity Monitoring)
+router.post('/activity/log', activityController.logActivity);
+router.get('/activity/logs', activityController.getActivityLogs);
+router.get('/activity/live', activityController.getLiveActiveStudents);
+router.delete('/activity/logs', activityController.clearActivityLogs);
 
 // 3. مسارات الكورسات والمحاضرات (Lectures)
 router.get('/lectures', lecturesController.getLectures);

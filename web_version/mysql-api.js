@@ -201,6 +201,41 @@ const ElkhetaAPI = {
             body: JSON.stringify(settings)
         });
         return await res.json();
+    },
+
+    // 9. مراقبة الأجهزة والنشاط الحي للطلاب
+    async logActivity(studentCode, studentName, action, details = '') {
+        try {
+            await fetch(`${API_BASE_URL}/activity/log`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student_code: studentCode,
+                    student_name: studentName,
+                    action: action,
+                    details: details
+                })
+            });
+        } catch(e) {}
+    },
+
+    async getActivityLogs(search = '', studentCode = '', limit = 100) {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (studentCode) params.append('student_code', studentCode);
+        params.append('limit', limit);
+        const res = await fetch(`${API_BASE_URL}/activity/logs?${params.toString()}`);
+        return await res.json();
+    },
+
+    async getLiveActiveStudents() {
+        const res = await fetch(`${API_BASE_URL}/activity/live`);
+        return await res.json();
+    },
+
+    async clearActivityLogs() {
+        const res = await fetch(`${API_BASE_URL}/activity/logs`, { method: 'DELETE' });
+        return await res.json();
     }
 };
 
