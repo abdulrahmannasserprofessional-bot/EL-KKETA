@@ -397,8 +397,9 @@
         let studentSortOrder = 'desc'; // 'desc' = أحدث أولاً, 'asc' = أقدم أولاً
 
         // Auto check login session
-        if (sessionStorage.getItem('isMysqlAdmin')) {
-            isSuperAdmin = sessionStorage.getItem('adminRole') === 'super_admin';
+        if (sessionStorage.getItem('isMysqlAdmin') || sessionStorage.getItem('isAdmin') === 'true') {
+            isSuperAdmin = sessionStorage.getItem('adminRole') === 'super_admin' || sessionStorage.getItem('adminRole') === 'master' || !sessionStorage.getItem('adminRole');
+            sessionStorage.setItem('isMysqlAdmin', 'true');
             applyRolePermissions();
             document.getElementById('loginOverlay').style.display = 'none';
             loadData();
@@ -408,21 +409,36 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('adm_user').value.trim();
-            const p = document.getElementById('adm_pass').value.trim();
-            const res = await ElkhetaAPI.adminLogin(u, p);
-            if (res.success) {
-                sessionStorage.setItem('isMysqlAdmin', 'true');
-                sessionStorage.setItem('adminRole', res.admin.role || 'super_admin');
-                sessionStorage.setItem('adminUsername', res.admin.username || 'admin');
-                isSuperAdmin = (res.admin.role === 'super_admin' || res.admin.is_super_admin === true);
-                applyRolePermissions();
-                document.getElementById('loginOverlay').style.display = 'none';
-                loadData();
-                loadActivity();
-                setInterval(loadActivity, 15000);
-            } else {
-                Swal.fire('خطأ', res.error || 'بيانات الدخول غير صحيحة', 'error');
+            const btn = e.target.querySelector('button[type="submit"]');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق...';
+
+            try {
+                const u = document.getElementById('adm_user').value.trim();
+                const p = document.getElementById('adm_pass').value.trim();
+
+                const res = await ElkhetaAPI.adminLogin(u, p);
+                if (res && res.success) {
+                    sessionStorage.setItem('isMysqlAdmin', 'true');
+                    sessionStorage.setItem('isAdmin', 'true');
+                    sessionStorage.setItem('adminRole', res.admin ? res.admin.role : 'super_admin');
+                    sessionStorage.setItem('adminUsername', res.admin ? res.admin.username : u);
+                    isSuperAdmin = !res.admin || (res.admin.role === 'super_admin' || res.admin.is_super_admin === true);
+                    applyRolePermissions();
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    loadData();
+                    loadActivity();
+                    setInterval(loadActivity, 15000);
+                } else {
+                    Swal.fire('خطأ في تسجيل الدخول', (res && res.error) ? res.error : 'بيانات الدخول غير صحيحة', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ في الاتصال', 'حدث خطأ أثناء الاتصال بقاعدة البيانات: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
             }
         }
 
@@ -430,7 +446,7 @@
             const role = sessionStorage.getItem('adminRole');
             const username = sessionStorage.getItem('adminUsername') || 'المستخدم';
 
-            if (role === 'super_admin' || isSuperAdmin) {
+            if (role === 'super_admin' || role === 'master' || isSuperAdmin) {
                 document.getElementById('userRoleBadge').textContent = 'المسؤول العام 👑';
                 document.getElementById('roleHeaderBadge').textContent = 'المسؤول العام (صلاحيات كاملة) 👑';
                 document.getElementById('roleHeaderBadge').className = 'badge badge-info';

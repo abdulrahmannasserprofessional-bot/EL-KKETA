@@ -151,3 +151,20 @@ exports.deleteStudent = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+// شحن محفظة الطالب
+exports.rechargeStudentWallet = async (req, res) => {
+    try {
+        const { student_code, amount } = req.body;
+        if (!student_code) {
+            return res.status(400).json({ success: false, error: 'كود الطالب مطلوب' });
+        }
+        const val = parseFloat(amount) || 0;
+        const codeUpper = student_code.trim().toUpperCase();
+
+        await db.query('UPDATE students SET wallet_balance = wallet_balance + ? WHERE UPPER(student_code) = ?', [val, codeUpper]);
+        res.json({ success: true, message: 'تم شحن المحفظة بنجاح' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};

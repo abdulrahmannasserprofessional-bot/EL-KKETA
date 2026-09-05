@@ -223,7 +223,7 @@ const handler = async (req, res) => {
   </div>
 
 </body>
-</html>\`;
+</html>`;
 
   try {
     await transporter.sendMail({

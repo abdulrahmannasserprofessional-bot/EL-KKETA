@@ -19,6 +19,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="mysql-api.js"></script>
     <style>
+        :root {
+            --text-main: #FFFFFF;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -553,12 +556,11 @@
                 // 3. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
 
-                // فحص قاعدة بيانات MySQL أولاً
+                // فحص قاعدة بيانات MySQL أولاً بسرعة مع مهلة قصيرة
                 try {
-                    const resSql = await fetch(`https://backendapi-pi.vercel.app/api/students?search=${encodeURIComponent(upperCode)}`);
-                    const dataSql = await resSql.json();
-                    if (dataSql.success && dataSql.students && dataSql.students.length > 0) {
-                        const sqlStudent = dataSql.students.find(s => s.student_code.toUpperCase() === upperCode);
+                    const dataSql = await ElkhetaAPI.getStudents(upperCode);
+                    if (dataSql && dataSql.success && dataSql.students && dataSql.students.length > 0) {
+                        const sqlStudent = dataSql.students.find(s => s.student_code && s.student_code.toUpperCase() === upperCode);
                         if (sqlStudent) {
                             if (sqlStudent.is_banned == 1 || sqlStudent.is_banned === true) {
                                 btn.textContent = "دخول للمنصة 🚀";
