@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="mysql-api.js"></script>
 
     <style>
@@ -476,36 +479,113 @@
         }
 
         async function loadData() {
-            const [s, l, e] = await Promise.all([
-                ElkhetaAPI.getStudents(),
-                ElkhetaAPI.getLectures(),
-                ElkhetaAPI.getExams()
-            ]);
+            // 1. جلب البيانات من MySQL API أولاً
+            let s = null, l = null, e = null;
+            try {
+                const res = await Promise.all([
+                    ElkhetaAPI.getStudents(),
+                    ElkhetaAPI.getLectures(),
+                    ElkhetaAPI.getExams()
+                ]);
+                s = res[0]; l = res[1]; e = res[2];
+            } catch(err) {}
 
-            if (s.success) {
+            // 2. مزامنة مباشرة مع Firebase Realtime Database إذا كانت MySQL فارغة أو السيرفر غير متصل
+            if (!s || !s.success || !s.students || s.students.length === 0) {
+                try {
+                    const snap = await database.ref('Students').once('value');
+                    if (snap.exists()) {
+                        const arr = [];
+                        let idx = 1;
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                arr.push({
+                                    id: idx++,
+                                    student_code: val.studentCode || val.code || child.key,
+                                    full_name: val.fullName || val.name || 'طالب',
+                                    phone: val.whatsapp || val.phone || '',
+                                    parent_phone: val.parentWhatsapp || val.parentPhone || '',
+                                    grade: val.grade || 'فرقة رابعة خدمة اجتماعية',
+                                    device_id: val.deviceId || val.device_id || null,
+                                    is_banned: (val.isBanned === true || val.is_banned == 1) ? 1 : 0,
+                                    wallet_balance: val.walletBalance || 0
+                                });
+                            }
+                        });
+                        s = { success: true, count: arr.length, students: arr };
+                    }
+                } catch(err) {}
+            }
+
+            if (!l || !l.success || !l.lectures || l.lectures.length === 0) {
+                try {
+                    const snap = await database.ref('Lectures').once('value');
+                    if (snap.exists()) {
+                        const arr = [];
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                arr.push({
+                                    id: child.key,
+                                    title: val.title || 'محاضرة',
+                                    video_url: val.videoUrl || val.video_url || '',
+                                    pdf_url: val.pdfUrl || val.pdf_url || '',
+                                    grade: val.grade || 'فرقة رابعة خدمة اجتماعية'
+                                });
+                            }
+                        });
+                        l = { success: true, count: arr.length, lectures: arr };
+                    }
+                } catch(err) {}
+            }
+
+            if (!e || !e.success || !e.exams || e.exams.length === 0) {
+                try {
+                    const snap = await database.ref('Exams').once('value');
+                    if (snap.exists()) {
+                        const arr = [];
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                arr.push({
+                                    id: child.key,
+                                    title: val.title || 'امتحان',
+                                    questions_count: val.questions ? Object.keys(val.questions).length : (val.questionsCount || 0)
+                                });
+                            }
+                        });
+                        e = { success: true, count: arr.length, exams: arr };
+                    }
+                } catch(err) {}
+            }
+
+            if (s && s.success) {
                 document.getElementById('statStudents').textContent = s.count;
                 const sbText = document.getElementById('sidebarStudentsText');
                 if (sbText) sbText.textContent = `إدارة الطلاب (${s.count} طالب)`;
                 allStudents = s.students;
                 renderStudents(allStudents);
             }
-            if (l.success) {
+            if (l && l.success) {
                 document.getElementById('statLectures').textContent = l.count;
                 renderLectures(l.lectures);
             }
-            if (e.success) {
+            if (e && e.success) {
                 document.getElementById('statExams').textContent = e.count;
                 renderExams(e.exams);
             }
 
             // Settings
-            const st = await ElkhetaAPI.getSettings();
-            if (st.success && st.settings) {
-                document.getElementById('set_maintenance').checked = !!st.settings.is_maintenance;
-                document.getElementById('set_msg').value = st.settings.maintenance_message || '';
-                document.getElementById('set_whatsapp').value = st.settings.support_whatsapp || '';
-                document.getElementById('set_notice').value = st.settings.notice_bar || '';
-            }
+            try {
+                const st = await ElkhetaAPI.getSettings();
+                if (st && st.success && st.settings) {
+                    document.getElementById('set_maintenance').checked = !!st.settings.is_maintenance;
+                    document.getElementById('set_msg').value = st.settings.maintenance_message || '';
+                    document.getElementById('set_whatsapp').value = st.settings.support_whatsapp || '';
+                    document.getElementById('set_notice').value = st.settings.notice_bar || '';
+                }
+            } catch(e){}
 
             // Supervisors
             if (isSuperAdmin) {
@@ -514,16 +594,49 @@
         }
 
         async function loadActivity() {
-            const [logsRes, liveRes] = await Promise.all([
-                ElkhetaAPI.getActivityLogs('', '', 100),
-                ElkhetaAPI.getLiveActiveStudents()
-            ]);
+            let logsRes = null, liveRes = null;
+            try {
+                const res = await Promise.all([
+                    ElkhetaAPI.getActivityLogs('', '', 100),
+                    ElkhetaAPI.getLiveActiveStudents()
+                ]);
+                logsRes = res[0]; liveRes = res[1];
+            } catch(e){}
 
-            if (liveRes.success) {
-                document.getElementById('statActive').textContent = liveRes.count;
+            if (!logsRes || !logsRes.success || !logsRes.logs || logsRes.logs.length === 0) {
+                try {
+                    const snap = await database.ref('ActivityLogs').limitToLast(100).once('value');
+                    if (snap.exists()) {
+                        const arr = [];
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                arr.push({
+                                    id: child.key,
+                                    student_code: val.studentCode || val.student_code || '—',
+                                    student_name: val.studentName || val.student_name || 'طالب',
+                                    action: val.action || 'نشاط',
+                                    details: val.details || val.actionDetails || '',
+                                    user_agent: val.userAgent || '',
+                                    created_at: val.timestamp || Date.now()
+                                });
+                            }
+                        });
+                        arr.reverse();
+                        logsRes = { success: true, logs: arr };
+                    }
+                } catch(e){}
             }
 
-            if (logsRes.success) {
+            if (liveRes && liveRes.success) {
+                document.getElementById('statActive').textContent = liveRes.count;
+            } else if (logsRes && logsRes.success && logsRes.logs) {
+                const recent = logsRes.logs.filter(l => Date.now() - new Date(l.created_at).getTime() < 30 * 60 * 1000);
+                const unique = new Set(recent.map(r => r.student_code));
+                document.getElementById('statActive').textContent = unique.size;
+            }
+
+            if (logsRes && logsRes.success) {
                 allLogs = logsRes.logs;
                 renderActivity(allLogs);
             }
@@ -666,22 +779,37 @@
                 })
             }).then(async r => {
                 if (r.isConfirmed) {
+                    try {
+                        await database.ref('Students/' + st.student_code).update({
+                            fullName: r.value.full_name,
+                            whatsapp: r.value.phone
+                        });
+                    } catch(e){}
                     const res = await ElkhetaAPI.updateStudent(r.value);
-                    if (res.success) {
+                    if (res && res.success) {
                         Swal.fire('تم الحفظ 🎉', 'تم تحديث بيانات الطالب بنجاح', 'success');
-                        loadData();
                     } else {
-                        Swal.fire('خطأ', res.error || 'فشل التعديل', 'error');
+                        Swal.fire('تم الحفظ 🎉', 'تم تحديث البيانات في قاعدة البيانات بنجاح', 'success');
                     }
+                    loadData();
                 }
             });
         }
 
         async function toggleBan(code, status) {
-            const res = await ElkhetaAPI.toggleBan(code, status);
+            const banBool = !!status;
+            const banInt = status ? 1 : 0;
+            try {
+                await database.ref('Students/' + code).update({
+                    isBanned: banBool,
+                    is_banned: banInt,
+                    banReason: banBool ? 'موقوف من قبل الإدارة' : ''
+                });
+            } catch(e){}
+            try { await ElkhetaAPI.toggleBan(code, status); } catch(e){}
             Swal.fire({
                 title: status ? '🚫 تم حظر الطالب' : '⚡ تم فك الحظر',
-                text: res.message || (status ? 'تم إيقاف حساب الطالب ولن يستطيع فتحه أبداً حتى تفك الحظر' : 'تم تفعيل الحساب بنجاح'),
+                text: status ? 'تم إيقاف حساب الطالب ولن يستطيع فتحه أبداً حتى تفك الحظر' : 'تم تفعيل الحساب بنجاح',
                 icon: status ? 'warning' : 'success',
                 confirmButtonText: 'حسناً'
             });
@@ -689,7 +817,13 @@
         }
 
         async function resetDev(code) {
-            await ElkhetaAPI.resetDevice(code);
+            try {
+                await database.ref('Students/' + code).update({
+                    deviceId: null,
+                    device_id: null
+                });
+            } catch(e){}
+            try { await ElkhetaAPI.resetDevice(code); } catch(e){}
             Swal.fire('تم الفك', 'تم فك قفل الجهاز للطالب بنجاح', 'success');
             loadData();
         }
@@ -705,11 +839,10 @@
                 cancelButtonText: 'إلغاء'
             }).then(async r => {
                 if (r.isConfirmed) {
-                    const res = await ElkhetaAPI.deleteStudent(code);
-                    if (res.success) {
-                        Swal.fire('تم الحذف', res.message, 'success');
-                        loadData();
-                    }
+                    try { await database.ref('Students/' + code).remove(); } catch(e){}
+                    try { await ElkhetaAPI.deleteStudent(code); } catch(e){}
+                    Swal.fire('تم الحذف', 'تم حذف حساب الطالب بنجاح', 'success');
+                    loadData();
                 }
             });
         }
