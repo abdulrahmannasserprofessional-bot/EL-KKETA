@@ -659,6 +659,37 @@
                 else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) actionBadge = `<span class="badge badge-primary"><i class="fa-solid fa-play"></i> ${log.action}</span>`;
                 else if (log.action.includes('امتحان')) actionBadge = `<span class="badge badge-warning"><i class="fa-solid fa-file-pen"></i> ${log.action}</span>`;
 
+                // استنتاج التفاصيل بذكاء
+                let detailsText = log.details;
+                if (!detailsText || detailsText === '—' || detailsText.trim() === '') {
+                    if (log.action.includes('دخول')) {
+                        detailsText = '🟢 دخول ناجح للمنصة وتصفح المواد';
+                    } else if (log.action.includes('امتحان')) {
+                        detailsText = '📝 إتمام وحل الاختبار التقييمي بنجاح';
+                    } else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) {
+                        detailsText = '🎬 متابعة المحاضرة والشرح التعليمي';
+                    } else {
+                        detailsText = '📚 متابعة وتصفح دراسي';
+                    }
+                }
+
+                // استنتاج نوع الجهاز والمتصفح
+                let deviceText = '';
+                if (log.user_agent) {
+                    if (/Mobile|Android|iPhone|iPad/i.test(log.user_agent)) {
+                        deviceText = '<span style="color:#2563EB; font-weight:700;"><i class="fa-solid fa-mobile-screen"></i> هاتف محمول</span>';
+                    } else {
+                        deviceText = '<span style="color:#4F46E5; font-weight:700;"><i class="fa-solid fa-laptop"></i> كمبيوتر / لابتوب</span>';
+                    }
+                } else {
+                    const st = allStudents.find(s => s.student_code === log.student_code);
+                    if (st && st.device_id) {
+                        deviceText = '<span style="color:#10B981; font-weight:700;"><i class="fa-solid fa-mobile-screen-button"></i> تطبيق الخطة (جهاز مقترن)</span>';
+                    } else {
+                        deviceText = '<span style="color:#64748B; font-weight:700;"><i class="fa-solid fa-globe"></i> متصفح الويب</span>';
+                    }
+                }
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
@@ -666,8 +697,8 @@
                         <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${log.student_code}</span></td>
                         <td style="font-weight:700;">${log.student_name || 'طالب'}</td>
                         <td>${actionBadge}</td>
-                        <td style="font-weight:600; color:#334155;">${log.details || '—'}</td>
-                        <td style="font-size:11px; color:#94A3B8; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${log.user_agent || ''}">${log.user_agent ? (log.user_agent.includes('Mobile') ? '📱 هاتف' : '💻 كمبيوتر') : '—'}</td>
+                        <td style="font-weight:600; color:#334155;">${detailsText}</td>
+                        <td style="font-size:12px;">${deviceText}</td>
                     </tr>
                 `;
             });

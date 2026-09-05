@@ -475,14 +475,18 @@
             return localStorage.getItem('deviceId');
         }
 
-        function logActivity(studentCode, studentName, actionDetails) {
-            const logRef = database.ref('ActivityLogs').push();
-            logRef.set({
-                studentCode: studentCode,
-                studentName: studentName,
-                action: actionDetails,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
+        function logActivity(studentCode, studentName, actionDetails, details) {
+            try {
+                const logRef = database.ref('ActivityLogs').push();
+                logRef.set({
+                    studentCode: studentCode,
+                    studentName: studentName,
+                    action: actionDetails || 'تسجيل الدخول للمنصة',
+                    details: details || '🟢 دخول ناجح للمنصة وتصفح المواد',
+                    userAgent: navigator.userAgent || '',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch(e){}
         }
         
         function normalizeDigits(str) {
