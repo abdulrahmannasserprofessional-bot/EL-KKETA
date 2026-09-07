@@ -3,99 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المجتمع الطلابي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>مركز الرد على تساؤلات الطلاب - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .community-container {
-            max-width: 900px; margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
-            height: calc(100vh - 120px);
-            display: flex; flex-direction: column;
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0F172A;
+            color: #F8FAFC;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            padding: 24px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hub-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .filter-card {
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media(max-width: 650px) {
+            .filter-card { grid-template-columns: 1fr; }
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 12px 14px;
+            background: #0F172A;
+            border: 1px solid #475569;
+            color: #F8FAFC;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            transition: 0.2s;
+        }
+        .custom-select:focus { border-color: #6366F1; }
+
+        .chat-container {
+            background: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 24px;
+            height: calc(100vh - 270px);
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
         }
-        .filter-area {
-            padding: 15px; border-bottom: 1px solid var(--border);
-            display: flex; gap: 15px; background: rgba(0,0,0,0.02);
+
+        .chat-header-bar {
+            padding: 15px 20px;
+            background: #0F172A;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .filter-area select {
-            flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
-            font-family: 'Cairo'; font-size: 14px; background: white; color: var(--text-main);
+
+        .chat-messages-feed {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        body.dark-theme .filter-area select { background: var(--bg); color: white; border-color: rgba(255,255,255,0.1); }
-        .chat-messages {
-            flex: 1; padding: 20px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 15px;
-        }
+
         .msg-bubble {
-            background: white; padding: 12px 15px; border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 85%; align-self: flex-start;
-            border: 1px solid var(--border); position: relative;
+            background: #0F172A;
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 16px 18px;
+            position: relative;
+            max-width: 90%;
+            align-self: flex-start;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
         }
-        .msg-bubble.admin-reply { background: #FFFBEB; border-color: #FDE68A; align-self: flex-end; }
-        body.dark-theme .msg-bubble { background: var(--bg); border-color: rgba(255,255,255,0.1); }
-        body.dark-theme .msg-bubble.admin-reply { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
-        .msg-sender { font-size: 11px; font-weight: bold; color: var(--text-sub); margin-bottom: 4px; display:flex; justify-content:space-between; gap:10px; }
-        .msg-sender .admin-badge { background:#F59E0B; color:white; padding:2px 6px; border-radius:4px; font-size:10px; }
-        .msg-text { font-size: 14px; color: var(--text-main); word-wrap: break-word; }
-        .msg-media img { max-width: 200px; border-radius: 8px; margin-top: 8px; cursor: pointer; }
-        .msg-media audio { max-width: 100%; margin-top: 8px; height:35px; }
-        
-        .chat-input-area {
-            padding: 15px; background: rgba(0,0,0,0.02);
-            border-top: 1px solid var(--border);
-            display: flex; gap: 10px; align-items: center;
+        .msg-bubble:hover { transform: translateY(-2px); }
+
+        .msg-bubble.admin-highlight {
+            background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.08));
+            border: 1.5px solid #F59E0B;
+            align-self: flex-end;
         }
-        .chat-input-area textarea {
-            flex: 1; border: 1px solid var(--border); border-radius: 15px; padding: 10px;
-            font-family: 'Cairo'; font-size: 14px; resize: none; background: white; height: 45px;
+
+        .msg-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
         }
-        body.dark-theme .chat-input-area textarea { background: var(--bg); color: white; border-color: rgba(255,255,255,0.1); }
-        .btn-send { background: #4F46E5; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; }
-        .del-btn { position: absolute; left: -10px; top: -10px; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; opacity: 0; transition: 0.3s; border: none; }
-        .msg-bubble:hover .del-btn { opacity: 1; }
+
+        .sender-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .badge-student {
+            background: rgba(99,102,241,0.2);
+            color: #A5B4FC;
+            border: 1px solid rgba(99,102,241,0.3);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+        }
+
+        .badge-supervisor {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+        }
+
+        .msg-body-text {
+            font-size: 14px;
+            color: #F1F5F9;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .msg-media-preview img {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 12px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .msg-media-preview audio {
+            width: 100%;
+            height: 38px;
+            margin-top: 10px;
+        }
+
+        .del-msg-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Cairo';
+        }
+        .del-msg-btn:hover { background: #EF4444; color: white; }
+
+        /* Input Controls */
+        .chat-input-panel {
+            padding: 15px 20px;
+            background: #0F172A;
+            border-top: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .admin-textarea {
+            flex: 1;
+            background: #1E293B;
+            border: 1px solid #475569;
+            color: #FFFFFF;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            resize: none;
+            height: 48px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .admin-textarea:focus { border-color: #6366F1; }
+
+        .btn-comm-action {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; color: white;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .btn-send { background: #4F46E5; box-shadow: 0 4px 12px rgba(79,70,229,0.4); }
+        .btn-send:hover { background: #4338CA; }
+        .btn-pic { background: #10B981; }
+        .btn-pic:hover { background: #059669; }
+        .btn-mic { background: #EF4444; }
+        .btn-mic:hover { background: #DC2626; }
+        .btn-mic.recording { animation: pulseMic 0.8s infinite alternate; }
+
+        @keyframes pulseMic {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 15px rgba(239,68,68,0.7); }
+        }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="header-gradient" style="height: 100px; padding-top: 20px; margin-bottom: 20px;">
-        <h2 style="color: white; text-align: center; margin:0;">إدارة المجتمع الطلابي 💬</h2>
-        <button onclick="window.location.href='admin-panel.html'" style="position: absolute; right: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-family: 'Cairo';">العودة للوحة 🔙</button>
-    </div>
 
-    <div class="container" style="max-width: 900px;">
-        <div class="community-container">
-            <div class="filter-area">
-                <select id="subjectSelect" onchange="loadLectures()"><option value="">اختر المادة...</option></select>
-                <select id="lectureSelect" onchange="loadCommunity()"><option value="">اختر المحاضرة...</option></select>
+    <div class="header-gradient">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                💬
             </div>
-            
-            <div class="chat-messages" id="messagesArea">
-                <div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المادة والمحاضرة لعرض النقاشات.</div>
-            </div>
-            
-            <div class="chat-input-area" id="inputArea" style="display:none;">
-                <textarea id="adminMsgInput" placeholder="اكتب رد الإدارة هنا..."></textarea>
-                <button class="btn-send" onclick="sendAdminReply()">➤</button>
+            <div>
+                <h2 style="margin:0; font-size: 18px; font-weight: 900; color: white;">مركز الرد على تساؤلات وأسئلة الطلاب</h2>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.85);" id="adminHeaderIdentity">المسؤول العام 👑</div>
             </div>
         </div>
+        <button onclick="window.location.href='admin-panel.html'" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 12px; cursor: pointer; font-family: 'Cairo'; font-weight: 800; font-size: 13px; display: flex; align-items: gap: 6px;">
+            <i class="fa-solid fa-arrow-left"></i> العودة للوحة
+        </button>
     </div>
 
+    <div class="hub-container">
+        
+        <!-- Filters -->
+        <div class="filter-card">
+            <div>
+                <label style="font-size: 12px; font-weight: 800; color: #94A3B8; margin-bottom: 6px; display: block;">1. اختر المادة الدراسية:</label>
+                <select id="subjectSelect" class="custom-select" onchange="loadLectures()">
+                    <option value="">اختر المادة...</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 12px; font-weight: 800; color: #94A3B8; margin-bottom: 6px; display: block;">2. اختر المحاضرة:</label>
+                <select id="lectureSelect" class="custom-select" onchange="loadCommunity()">
+                    <option value="">اختر المحاضرة...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header-bar">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">👥</span>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 800; color: #FFFFFF;" id="currentLectureTitleLabel">يرجى اختيار المادة والمحاضرة</div>
+                        <div style="font-size: 11px; color: #94A3B8;" id="currentMsgCountLabel">0 رسالة وتساؤل</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="font-size: 12px; color: #94A3B8; font-weight: 700;">اسم الإدمن للرد:</span>
+                    <input type="text" id="adminCustomNameInput" class="custom-select" style="width: 140px; padding: 6px 10px; font-size: 12px;" value="المدير العام">
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="chat-messages-feed" id="messagesArea">
+                <div style="text-align: center; padding: 80px 20px; color: #64748B;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">📚</div>
+                    <h3 style="margin: 0; color: #94A3B8; font-size: 16px;">يرجى تحديد المادة والمحاضرة أعلاه لعرض أسئلة الطلاب والرد عليها</h3>
+                </div>
+            </div>
+
+            <!-- Media Preview Attachment Box -->
+            <div id="adminMediaPreviewBox" style="display: none; background: #1E293B; border-top: 1px solid #334155; padding: 10px 20px; align-items: center; justify-content: space-between;">
+                <div id="adminMediaPreviewContent" style="display: flex; align-items: center; gap: 10px;"></div>
+                <button onclick="clearAdminMediaAttachment()" style="background: #EF4444; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- Recording Status Bar -->
+            <div id="adminVoiceRecordingBar" style="display: none; background: #FEF2F2; border-top: 1.5px solid #FECACA; padding: 12px 20px; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 14px; height: 14px; background: #EF4444; border-radius: 50%; animation: pulseMic 0.8s infinite alternate;"></div>
+                    <span style="color: #991B1B; font-weight: 800; font-size: 13px;">جاري تسجيل الرد الصوتي للإدارة...</span>
+                    <span id="adminRecordingTimer" style="color: #DC2626; font-weight: 900; font-family: monospace; font-size: 14px;" dir="ltr">00:00</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="cancelAdminVoiceRecording()" style="background: #F1F5F9; color: #64748B; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">إلغاء ✖</button>
+                    <button onclick="stopAdminVoiceRecording()" style="background: #10B981; color: white; border: none; padding: 6px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">تم التسجيل ✔</button>
+                </div>
+            </div>
+
+            <!-- Input Controls Area -->
+            <div class="chat-input-panel" id="inputArea" style="display: none;">
+                <div class="input-row">
+                    <textarea id="adminMsgInput" class="admin-textarea" placeholder="اكتب رد الإدارة أو الشرح التوضيحي للطلاب هنا..."></textarea>
+                    
+                    <!-- Hidden File Input for Image -->
+                    <input type="file" id="adminImageFileInput" accept="image/*" style="display: none;" onchange="handleAdminImageSelected(this)">
+                    
+                    <button class="btn-comm-action btn-pic" onclick="document.getElementById('adminImageFileInput').click()" title="إرفاق صورة توضيحية">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                    <button class="btn-comm-action btn-mic" id="btnAdminMic" onclick="startAdminVoiceRecording()" title="تسجيل ريكورد صوتي">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button class="btn-comm-action btn-send" onclick="sendAdminReply()" title="إرسال الرد">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <script>
-        if (!sessionStorage.getItem('isAdmin')) window.location.href = 'admin-gate.html';
+        // Authentication check (syncing localStorage & sessionStorage)
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+
+        const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
+        const adminName = sessionStorage.getItem('adminName') || localStorage.getItem('adminName') || 'المدير العام';
+        const isSuperAdmin = role === 'master' || role === 'super_admin';
+
+        document.getElementById('adminCustomNameInput').value = adminName;
+        document.getElementById('adminHeaderIdentity').textContent = isSuperAdmin ? `${adminName} (المسؤول العام 👑)` : `${adminName} (مشرف المنصة 🛡️)`;
 
         let currentSubject = '';
         let currentLectureId = '';
         let commUnsubscribe = null;
 
+        let adminVoiceMediaRecorder = null;
+        let adminAudioChunks = [];
+        let adminRecordingTimer = null;
+        let adminRecordingSeconds = 0;
+        let pendingAdminAudioBase64 = null;
+        let pendingAdminImageBase64 = null;
+
         // Load Subjects
         database.ref('Subjects').once('value').then(snap => {
             const select = document.getElementById('subjectSelect');
-            if(snap.exists()) {
+            if (snap.exists()) {
                 snap.forEach(child => {
                     const sub = child.val();
                     select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
@@ -107,16 +392,21 @@
             currentSubject = document.getElementById('subjectSelect').value;
             const lSelect = document.getElementById('lectureSelect');
             lSelect.innerHTML = '<option value="">اختر المحاضرة...</option>';
-            document.getElementById('messagesArea').innerHTML = '<div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المحاضرة.</div>';
+            document.getElementById('messagesArea').innerHTML = '<div style="text-align:center; padding:80px 20px; color:#64748B;"><div style="font-size:36px; margin-bottom:8px;">⏳</div>يرجى تحديد المحاضرة لعرض الأسئلة.</div>';
             document.getElementById('inputArea').style.display = 'none';
-            if(commUnsubscribe) database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
-            if(!currentSubject) return;
+            document.getElementById('currentLectureTitleLabel').textContent = currentSubject || 'يرجى اختيار المحاضرة';
+            document.getElementById('currentMsgCountLabel').textContent = '0 رسالة وتساؤل';
+
+            if (commUnsubscribe && currentLectureId) {
+                database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
+            }
+            if (!currentSubject) return;
 
             database.ref('Lectures').child(currentSubject).once('value').then(snap => {
-                if(snap.exists()) {
+                if (snap.exists()) {
                     snap.forEach(child => {
                         const lec = child.val();
-                        lSelect.innerHTML += `<option value="${lec.id}">${lec.title}</option>`;
+                        lSelect.innerHTML += `<option value="${lec.id || child.key}">${lec.title}</option>`;
                     });
                 }
             });
@@ -124,78 +414,290 @@
 
         function loadCommunity() {
             currentLectureId = document.getElementById('lectureSelect').value;
+            const lSelect = document.getElementById('lectureSelect');
+            const lecTitle = lSelect.options[lSelect.selectedIndex] ? lSelect.options[lSelect.selectedIndex].text : '';
             const messagesArea = document.getElementById('messagesArea');
-            if(commUnsubscribe) database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
+
+            if (commUnsubscribe && currentLectureId) {
+                database.ref(`Community/${currentSubject}/${currentLectureId}`).off('value', commUnsubscribe);
+            }
             
-            if(!currentLectureId) {
-                messagesArea.innerHTML = '<div style="text-align:center; padding:50px; color:gray;">يرجى تحديد المحاضرة.</div>';
+            if (!currentLectureId) {
+                messagesArea.innerHTML = '<div style="text-align:center; padding:80px 20px; color:#64748B;">يرجى تحديد المحاضرة.</div>';
                 document.getElementById('inputArea').style.display = 'none';
                 return;
             }
 
-            document.getElementById('inputArea').style.display = 'flex';
-            messagesArea.innerHTML = '<div style="text-align:center; padding:20px;">جاري التحميل...</div>';
+            document.getElementById('currentLectureTitleLabel').textContent = `${currentSubject} - ${lecTitle}`;
+            document.getElementById('inputArea').style.display = 'block';
+            messagesArea.innerHTML = '<div style="text-align:center; padding:50px; color:#94A3B8;">جاري تحميل تساؤلات الطلاب...</div>';
 
             commUnsubscribe = database.ref(`Community/${currentSubject}/${currentLectureId}`).on('value', snap => {
                 messagesArea.innerHTML = '';
-                if(!snap.exists()) {
-                    messagesArea.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">لا توجد رسائل في هذه المحاضرة.</div>';
+                if (!snap.exists()) {
+                    document.getElementById('currentMsgCountLabel').textContent = '0 رسالة';
+                    messagesArea.innerHTML = `
+                        <div style="text-align:center; padding:80px 20px; color:#64748B;">
+                            <div style="font-size:40px; margin-bottom:10px;">✨</div>
+                            <h3 style="margin:0; color:#94A3B8;">لا توجد أسئلة أو تساؤلات مضافة في هذه المحاضرة بعد.</h3>
+                            <p style="font-size:12px; color:#64748B; margin-top:6px;">يمكنك كتابة رسالة أو تثبيت إجابة للطلاب بالأسفل.</p>
+                        </div>
+                    `;
                     return;
                 }
+
+                let count = 0;
                 snap.forEach(child => {
+                    count++;
                     const msg = child.val();
                     const msgId = child.key;
-                    const isAdmin = msg.isAdmin;
-                    let bubbleClass = isAdmin ? 'msg-bubble admin-reply' : 'msg-bubble';
-                    
-                    let mediaHtml = '';
-                    if(msg.type === 'image') mediaHtml = `<img src="${msg.mediaUrl}" onclick="window.open('${msg.mediaUrl}')">`;
-                    if(msg.type === 'audio') mediaHtml = `<audio controls src="${msg.mediaUrl}"></audio>`;
-                    
-                    let senderName = msg.senderName || 'طالب';
-                    if(isAdmin) senderName += ' <span class="admin-badge">إدمن المنصة</span>';
+                    const isAdmin = Boolean(msg.isAdmin);
 
-                    const timeStr = new Date(msg.timestamp).toLocaleString('ar-EG', {hour:'2-digit', minute:'2-digit'});
-                    
+                    let timeStr = '';
+                    if (msg.timestamp) {
+                        try {
+                            const d = new Date(msg.timestamp);
+                            timeStr = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) + ' - ' + d.toLocaleDateString('ar-EG');
+                        } catch(e){}
+                    }
+
+                    let mediaHtml = '';
+                    if (msg.type === 'image' && msg.mediaUrl) {
+                        mediaHtml = `
+                            <div class="msg-media-preview">
+                                <img src="${msg.mediaUrl}" onclick="window.open('${msg.mediaUrl}', '_blank')" alt="صورة السؤال">
+                            </div>
+                        `;
+                    } else if (msg.type === 'audio' && msg.mediaUrl) {
+                        mediaHtml = `
+                            <div class="msg-media-preview" style="background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 12px; margin-top: 8px;">
+                                <div style="font-size: 11px; color: #A5B4FC; font-weight: bold; margin-bottom: 4px;">🎙️ تسجيل صوتي:</div>
+                                <audio controls src="${msg.mediaUrl}"></audio>
+                            </div>
+                        `;
+                    }
+
+                    let senderBadge = '';
+                    if (isAdmin) {
+                        const adminRoleTitle = msg.adminRoleTitle || (msg.adminRole === 'master' ? '👑 المسؤول العام' : '🛡️ المشرف');
+                        senderBadge = `<span class="sender-badge badge-admin">${adminRoleTitle}</span>`;
+                    } else {
+                        senderBadge = `<span class="sender-badge badge-student">طالب (${msg.senderCode || '—'})</span>`;
+                    }
+
+                    let bubbleClass = isAdmin ? 'msg-bubble admin-highlight' : 'msg-bubble';
+
+                    let repliesHtml = '';
+                    if (msg.replies && typeof msg.replies === 'object') {
+                        Object.values(msg.replies).forEach(rep => {
+                            let repMedia = '';
+                            if (rep.type === 'image' && rep.mediaUrl) repMedia = `<img src="${rep.mediaUrl}" style="max-width:100%; max-height:180px; border-radius:8px; margin-top:6px; cursor:pointer;" onclick="window.open('${rep.mediaUrl}')">`;
+                            if (rep.type === 'audio' && rep.mediaUrl) repMedia = `<audio controls src="${rep.mediaUrl}" style="width:100%; height:32px; margin-top:6px;"></audio>`;
+
+                            repliesHtml += `
+                                <div style="margin-top: 10px; background: rgba(245,158,11,0.15); border-right: 3px solid #F59E0B; border-radius: 8px; padding: 8px 12px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 900; color: #F59E0B;">👑 ${rep.senderName || 'الإدارة'} (${rep.adminRoleTitle || 'رد الإدارة'})</span>
+                                        <span style="font-size: 10px; color: #94A3B8;">${rep.timestamp ? new Date(rep.timestamp).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : ''}</span>
+                                    </div>
+                                    ${rep.text ? `<div style="font-size: 13px; color: #FFFFFF; line-height: 1.4;">${rep.text}</div>` : ''}
+                                    ${repMedia}
+                                </div>
+                            `;
+                        });
+                    }
+
                     messagesArea.innerHTML += `
                         <div class="${bubbleClass}">
-                            <button class="del-btn" onclick="deleteMsg('${msgId}')">✖</button>
-                            <div class="msg-sender">${senderName} <span>${timeStr}</span></div>
-                            ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
-                            <div class="msg-media">${mediaHtml}</div>
+                            <div class="msg-top-row">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <strong style="font-size: 14px; color: #FFFFFF;">${msg.senderName || 'طالب'}</strong>
+                                    ${senderBadge}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 11px; color: #94A3B8;" dir="ltr">${timeStr}</span>
+                                    <button class="del-msg-btn" onclick="deleteMsg('${msgId}')" title="حذف الرسالة">🗑️ حذف</button>
+                                </div>
+                            </div>
+                            ${msg.text ? `<div class="msg-body-text">${msg.text}</div>` : ''}
+                            ${mediaHtml}
+                            ${repliesHtml}
                         </div>
                     `;
                 });
+
+                document.getElementById('currentMsgCountLabel').textContent = `${count} رسالة وتساؤل`;
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             });
         }
 
+        // Voice Recording for Admin
+        async function startAdminVoiceRecording() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    Swal.fire('غير مدعوم', 'المتصفح لا يدعم تسجيل الصوت المباشر', 'warning');
+                    return;
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                adminVoiceMediaRecorder = new MediaRecorder(stream);
+                adminAudioChunks = [];
+                
+                adminVoiceMediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) adminAudioChunks.push(e.data);
+                };
+
+                adminVoiceMediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(adminAudioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        pendingAdminAudioBase64 = reader.result;
+                        showAdminMediaPreview('audio', pendingAdminAudioBase64);
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                adminVoiceMediaRecorder.start();
+                adminRecordingSeconds = 0;
+                document.getElementById('adminVoiceRecordingBar').style.display = 'flex';
+                document.getElementById('inputArea').style.display = 'none';
+
+                clearInterval(adminRecordingTimer);
+                adminRecordingTimer = setInterval(() => {
+                    adminRecordingSeconds++;
+                    const m = Math.floor(adminRecordingSeconds / 60);
+                    const s = adminRecordingSeconds % 60;
+                    document.getElementById('adminRecordingTimer').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                }, 1000);
+
+            } catch(err) {
+                console.error("Admin mic error:", err);
+                Swal.fire('خطأ في الميكروفون', 'يرجى السماح بصلاحية الميكروفون في المتصفح لتسجيل الردود الصوتية.', 'error');
+            }
+        }
+
+        function stopAdminVoiceRecording() {
+            clearInterval(adminRecordingTimer);
+            if (adminVoiceMediaRecorder && adminVoiceMediaRecorder.state !== 'inactive') {
+                adminVoiceMediaRecorder.stop();
+            }
+            document.getElementById('adminVoiceRecordingBar').style.display = 'none';
+            document.getElementById('inputArea').style.display = 'block';
+        }
+
+        function cancelAdminVoiceRecording() {
+            clearInterval(adminRecordingTimer);
+            if (adminVoiceMediaRecorder && adminVoiceMediaRecorder.state !== 'inactive') {
+                adminVoiceMediaRecorder.stop();
+            }
+            adminAudioChunks = [];
+            pendingAdminAudioBase64 = null;
+            document.getElementById('adminVoiceRecordingBar').style.display = 'none';
+            document.getElementById('inputArea').style.display = 'block';
+        }
+
+        // Image Attachment for Admin
+        function handleAdminImageSelected(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                Swal.fire('حجم كبير', 'يرجى اختيار صورة أقل من 5 ميجابايت', 'warning');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                pendingAdminImageBase64 = e.target.result;
+                showAdminMediaPreview('image', pendingAdminImageBase64);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showAdminMediaPreview(type, dataUrl) {
+            const box = document.getElementById('adminMediaPreviewBox');
+            const content = document.getElementById('adminMediaPreviewContent');
+            if (!box || !content) return;
+            
+            if (type === 'image') {
+                content.innerHTML = `
+                    <img src="${dataUrl}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1.5px solid #10B981;">
+                    <span style="font-size: 13px; color: #34D399; font-weight: 800;">📷 صورة مرفقة بالرد</span>
+                `;
+            } else if (type === 'audio') {
+                content.innerHTML = `
+                    <span style="font-size: 18px;">🎙️</span>
+                    <audio controls src="${dataUrl}" style="height: 34px; max-width: 240px;"></audio>
+                    <span style="font-size: 13px; color: #A5B4FC; font-weight: 800;">تسجيل صوتي للإدارة</span>
+                `;
+            }
+            box.style.display = 'flex';
+        }
+
+        function clearAdminMediaAttachment() {
+            pendingAdminImageBase64 = null;
+            pendingAdminAudioBase64 = null;
+            const fileInput = document.getElementById('adminImageFileInput');
+            if (fileInput) fileInput.value = '';
+            const box = document.getElementById('adminMediaPreviewBox');
+            if (box) box.style.display = 'none';
+        }
+
         function sendAdminReply() {
             const input = document.getElementById('adminMsgInput');
-            const text = input.value.trim();
-            if(!text || !currentLectureId) return;
-            
-            input.value = '';
-            database.ref(`Community/${currentSubject}/${currentLectureId}`).push({
-                senderName: 'الإدارة',
+            const text = input ? input.value.trim() : '';
+            const responderName = document.getElementById('adminCustomNameInput').value.trim() || adminName;
+
+            if (!text && !pendingAdminImageBase64 && !pendingAdminAudioBase64) {
+                Swal.fire('تنبيه', 'يرجى كتابة نص الرد أو تسجيل صوت أو إرفاق صورة ✍️', 'warning');
+                return;
+            }
+
+            if (!currentSubject || !currentLectureId) {
+                Swal.fire('تنبيه', 'يرجى تحديد المادة والمحاضرة أولاً', 'warning');
+                return;
+            }
+
+            let type = 'text';
+            let mediaUrl = '';
+            if (pendingAdminAudioBase64) {
+                type = 'audio';
+                mediaUrl = pendingAdminAudioBase64;
+            } else if (pendingAdminImageBase64) {
+                type = 'image';
+                mediaUrl = pendingAdminImageBase64;
+            }
+
+            const payload = {
+                senderName: responderName,
                 senderCode: 'admin',
                 isAdmin: true,
+                adminRole: role,
+                adminRoleTitle: isSuperAdmin ? 'المسؤول العام' : 'مشرف معتمد',
                 text: text,
-                type: 'text',
+                type: type,
+                mediaUrl: mediaUrl,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref(`Community/${currentSubject}/${currentLectureId}`).push(payload).then(() => {
+                if (input) input.value = '';
+                clearAdminMediaAttachment();
+            }).catch(err => {
+                console.error("Admin send error:", err);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إرسال الرد: ' + err.message, 'error');
             });
         }
 
         function deleteMsg(msgId) {
             Swal.fire({
                 title: "حذف الرسالة؟",
-                text: "هل أنت متأكد من حذف هذه الرسالة من المجتمع؟",
+                text: "هل أنت متأكد من حذف هذا السؤال/الرد من المجتمع؟",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "نعم، احذف",
-                cancelButtonText: "إلغاء"
+                cancelButtonText: "إلغاء",
+                confirmButtonColor: "#EF4444"
             }).then(r => {
-                if(r.isConfirmed) {
+                if (r.isConfirmed) {
                     database.ref(`Community/${currentSubject}/${currentLectureId}/${msgId}`).remove();
                 }
             });

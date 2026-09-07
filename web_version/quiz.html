@@ -520,6 +520,21 @@
                 document.getElementById('quizContainer').style.display = 'block';
                 document.getElementById('bottomNav').style.display = 'flex';
                 
+                const user = JSON.parse(localStorage.getItem('user'));
+                if(user && user.studentCode) {
+                    try {
+                        const logRef = database.ref('ActivityLogs').push();
+                        logRef.set({
+                            studentCode: user.studentCode,
+                            studentName: user.fullName || user.name || 'طالب',
+                            action: 'بدء امتحان 📝',
+                            details: `بدأ حل أسئلة امتحان: (${examId || subjectName}) في مادة (${subjectName})`,
+                            userAgent: navigator.userAgent || '',
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } catch(e){}
+                }
+
                 buildGrid();
                 startTimer();
                 showQuestion();
@@ -830,6 +845,12 @@
                 userAnswers[currentIndex].answered = true;
                 userAnswers[currentIndex].correct = isAllCorrect;
 
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const stCode = (user.studentCode || user.code || 'KH_TEMP').trim();
+                const safeStCode = stCode.replace(/[.#$\[\]]/g, '_');
+                const stName = user.fullName || user.name || 'طالب';
+                const stPhone = user.whatsapp || user.phone || user.phoneNumber || '';
+
                 if (!isAllCorrect) {
                     window.sessionMistakes.push({
                         questionNumber: currentIndex + 1,
@@ -838,6 +859,19 @@
                         wrongAnswer: Object.entries(currentMatches).map(([l, r]) => `• ${l} ➔ ${r}`).join('<br>'),
                         explanation: q.explanation || ''
                     });
+
+                    try {
+                        const qRef = database.ref(`ExamAnalytics/${subjectName}/${examId || 'general'}/${q.id || currentIndex}`);
+                        qRef.child('questionText').set(q.text);
+                        qRef.child('totalMistakes').set(firebase.database.ServerValue.increment(1));
+                        qRef.child(`wrongStudents/${safeStCode}`).set({
+                            studentCode: stCode,
+                            name: stName,
+                            phone: stPhone,
+                            chosen: Object.entries(currentMatches).map(([l, r]) => `${l}➔${r}`).join(', '),
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } catch(e) {}
                 }
                 showQuestion();
                 updateGridBtn(currentIndex);
@@ -855,16 +889,36 @@
                 correct: isCorrect,
                 selectedIdx: idx
             };
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const stCode = (user.studentCode || user.code || 'KH_TEMP').trim();
+            const safeStCode = stCode.replace(/[.#$\[\]]/g, '_');
+            const stName = user.fullName || user.name || 'طالب';
+            const stPhone = user.whatsapp || user.phone || user.phoneNumber || '';
             
-            // Log analytics securely
+            // Log analytics securely with student name & code
             try {
                 const qRef = database.ref(`ExamAnalytics/${subjectName}/${examId || 'general'}/${q.id || currentIndex}`);
                 qRef.child('questionText').set(q.text);
-                qRef.child('correctAnswer').set(q.options[q.correct]);
+                if (q.options && q.options[q.correct]) {
+                    qRef.child('correctAnswer').set(q.options[q.correct]);
+                }
+                if (q.explanation) {
+                    qRef.child('explanation').set(q.explanation);
+                }
                 if(!isCorrect) {
                     qRef.child('totalMistakes').set(firebase.database.ServerValue.increment(1));
-                    const safeChosen = (q.options[idx] || 'unknown').replace(/[.#$\[\]]/g, '_');
+                    const safeChosen = (q.options ? q.options[idx] || 'unknown' : 'unknown').replace(/[.#$\[\]]/g, '_');
                     qRef.child(`choices/${safeChosen}`).set(firebase.database.ServerValue.increment(1));
+                    
+                    // Record student details
+                    qRef.child(`wrongStudents/${safeStCode}`).set({
+                        studentCode: stCode,
+                        name: stName,
+                        phone: stPhone,
+                        chosen: q.options ? (q.options[idx] || 'غير محدد') : 'غير محدد',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
                 }
             } catch(e) {}
 
@@ -873,8 +927,8 @@
                 window.sessionMistakes.push({
                     questionNumber: currentIndex + 1,
                     text: q.text,
-                    correctAnswer: q.options[q.correct] || 'غير محدد',
-                    wrongAnswer: q.options[idx] || 'غير محدد',
+                    correctAnswer: (q.options && q.options[q.correct]) || 'غير محدد',
+                    wrongAnswer: (q.options && q.options[idx]) || 'غير محدد',
                     explanation: q.explanation || ''
                 });
                 
@@ -1191,21 +1245,45 @@
             const wrongCount = autoCount - correctCount;
             const pct = autoCount > 0 ? Math.round((correctCount / autoCount) * 100) : 0;
             
-            // Log to ActivityLogs
-            const user = JSON.parse(localStorage.getItem('user'));
-            if(user && user.studentCode) {
-                try {
-                    const logRef = database.ref('ActivityLogs').push();
-                    logRef.set({
-                        studentCode: user.studentCode,
-                        studentName: user.fullName || 'طالب',
-                        action: `أنهى امتحان (${examId || subjectName}) وحصل على ${pct}%`,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                } catch(e){}
+            // Log to ActivityLogs & ExamResults
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const stCode = (user.studentCode || user.code || 'KH_TEMP').trim();
+            const safeStCode = stCode.replace(/[.#$\[\]]/g, '_');
+            const stName = user.fullName || user.name || 'طالب';
+            const stPhone = user.whatsapp || user.phone || user.phoneNumber || '';
+
+            try {
+                // Save Activity Log
+                const logRef = database.ref('ActivityLogs').push();
+                logRef.set({
+                    studentCode: stCode,
+                    studentName: stName,
+                    action: 'تسليم امتحان 🎯',
+                    details: `أنهى امتحان (${examId || subjectName}) بنتيجة ${correctCount}/${autoCount} (${pct}%)`,
+                    userAgent: navigator.userAgent || '',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Save Exam Result for Grades Dashboard
+                const resultRef = database.ref(`ExamResults/${subjectName}/${examId || 'general'}/${safeStCode}`);
+                resultRef.set({
+                    studentCode: stCode,
+                    studentName: stName,
+                    phone: stPhone,
+                    score: correctCount,
+                    totalQuestions: autoCount,
+                    wrongCount: wrongCount,
+                    percentage: pct,
+                    passed: pct >= 50,
+                    subjectName: subjectName,
+                    examId: examId || 'general',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch(e){
+                console.error("Error saving exam result:", e);
             }
 
-            // Show Certificate!
+            // Show Certificate & Detailed Review!
             showDetailedReport(correctCount, wrongCount, autoCount);
         }
 

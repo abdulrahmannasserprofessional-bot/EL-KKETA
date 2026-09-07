@@ -19,6 +19,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.5">
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         .subject-hero {
             background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
@@ -169,31 +170,33 @@
         body.dark-theme .btn-quiz { background: rgba(22,163,74,0.15); color: #4ADE80; }
         body.dark-theme .btn-disabled { background: transparent; border-color: rgba(255,255,255,0.1); color: #64748B; }
 
-        /* Video Player Modal (Radical Redesign - Immersive Theater Mode) */
+        /* Video Player Modal (Light & Clean Platform Theme) */
         .player-modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: #000;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
             z-index: 99999;
             display: none;
             flex-direction: column;
         }
         .player-modal.active { display: flex; }
         .player-content {
-            background: #0F1117;
+            background: #F8FAFC;
             width: 100%;
             height: 100vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            color: #1E293B;
         }
         .video-container {
             width: 100%;
             background: #000;
             position: relative;
-            /* We will control height via JS dynamically depending on iframe vs video */
             height: 0;
             padding-bottom: 56.25%; 
+            flex-shrink: 0;
         }
         .video-container video,
         .video-container iframe {
@@ -203,25 +206,13 @@
             border: none;
         }
         .player-body {
-            padding: 20px;
+            padding: 20px 18px 40px;
             text-align: right;
             flex: 1;
-            background: #0F1117;
-            color: #fff;
+            background: #F8FAFC;
+            color: #1E293B;
         }
-        .player-body h3 { color: #fff !important; }
-        .notes-area textarea {
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .notes-area textarea:focus { border-color: #818CF8; }
-        .modal-close-btn {
-            width: 100%; padding: 16px; background: #DC2626; color: #fff;
-            border: none; border-radius: 14px; font-weight: bold; font-family: 'Cairo', sans-serif;
-            margin-top: 15px; cursor: pointer; transition: 0.3s;
-        }
-        .modal-close-btn:hover { background: #B91C1C; }
+        .player-body h3 { color: #1E293B !important; }
         .player-controls {
             display: flex;
             gap: 10px;
@@ -230,35 +221,23 @@
             align-items: center;
         }
         .speed-btn {
-            background: var(--bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 8px 12px;
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            color: #475569;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 800;
+            font-family: inherit;
+            transition: all 0.2s;
         }
         .speed-btn.active {
-            background: var(--primary);
-            color: var(--text-main);
-            border-color: var(--primary);
+            background: #2563EB;
+            color: #FFFFFF;
+            border-color: #2563EB;
         }
-        .notes-area {
-            margin-top: 15px;
-        }
-        .notes-area textarea {
-            width: 100%;
-            height: 80px;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background: var(--bg);
-            color: var(--text-main);
-            font-family: inherit;
-            resize: none;
-            box-sizing: border-box;
-        }
+
         .modal-close-btn {
             background: var(--mistake);
             color: var(--text-main);
@@ -366,8 +345,26 @@
     <div class="player-modal" id="playerModal">
         <div class="player-content">
             <div class="video-container" id="videoContainer">
-                <video id="customVideoPlayer" controls playsinline controlsList="nodownload" oncontextmenu="return false;" style="display:none;"></video>
+                <video id="customVideoPlayer" playsinline controlsList="nodownload" oncontextmenu="return false;" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0;"></video>
+                <div id="youtubePlayerTarget" style="width:100%; height:100%; position:absolute; top:0; left:0; display:none;"></div>
                 <iframe id="driveIframe" src="" allowfullscreen allow="autoplay" style="width:100%;height:100%;border:none;display:none;"></iframe>
+                
+                <!-- Transparent Click Shield: forwards clicks to toggle play, completely blocks YouTube copy link & logo -->
+                <div id="ytClickShield" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: none;" onclick="toggleCustomPlay()"></div>
+
+                <!-- Top mask for mobile YouTube title/channel header -->
+                <div id="ytTopMask" style="position: absolute; top: 0; left: 0; right: 0; height: 55px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+
+                <!-- Bottom right mask for YouTube watermark -->
+                <div id="ytBottomRightMask" style="position: absolute; bottom: 0; right: 0; width: 90px; height: 50px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+
+                <!-- Masks to completely hide YouTube Shorts channel info, handle, date, and like/share icons -->
+                <div id="ytShortsMaskLeft" style="position: absolute; bottom: 0; left: 0; width: 320px; max-width: 38%; height: 110px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+                <div id="ytShortsMaskRight" style="position: absolute; bottom: 0; right: 0; width: 85px; max-width: 25%; height: 150px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+
+                <!-- Center Play/Pause Pop Icon -->
+                <div id="centerPlayIcon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 32px; color: #fff; z-index: 12; pointer-events: none; transition: opacity 0.3s;">▶️</div>
+
                 <div id="driveMobileFallback" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding: 20px; background: #111; position:absolute; top:0; left:0; right:0; bottom:0; z-index: 10;">
                     <div style="font-size: 40px; margin-bottom: 10px;">📱</div>
                     <h4 style="color:white; margin-bottom: 15px; font-size: 14px; line-height: 1.6;">لتجربة مشاهدة أفضل، قم بتشغيل الفيديو بملء الشاشة.</h4>
@@ -376,25 +373,219 @@
                     </button>
                 </div>
             </div>
-            <div class="player-body">
-                <h3 id="modalVideoTitle" style="margin: 0; color: var(--text-main);">عنوان المحاضرة</h3>
-                <div class="player-controls" id="speedControls">
-                    <span style="font-size: 13px; color: var(--text-sub);">سرعة التشغيل:</span>
-                    <div>
+
+            <!-- Unified Custom Control Bar (No YouTube Branding / No Copy Link) -->
+            <div id="customControlsBar" style="background: #FFFFFF; padding: 12px 18px; border-bottom: 1.5px solid #E2E8F0; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                <!-- Timeline Seekbar -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="timeCurrent" style="color: #2563EB; font-size: 13px; font-weight: 800; min-width: 45px; text-align: right; direction: ltr; font-family: monospace;">0:00</span>
+                    <input type="range" id="customProgressBar" min="0" max="100" value="0" step="0.1" style="flex: 1; accent-color: #2563EB; cursor: pointer; height: 6px; border-radius: 3px;" oninput="onSeekChange(this.value)">
+                    <span id="timeDuration" style="color: #64748B; font-size: 13px; font-weight: 800; min-width: 45px; text-align: left; direction: ltr; font-family: monospace;">0:00</span>
+                </div>
+                <!-- Controls Row -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button id="btnPlayPause" onclick="toggleCustomPlay()" style="background: #2563EB; color: white; border: none; width: 42px; height: 42px; border-radius: 12px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37,99,235,0.35);">▶️</button>
+                        <button onclick="skipTime(-10)" style="background: #F1F5F9; color: #1E293B; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; font-family: 'Cairo'; cursor: pointer;" title="رجوع 10 ثواني">⏪ 10ث</button>
+                        <button onclick="skipTime(10)" style="background: #F1F5F9; color: #1E293B; border: 1px solid #E2E8F0; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; font-family: 'Cairo'; cursor: pointer;" title="تقديم 10 ثواني">10ث ⏩</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 12px; color: #64748B; font-weight: 700; margin-left: 4px;">السرعة:</span>
                         <button class="speed-btn active" onclick="setPlaySpeed(1, this)">1.0x</button>
                         <button class="speed-btn" onclick="setPlaySpeed(1.25, this)">1.25x</button>
                         <button class="speed-btn" onclick="setPlaySpeed(1.5, this)">1.5x</button>
                         <button class="speed-btn" onclick="setPlaySpeed(2, this)">2.0x</button>
+                        <button onclick="toggleFullscreenPlayer()" style="background: #F1F5F9; color: #1E293B; border: 1px solid #E2E8F0; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 4px;" title="ملء الشاشة">⛶</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-body">
+                <!-- Title & Subject Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <h3 id="modalVideoTitle" style="margin: 0; color: #1E293B; font-size: 18px; font-weight: 900; line-height: 1.4;">عنوان المحاضرة</h3>
+                        <div id="modalLectureSubtitle" style="font-size: 12px; color: #64748B; margin-top: 4px; font-weight: 700;">منهج الفرقة الرابعة خدمة اجتماعية</div>
+                    </div>
+                    <button onclick="closeVideoPlayer()" style="padding: 8px 16px; background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; border-radius: 12px; font-size: 12px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">إغلاق ✖</button>
+                </div>
+
+                <!-- Two Main Tabs: محتوى المحاضرة vs أسئلة الطلاب (Matching Mockup) -->
+                <div style="display: flex; gap: 10px; background: #E2E8F0; padding: 5px; border-radius: 16px; margin: 15px 0 18px; border: 1px solid #CBD5E1;">
+                    <button id="tabBtnLectureContent" onclick="switchPlayerTab('content')" style="flex: 1; padding: 10px 14px; border-radius: 12px; border: none; font-family: 'Cairo'; font-size: 13px; font-weight: 800; cursor: pointer; background: #2563EB; color: #FFFFFF; box-shadow: 0 4px 12px rgba(37,99,235,0.25); transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>📋</span> محتوى المحاضرة
+                    </button>
+                    <button id="tabBtnLectureQA" onclick="switchPlayerTab('qa')" style="flex: 1; padding: 10px 14px; border-radius: 12px; border: none; font-family: 'Cairo'; font-size: 13px; font-weight: 800; cursor: pointer; background: transparent; color: #475569; transition: 0.25s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span>💬</span> أسئلة الطلاب (<span id="modalQaCountBadge">0</span>)
+                    </button>
+                </div>
+
+                <!-- TAB 1: محتوى المحاضرة (Numbered Roadmap Timeline matching media_1788699336315.png) -->
+                <div id="playerTabContentArea">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <!-- 1. السبورة والملخصات -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(245,158,11,0.3);">1</div>
+                                <div>
+                                    <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📄 السبورة والملخصات</h4>
+                                    <div style="font-size: 11px; color: #64748B; margin-top: 2px;">تصفح وتحميل ملف PDF والشرح المكتوب</div>
+                                </div>
+                            </div>
+                            <button id="modalRoadmapPdfBtn" onclick="openPdfFromModal()" style="background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                                عرض الملف 📄
+                            </button>
+                        </div>
+
+                        <!-- 2. فيديو المحاضرة -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #3B82F6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">2</div>
+                                <div>
+                                    <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📺 شرح المحاضرة (الفيديو)</h4>
+                                    <div id="modalRoadmapVideoDuration" style="font-size: 11px; color: #64748B; margin-top: 2px;">مشاهدة الشرح بجودة عالية وبدون إعلانات</div>
+                                </div>
+                            </div>
+                            <button onclick="toggleCustomPlay()" style="background: #EEF2FF; color: #2563EB; border: 1px solid #C7D2FE; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                                تشغيل / إيقاف ▶️
+                            </button>
+                        </div>
+
+                        <!-- 3. الامتحان التدريبي -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">3</div>
+                                <div>
+                                    <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📝 الامتحان والتقييم التدريبي</h4>
+                                    <div style="font-size: 11px; color: #64748B; margin-top: 2px;">حل أسئلة المحاضرة وتقييم فوري لمستواك</div>
+                                </div>
+                            </div>
+                            <button id="modalRoadmapExamBtn" onclick="openExamFromModal()" style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                                بدء الامتحان 🚀
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
-                <div class="notes-area">
-                    <label style="font-size: 13px; color: var(--text-sub); display: block; margin-bottom: 5px;">✍️ مفكرة الطالب للمحاضرة:</label>
-                    <textarea id="lessonNotes" placeholder="اكتب ملاحظاتك هنا وسيتم حفظها تلقائياً..." oninput="saveNotes()"></textarea>
+                <!-- TAB 2: أسئلة الطلاب (Public Student Q&A Feed) -->
+                <div id="playerTabQAArea" style="display: none; flex-direction: column; gap: 15px;">
+                    
+                    <div style="background: #EEF2FF; border: 1.5px solid #C7D2FE; border-radius: 14px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: #1E3A8A;">💬 مجتمع وتساؤلات المحاضرة</div>
+                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">الأسئلة والردود علنية لجميع زملائك لتستفيدوا معاً</div>
+                        </div>
+                        <span style="font-size: 20px;">👥</span>
+                    </div>
+
+                    <!-- Q&A Messages List -->
+                    <div id="modalQAMessagesList" style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+                        <div style="text-align: center; padding: 30px; color: #64748B;">جاري تحميل الأسئلة والتساؤلات...</div>
+                    </div>
+
+                    <!-- Image / Audio Attachment Previews -->
+                    <div id="qaMediaPreviewBox" style="display: none; background: #F1F5F9; border-radius: 12px; padding: 10px; border: 1.5px dashed #6366F1; align-items: center; justify-content: space-between;">
+                        <div id="qaMediaPreviewContent" style="display: flex; align-items: center; gap: 10px;"></div>
+                        <button onclick="clearQAMediaAttachment()" style="background: #EF4444; color: white; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 12px;">✕</button>
+                    </div>
+
+                    <!-- Recording In-Progress Bar -->
+                    <div id="qaVoiceRecordingBar" style="display: none; background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 14px; padding: 12px 16px; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 14px; height: 14px; background: #EF4444; border-radius: 50%; animation: pulseMic 0.8s infinite alternate;"></div>
+                            <span style="color: #991B1B; font-weight: 800; font-size: 13px;">جاري تسجيل سؤالك الصوتي...</span>
+                            <span id="qaRecordingTimer" style="color: #DC2626; font-weight: 900; font-family: monospace; font-size: 14px;" dir="ltr">00:00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="cancelVoiceRecording()" style="background: #F1F5F9; color: #64748B; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">إلغاء ✖</button>
+                            <button onclick="stopVoiceRecording()" style="background: #10B981; color: white; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">تم الحفظ ✔</button>
+                        </div>
+                    </div>
+
+                    <!-- Question Input Bar -->
+                    <div id="qaNormalInputControls" style="display: flex; gap: 8px; align-items: center; background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 18px; padding: 8px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                        <textarea id="qaTextInput" placeholder="اكتب سؤالك أو استفسارك هنا..." style="flex: 1; border: none; background: transparent; color: #1E293B; font-family: 'Cairo'; font-size: 13px; font-weight: 600; resize: none; height: 42px; outline: none; padding: 4px;"></textarea>
+                        
+                        <!-- Hidden Image File Input -->
+                        <input type="file" id="qaImageFileInput" accept="image/*" style="display: none;" onchange="handleQAImageSelected(this)">
+                        
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button onclick="document.getElementById('qaImageFileInput').click()" title="إرفاق صورة مسألة أو سؤال" style="background: #F1F5F9; border: 1px solid #E2E8F0; color: #059669; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">📷</button>
+                            <button id="btnQAMic" onclick="startVoiceRecording()" title="تسجيل ريكورد صوتي" style="background: #F1F5F9; border: 1px solid #E2E8F0; color: #DC2626; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">🎙️</button>
+                            <button onclick="sendStudentQuestion()" title="إرسال السؤال" style="background: #2563EB; color: white; border: none; width: 42px; height: 42px; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 12px rgba(37,99,235,0.35);">🚀</button>
+                        </div>
+                    </div>
+
                 </div>
 
-                <button class="modal-close-btn" onclick="closeVideoPlayer()">إغلاق المشغل ✖</button>
             </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer / Download Modal (Exact Design Match) -->
+    <div id="pdfModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+        <div style="background: #F8FAFC; border-radius: 28px; width: 100%; max-width: 440px; padding: 22px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; border: 1px solid rgba(255,255,255,0.9); animation: popIn 0.3s ease-out;">
+            
+            <!-- Header Bar -->
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 16px; font-weight: 800; color: #334155;" id="pdfModalHeaderTitle">السبورة</span>
+                <button onclick="closePdfModal()" style="background: #E2E8F0; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; color: #64748B; display: flex; align-items: center; justify-content: center; transition: 0.2s;">✕</button>
+            </div>
+
+            <!-- The White PDF Card (Exact Match) -->
+            <div style="background: #FFFFFF; border-radius: 24px; padding: 28px 20px; width: 100%; max-width: 290px; box-shadow: 0 8px 30px rgba(0,0,0,0.04); border: 1px solid #E2E8F0; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                
+                <!-- PDF Icon Badge -->
+                <div style="width: 72px; height: 72px; background: #FEF3C7; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                    <div style="font-size: 26px;">📄</div>
+                    <span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-top: -2px; letter-spacing: 0.5px;">PDF</span>
+                </div>
+
+                <!-- Title -->
+                <h3 id="pdfCardTitle" style="font-size: 18px; font-weight: 800; color: #1E293B; margin: 0 0 6px 0;">السبورة</h3>
+
+                <!-- Size Sub-text -->
+                <span id="pdfCardSize" dir="ltr" style="font-size: 12px; color: #64748B; font-weight: 700; margin-bottom: 6px;">ملف PDF معتمد 📄</span>
+
+                <!-- Date -->
+                <span id="pdfCardDate" style="font-size: 12px; color: #94A3B8; font-weight: 700; margin-bottom: 20px;">2026-08-22</span>
+
+                <!-- 3 Action Buttons Row -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;">
+                    <button id="btnPdfDone" onclick="markPdfDone()" title="تحديد كمكتمل" style="width: 44px; height: 44px; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #E0E7FF; border-radius: 14px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                        ✔️
+                    </button>
+                    <button id="btnPdfView" onclick="viewPdfInBrowser()" title="معاينة وتصفح" style="width: 44px; height: 44px; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #E0E7FF; border-radius: 14px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                        👁️
+                    </button>
+                    <button id="btnPdfDownload" onclick="downloadPdfDirect()" title="تحميل الملف" style="width: 44px; height: 44px; background: #EEF2FF; color: #4F46E5; border: 1.5px solid #E0E7FF; border-radius: 14px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                        📥
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons (التالي / السابق) -->
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <button id="btnPdfPrev" onclick="navPdf(-1)" style="background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 13px; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    &lt;&lt; السابق
+                </button>
+                <button id="btnPdfNext" onclick="navPdf(1)" style="background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(245,158,11,0.15); transition: all 0.2s;">
+                    التالي &gt;&gt;
+                </button>
+            </div>
+
+            <!-- Bottom Quick Jump Bar (عن المحاضرة / الأسئلة) -->
+            <div style="width: 100%; display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="btnPdfQuestions" onclick="goToExamFromPdf()" style="background: #FFFFFF; color: #475569; border: 1.5px solid #E2E8F0; padding: 8px 16px; border-radius: 14px; font-size: 13px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    ❓ الأسئلة (<span id="pdfQuestionsCount">0</span>)
+                </button>
+                <button id="btnPdfToVideo" onclick="goToVideoFromPdf()" style="background: #F5F3FF; color: #7C3AED; border: 1.5px solid #DDD6FE; padding: 8px 16px; border-radius: 14px; font-size: 13px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    🎥 عن المحاضرة
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -548,10 +739,12 @@
                         `;
                     }
 
+                    const hasExam = Boolean(lesson.isStandaloneExam || (lesson.jsonCode && lesson.jsonCode.trim().length > 0 && lesson.jsonCode.trim() !== '[]') || (lesson.examUrl && lesson.examUrl.trim().length > 0) || lesson.hasQuiz === true);
+
                     let badgesHTML = '';
                     if (lesson.videoUrl) badgesHTML += `<span style="background:#EEF2FF; color:#4F46E5; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">📺 فيديو</span>`;
                     if (lesson.pdfUrl) badgesHTML += `<span style="background:#FEF2F2; color:#DC2626; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">📄 ملخص</span>`;
-                    if (lesson.jsonCode || lesson.examUrl || lesson.isStandaloneExam || lesson.hasQuiz !== false) badgesHTML += `<span style="background:#E8F8F5; color:#00B894; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">📝 امتحان</span>`;
+                    if (hasExam) badgesHTML += `<span style="background:#E8F8F5; color:#00B894; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-right:4px;">📝 امتحان</span>`;
                     
                     let descHTML = lesson.description ? `<div style="font-size:12px; color:#6B7280; margin-top:6px; line-height:1.5;">${lesson.description}</div>` : '';
 
@@ -595,21 +788,22 @@
                                 </div>
                                 <div class="lesson-actions">
                                     ${escVideoUrl 
-                                        ? `<button class="action-btn btn-video" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}')"><i>📺</i> فيديو</button>` 
-                                        : `<button class="action-btn btn-disabled" onclick="showToast('فيديو المحاضرة غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📺</i> غير متوفر</button>`}
+                                        ? `<button class="action-btn btn-video" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})"><i>📺</i> محتوى المحاضرة</button>` 
+                                        : `<button class="action-btn btn-disabled" onclick="openLectureDetails(${index})"><i style="filter: grayscale(1);">📺</i> محتوى المحاضرة</button>`}
                                     ${escPdfUrl 
-                                        ? `<button class="action-btn btn-pdf" onclick="openPdf('${escPdfUrl}')"><i>📄</i> ملخص</button>` 
+                                        ? `<button class="action-btn btn-pdf" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})"><i>📄</i> ملخص</button>` 
                                         : `<button class="action-btn btn-disabled" onclick="showToast('الملخص غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📄</i> غير متوفر</button>`}
-                                    ${lesson.jsonCode || lesson.examUrl || lesson.isStandaloneExam || lesson.hasQuiz !== false 
+                                    ${hasExam 
                                         ? `<button class="action-btn btn-quiz" onclick="startExam('${escTitle}', '${lesson.id || ''}')"><i>📝</i> امتحان</button>` 
                                         : `<button class="action-btn btn-disabled" onclick="showToast('الامتحان غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📝</i> غير متوفر</button>`}
+                                    <button class="action-btn" style="background:#FFFBEB; color:#D97706; border:1px solid #FDE68A;" onclick="openLectureQA(${index})"><i>💬</i> أسئلة الطلاب</button>
                                 </div>
                             </div>
                         `);
                     } else if (currentCategory === 'videos' && lesson.videoUrl) {
                         hasItemsForCurrentView = true;
                         groupItemsHTML.push(`
-                            <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}')">
+                            <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
                                 <div style="display:flex; align-items:center; gap:12px;">
                                     <div style="width:40px; height:40px; background:#EEF2FF; color:#4F46E5; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📺</div>
                                     <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">فيديو المحاضرة</span></div>
@@ -620,15 +814,22 @@
                     } else if (currentCategory === 'pdfs' && lesson.pdfUrl) {
                         hasItemsForCurrentView = true;
                         groupItemsHTML.push(`
-                            <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;" onclick="openPdf('${escPdfUrl}')">
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:40px; height:40px; background:#FEF2F2; color:#DC2626; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📄</div>
-                                    <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">ملخص المحاضرة</span></div>
+                            <div style="background: #FFFFFF; border-radius: 24px; padding: 25px 20px; width: 100%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #E2E8F0; display: flex; flex-direction: column; align-items: center; margin: 0 auto 20px; text-align: center;">
+                                <div style="width: 70px; height: 70px; background: #FEF3C7; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                                    <div style="font-size: 26px;">📄</div>
+                                    <span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-top: -2px;">PDF</span>
                                 </div>
-                                <span style="background:rgba(220,38,38,0.1); color:#DC2626; padding:6px 12px; border-radius:10px; font-weight:bold; font-size:11px;">فتح</span>
+                                <h3 style="font-size: 16px; font-weight: 800; color: #1E293B; margin: 0 0 4px 0;">${lesson.title}</h3>
+                                <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 4px;">السبورة والملخص</span>
+                                <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 18px;">${lesson.chapter || 'محاضرة معتمدة'}</span>
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                    <button onclick="showToast('تم تحديد الملخص كمكتمل! ✅', 'success')" title="مكتمل" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✔️</button>
+                                    <button onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})" title="معاينة وتصفح" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">👁️</button>
+                                    <button onclick="downloadPdfDirectUrl('${escPdfUrl}', '${escTitle}')" title="تحميل الملف" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">📥</button>
+                                </div>
                             </div>
                         `);
-                    } else if (currentCategory === 'quizzes' && (lesson.jsonCode || lesson.examUrl || lesson.hasQuiz !== false)) {
+                    } else if (currentCategory === 'quizzes' && hasExam) {
                         hasItemsForCurrentView = true;
                         groupItemsHTML.push(`
                             <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -660,11 +861,295 @@
             }
         }
 
-        function openPdf(url) {
+        let currentPdfUrl = "";
+        let currentPdfTitle = "";
+        let currentPdfIndex = 0;
+
+        function getDirectPdfUrls(url) {
+            if (!url) return { viewUrl: '', downloadUrl: '' };
+            let viewUrl = url;
+            let downloadUrl = url;
+
+            const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (driveMatch) {
+                const fileId = driveMatch[1];
+                viewUrl = `https://drive.google.com/file/d/${fileId}/view`;
+                downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            return { viewUrl, downloadUrl };
+        }
+
+        function updatePdfCardSize(url, lesson) {
+            const sizeEl = document.getElementById('pdfCardSize');
+            if (!sizeEl) return;
+
+            // 1. If explicit size is given in lesson object
+            if (lesson && (lesson.pdfSize || lesson.fileSize || lesson.size)) {
+                sizeEl.innerText = lesson.pdfSize || lesson.fileSize || lesson.size;
+                return;
+            }
+
+            // 2. Default clean and helpful indicator
+            sizeEl.innerText = "ملف PDF معتمد 📄";
+
+            // 3. Try to fetch file size via HEAD if it's a direct or storage URL
+            if (url && (url.startsWith('http://') || url.startsWith('https://')) && !url.includes('drive.google.com')) {
+                fetch(url, { method: 'HEAD' }).then(res => {
+                    if (!res.ok) return;
+                    const len = res.headers.get('content-length');
+                    if (len && !isNaN(len)) {
+                        const bytes = parseInt(len, 10);
+                        if (bytes > 0) {
+                            if (bytes >= 1024 * 1024) {
+                                sizeEl.innerText = (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+                            } else {
+                                sizeEl.innerText = Math.round(bytes / 1024) + ' KB';
+                            }
+                        }
+                    }
+                }).catch(() => {
+                    // Fallback remains "ملف PDF معتمد 📄"
+                });
+            }
+        }
+
+        function updatePdfNavigationState() {
+            const pdfLessons = allLessons.filter(l => l.pdfUrl && l.pdfUrl.trim() !== '' && l.pdfUrl !== 'null' && l.pdfUrl !== 'undefined');
+            let currIdxInPdfs = -1;
+
+            if (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) {
+                const curL = allLessons[currentPdfIndex];
+                currIdxInPdfs = pdfLessons.findIndex(l => l === curL || (l.id && l.id === curL.id) || (l.pdfUrl === currentPdfUrl) || (l.title === currentPdfTitle));
+            }
+            if (currIdxInPdfs === -1) {
+                currIdxInPdfs = pdfLessons.findIndex(l => (l.pdfUrl === currentPdfUrl) || (l.title === currentPdfTitle));
+            }
+            if (currIdxInPdfs === -1 && pdfLessons.length > 0) {
+                currIdxInPdfs = 0;
+            }
+
+            const btnPrev = document.getElementById('btnPdfPrev');
+            const btnNext = document.getElementById('btnPdfNext');
+
+            const hasPrev = currIdxInPdfs > 0;
+            const hasNext = currIdxInPdfs >= 0 && currIdxInPdfs < (pdfLessons.length - 1);
+
+            if (btnPrev) {
+                if (hasPrev) {
+                    btnPrev.style.background = '#EEF2FF';
+                    btnPrev.style.color = '#4F46E5';
+                    btnPrev.style.border = '1px solid #C7D2FE';
+                    btnPrev.style.opacity = '1';
+                    btnPrev.style.cursor = 'pointer';
+                    btnPrev.style.boxShadow = 'none';
+                    btnPrev.title = `السابق: ${pdfLessons[currIdxInPdfs - 1].title}`;
+                } else {
+                    btnPrev.style.background = '#F1F5F9';
+                    btnPrev.style.color = '#94A3B8';
+                    btnPrev.style.border = '1px solid #E2E8F0';
+                    btnPrev.style.opacity = '0.55';
+                    btnPrev.style.cursor = 'not-allowed';
+                    btnPrev.style.boxShadow = 'none';
+                    btnPrev.title = 'هذا هو أول ملخص في المادة';
+                }
+            }
+
+            if (btnNext) {
+                if (hasNext) {
+                    btnNext.style.background = '#FEF3C7';
+                    btnNext.style.color = '#D97706';
+                    btnNext.style.border = '1px solid #FDE68A';
+                    btnNext.style.boxShadow = '0 4px 10px rgba(245,158,11,0.15)';
+                    btnNext.style.opacity = '1';
+                    btnNext.style.cursor = 'pointer';
+                    btnNext.title = `التالي: ${pdfLessons[currIdxInPdfs + 1].title}`;
+                } else {
+                    btnNext.style.background = '#F1F5F9';
+                    btnNext.style.color = '#94A3B8';
+                    btnNext.style.border = '1px solid #E2E8F0';
+                    btnNext.style.boxShadow = 'none';
+                    btnNext.style.opacity = '0.55';
+                    btnNext.style.cursor = 'not-allowed';
+                    btnNext.title = 'وصلت لآخر ملخص في المادة';
+                }
+            }
+        }
+
+        function openPdf(url, title, index) {
             if (!url || url === 'undefined' || url === 'null') {
                 showToast("لم يتم إرفاق ملف ملخص لهذه المحاضرة بعد 📄", "warning");
+                return;
+            }
+            currentPdfUrl = url;
+            currentPdfTitle = title || "السبورة";
+            currentPdfIndex = (typeof index === 'number' && index >= 0) 
+                ? index 
+                : allLessons.findIndex(l => (l.pdfUrl && l.pdfUrl === url) || (l.title && l.title === title));
+
+            document.getElementById('pdfModalHeaderTitle').innerText = currentPdfTitle;
+            document.getElementById('pdfCardTitle').innerText = currentPdfTitle;
+
+            const lesson = (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) ? allLessons[currentPdfIndex] : null;
+
+            // Update Card Date
+            let dateStr = new Date().toISOString().split('T')[0];
+            if (lesson && lesson.createdAt) {
+                try {
+                    dateStr = new Date(lesson.createdAt).toISOString().split('T')[0];
+                } catch(e){}
+            }
+            document.getElementById('pdfCardDate').innerText = dateStr;
+
+            // Update Size Display dynamically
+            updatePdfCardSize(url, lesson);
+
+            // Update Questions Count dynamically
+            let qCount = 0;
+            if (lesson) {
+                if (lesson.jsonCode) {
+                    try {
+                        const parsed = JSON.parse(lesson.jsonCode);
+                        if (Array.isArray(parsed)) qCount = parsed.length;
+                        else if (parsed && typeof parsed === 'object') qCount = Object.keys(parsed).length;
+                    } catch(e) {
+                        qCount = 1;
+                    }
+                } else if (lesson.hasQuiz || lesson.isStandaloneExam) {
+                    qCount = 1;
+                }
+            }
+            const qCountEl = document.getElementById('pdfQuestionsCount');
+            if (qCountEl) qCountEl.innerText = qCount > 0 ? qCount : "0";
+
+            // Update Navigation Buttons Visual State
+            updatePdfNavigationState();
+
+            // Reset Done button style for the new PDF
+            const btnDone = document.getElementById('btnPdfDone');
+            if (btnDone) {
+                btnDone.style.background = '#EEF2FF';
+                btnDone.style.color = '#4F46E5';
+                btnDone.style.borderColor = '#E0E7FF';
+            }
+
+            if (user && user.studentCode) {
+                try {
+                    database.ref('ActivityLogs').push().set({
+                        studentCode: user.studentCode,
+                        studentName: user.fullName || user.name || 'طالب',
+                        action: 'فتح ملخص PDF 📄',
+                        details: `قام بفتح وتصفح ملخص: (${currentPdfTitle}) في مادة (${subject})`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } catch(e){}
+            }
+
+            document.getElementById('pdfModal').style.display = 'flex';
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdfModal').style.display = 'none';
+        }
+
+        function viewPdfInBrowser() {
+            if (currentPdfUrl) {
+                const { viewUrl } = getDirectPdfUrls(currentPdfUrl);
+                window.open(viewUrl || currentPdfUrl, '_blank');
+            }
+        }
+
+        function downloadPdfDirect() {
+            if (currentPdfUrl) {
+                downloadPdfDirectUrl(currentPdfUrl, currentPdfTitle);
+            }
+        }
+
+        function downloadPdfDirectUrl(url, title) {
+            if (!url) return;
+            const { downloadUrl, viewUrl } = getDirectPdfUrls(url);
+            
+            if (url.includes('drive.google.com')) {
+                window.open(downloadUrl || viewUrl, '_blank');
+                showToast("جاري فتح رابط التحميل المباشر من Google Drive... 📥", "info");
+                return;
+            }
+
+            const a = document.createElement('a');
+            a.href = downloadUrl || url;
+            a.download = (title || 'lecture_summary') + '.pdf';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("جاري تحميل ملف PDF... 📥", "info");
+        }
+
+        function markPdfDone() {
+            showToast("تم تحديد الملخص كمكتمل ومذاكر بنجاح! ✅", "success");
+            const btn = document.getElementById('btnPdfDone');
+            if (btn) {
+                btn.style.background = '#DCFCE7';
+                btn.style.color = '#15803D';
+                btn.style.borderColor = '#BBF7D0';
+            }
+        }
+
+        function navPdf(dir) {
+            const pdfLessons = allLessons.filter(l => l.pdfUrl && l.pdfUrl.trim() !== '' && l.pdfUrl !== 'null' && l.pdfUrl !== 'undefined');
+
+            if (pdfLessons.length === 0) {
+                showToast("لا توجد ملخصات PDF متاحة في هذه المادة 📄", "info");
+                return;
+            }
+
+            if (pdfLessons.length === 1) {
+                showToast("هذا هو الملخص الوحيد المتوفر حالياً في هذه المادة 📄", "info");
+                return;
+            }
+
+            let currIdxInPdfs = -1;
+            if (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) {
+                const curL = allLessons[currentPdfIndex];
+                currIdxInPdfs = pdfLessons.findIndex(l => l === curL || (l.id && l.id === curL.id) || (l.pdfUrl === currentPdfUrl) || (l.title === currentPdfTitle));
+            }
+            if (currIdxInPdfs === -1) {
+                currIdxInPdfs = pdfLessons.findIndex(l => (l.pdfUrl === currentPdfUrl) || (l.title === currentPdfTitle));
+            }
+            if (currIdxInPdfs === -1) currIdxInPdfs = 0;
+
+            let nextIdx = currIdxInPdfs + dir;
+            if (nextIdx >= 0 && nextIdx < pdfLessons.length) {
+                const nextL = pdfLessons[nextIdx];
+                const nextAllIdx = allLessons.indexOf(nextL);
+                openPdf(nextL.pdfUrl, nextL.title, nextAllIdx >= 0 ? nextAllIdx : nextIdx);
+                showToast(dir > 0 ? `الانتقال إلى: ${nextL.title} 📄` : `الانتقال إلى: ${nextL.title} 📄`, "info");
             } else {
-                window.open(url, '_blank');
+                if (dir > 0) {
+                    showToast("وصلت لآخر ملخص في المادة 🏁", "info");
+                } else {
+                    showToast("هذا هو أول ملخص في المادة 📌", "info");
+                }
+            }
+        }
+
+        function goToVideoFromPdf() {
+            const lesson = (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) ? allLessons[currentPdfIndex] : null;
+            if (lesson && lesson.videoUrl) {
+                closePdfModal();
+                openVideoPlayer(lesson.videoUrl, lesson.title, currentPdfIndex);
+            } else {
+                showToast("فيديو هذه المحاضرة غير متوفر حالياً 📺", "warning");
+            }
+        }
+
+        function goToExamFromPdf() {
+            const lesson = (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) ? allLessons[currentPdfIndex] : null;
+            if (lesson && (lesson.jsonCode || lesson.hasQuiz || lesson.isStandaloneExam)) {
+                closePdfModal();
+                startExam(lesson.title, lesson.id);
+            } else {
+                showToast("لا يوجد امتحان مرفق لهذه المحاضرة بعد 📝", "warning");
             }
         }
 
@@ -678,37 +1163,675 @@
         }
 
         // Video Player Handlers
-        const player = document.getElementById('customVideoPlayer');
-        if (player) {
-            player.addEventListener('timeupdate', () => {
-                if (player.currentTime > 0 && currentLectureTitle) {
-                    const key = `video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`;
-                    localStorage.setItem(key, player.currentTime);
+        let ytPlayer = null;
+        let ytProgressInterval = null;
+        let currentVideoMode = null; // 'youtube', 'mp4', 'drive'
+
+        function formatTime(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function extractYouTubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const cleanUrl = url.trim();
+            const regExp = /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = cleanUrl.match(regExp);
+            return match ? match[1] : null;
+        }
+
+        function updatePlayBtn(isPlaying) {
+            const btn = document.getElementById('btnPlayPause');
+            if (btn) btn.innerHTML = isPlaying ? '⏸️' : '▶️';
+        }
+
+        function showCenterIcon(icon) {
+            const el = document.getElementById('centerPlayIcon');
+            if (!el) return;
+            el.textContent = icon;
+            el.style.display = 'flex';
+            el.style.opacity = '1';
+            setTimeout(() => {
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display = 'none', 250);
+            }, 400);
+        }
+
+        function toggleCustomPlay() {
+            if (currentVideoMode === 'youtube' && ytPlayer) {
+                try {
+                    const state = typeof ytPlayer.getPlayerState === 'function' ? ytPlayer.getPlayerState() : -1;
+                    if (state === 1) { // playing
+                        ytPlayer.pauseVideo();
+                        showCenterIcon('⏸️');
+                        updatePlayBtn(false);
+                    } else {
+                        ytPlayer.playVideo();
+                        showCenterIcon('▶️');
+                        updatePlayBtn(true);
+                    }
+                } catch(e) {}
+            } else if (currentVideoMode === 'mp4') {
+                const dp = document.getElementById('customVideoPlayer');
+                if (dp.paused) {
+                    dp.play();
+                    showCenterIcon('▶️');
+                    updatePlayBtn(true);
+                } else {
+                    dp.pause();
+                    showCenterIcon('⏸️');
+                    updatePlayBtn(false);
                 }
+            }
+        }
+
+        function onSeekChange(val) {
+            if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                try {
+                    const dur = ytPlayer.getDuration();
+                    if (dur > 0) {
+                        const targetTime = (val / 100) * dur;
+                        ytPlayer.seekTo(targetTime, true);
+                        document.getElementById('timeCurrent').innerText = formatTime(targetTime);
+                    }
+                } catch(e) {}
+            } else if (currentVideoMode === 'mp4') {
+                const dp = document.getElementById('customVideoPlayer');
+                if (dp.duration > 0) {
+                    const targetTime = (val / 100) * dp.duration;
+                    dp.currentTime = targetTime;
+                    document.getElementById('timeCurrent').innerText = formatTime(targetTime);
+                }
+            }
+        }
+
+        function skipTime(seconds) {
+            if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                try {
+                    const cur = ytPlayer.getCurrentTime();
+                    const dur = ytPlayer.getDuration() || 0;
+                    const target = Math.max(0, Math.min(cur + seconds, dur));
+                    ytPlayer.seekTo(target, true);
+                    showCenterIcon(seconds > 0 ? '+10ث' : '-10ث');
+                } catch(e) {}
+            } else if (currentVideoMode === 'mp4') {
+                const dp = document.getElementById('customVideoPlayer');
+                if (dp.duration) {
+                    dp.currentTime = Math.max(0, Math.min(dp.currentTime + seconds, dp.duration));
+                    showCenterIcon(seconds > 0 ? '+10ث' : '-10ث');
+                }
+            }
+        }
+
+        function startProgressTracker() {
+            clearInterval(ytProgressInterval);
+            ytProgressInterval = setInterval(() => {
+                if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                    try {
+                        const cur = ytPlayer.getCurrentTime() || 0;
+                        const dur = ytPlayer.getDuration() || 0;
+                        if (dur > 0) {
+                            document.getElementById('timeCurrent').innerText = formatTime(cur);
+                            document.getElementById('timeDuration').innerText = formatTime(dur);
+                            document.getElementById('customProgressBar').value = (cur / dur) * 100;
+                            if (cur > 0 && currentLectureTitle) {
+                                const key = `video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`;
+                                localStorage.setItem(key, cur);
+                            }
+                        }
+                    } catch(e) {}
+                } else if (currentVideoMode === 'mp4') {
+                    const dp = document.getElementById('customVideoPlayer');
+                    if (dp && dp.duration > 0) {
+                        document.getElementById('timeCurrent').innerText = formatTime(dp.currentTime);
+                        document.getElementById('timeDuration').innerText = formatTime(dp.duration);
+                        document.getElementById('customProgressBar').value = (dp.currentTime / dp.duration) * 100;
+                        if (dp.currentTime > 0 && currentLectureTitle) {
+                            const key = `video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`;
+                            localStorage.setItem(key, dp.currentTime);
+                        }
+                    }
+                }
+            }, 500);
+        }
+
+        function setPlaySpeed(rate, buttonEl) {
+            if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
+                try { ytPlayer.setPlaybackRate(rate); } catch(e) {}
+            }
+            const dp = document.getElementById('customVideoPlayer');
+            if (dp) dp.playbackRate = rate;
+
+            document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
+            if (buttonEl) buttonEl.classList.add('active');
+        }
+
+        function toggleFullscreenPlayer() {
+            const vc = document.getElementById('videoContainer');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (vc.requestFullscreen) vc.requestFullscreen();
+                else if (vc.webkitRequestFullscreen) vc.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        let currentLectureIndex = -1;
+        let currentLectureData = null;
+        let currentLectureKey = '';
+        let qaUnsubscribe = null;
+        let qaVoiceMediaRecorder = null;
+        let qaAudioChunks = [];
+        let qaRecordingTimer = null;
+        let qaRecordingSeconds = 0;
+        let pendingAudioBase64 = null;
+        let pendingImageBase64 = null;
+
+        function switchPlayerTab(tabName) {
+            const tabBtnContent = document.getElementById('tabBtnLectureContent');
+            const tabBtnQA = document.getElementById('tabBtnLectureQA');
+            const tabContentArea = document.getElementById('playerTabContentArea');
+            const tabQAArea = document.getElementById('playerTabQAArea');
+
+            if (tabName === 'content') {
+                if (tabBtnContent) {
+                    tabBtnContent.style.background = '#2563EB';
+                    tabBtnContent.style.color = '#FFFFFF';
+                    tabBtnContent.style.boxShadow = '0 4px 12px rgba(37,99,235,0.25)';
+                }
+                if (tabBtnQA) {
+                    tabBtnQA.style.background = 'transparent';
+                    tabBtnQA.style.color = '#475569';
+                    tabBtnQA.style.boxShadow = 'none';
+                }
+                if (tabContentArea) tabContentArea.style.display = 'block';
+                if (tabQAArea) tabQAArea.style.display = 'none';
+            } else if (tabName === 'qa') {
+                if (tabBtnQA) {
+                    tabBtnQA.style.background = '#2563EB';
+                    tabBtnQA.style.color = '#FFFFFF';
+                    tabBtnQA.style.boxShadow = '0 4px 12px rgba(37,99,235,0.25)';
+                }
+                if (tabBtnContent) {
+                    tabBtnContent.style.background = 'transparent';
+                    tabBtnContent.style.color = '#475569';
+                    tabBtnContent.style.boxShadow = 'none';
+                }
+                if (tabContentArea) tabContentArea.style.display = 'none';
+                if (tabQAArea) tabQAArea.style.display = 'flex';
+                listenToLectureQA();
+            }
+        }
+
+        function openLectureDetails(index) {
+            const lesson = allLessons[index];
+            if (!lesson) return;
+            openVideoPlayer(lesson.videoUrl || '', lesson.title, index);
+        }
+
+        function openLectureQA(index) {
+            const lesson = allLessons[index];
+            if (!lesson) return;
+            openVideoPlayer(lesson.videoUrl || '', lesson.title, index);
+            switchPlayerTab('qa');
+        }
+
+        function openPdfFromModal() {
+            if (currentLectureData && currentLectureData.pdfUrl) {
+                openPdf(currentLectureData.pdfUrl, currentLectureData.title, currentLectureIndex);
+            } else {
+                showToast("ملخص هذه المحاضرة غير متوفر حالياً 📄", "warning");
+            }
+        }
+
+        function openExamFromModal() {
+            if (currentLectureData && (currentLectureData.jsonCode || currentLectureData.hasQuiz || currentLectureData.isStandaloneExam)) {
+                startExam(currentLectureData.title, currentLectureData.id);
+            } else {
+                showToast("لا يوجد امتحان مرفق لهذه المحاضرة بعد 📝", "warning");
+            }
+        }
+
+        function listenToLectureQA() {
+            if (!currentLectureKey) return;
+            const messagesList = document.getElementById('modalQAMessagesList');
+            const countBadge = document.getElementById('modalQaCountBadge');
+
+            if (qaUnsubscribe) {
+                database.ref(`Community/${subject}/${currentLectureKey}`).off('value', qaUnsubscribe);
+            }
+
+            qaUnsubscribe = database.ref(`Community/${subject}/${currentLectureKey}`).on('value', snap => {
+                if (!messagesList) return;
+                messagesList.innerHTML = '';
+                
+                if (!snap.exists()) {
+                    if (countBadge) countBadge.innerText = '0';
+                    messagesList.innerHTML = `
+                        <div style="text-align: center; padding: 35px 15px; background: #FFFFFF; border-radius: 16px; border: 1.5px dashed #CBD5E1;">
+                            <div style="font-size: 32px; margin-bottom: 6px;">💡</div>
+                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">لا توجد تساؤلات مطروحة بعد</h4>
+                            <p style="font-size: 12px; color: #64748B; margin-top: 4px;">كن أول من يطرح سؤاله حول هذه المحاضرة ليستفيد زملاؤك!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let count = 0;
+                snap.forEach(child => {
+                    count++;
+                    const msg = child.val();
+                    const msgId = child.key;
+                    const isAdmin = Boolean(msg.isAdmin);
+                    const isMine = user && (user.studentCode === msg.senderCode || user.code === msg.senderCode);
+
+                    let timeStr = '';
+                    if (msg.timestamp) {
+                        try {
+                            const d = new Date(msg.timestamp);
+                            timeStr = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                        } catch(e){}
+                    }
+
+                    let mediaHtml = '';
+                    if (msg.type === 'image' && msg.mediaUrl) {
+                        mediaHtml = `
+                            <div style="margin-top: 8px;">
+                                <img src="${msg.mediaUrl}" style="max-width: 100%; max-height: 220px; border-radius: 10px; cursor: pointer; border: 1px solid #E2E8F0;" onclick="window.open('${msg.mediaUrl}', '_blank')" alt="صورة السؤال">
+                            </div>
+                        `;
+                    } else if (msg.type === 'audio' && msg.mediaUrl) {
+                        mediaHtml = `
+                            <div style="margin-top: 8px; background: #F1F5F9; padding: 8px 12px; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                <div style="font-size: 11px; color: #2563EB; font-weight: bold; margin-bottom: 4px;">🎙️ تسجيل صوتي:</div>
+                                <audio controls src="${msg.mediaUrl}" style="width: 100%; height: 36px;"></audio>
+                            </div>
+                        `;
+                    }
+
+                    let senderBadge = '';
+                    if (isAdmin) {
+                        const adminRoleTitle = msg.adminRoleTitle || (msg.adminRole === 'master' ? '👑 المسؤول العام' : '🛡️ المشرف');
+                        senderBadge = `<span style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 900;">${adminRoleTitle}</span>`;
+                    } else {
+                        senderBadge = `<span style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-family: monospace; font-weight: 700;">${msg.senderCode || 'طالب'}</span>`;
+                    }
+
+                    let bubbleBg = isAdmin 
+                        ? 'background: #FFFBEB; border: 1.5px solid #FCD34D;' 
+                        : (isMine ? 'background: #EEF2FF; border: 1.5px solid #93C5FD;' : 'background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0,0,0,0.02);');
+
+                    let repliesHtml = '';
+                    if (msg.replies && typeof msg.replies === 'object') {
+                        Object.values(msg.replies).forEach(rep => {
+                            const repIsAdmin = Boolean(rep.isAdmin);
+                            const repRoleTitle = rep.adminRoleTitle || 'رد الإدارة';
+                            let repMedia = '';
+                            if (rep.type === 'image' && rep.mediaUrl) repMedia = `<img src="${rep.mediaUrl}" style="max-width:100%; border-radius:8px; margin-top:6px; cursor:pointer;" onclick="window.open('${rep.mediaUrl}')">`;
+                            if (rep.type === 'audio' && rep.mediaUrl) repMedia = `<audio controls src="${rep.mediaUrl}" style="width:100%; height:32px; margin-top:6px;"></audio>`;
+
+                            repliesHtml += `
+                                <div style="margin-top: 10px; background: #FFFDF5; border-right: 3px solid #F59E0B; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 11px; font-weight: 900; color: #B45309;">👑 ${rep.senderName || 'الإدارة'} (${repRoleTitle})</span>
+                                        <span style="font-size: 10px; color: #94A3B8;">${rep.timestamp ? new Date(rep.timestamp).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : ''}</span>
+                                    </div>
+                                    ${rep.text ? `<div style="font-size: 13px; color: #78350F; font-weight: 700; line-height: 1.5;">${rep.text}</div>` : ''}
+                                    ${repMedia}
+                                </div>
+                            `;
+                        });
+                    }
+
+                    messagesList.innerHTML += `
+                        <div style="${bubbleBg} border-radius: 16px; padding: 14px 16px; position: relative;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 13px; font-weight: 800; color: #1E293B;">${msg.senderName || 'طالب'}</span>
+                                    ${senderBadge}
+                                </div>
+                                <span style="font-size: 11px; color: #94A3B8; font-weight: 600;">${timeStr}</span>
+                            </div>
+                            ${msg.text ? `<div style="font-size: 14px; color: #1E293B; line-height: 1.6; white-space: pre-wrap; font-weight: 600;">${msg.text}</div>` : ''}
+                            ${mediaHtml}
+                            ${repliesHtml}
+                        </div>
+                    `;
+                });
+
+                if (countBadge) countBadge.innerText = count;
+                messagesList.scrollTop = messagesList.scrollHeight;
             });
         }
 
-        function openVideoPlayer(videoUrl, title) {
-            currentLectureTitle = title;
-            document.getElementById('modalVideoTitle').innerText = title;
+        // Voice Recording for Students
+        async function startVoiceRecording() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showToast("متصفحك لا يدعم تسجيل الصوت المباشر 🎙️", "warning");
+                    return;
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                qaVoiceMediaRecorder = new MediaRecorder(stream);
+                qaAudioChunks = [];
+                
+                qaVoiceMediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) qaAudioChunks.push(e.data);
+                };
+
+                qaVoiceMediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(qaAudioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        pendingAudioBase64 = reader.result;
+                        showQAMediaPreview('audio', pendingAudioBase64);
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                qaVoiceMediaRecorder.start();
+                qaRecordingSeconds = 0;
+                document.getElementById('qaVoiceRecordingBar').style.display = 'flex';
+                document.getElementById('qaNormalInputControls').style.display = 'none';
+
+                clearInterval(qaRecordingTimer);
+                qaRecordingTimer = setInterval(() => {
+                    qaRecordingSeconds++;
+                    const m = Math.floor(qaRecordingSeconds / 60);
+                    const s = qaRecordingSeconds % 60;
+                    document.getElementById('qaRecordingTimer').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                }, 1000);
+
+            } catch(err) {
+                console.error("Mic error:", err);
+                showToast("تعذر الوصول للميكروفون: يرجى السماح بالإذن في المتصفح 🎙️", "error");
+            }
+        }
+
+        function stopVoiceRecording() {
+            clearInterval(qaRecordingTimer);
+            if (qaVoiceMediaRecorder && qaVoiceMediaRecorder.state !== 'inactive') {
+                qaVoiceMediaRecorder.stop();
+            }
+            document.getElementById('qaVoiceRecordingBar').style.display = 'none';
+            document.getElementById('qaNormalInputControls').style.display = 'flex';
+        }
+
+        function cancelVoiceRecording() {
+            clearInterval(qaRecordingTimer);
+            if (qaVoiceMediaRecorder && qaVoiceMediaRecorder.state !== 'inactive') {
+                qaVoiceMediaRecorder.stop();
+            }
+            qaAudioChunks = [];
+            pendingAudioBase64 = null;
+            document.getElementById('qaVoiceRecordingBar').style.display = 'none';
+            document.getElementById('qaNormalInputControls').style.display = 'flex';
+        }
+
+        // Image Attachment for Students
+        function handleQAImageSelected(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 5 ميجابايت", "warning");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                pendingImageBase64 = e.target.result;
+                showQAMediaPreview('image', pendingImageBase64);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showQAMediaPreview(type, dataUrl) {
+            const box = document.getElementById('qaMediaPreviewBox');
+            const content = document.getElementById('qaMediaPreviewContent');
+            if (!box || !content) return;
+            
+            if (type === 'image') {
+                content.innerHTML = `
+                    <img src="${dataUrl}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #6366F1;">
+                    <span style="font-size: 12px; color: #A5B4FC; font-weight: bold;">📷 صورة مرفقة مع السؤال</span>
+                `;
+            } else if (type === 'audio') {
+                content.innerHTML = `
+                    <span style="font-size: 16px;">🎙️</span>
+                    <audio controls src="${dataUrl}" style="height: 32px; max-width: 200px;"></audio>
+                    <span style="font-size: 12px; color: #A5B4FC; font-weight: bold;">تسجيل صوتي</span>
+                `;
+            }
+            box.style.display = 'flex';
+        }
+
+        function clearQAMediaAttachment() {
+            pendingImageBase64 = null;
+            pendingAudioBase64 = null;
+            const fileInput = document.getElementById('qaImageFileInput');
+            if (fileInput) fileInput.value = '';
+            const box = document.getElementById('qaMediaPreviewBox');
+            if (box) box.style.display = 'none';
+        }
+
+        function sendStudentQuestion() {
+            const input = document.getElementById('qaTextInput');
+            const text = input ? input.value.trim() : '';
+            
+            if (!text && !pendingImageBase64 && !pendingAudioBase64) {
+                showToast("يرجى كتابة سؤالك أو تسجيل صوت أو إرفاق صورة ✍️", "warning");
+                return;
+            }
+
+            if (!currentLectureKey) {
+                showToast("يرجى تحديد المحاضرة أولاً", "warning");
+                return;
+            }
+
+            let type = 'text';
+            let mediaUrl = '';
+            if (pendingAudioBase64) {
+                type = 'audio';
+                mediaUrl = pendingAudioBase64;
+            } else if (pendingImageBase64) {
+                type = 'image';
+                mediaUrl = pendingImageBase64;
+            }
+
+            const senderName = user ? (user.fullName || user.name || 'طالب') : 'طالب';
+            const senderCode = user ? (user.studentCode || user.code || 'guest') : 'guest';
+
+            const payload = {
+                senderName: senderName,
+                senderCode: senderCode,
+                isAdmin: false,
+                text: text,
+                type: type,
+                mediaUrl: mediaUrl,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref(`Community/${subject}/${currentLectureKey}`).push(payload).then(() => {
+                if (input) input.value = '';
+                clearQAMediaAttachment();
+                showToast("تم إرسال سؤالك بنجاح! سيتم الرد عليك قريباً ✅", "success");
+
+                try {
+                    database.ref('ActivityLogs').push().set({
+                        studentCode: senderCode,
+                        studentName: senderName,
+                        action: 'طرح سؤال في المحاضرة 💬',
+                        details: `طرح سؤالاً في محاضرة: (${currentLectureTitle}) بمادة (${subject})`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } catch(e){}
+            }).catch(err => {
+                console.error("QA send error:", err);
+                showToast("حدث خطأ أثناء إرسال السؤال", "error");
+            });
+        }
+
+        function openVideoPlayer(videoUrl, title, index) {
+            currentLectureIndex = (typeof index === 'number') ? index : allLessons.findIndex(l => l.title === title || (videoUrl && l.videoUrl === videoUrl));
+            currentLectureData = (currentLectureIndex >= 0 && allLessons[currentLectureIndex]) ? allLessons[currentLectureIndex] : { title, videoUrl };
+            currentLectureTitle = title || (currentLectureData ? currentLectureData.title : 'المحاضرة');
+            currentLectureKey = (currentLectureData && currentLectureData.id) ? currentLectureData.id : currentLectureTitle;
+
+            document.getElementById('modalVideoTitle').innerText = currentLectureTitle;
+            const subtitleEl = document.getElementById('modalLectureSubtitle');
+            if (subtitleEl) subtitleEl.innerText = (currentLectureData && currentLectureData.chapter) ? currentLectureData.chapter : 'منهج الفرقة الرابعة خدمة اجتماعية';
+
+            // Populate Roadmap buttons
+            const pdfBtn = document.getElementById('modalRoadmapPdfBtn');
+            if (pdfBtn) {
+                if (currentLectureData && currentLectureData.pdfUrl) {
+                    pdfBtn.innerText = 'عرض الملف 📄';
+                    pdfBtn.style.opacity = '1';
+                } else {
+                    pdfBtn.innerText = 'غير متوفر';
+                    pdfBtn.style.opacity = '0.5';
+                }
+            }
+
+            const durationEl = document.getElementById('modalRoadmapVideoDuration');
+            if (durationEl) {
+                durationEl.innerText = currentLectureData.duration ? (`⏱️ مدة الشرح: ${currentLectureData.duration}`) : 'مشاهدة الشرح بجودة عالية وبدون إعلانات';
+            }
+
+            const examBtn = document.getElementById('modalRoadmapExamBtn');
+            if (examBtn) {
+                if (currentLectureData && (currentLectureData.jsonCode || currentLectureData.hasQuiz || currentLectureData.isStandaloneExam)) {
+                    examBtn.innerText = 'بدء الامتحان 🚀';
+                    examBtn.style.opacity = '1';
+                } else {
+                    examBtn.innerText = 'غير متوفر';
+                    examBtn.style.opacity = '0.5';
+                }
+            }
+
+            switchPlayerTab('content');
+
+            if (user && user.studentCode) {
+                try {
+                    database.ref('ActivityLogs').push().set({
+                        studentCode: user.studentCode,
+                        studentName: user.fullName || user.name || 'طالب',
+                        action: 'مشاهدة فيديو محاضرة 📺',
+                        details: `بدأ تشغيل ومشاهدة فيديو: (${currentLectureTitle}) في مادة (${subject})`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } catch(e){}
+            }
 
             const directPlayer = document.getElementById('customVideoPlayer');
             const driveFrame = document.getElementById('driveIframe');
+            const ytTarget = document.getElementById('youtubePlayerTarget');
+            const ytShield = document.getElementById('ytClickShield');
+            const ytTopMask = document.getElementById('ytTopMask');
+            const ytBottomMask = document.getElementById('ytBottomRightMask');
+            const ytMaskL = document.getElementById('ytShortsMaskLeft');
+            const ytMaskR = document.getElementById('ytShortsMaskRight');
+            const controlsBar = document.getElementById('customControlsBar');
             const mobileFallback = document.getElementById('driveMobileFallback');
             const btnOpenDrive = document.getElementById('btnOpenDrive');
-            const speedControls = document.getElementById('speedControls');
             const vc = document.getElementById('videoContainer');
 
+            clearInterval(ytProgressInterval);
+            document.getElementById('timeCurrent').innerText = "0:00";
+            document.getElementById('timeDuration').innerText = "0:00";
+            document.getElementById('customProgressBar').value = 0;
+            updatePlayBtn(false);
+
+            let youtubeId = extractYouTubeId(videoUrl);
             let driveFileId = null;
-            if (videoUrl) {
+            if (!youtubeId && videoUrl) {
                 const driveMatch = videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
                 if (driveMatch) driveFileId = driveMatch[1];
             }
 
-            if (driveFileId) {
-                directPlayer.style.display = 'none';
-                directPlayer.src = '';
-                speedControls.style.display = 'none';
+            if (youtubeId) {
+                // 100% White-Label YouTube Player (controls=0, no branding, no copy-link, top & bottom mobile masks)
+                currentVideoMode = 'youtube';
+                if (directPlayer) { directPlayer.style.display = 'none'; directPlayer.pause(); directPlayer.src = ''; }
+                if (driveFrame) { driveFrame.style.display = 'none'; driveFrame.src = ''; }
+                if (mobileFallback) mobileFallback.style.display = 'none';
+
+                controlsBar.style.display = 'flex';
+                ytShield.style.display = 'block';
+                if (ytTopMask) ytTopMask.style.display = 'block';
+                if (ytBottomMask) ytBottomMask.style.display = 'block';
+                if (ytMaskL) ytMaskL.style.display = 'block';
+                if (ytMaskR) ytMaskR.style.display = 'block';
+
+                ytTarget.style.display = 'block';
+                ytTarget.innerHTML = '<div id="ytPlayerEmbed" style="width:100%;height:100%;"></div>';
+
+                vc.style.height = '0';
+                vc.style.minHeight = '0';
+                vc.style.paddingBottom = '56.25%';
+
+                const savedTime = parseFloat(localStorage.getItem(`video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`) || '0');
+
+                function initYT() {
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        try {
+                            ytPlayer = new YT.Player('ytPlayerEmbed', {
+                                videoId: youtubeId,
+                                width: '100%',
+                                height: '100%',
+                                playerVars: {
+                                    autoplay: 1,
+                                    controls: 0,
+                                    rel: 0,
+                                    modestbranding: 1,
+                                    playsinline: 1,
+                                    iv_load_policy: 3,
+                                    disablekb: 1,
+                                    fs: 0,
+                                    showinfo: 0,
+                                    start: savedTime > 5 ? Math.floor(savedTime) : 0
+                                },
+                                events: {
+                                    onReady: function(e) {
+                                        try { e.target.playVideo(); } catch(err){}
+                                        updatePlayBtn(true);
+                                        startProgressTracker();
+                                    },
+                                    onStateChange: function(e) {
+                                        if (e.data === YT.PlayerState.PLAYING) {
+                                            updatePlayBtn(true);
+                                            startProgressTracker();
+                                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+                                            updatePlayBtn(false);
+                                        }
+                                    }
+                                }
+                            });
+                        } catch(e) {
+                            console.error("YT init error", e);
+                        }
+                    } else {
+                        setTimeout(initYT, 100);
+                    }
+                }
+                initYT();
+
+            } else if (driveFileId) {
+                // Google Drive Video
+                currentVideoMode = 'drive';
+                if (directPlayer) { directPlayer.style.display = 'none'; directPlayer.pause(); directPlayer.src = ''; }
+                if (ytTarget) { ytTarget.style.display = 'none'; ytTarget.innerHTML = ''; }
+                if (ytShield) ytShield.style.display = 'none';
+                if (ytTopMask) ytTopMask.style.display = 'none';
+                if (ytBottomMask) ytBottomMask.style.display = 'none';
+                if (ytMaskL) ytMaskL.style.display = 'none';
+                if (ytMaskR) ytMaskR.style.display = 'none';
+                controlsBar.style.display = 'none';
                 vc.style.paddingBottom = '0';
                 
                 if (window.innerWidth <= 768) {
@@ -732,11 +1855,19 @@
                     vc.style.minHeight = '400px'; 
                 }
             } else if (videoUrl && videoUrl !== 'undefined' && videoUrl !== 'null') {
-                driveFrame.style.display = 'none';
-                driveFrame.src = '';
-                mobileFallback.style.display = 'none';
+                // Direct Video file (MP4, WebM, etc.)
+                currentVideoMode = 'mp4';
+                if (driveFrame) { driveFrame.style.display = 'none'; driveFrame.src = ''; }
+                if (ytTarget) { ytTarget.style.display = 'none'; ytTarget.innerHTML = ''; }
+                if (ytShield) ytShield.style.display = 'none';
+                if (ytTopMask) ytTopMask.style.display = 'none';
+                if (ytBottomMask) ytBottomMask.style.display = 'none';
+                if (ytMaskL) ytMaskL.style.display = 'none';
+                if (ytMaskR) ytMaskR.style.display = 'none';
+                if (mobileFallback) mobileFallback.style.display = 'none';
+                
                 directPlayer.style.display = 'block';
-                speedControls.style.display = 'flex';
+                controlsBar.style.display = 'flex';
                 
                 vc.style.height = '0';
                 vc.style.minHeight = '0';
@@ -744,7 +1875,7 @@
                 
                 directPlayer.src = videoUrl;
 
-                const savedTime = localStorage.getItem(`video_progress_${user ? user.studentCode : 'guest'}_${title}`);
+                const savedTime = localStorage.getItem(`video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`);
                 if (savedTime) {
                     directPlayer.addEventListener('loadedmetadata', () => {
                         directPlayer.currentTime = parseFloat(savedTime);
@@ -754,54 +1885,79 @@
                 directPlayer.playbackRate = 1.0;
                 document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
                 document.querySelector('.speed-btn[onclick*="1,"]')?.classList.add('active');
-                directPlayer.play().catch(() => {});
+                directPlayer.play().then(() => updatePlayBtn(true)).catch(() => updatePlayBtn(false));
+                startProgressTracker();
             } else {
-                showToast('لم يتم رفع فيديو لهذه المحاضرة بعد 📺', 'warning');
-                return;
+                // No video available yet - open details mode
+                currentVideoMode = null;
+                if (directPlayer) { directPlayer.style.display = 'none'; directPlayer.pause(); directPlayer.src = ''; }
+                if (driveFrame) { driveFrame.style.display = 'none'; driveFrame.src = ''; }
+                if (ytTarget) { ytTarget.style.display = 'none'; ytTarget.innerHTML = ''; }
+                if (ytShield) ytShield.style.display = 'none';
+                if (ytTopMask) ytTopMask.style.display = 'none';
+                if (ytBottomMask) ytBottomMask.style.display = 'none';
+                controlsBar.style.display = 'none';
+                vc.style.paddingBottom = '0';
+                vc.style.height = '60px';
+                mobileFallback.style.display = 'flex';
+                mobileFallback.innerHTML = `
+                    <div style="font-size: 24px; color: #A5B4FC; margin-bottom: 4px;">📺</div>
+                    <div style="color: #94A3B8; font-size: 13px; font-weight: bold;">فيديو المحاضرة غير متوفر حالياً، يمكنك تصفح الملخص أو طرح تساؤلك بالأسفل.</div>
+                `;
             }
 
-            if (subject && title) {
+            if (subject && currentLectureTitle) {
                 localStorage.setItem('last_accessed_subject', subject);
-                localStorage.setItem('last_accessed_lecture', title);
-            }
-
-            document.getElementById('lessonNotes').value = "جاري تحميل ملاحظاتك...";
-            if (user && user.studentCode) {
-                database.ref(`Students/${user.studentCode}/Notes/${title}`).once('value').then(snap => {
-                    document.getElementById('lessonNotes').value = snap.val() || "";
-                });
-            } else {
-                document.getElementById('lessonNotes').value = "";
+                localStorage.setItem('last_accessed_lecture', currentLectureTitle);
             }
 
             document.getElementById('playerModal').classList.add('active');
         }
 
         function closeVideoPlayer() {
+            clearInterval(ytProgressInterval);
             const directPlayer = document.getElementById('customVideoPlayer');
             const driveFrame = document.getElementById('driveIframe');
-            directPlayer.pause();
-            directPlayer.src = '';
-            driveFrame.src = '';
+            const ytTarget = document.getElementById('youtubePlayerTarget');
+            const ytShield = document.getElementById('ytClickShield');
+            const ytTopMask = document.getElementById('ytTopMask');
+            const ytBottomMask = document.getElementById('ytBottomRightMask');
+            const ytMaskL = document.getElementById('ytShortsMaskLeft');
+            const ytMaskR = document.getElementById('ytShortsMaskRight');
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                try { ytPlayer.stopVideo(); } catch(e) {}
+            }
+            if (ytTarget) ytTarget.innerHTML = '';
+            if (ytShield) ytShield.style.display = 'none';
+            if (ytTopMask) ytTopMask.style.display = 'none';
+            if (ytBottomMask) ytBottomMask.style.display = 'none';
+            if (ytMaskL) ytMaskL.style.display = 'none';
+            if (ytMaskR) ytMaskR.style.display = 'none';
+            if (directPlayer) {
+                directPlayer.pause();
+                directPlayer.src = '';
+            }
+            if (driveFrame) driveFrame.src = '';
+            if (qaUnsubscribe && currentLectureKey) {
+                database.ref(`Community/${subject}/${currentLectureKey}`).off('value', qaUnsubscribe);
+            }
             document.getElementById('playerModal').classList.remove('active');
         }
 
-        function setPlaySpeed(rate, buttonEl) {
-            player.playbackRate = rate;
-            document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
-            buttonEl.classList.add('active');
-        }
-
-        function saveNotes() {
-            if (!user || !user.studentCode || !currentLectureTitle) return;
-            const notesText = document.getElementById('lessonNotes').value;
-            clearTimeout(notesTimeout);
-            notesTimeout = setTimeout(() => {
-                database.ref(`Students/${user.studentCode}/Notes/${currentLectureTitle}`).set(notesText);
-            }, 800);
-        }
-
         function startExam(lessonTitle, lessonIdOrCode) {
+            if (user && user.studentCode) {
+                try {
+                    database.ref('ActivityLogs').push().set({
+                        studentCode: user.studentCode,
+                        studentName: user.fullName || user.name || 'طالب',
+                        action: 'دخول امتحان 📝',
+                        details: `انتقل لحل امتحان: (${lessonTitle}) في مادة (${subject})`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } catch(e){}
+            }
+
             const found = allLessons.find(l => l.id === lessonIdOrCode || l.title === lessonTitle);
             const jsonCode = (found && found.jsonCode) ? found.jsonCode : lessonIdOrCode;
 
@@ -838,8 +1994,7 @@
                 window.location.href = `quiz.html?subject=${encodeURIComponent(subject)}`;
             });
         }
-
-                                                
+                                        
         loadLessons();
     </script>
 <script src="custom-dialogs.js"></script>

@@ -166,8 +166,15 @@
 <body>
 
     <script>
-        if(sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            window.location.href = "admin-gate.html";
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
         }
     </script>
 
@@ -182,7 +189,7 @@
     <!-- Stats -->
     <div class="stats-row">
         <div class="stat-card">
-            <div class="stat-val" id="statStudents">40</div>
+            <div class="stat-val" id="statStudents">—</div>
             <div class="stat-lbl">طالب مسجل</div>
         </div>
         <div class="stat-card">
@@ -190,8 +197,8 @@
             <div class="stat-lbl">محاضرة مرفوعة</div>
         </div>
         <div class="stat-card">
-            <div class="stat-val" id="statCodes">0</div>
-            <div class="stat-lbl">كود متاح</div>
+            <div class="stat-val" id="statResults">0</div>
+            <div class="stat-lbl">امتحان تم تسليمه</div>
         </div>
     </div>
 
@@ -212,6 +219,11 @@
             <div class="item-label">الدروس والامتحانات</div>
             <div class="item-desc">رفع الدروس، الامتحانات، والملخصات</div>
         </div>
+        <div class="admin-item yellow" data-perm="lessons" onclick="location.href='admin-community.html'">
+            <div class="item-icon" style="background: #FFFBEB; color: #D97706;">💬</div>
+            <div class="item-label">تساؤلات وأسئلة الطلاب</div>
+            <div class="item-desc">الرد على استفسارات الطلاب (صوت، صورة، نص)</div>
+        </div>
         <div class="admin-item pink" data-perm="notifications" onclick="location.href='admin-notifications.html'">
             <div class="item-icon">🔔</div>
             <div class="item-label">إرسال تنبيه</div>
@@ -219,36 +231,26 @@
         </div>
     </div>
 
-    <div class="section-title" id="secUsersTitle">👤 إدارة المستخدمين والمنصة</div>
+    <div class="section-title" id="secUsersTitle">📊 النتائج والطلاب والمنصة</div>
     <div class="admin-grid" id="gridUsers">
-        <div class="admin-item cyan" data-perm="students" onclick="location.href='admin-students.html'">
-            <div class="item-icon">👥</div>
-            <div class="item-label">الطلاب</div>
-            <div class="item-desc">عرض وإدارة الحسابات</div>
-        </div>
-        <div class="admin-item yellow" data-perm="codes" onclick="location.href='admin-codes.html'">
-            <div class="item-icon">🔑</div>
-            <div class="item-label">أكواد التفعيل</div>
-            <div class="item-desc">توليد أكواد جديدة</div>
-        </div>
-        <div class="admin-item red" data-perm="otps" onclick="location.href='admin-otps.html'">
-            <div class="item-icon">🚨</div>
-            <div class="item-label">طوارئ OTP</div>
-            <div class="item-desc">أكواد التحقق المعلقة</div>
-        </div>
-        <div class="admin-item blue" data-perm="reports" onclick="location.href='admin-reports.html'">
+        <div class="admin-item blue" data-perm="reports" onclick="location.href='admin-results.html'">
             <div class="item-icon">📊</div>
-            <div class="item-label">تقارير الطلاب</div>
-            <div class="item-desc">الرادار ونشاط الطالب</div>
+            <div class="item-label">نتائج ودرجات الطلاب</div>
+            <div class="item-desc">كشف درجات ونسب اجتياز الامتحانات</div>
         </div>
         <div class="admin-item yellow" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
             <div class="item-icon">📝</div>
-            <div class="item-label">تحليل أخطاء البابل شيت</div>
-            <div class="item-desc">متابعة الأسئلة الخاطئة وتفكير الطلاب</div>
+            <div class="item-label">تحليل أخطاء الطلاب</div>
+            <div class="item-desc">الأسئلة الشائعة الخطأ مع كشف أسماء الطلاب</div>
+        </div>
+        <div class="admin-item cyan" data-perm="students" onclick="location.href='admin-students.html'">
+            <div class="item-icon">👥</div>
+            <div class="item-label">الطلاب المسجلين</div>
+            <div class="item-desc">عرض وإدارة الحسابات</div>
         </div>
         <div class="admin-item purple" data-perm="config" onclick="location.href='admin-config.html'">
             <div class="item-icon">🛠️</div>
-            <div class="item-label">الإعدادات وحلول الطلاب</div>
+            <div class="item-label">الإعدادات وحلول المشاكل</div>
             <div class="item-desc">حل مشاكل الدخول، فك الحظر، وإدارة المشرفين</div>
         </div>
     </div>
@@ -329,12 +331,16 @@
             }
             document.getElementById('statLectures').textContent = total;
         });
-        database.ref('ActivationCodes').orderByChild('isUsed').equalTo(false).on('value', snap => {
+        database.ref('ExamResults').on('value', snap => {
+            let total = 0;
             if (snap.exists()) {
-                document.getElementById('statCodes').textContent = snap.numChildren();
-            } else {
-                document.getElementById('statCodes').textContent = '0';
+                snap.forEach(subSnap => {
+                    subSnap.forEach(examSnap => {
+                        total += examSnap.numChildren();
+                    });
+                });
             }
+            document.getElementById('statResults').textContent = total;
         });
     </script>
     <script src="custom-dialogs.js"></script>

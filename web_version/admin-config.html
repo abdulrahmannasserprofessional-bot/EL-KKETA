@@ -356,13 +356,22 @@
 <body>
 
     <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
-        const currentRole = sessionStorage.getItem('adminRole') || 'master';
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+        const currentRole = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
     </script>
 
     <div class="page-header">
         <div class="header-top">
-            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <a href="admin-panel.html" class="back-btn" title="العودة">⬅️</a>
             <div>
                 <div class="header-title">🛠️ مركز إعدادات وتحكم الطلاب</div>
                 <div class="header-sub">التحكم في حسابات الطلاب، فك الحظر، الصلاحيات، وتعديل الدرجات</div>
@@ -1043,8 +1052,8 @@
                         <button class="btn-action primary" onclick="editStudentModal('${st.studentCode}')">
                             ✏️ تعديل البيانات
                         </button>
-                        <button class="btn-action dark" onclick="location.href='admin-reports.html?search=${st.studentCode}'">
-                            📊 نشاط الطالب
+                        <button class="btn-action dark" onclick="location.href='admin-results.html?search=${st.studentCode}'">
+                            📊 نتائج الامتحانات
                         </button>
                         <button class="btn-action danger" onclick="deleteStudent('${st.studentCode}', '${st.fullName || ''}')">
                             🗑️ حذف الحساب

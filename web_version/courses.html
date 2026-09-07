@@ -388,6 +388,18 @@
                 const card = document.createElement('div');
                 card.className = "subject-card";
                 card.onclick = () => {
+                    if (user && user.studentCode) {
+                        try {
+                            database.ref('ActivityLogs').push().set({
+                                studentCode: user.studentCode,
+                                studentName: user.fullName || user.name || 'طالب',
+                                action: 'تصفح مادة دراسية 📚',
+                                details: `دخل على محاضرات ومنهج مادة: (${sub.name})`,
+                                userAgent: navigator.userAgent || '',
+                                timestamp: firebase.database.ServerValue.TIMESTAMP
+                            });
+                        } catch(e){}
+                    }
                     localStorage.setItem('last_accessed_subject', sub.name);
                     location.href = `lectures.html?subject=${encodeURIComponent(sub.name)}`;
                 };

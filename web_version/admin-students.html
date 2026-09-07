@@ -6,6 +6,10 @@
     <title>إدارة الطلاب - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --text-sub: #64748B;
+            --primary: #3B82F6;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
 
@@ -24,13 +28,14 @@
         .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
         .back-btn {
             width: 40px; height: 40px;
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 18px; transition: background 0.2s;
-         color: #FFFFFF; }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
-        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
-        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
+            color: #FFFFFF; text-decoration: none;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
+        .header-sub { font-size: 12px; margin-top: 3px; color: rgba(255,255,255,0.85); }
 
         /* Search */
         .search-wrap {
@@ -48,9 +53,10 @@
             font-size: 14px;
             outline: none;
             transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        .search-input:focus { border-color: #38BDF8; background: rgba(56,189,248,0.06); }
-        .search-input::placeholder { color: rgba(0,0,0,0.25); }
+        .search-input:focus { border-color: #38BDF8; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(56,189,248,0.15); }
+        .search-input::placeholder { color: rgba(0,0,0,0.35); }
         .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; }
 
         /* Stats */
@@ -62,13 +68,14 @@
             flex: 1; background: #FFFFFF;
             border: 1px solid rgba(0,0,0,0.07);
             border-radius: 14px; padding: 12px 10px; text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
         }
-        .stat-val { font-size: 20px; font-weight: 900; color: #38BDF8; }
-        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+        .stat-val { font-size: 20px; font-weight: 900; color: #2563EB; }
+        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; font-weight: 600; }
 
         .list-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 15px 8px; }
-        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.4); }
-        .count-badge { background: rgba(56,189,248,0.15); color: #38BDF8; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.6); }
+        .count-badge { background: #EEF2FF; color: #4338CA; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 800; }
 
         .student-card {
             margin: 0 15px 10px;
@@ -78,24 +85,26 @@
             padding: 16px 18px;
             display: flex; align-items: center; gap: 14px;
             transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .student-card:hover { border-color: rgba(56,189,248,0.2); }
+        .student-card:hover { border-color: rgba(56,189,248,0.3); transform: translateY(-1px); }
 
         .avatar {
             width: 48px; height: 48px; min-width: 48px;
             border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
             font-size: 22px; font-weight: 900;
-            background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3));
-            color: #38BDF8;
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            color: #4F46E5;
         }
-        .student-info { flex: 1; }
+        .student-info { flex: 1; min-width: 0; }
         .student-name { font-size: 15px; font-weight: 700; color: #1E293B; }
         .student-code {
             display: inline-block;
-            font-size: 12px; font-weight: 700;
-            color: #FB923C;
-            background: rgba(249,115,22,0.12);
+            font-size: 12px; font-weight: 800;
+            color: #C2410C;
+            background: #FFF7ED;
+            border: 1px solid #FFEDD5;
             border-radius: 6px; padding: 2px 8px;
             margin-top: 4px; font-family: monospace;
         }
@@ -104,35 +113,35 @@
         .student-actions { display: flex; flex-direction: column; gap: 6px; align-items: center; }
         .btn-delete {
             width: 36px; height: 36px;
-            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            background: #F1F5F9; border: 1px solid #E2E8F0;
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 15px; transition: all 0.2s;
         }
-        .btn-delete:hover { background: rgba(239,68,68,0.25); }
+        .btn-delete:hover { transform: scale(1.08); }
 
         .student-score {
-            font-size: 11px; color: #34D399; font-weight: 700;
-            background: rgba(52,211,153,0.1); border-radius: 6px; padding: 2px 7px;
+            font-size: 11px; color: #15803D; font-weight: 700;
+            background: #DCFCE7; border-radius: 6px; padding: 2px 7px;
         }
 
-        .empty-state { text-align: center; padding: 60px 20px; color: rgba(0,0,0,0.3); }
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(0,0,0,0.4); }
         .empty-state div { font-size: 45px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; }
+        .empty-state p { font-size: 14px; font-weight: 600; }
 
         .toast {
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #1E293B; border: 1px solid rgba(0,0,0,0.15);
-            color: #1E293B; padding: 14px 24px; border-radius: 16px;
-            font-size: 14px; font-weight: 600; z-index: 99999;
+            background: #0F172A; border: 1px solid rgba(255,255,255,0.1);
+            color: #FFFFFF; padding: 14px 24px; border-radius: 16px;
+            font-size: 14px; font-weight: 700; z-index: 99999;
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); max-width: 90vw; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); max-width: 90vw; text-align: center;
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
         /* ─── Confirm Modal ─── */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px); z-index: 99998;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px); z-index: 99998;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
         }
@@ -143,29 +152,38 @@
             text-align: center;
             transform: scale(0.85) translateY(20px);
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
         }
         .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
+        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
         .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
-        .modal-msg { font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.7; margin-bottom: 24px; }
+        .modal-msg { font-size: 13px; color: #64748B; line-height: 1.7; margin-bottom: 24px; }
         .modal-btns { display: flex; gap: 10px; }
         .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
-        .modal-btn.cancel { background: rgba(255,255,255,0.07); color: rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.1); }
-        .modal-btn.cancel:hover { background: rgba(255,255,255,0.12); }
-        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #1E293B; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+        .modal-btn.cancel { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
+        .modal-btn.cancel:hover { background: #E2E8F0; }
+        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #FFFFFF; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
         .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
     </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master') {
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+        const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
+        if (role !== 'master' && role !== 'super_admin') {
             try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.students) {
+                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || localStorage.getItem('adminPermissions') || '{}');
+                if (!perms.all && !perms.students) {
                     alert("⛔ ليس لديك صلاحية للوصول إلى إدارة الطلاب");
                     window.location.href = "admin-panel.html";
                 }
@@ -175,10 +193,10 @@
 
     <div class="page-header">
         <div class="header-top">
-            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+            <a href="admin-panel.html" class="back-btn" title="العودة">⬅️</a>
             <div>
                 <div class="header-title">👥 إدارة الطلاب</div>
-                <div class="header-sub">عرض وإدارة جميع حسابات الطلاب</div>
+                <div class="header-sub">عرض وإدارة جميع حسابات الطلاب المسجلين بالمنصة</div>
             </div>
         </div>
     </div>
@@ -240,20 +258,6 @@
         let allStudents = [];
         let sortDesc = true; // Default newest first
 
-        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            window.location.href = "admin-gate.html";
-        }
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master' && role !== 'super_admin') {
-            try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.students) {
-                    alert("⛔ ليس لديك صلاحية للوصول إلى إدارة الطلاب");
-                    window.location.href = "admin-panel.html";
-                }
-            } catch(e) {}
-        }
-
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg; t.classList.add('show');
@@ -262,6 +266,15 @@
 
         function getInitial(name) {
             return name ? name.trim().charAt(0) : '؟';
+        }
+
+        function copyCode(code) {
+            if (!code) return;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`📋 تم نسخ كود الطالب: ${code}`);
+            }).catch(() => {
+                showToast(`الكود: ${code}`);
+            });
         }
 
         function toggleSortOrder() {
@@ -278,14 +291,17 @@
             if (snap.exists()) {
                 snap.forEach(child => { 
                     const val = child.val();
-                    val.firebaseKey = child.key;
-                    allStudents.push(val); 
-                });
-                // Calc avg score
-                allStudents.forEach(s => {
-                    if (s.stats && s.stats.averageScore) {
-                        totalScore += s.stats.averageScore;
-                        scoreCount++;
+                    if (val) {
+                        val.firebaseKey = child.key;
+                        val.studentCode = val.studentCode || val.code || child.key;
+                        val.fullName = val.fullName || val.name || 'طالب بدون اسم';
+                        val.whatsapp = val.whatsapp || val.phone || val.parentWhatsapp || '';
+                        allStudents.push(val); 
+
+                        if (val.stats && val.stats.averageScore) {
+                            totalScore += val.stats.averageScore;
+                            scoreCount++;
+                        }
                     }
                 });
             }
@@ -302,7 +318,7 @@
             const container = document.getElementById('studentsList');
             container.innerHTML = "";
 
-            if (list.length === 0) {
+            if (!list || list.length === 0) {
                 container.innerHTML = `<div class="empty-state"><div>👥</div><p>لا يوجد طلاب مطابقون</p></div>`;
                 return;
             }
@@ -316,14 +332,17 @@
 
             sorted.forEach((st, idx) => {
                 const numBadge = `<span style="background: #E0E7FF; color: #3730A3; font-weight: 800; font-size: 11px; padding: 2px 7px; border-radius: 6px; margin-left: 6px;">#${idx + 1}</span>`;
-                const score = st.stats?.averageScore ? `<span class="student-score">${st.stats.averageScore}% متوسط</span>` : '';
+                const score = (st.stats && st.stats.averageScore) ? `<span class="student-score">${st.stats.averageScore}% متوسط</span>` : '';
                 
                 let statusBadge = `<span style="background:#DCFCE7; color:#166534; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">🟢 نشط</span>`;
-                if(st.isBanned) {
+                if(st.isBanned || st.is_banned == 1) {
                     statusBadge = `<span style="background:#FEE2E2; color:#B91C1C; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">🚫 محظور</span>`;
                 } else if(st.warnings > 0) {
                     statusBadge = `<span style="background:#FEF3C7; color:#B45309; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">⚠️ إنذار (${st.warnings}/3)</span>`;
                 }
+
+                const escName = (st.fullName || 'طالب').replace(/'/g, "\\'");
+                const escCode = (st.studentCode || '').replace(/'/g, "\\'");
 
                 const card = document.createElement('div');
                 card.className = "student-card";
@@ -336,19 +355,19 @@
                             ${statusBadge}
                         </div>
                         <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:4px;">
-                            <span class="student-code">${st.studentCode || '—'}</span>
-                            <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:6px;">فرقة رابعة خدمة اجتماعية</span>
+                            <span class="student-code" onclick="copyCode('${escCode}')" style="cursor:pointer;" title="انقر لنسخ الكود">${st.studentCode || '—'} 📋</span>
+                            <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:6px; font-weight:600;">فرقة رابعة خدمة اجتماعية</span>
                         </div>
-                        <div class="student-phone">📞 ${st.whatsapp || 'غير محدد'}</div>
+                        <div class="student-phone">📞 ${st.whatsapp ? `<a href="tel:${st.whatsapp}" style="color:#2563EB; text-decoration:none; font-weight:700;" dir="ltr">${st.whatsapp}</a>` : '<span style="color:#94A3B8;">غير محدد</span>'}</div>
                         ${st.joinDate ? `<div style="font-size: 11px; color: #94A3B8; margin-top: 3px;">📅 انضم: ${new Date(st.joinDate).toLocaleDateString('ar-EG')}</div>` : ''}
                     </div>
                     <div class="student-actions">
                         ${score}
                         <div style="display:flex; gap:6px;">
-                            <button class="btn-delete" style="background:#DCFCE7; color:#166534; border:none;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${st.fullName || ''}', '${st.studentCode || ''}')" title="إرسال الكود في الواتساب">💬</button>
-                            <button class="btn-delete" style="background:${st.isBanned ? '#FEE2E2' : '#F0FDF4'}; color:${st.isBanned ? '#DC2626' : '#166534'}; border:none;" onclick="toggleStudentBan('${st.studentCode}', ${st.isBanned ? 'true' : 'false'})" title="${st.isBanned ? 'فك الحظر' : 'حظر الطالب'}">${st.isBanned ? '🔓' : '🚫'}</button>
-                            <button class="btn-delete" style="background:#EFF6FF; color:#1D4ED8; border:none;" onclick="resetStudentDevice('${st.studentCode}')" title="تصفير الجهاز">🔄</button>
-                            <button class="btn-delete" style="background:#FEF2F2; color:#DC2626; border:none;" onclick="deleteStudentDirect('${st.studentCode}', '${st.fullName || 'الطالب'}')" title="حذف الطالب">🗑️</button>
+                            <button class="btn-delete" style="background:#DCFCE7; color:#166534;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}')" title="إرسال الكود في الواتساب">💬</button>
+                            <button class="btn-delete" style="background:${st.isBanned ? '#FEE2E2' : '#F0FDF4'}; color:${st.isBanned ? '#DC2626' : '#166534'};" onclick="toggleStudentBan('${escCode}', ${st.isBanned ? 'true' : 'false'})" title="${st.isBanned ? 'فك الحظر' : 'حظر الطالب'}">${st.isBanned ? '🔓' : '🚫'}</button>
+                            <button class="btn-delete" style="background:#EFF6FF; color:#1D4ED8;" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز المقترن">🔄</button>
+                            <button class="btn-delete" style="background:#FEF2F2; color:#DC2626;" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف الطالب">🗑️</button>
                         </div>
                     </div>
                 `;

@@ -27,12 +27,20 @@
 </head>
 <body>
     <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
         const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master') {
+        if (role !== 'master' && role !== 'super_admin') {
             try {
                 const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.notifications) {
+                if (!perms.all && !perms.notifications) {
                     alert("⛔ ليس لديك صلاحية للوصول إلى إرسال الإشعارات");
                     window.location.href = "admin-panel.html";
                 }

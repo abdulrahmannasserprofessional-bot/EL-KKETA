@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -61,6 +61,7 @@
         <a href="profile.html" class="nav-item">👤<br>حسابي</a>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
@@ -71,18 +72,31 @@
         const subjectSelect = document.getElementById('filterSubject');
         const examSelect = document.getElementById('filterExam');
 
-        
         function clearLearningRecord() {
-            if (confirm("هل أنت متأكد من رغبتك في تصفير ومسح سجل التعلم والأخطاء بالكامل؟ لن تتمكن من استرجاعه.")) {
-                localStorage.removeItem('mistakes_list');
-                localStorage.removeItem('sessionMistakes');
-                if (typeof showToast === 'function') {
-                    showToast("تم تصفير سجل التعلم بنجاح 🌟", "success");
+            Swal.fire({
+                title: "تصفير سجل التعلم والأخطاء؟ 🗑️",
+                text: "هل أنت متأكد من رغبتك في مسح سجل أخطائك بالكامل وبدء سجل جديد نظيف؟",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF4444",
+                cancelButtonColor: "#64748B",
+                confirmButtonText: "نعم، تصفير السجل",
+                cancelButtonText: "إلغاء"
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    localStorage.removeItem('mistakes_list');
+                    localStorage.removeItem('sessionMistakes');
+                    Swal.fire({
+                        title: "تم تصفير سجل التعلم بنجاح! 🌟",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
                 }
-                setTimeout(() => {
-                    location.reload();
-                }, 500);
-            }
+            });
         }
 
         function retryMistakes() {
@@ -94,6 +108,9 @@
             document.getElementById('mainStat').innerText = "سجلك نظيف! أحسنت 🌟";
         } else {
             document.getElementById('filterCard').style.display = 'block';
+            document.getElementById('retryBtn').style.display = 'inline-block';
+            document.getElementById('clearBtn').style.display = 'inline-block';
+            document.getElementById('mainStat').innerText = `لديك (${mistakes.length}) أسئلة في سجل التعلم`;
 
             // Group by subject and then by exam
             const groupedBySub = {};

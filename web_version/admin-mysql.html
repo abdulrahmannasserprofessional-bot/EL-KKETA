@@ -33,7 +33,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; overflow-x: hidden; }
 
         /* شاشة الدخول */
         #loginOverlay {
@@ -46,12 +46,27 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
+        /* Sidebar Backdrop Overlay on Mobile */
+        #sidebarOverlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px); z-index: 99; display: none; opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #sidebarOverlay.active { display: block; opacity: 1; }
+
         /* Sidebar */
         .sidebar {
             width: var(--sidebar-width); background: #FFFFFF; border-left: 1px solid var(--border); height: 100vh;
             position: fixed; top: 0; right: 0; display: flex; flex-direction: column; z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar-brand { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .sidebar-brand { padding: 18px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .sidebar-close-btn {
+            display: none; width: 34px; height: 34px; border-radius: 10px;
+            background: #F1F5F9; border: none; color: #64748B; font-size: 16px;
+            align-items: center; justify-content: center; cursor: pointer; margin-right: auto;
+        }
+        .sidebar-close-btn:hover { background: #E2E8F0; color: #1E293B; }
         .sidebar-menu { flex: 1; padding: 15px 12px; list-style: none; overflow-y: auto; }
         .menu-title { font-size: 11px; font-weight: 700; color: var(--text-muted); padding: 10px 14px 4px; text-transform: uppercase; }
         .menu-link {
@@ -68,6 +83,13 @@
             height: 70px; background: #FFFFFF; border-bottom: 1px solid var(--border); padding: 0 30px;
             display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50;
         }
+        .mobile-toggle-btn {
+            display: none; width: 40px; height: 40px; border-radius: 10px;
+            background: #F1F5F9; border: 1px solid var(--border); color: #1E293B;
+            font-size: 18px; align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mobile-toggle-btn:hover { background: #E2E8F0; }
         .content-body { padding: 30px; flex: 1; }
 
         /* Stats & Panels */
@@ -97,7 +119,7 @@
         .form-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #334155; }
 
         /* Table */
-        .table-responsive { width: 100%; overflow-x: auto; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table.custom-table { width: 100%; border-collapse: collapse; text-align: right; }
         table.custom-table th { background: #F8FAFC; color: #475569; font-size: 13px; font-weight: 700; padding: 14px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
         table.custom-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
@@ -111,6 +133,41 @@
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* Responsive Media Queries */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(100%);
+                box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-close-btn { display: flex; }
+            .mobile-toggle-btn { display: flex; }
+            .main-wrapper {
+                margin-right: 0 !important;
+                width: 100% !important;
+            }
+            .top-navbar { padding: 0 16px; }
+            .content-body { padding: 20px 14px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .stat-card { padding: 16px 14px; gap: 12px; }
+            .stat-icon { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+            .stat-card h3 { font-size: 22px !important; }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 12px 10px; gap: 8px; flex-direction: column; text-align: center; }
+            .stat-icon { width: 40px; height: 40px; font-size: 18px; margin: 0 auto; }
+            .stat-card h3 { font-size: 18px !important; }
+            .stat-card p { font-size: 11px !important; }
+            .panel-header { padding: 14px 16px; }
+            .panel-body { padding: 16px 12px; }
+            .top-navbar { height: 60px; }
+            .hide-mobile { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -140,27 +197,36 @@
         </div>
     </div>
 
+    <!-- غطاء خلفي للموبايل عند فتح القائمة الجانبية -->
+    <div id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
     <!-- القائمة الجانبية -->
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
-            <div>
-                <h3 style="font-size: 16px; font-weight: 800;">منصة الخطة</h3>
+            <div style="flex: 1;">
+                <h3 style="font-size: 15px; font-weight: 800;">منصة الخطة</h3>
                 <span style="font-size: 11px; color: var(--text-muted);" id="userRoleBadge">المسؤول العام</span>
             </div>
+            <button class="sidebar-close-btn" onclick="closeMobileSidebar()" title="إغلاق القائمة"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <ul class="sidebar-menu">
+            <div class="menu-title">لوحات التحكم</div>
+            <li><a href="admin-panel.html" class="menu-link"><i class="fa-solid fa-table-cells-large" style="color:#6366F1;"></i><span>اللوحة العامة (الرئيسية)</span></a></li>
+
             <div class="menu-title">الرئيسية والمراقبة</div>
             <li><div class="menu-link active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>نظرة عامة</span></div></li>
             <li><div class="menu-link" onclick="switchTab('activity')"><i class="fa-solid fa-satellite-dish" style="color:#10B981;"></i><span>مراقبة الأجهزة والنشاط الحي 📡</span></div></li>
 
             <div class="menu-title">إدارة الطلاب والمحتوى</div>
             <li><div class="menu-link" onclick="switchTab('students')"><i class="fa-solid fa-user-graduate"></i><span id="sidebarStudentsText">إدارة الطلاب</span></div></li>
-            <li><div class="menu-link" onclick="switchTab('lectures')"><i class="fa-solid fa-book-bookmark"></i><span>المحاضرات والدروس</span></div></li>
-            <li><div class="menu-link" onclick="switchTab('exams')"><i class="fa-solid fa-file-circle-question"></i><span>الامتحانات والواجبات</span></div></li>
+            <li><a href="admin-community.html" class="menu-link"><i class="fa-solid fa-comments" style="color:#F59E0B;"></i><span>الرد على تساؤلات الطلاب 💬</span></a></li>
+            <div class="menu-title">الامتحانات والنتائج</div>
+            <li><a href="admin-results.html" class="menu-link"><i class="fa-solid fa-square-poll-vertical" style="color:#2563EB;"></i><span>نتائج ودرجات الطلاب 📊</span></a></li>
+            <li><a href="admin-mistakes.html" class="menu-link"><i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;"></i><span>تحليل أخطاء الطلاب 📝</span></a></li>
 
             <div class="menu-title">الإعدادات والصلاحيات</div>
             <li><div class="menu-link" onclick="switchTab('settings')"><i class="fa-solid fa-sliders"></i><span>إعدادات المنصة والمشرفين</span></div></li>
@@ -175,11 +241,14 @@
     <!-- مساحة المحتوى -->
     <div class="main-wrapper">
         <header class="top-navbar">
-            <div style="font-size: 18px; font-weight: 800;" id="pageTitle">نظرة عامة على المنصة</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span class="badge badge-info" style="font-weight: 800;">🎓 فرقة رابعة خدمة اجتماعية</span>
-                <span id="roleHeaderBadge" class="badge badge-info">المسؤول العام 👑</span>
-                <span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> متصل بالسيرفر</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="mobile-toggle-btn" onclick="toggleMobileSidebar()" title="فتح القائمة"><i class="fa-solid fa-bars"></i></button>
+                <div style="font-size: 17px; font-weight: 800;" id="pageTitle">نظرة عامة على المنصة</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="admin-panel.html" class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" title="العودة للوحة العامة"><i class="fa-solid fa-arrow-left"></i> <span class="hide-mobile">اللوحة العامة</span></a>
+                <span id="roleHeaderBadge" class="badge badge-info hide-mobile">المسؤول العام 👑</span>
+                <span class="badge badge-success"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> <span class="hide-mobile">متصل</span></span>
             </div>
         </header>
 
@@ -211,6 +280,7 @@
                     </div>
                     <div class="panel-body" style="display: flex; gap: 12px; flex-wrap: wrap;">
                         <button class="btn btn-primary" onclick="switchTab('students')"><i class="fa-solid fa-user-plus"></i> إدارة الطلاب وحظر/فك الحسابات</button>
+                        <button class="btn btn-warning" onclick="location.href='admin-community.html'" style="background: #F59E0B; color: white; border: none;"><i class="fa-solid fa-comments"></i> الرد على تساؤلات الطلاب 💬</button>
                         <button class="btn btn-success" onclick="switchTab('activity')"><i class="fa-solid fa-satellite-dish"></i> مراقبة الأجهزة والنشاط الحي 📡</button>
                         <button class="btn btn-secondary" onclick="openAddLectureModal()"><i class="fa-solid fa-upload"></i> إضافة محاضرة جديدة</button>
                         <button class="btn btn-secondary" onclick="openAddExamModal()"><i class="fa-solid fa-plus"></i> إنشاء امتحان جديد</button>
@@ -222,13 +292,25 @@
             <section id="tab-activity" class="tab-content">
                 <div class="panel-card">
                     <div class="panel-header">
-                        <div class="panel-title"><i class="fa-solid fa-satellite-dish" style="color: var(--success);"></i> مراقبة الأجهزة وحركات الطلاب الحية (Live Stream)</div>
+                        <div class="panel-title"><i class="fa-solid fa-satellite-dish" style="color: var(--success);"></i> مراقبة الأجهزة وحركات الطلاب الحية (Live Stream Radar)</div>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                             <button class="btn btn-primary" onclick="loadActivity()"><i class="fa-solid fa-rotate"></i> تحديث فوري</button>
                             <button class="btn btn-danger" onclick="clearLogs()"><i class="fa-solid fa-trash"></i> مسح السجل</button>
-                            <input type="text" class="form-control" style="max-width: 260px;" placeholder="بحث بالطالب أو النشاط..." oninput="filterActivity(this.value)">
+                            <input type="text" id="activitySearchInput" class="form-control" style="max-width: 260px;" placeholder="بحث بالطالب أو النشاط..." oninput="filterActivity(this.value)">
                         </div>
                     </div>
+                    
+                    <!-- Quick Filter Tags -->
+                    <div style="padding: 12px 20px; background: #F8FAFC; border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 12px; font-weight: 800; color: #64748B;">تصفية سريعة:</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('all')">🌟 الكل</button>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('فيديو')">📺 فيديوهات</button>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('ملخص')">📄 ملخصات</button>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('امتحان')">📝 امتحانات</button>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('مادة')">📚 مواد دراسية</button>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; border-radius: 20px;" onclick="filterByTag('دخول')">🟢 تسجيلات دخول</button>
+                    </div>
+
                     <div class="panel-body" style="padding: 0;">
                         <div class="table-responsive">
                             <table class="custom-table" id="activityTable">
@@ -241,6 +323,7 @@
                                         <th>النشاط الذي قام به</th>
                                         <th>التفاصيل والمحتوى</th>
                                         <th>الجهاز / المتصفح</th>
+                                        <th style="text-align: center;">سجل الطالب</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -399,10 +482,33 @@
         let isSuperAdmin = false;
         let studentSortOrder = 'desc'; // 'desc' = أحدث أولاً, 'asc' = أقدم أولاً
 
-        // Auto check login session
-        if (sessionStorage.getItem('isMysqlAdmin') || sessionStorage.getItem('isAdmin') === 'true') {
-            isSuperAdmin = sessionStorage.getItem('adminRole') === 'super_admin' || sessionStorage.getItem('adminRole') === 'master' || !sessionStorage.getItem('adminRole');
+        function toggleMobileSidebar() {
+            const sb = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sb.classList.contains('open')) {
+                sb.classList.remove('open');
+                overlay.classList.remove('active');
+            } else {
+                sb.classList.add('open');
+                overlay.classList.add('active');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sb = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sb) sb.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        // Auto check login session (sessionStorage + localStorage fallback)
+        if (sessionStorage.getItem('isMysqlAdmin') || sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+            const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
             sessionStorage.setItem('isMysqlAdmin', 'true');
+            sessionStorage.setItem('isAdmin', 'true');
+            sessionStorage.setItem('adminRole', role);
+            if (localStorage.getItem('adminUsername')) sessionStorage.setItem('adminUsername', localStorage.getItem('adminUsername'));
+            isSuperAdmin = role === 'super_admin' || role === 'master';
             applyRolePermissions();
             document.getElementById('loginOverlay').style.display = 'none';
             loadData();
@@ -423,10 +529,18 @@
 
                 const res = await ElkhetaAPI.adminLogin(u, p);
                 if (res && res.success) {
+                    const role = res.admin ? res.admin.role : 'super_admin';
+                    const username = res.admin ? res.admin.username : u;
                     sessionStorage.setItem('isMysqlAdmin', 'true');
                     sessionStorage.setItem('isAdmin', 'true');
-                    sessionStorage.setItem('adminRole', res.admin ? res.admin.role : 'super_admin');
-                    sessionStorage.setItem('adminUsername', res.admin ? res.admin.username : u);
+                    sessionStorage.setItem('adminRole', role);
+                    sessionStorage.setItem('adminUsername', username);
+
+                    localStorage.setItem('isMysqlAdmin', 'true');
+                    localStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('adminRole', role);
+                    localStorage.setItem('adminUsername', username);
+
                     isSuperAdmin = !res.admin || (res.admin.role === 'super_admin' || res.admin.is_super_admin === true);
                     applyRolePermissions();
                     document.getElementById('loginOverlay').style.display = 'none';
@@ -446,19 +560,19 @@
         }
 
         function applyRolePermissions() {
-            const role = sessionStorage.getItem('adminRole');
-            const username = sessionStorage.getItem('adminUsername') || 'المستخدم';
+            const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole');
+            const username = sessionStorage.getItem('adminUsername') || localStorage.getItem('adminUsername') || 'المستخدم';
 
             if (role === 'super_admin' || role === 'master' || isSuperAdmin) {
                 document.getElementById('userRoleBadge').textContent = 'المسؤول العام 👑';
                 document.getElementById('roleHeaderBadge').textContent = 'المسؤول العام (صلاحيات كاملة) 👑';
-                document.getElementById('roleHeaderBadge').className = 'badge badge-info';
+                document.getElementById('roleHeaderBadge').className = 'badge badge-info hide-mobile';
                 document.getElementById('currentUserLabel').textContent = `${username} (مدير)`;
                 document.getElementById('supervisorsPanel').style.display = 'block';
             } else {
                 document.getElementById('userRoleBadge').textContent = 'مشرف المنصة 🛡️';
                 document.getElementById('roleHeaderBadge').textContent = 'مشرف (صلاحيات محددة) 🛡️';
-                document.getElementById('roleHeaderBadge').className = 'badge badge-warning';
+                document.getElementById('roleHeaderBadge').className = 'badge badge-warning hide-mobile';
                 document.getElementById('currentUserLabel').textContent = `${username} (مشرف)`;
                 document.getElementById('supervisorsPanel').style.display = 'none';
             }
@@ -466,16 +580,25 @@
 
         function logout() {
             sessionStorage.removeItem('isMysqlAdmin');
+            sessionStorage.removeItem('isAdmin');
             sessionStorage.removeItem('adminRole');
             sessionStorage.removeItem('adminUsername');
+            localStorage.removeItem('isMysqlAdmin');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('adminRole');
+            localStorage.removeItem('adminUsername');
             location.reload();
         }
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.menu-link').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${t}`).classList.add('active');
+            const targetTab = document.getElementById(`tab-${t}`);
+            if (targetTab) targetTab.classList.add('active');
+            const activeLink = document.querySelector(`.menu-link[onclick="switchTab('${t}')"]`);
+            if (activeLink) activeLink.classList.add('active');
             if (t === 'activity') loadActivity();
+            closeMobileSidebar();
         }
 
         async function loadData() {
@@ -501,7 +624,7 @@
                             const val = child.val();
                             if (val) {
                                 arr.push({
-                                    id: idx++,
+                                    id: val.joinDate || val.createdAt || idx++,
                                     student_code: val.studentCode || val.code || child.key,
                                     full_name: val.fullName || val.name || 'طالب',
                                     phone: val.whatsapp || val.phone || '',
@@ -593,21 +716,15 @@
             }
         }
 
-        async function loadActivity() {
-            let logsRes = null, liveRes = null;
-            try {
-                const res = await Promise.all([
-                    ElkhetaAPI.getActivityLogs('', '', 100),
-                    ElkhetaAPI.getLiveActiveStudents()
-                ]);
-                logsRes = res[0]; liveRes = res[1];
-            } catch(e){}
+        let activityListenerAttached = false;
+        let currentTagFilter = 'all';
 
-            if (!logsRes || !logsRes.success || !logsRes.logs || logsRes.logs.length === 0) {
-                try {
-                    const snap = await database.ref('ActivityLogs').limitToLast(100).once('value');
+        async function loadActivity() {
+            if (!activityListenerAttached) {
+                activityListenerAttached = true;
+                database.ref('ActivityLogs').limitToLast(300).on('value', snap => {
+                    const arr = [];
                     if (snap.exists()) {
-                        const arr = [];
                         snap.forEach(child => {
                             const val = child.val();
                             if (val) {
@@ -623,23 +740,54 @@
                             }
                         });
                         arr.reverse();
-                        logsRes = { success: true, logs: arr };
+                        allLogs = arr;
+                        
+                        const recent = allLogs.filter(l => Date.now() - new Date(l.created_at).getTime() < 30 * 60 * 1000);
+                        const unique = new Set(recent.map(r => r.student_code));
+                        document.getElementById('statActive').textContent = unique.size;
+
+                        applyCurrentActivityFilter();
                     }
-                } catch(e){}
+                });
+            }
+        }
+
+        function filterByTag(tag) {
+            currentTagFilter = tag;
+            applyCurrentActivityFilter();
+        }
+
+        function applyCurrentActivityFilter() {
+            const query = (document.getElementById('activitySearchInput') ? document.getElementById('activitySearchInput').value : '').toLowerCase().trim();
+            let filtered = allLogs;
+
+            if (currentTagFilter !== 'all') {
+                filtered = filtered.filter(l => {
+                    const act = (l.action || '').toLowerCase();
+                    const det = (l.details || '').toLowerCase();
+                    if (currentTagFilter === 'فيديو') return act.includes('فيديو') || act.includes('مشاهدة') || det.includes('فيديو');
+                    if (currentTagFilter === 'ملخص') return act.includes('ملخص') || act.includes('pdf') || det.includes('ملخص');
+                    if (currentTagFilter === 'امتحان') return act.includes('امتحان') || act.includes('تسليم') || det.includes('امتحان');
+                    if (currentTagFilter === 'مادة') return act.includes('مادة') || det.includes('مادة') || det.includes('منهج');
+                    if (currentTagFilter === 'دخول') return act.includes('دخول') || det.includes('دخول');
+                    return true;
+                });
             }
 
-            if (liveRes && liveRes.success) {
-                document.getElementById('statActive').textContent = liveRes.count;
-            } else if (logsRes && logsRes.success && logsRes.logs) {
-                const recent = logsRes.logs.filter(l => Date.now() - new Date(l.created_at).getTime() < 30 * 60 * 1000);
-                const unique = new Set(recent.map(r => r.student_code));
-                document.getElementById('statActive').textContent = unique.size;
+            if (query) {
+                filtered = filtered.filter(l =>
+                    (l.student_code && l.student_code.toLowerCase().includes(query)) ||
+                    (l.student_name && l.student_name.toLowerCase().includes(query)) ||
+                    (l.action && l.action.toLowerCase().includes(query)) ||
+                    (l.details && l.details.toLowerCase().includes(query))
+                );
             }
 
-            if (logsRes && logsRes.success) {
-                allLogs = logsRes.logs;
-                renderActivity(allLogs);
-            }
+            renderActivity(filtered);
+        }
+
+        function filterActivity(query) {
+            applyCurrentActivityFilter();
         }
 
         function renderActivity(list) {
@@ -647,30 +795,38 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد نشاطات مسجلة بعد</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#94A3B8;">لا توجد نشاطات مسجلة بعد</td></tr>';
                 return;
             }
 
             list.forEach((log, idx) => {
-                const dateStr = new Date(log.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + new Date(log.created_at).toLocaleDateString('ar-EG');
+                const dateObj = new Date(log.created_at);
+                const dateStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' - ' + dateObj.toLocaleDateString('ar-EG');
                 
                 let actionBadge = `<span class="badge badge-info">${log.action}</span>`;
-                if (log.action.includes('دخول')) actionBadge = `<span class="badge badge-success"><i class="fa-solid fa-right-to-bracket"></i> ${log.action}</span>`;
-                else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) actionBadge = `<span class="badge badge-primary"><i class="fa-solid fa-play"></i> ${log.action}</span>`;
-                else if (log.action.includes('امتحان')) actionBadge = `<span class="badge badge-warning"><i class="fa-solid fa-file-pen"></i> ${log.action}</span>`;
+                const act = log.action || '';
+                if (act.includes('دخول')) {
+                    actionBadge = `<span class="badge badge-success" style="background:#DCFCE7; color:#15803D;"><i class="fa-solid fa-right-to-bracket"></i> ${log.action}</span>`;
+                } else if (act.includes('فيديو') || act.includes('مشاهدة')) {
+                    actionBadge = `<span class="badge" style="background:#EEF2FF; color:#4F46E5;"><i class="fa-solid fa-play"></i> ${log.action}</span>`;
+                } else if (act.includes('ملخص') || act.includes('PDF')) {
+                    actionBadge = `<span class="badge" style="background:#FFF7ED; color:#EA580C;"><i class="fa-solid fa-file-pdf"></i> ${log.action}</span>`;
+                } else if (act.includes('تسليم') || act.includes('أنهى')) {
+                    actionBadge = `<span class="badge" style="background:#ECFDF5; color:#059669;"><i class="fa-solid fa-award"></i> ${log.action}</span>`;
+                } else if (act.includes('امتحان')) {
+                    actionBadge = `<span class="badge" style="background:#FEF3C7; color:#D97706;"><i class="fa-solid fa-pen-to-square"></i> ${log.action}</span>`;
+                } else if (act.includes('مادة')) {
+                    actionBadge = `<span class="badge" style="background:#EFF6FF; color:#2563EB;"><i class="fa-solid fa-book-open"></i> ${log.action}</span>`;
+                } else if (act.includes('ملاحظات')) {
+                    actionBadge = `<span class="badge" style="background:#F0FDFA; color:#0D9488;"><i class="fa-solid fa-note-sticky"></i> ${log.action}</span>`;
+                }
 
-                // استنتاج التفاصيل بذكاء
-                let detailsText = log.details;
+                let detailsText = log.details || '';
                 if (!detailsText || detailsText === '—' || detailsText.trim() === '') {
-                    if (log.action.includes('دخول')) {
-                        detailsText = '🟢 دخول ناجح للمنصة وتصفح المواد';
-                    } else if (log.action.includes('امتحان')) {
-                        detailsText = '📝 إتمام وحل الاختبار التقييمي بنجاح';
-                    } else if (log.action.includes('فيديو') || log.action.includes('مشاهدة')) {
-                        detailsText = '🎬 متابعة المحاضرة والشرح التعليمي';
-                    } else {
-                        detailsText = '📚 متابعة وتصفح دراسي';
-                    }
+                    if (act.includes('دخول')) detailsText = '🟢 دخول ناجح للمنصة وتصفح المواد';
+                    else if (act.includes('امتحان')) detailsText = '📝 إتمام وحل الاختبار التقييمي بنجاح';
+                    else if (act.includes('فيديو') || act.includes('مشاهدة')) detailsText = '🎬 متابعة المحاضرة والشرح التعليمي';
+                    else detailsText = '📚 متابعة وتصفح دراسي';
                 }
 
                 // استنتاج نوع الجهاز والمتصفح
@@ -690,29 +846,138 @@
                     }
                 }
 
+                const escName = (log.student_name || 'طالب').replace(/'/g, "\\'");
+                const escCode = (log.student_code || '').replace(/'/g, "\\'");
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
                         <td style="font-size:12px; color:#64748B; font-weight:700;" dir="ltr">${dateStr}</td>
-                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${log.student_code}</span></td>
-                        <td style="font-weight:700;">${log.student_name || 'طالب'}</td>
+                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace; cursor:pointer;" onclick="openStudentRadar('${escCode}', '${escName}')" title="فتح سجل نشاط الطالب">${log.student_code} 🔍</span></td>
+                        <td><span style="font-weight:700; cursor:pointer; color:#1E293B;" onclick="openStudentRadar('${escCode}', '${escName}')" title="فتح سجل نشاط الطالب">${log.student_name || 'طالب'}</span></td>
                         <td>${actionBadge}</td>
                         <td style="font-weight:600; color:#334155;">${detailsText}</td>
                         <td style="font-size:12px;">${deviceText}</td>
+                        <td style="text-align:center;">
+                            <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px; font-weight:700;" onclick="openStudentRadar('${escCode}', '${escName}')" title="عرض سجل نشاط وحركات الطالب">
+                                <i class="fa-solid fa-user-clock" style="color:#10B981;"></i> ${log.student_name || 'طالب'}
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
         }
 
-        function filterActivity(query) {
-            const q = query.toLowerCase().trim();
-            const f = allLogs.filter(l =>
-                (l.student_code && l.student_code.toLowerCase().includes(q)) ||
-                (l.student_name && l.student_name.toLowerCase().includes(q)) ||
-                (l.action && l.action.toLowerCase().includes(q)) ||
-                (l.details && l.details.toLowerCase().includes(q))
-            );
-            renderActivity(f);
+        function openStudentRadar(studentCode, studentName) {
+            const studentLogs = allLogs.filter(l => l.student_code === studentCode);
+            const st = allStudents.find(s => s.student_code === studentCode);
+            const phone = (st && st.phone) ? st.phone : 'غير مسجل';
+
+            let loginsCount = 0;
+            let videosCount = 0;
+            let pdfsCount = 0;
+            let examsCount = 0;
+
+            studentLogs.forEach(l => {
+                const a = ((l.action || '') + ' ' + (l.details || '')).toLowerCase();
+                if (a.includes('دخول')) loginsCount++;
+                if (a.includes('فيديو') || a.includes('مشاهدة')) videosCount++;
+                if (a.includes('ملخص') || a.includes('pdf')) pdfsCount++;
+                if (a.includes('امتحان') || a.includes('اختبار') || a.includes('تسليم')) examsCount++;
+            });
+
+            let timelineItemsHTML = '';
+            if (studentLogs.length === 0) {
+                timelineItemsHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">لا توجد أي حركات مسجلة لهذا الطالب بعد 📡</div>`;
+            } else {
+                studentLogs.forEach((log) => {
+                    const dateObj = new Date(log.created_at);
+                    const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const dateStr = dateObj.toLocaleDateString('ar-EG');
+                    
+                    let icon = 'fa-circle-dot';
+                    let iconBg = '#EEF2FF';
+                    let iconColor = '#4F46E5';
+                    const act = log.action || '';
+                    if (act.includes('دخول')) { icon = 'fa-right-to-bracket'; iconBg = '#DCFCE7'; iconColor = '#15803D'; }
+                    else if (act.includes('فيديو') || act.includes('مشاهدة')) { icon = 'fa-play'; iconBg = '#EEF2FF'; iconColor = '#4F46E5'; }
+                    else if (act.includes('ملخص') || act.includes('PDF')) { icon = 'fa-file-pdf'; iconBg = '#FFF7ED'; iconColor = '#EA580C'; }
+                    else if (act.includes('تسليم') || act.includes('أنهى')) { icon = 'fa-award'; iconBg = '#ECFDF5'; iconColor = '#059669'; }
+                    else if (act.includes('امتحان')) { icon = 'fa-pen-to-square'; iconBg = '#FEF3C7'; iconColor = '#D97706'; }
+                    else if (act.includes('مادة')) { icon = 'fa-book-open'; iconBg = '#EFF6FF'; iconColor = '#2563EB'; }
+                    else if (act.includes('ملاحظات')) { icon = 'fa-note-sticky'; iconBg = '#F0FDFA'; iconColor = '#0D9488'; }
+
+                    timelineItemsHTML += `
+                        <div style="display:flex; gap:14px; margin-bottom:14px; position:relative; align-items:flex-start;">
+                            <div style="width:36px; height:36px; border-radius:10px; background:${iconBg}; color:${iconColor}; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                                <i class="fa-solid ${icon}"></i>
+                            </div>
+                            <div style="flex:1; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:10px 14px; text-align:right;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:6px;">
+                                    <strong style="color:#1E293B; font-size:13px;">${log.action}</strong>
+                                    <span style="font-size:11px; color:#94A3B8; font-weight:700;" dir="ltr">${timeStr} | ${dateStr}</span>
+                                </div>
+                                <div style="font-size:12px; color:#475569; line-height:1.5;">${log.details || '—'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            Swal.fire({
+                title: `<div style="text-align:right; font-size:17px; font-weight:900; color:#1E293B; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-user-clock" style="color:#10B981;"></i> سجل نشاط وحركات الطالب: ${studentName || 'طالب'}
+                </div>`,
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif;">
+                        <!-- Student Header Info -->
+                        <div style="background:linear-gradient(135deg, #1E3A8A, #3B82F6); color:white; border-radius:14px; padding:14px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div style="font-size:15px; font-weight:800;">${studentName || 'طالب'}</div>
+                                <div style="font-size:12px; opacity:0.9; margin-top:2px;">كود الطالب: <strong style="background:rgba(255,255,255,0.25); padding:2px 8px; border-radius:6px; font-family:monospace;">${studentCode}</strong></div>
+                            </div>
+                            <div style="font-size:12px; background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:10px;">
+                                📱 هاتف: <span dir="ltr">${phone}</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Summary Grid -->
+                        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:16px; text-align:center;">
+                            <div style="background:#F0FDF4; border:1px solid #BBF7D0; padding:10px 4px; border-radius:10px;">
+                                <div style="font-size:18px; font-weight:900; color:#16A34A;">${loginsCount}</div>
+                                <div style="font-size:11px; color:#15803D; font-weight:700;">دخول 🟢</div>
+                            </div>
+                            <div style="background:#EEF2FF; border:1px solid #C7D2FE; padding:10px 4px; border-radius:10px;">
+                                <div style="font-size:18px; font-weight:900; color:#4F46E5;">${videosCount}</div>
+                                <div style="font-size:11px; color:#4338CA; font-weight:700;">فيديوهات 📺</div>
+                            </div>
+                            <div style="background:#FFF7ED; border:1px solid #FED7AA; padding:10px 4px; border-radius:10px;">
+                                <div style="font-size:18px; font-weight:900; color:#EA580C;">${pdfsCount}</div>
+                                <div style="font-size:11px; color:#C2410C; font-weight:700;">ملخصات 📄</div>
+                            </div>
+                            <div style="background:#FEF3C7; border:1px solid #FDE68A; padding:10px 4px; border-radius:10px;">
+                                <div style="font-size:18px; font-weight:900; color:#D97706;">${examsCount}</div>
+                                <div style="font-size:11px; color:#B45309; font-weight:700;">امتحانات 📝</div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Heading -->
+                        <div style="font-size:13px; font-weight:800; color:#1E293B; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>⏱️ كل ما قام به وفتحه بالتفصيل (الأحدث أولاً):</span>
+                            <span style="font-size:11px; color:#64748B; font-weight:700;">${studentLogs.length} حركة مسجلة</span>
+                        </div>
+
+                        <!-- Timeline Container -->
+                        <div style="max-height:300px; overflow-y:auto; padding-right:2px;">
+                            ${timelineItemsHTML}
+                        </div>
+                    </div>
+                `,
+                width: '640px',
+                showCloseButton: true,
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#2563EB'
+            });
         }
 
         async function clearLogs() {
@@ -725,9 +990,9 @@
                 confirmButtonColor: '#EF4444'
             }).then(async r => {
                 if (r.isConfirmed) {
+                    await database.ref('ActivityLogs').remove();
                     await ElkhetaAPI.clearActivityLogs();
                     Swal.fire('تم المسح', 'تم مسح السجل بنجاح', 'success');
-                    loadActivity();
                 }
             });
         }
@@ -756,15 +1021,18 @@
             });
 
             sorted.forEach((st, idx) => {
+                const escStName = (st.full_name || 'طالب').replace(/'/g, "\\'");
+                const escStCode = (st.student_code || '').replace(/'/g, "\\'");
                 tbody.innerHTML += `
                     <tr>
                         <td style="text-align:center; color:#94A3B8; font-weight:700; font-size:12px;">${idx + 1}</td>
-                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace;">${st.student_code}</span></td>
-                        <td style="font-weight:700;">${st.full_name}</td>
+                        <td><span style="font-weight:800; color:#4F46E5; background:#EEF2FF; padding:3px 8px; border-radius:6px; font-family:monospace; cursor:pointer;" onclick="openStudentRadar('${escStCode}', '${escStName}')" title="فتح سجل نشاط الطالب">${st.student_code} 🔍</span></td>
+                        <td style="font-weight:700; cursor:pointer;" onclick="openStudentRadar('${escStCode}', '${escStName}')" title="فتح سجل نشاط الطالب">${st.full_name}</td>
                         <td dir="ltr" style="text-align:right;">${st.phone ? `<a href="tel:${st.phone}" style="color:#2563EB; text-decoration:none; font-weight:700;">${st.phone}</a>` : '<span style="color:#CBD5E1;">—</span>'}</td>
                         <td>${st.device_id ? `<button class="btn btn-secondary" style="padding:3px 6px; font-size:11px;" onclick="resetDev('${st.student_code}')"><i class="fa-solid fa-mobile-screen"></i> فك</button>` : '<span style="color:#94A3B8; font-size:12px;">غير مقترن</span>'}</td>
                         <td>${st.is_banned ? '<span class="badge badge-danger">موقوف 🚫</span>' : '<span class="badge badge-success">نشط ⚡</span>'}</td>
                         <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
+                            <button class="btn btn-secondary" style="padding:5px 9px; font-size:12px;" title="سجل نشاط الطالب بالتفصيل" onclick="openStudentRadar('${escStCode}', '${escStName}')"><i class="fa-solid fa-user-clock" style="color:#10B981;"></i></button>
                             <button class="btn btn-primary" style="padding:5px 9px; font-size:12px;" title="تعديل بيانات الطالب" onclick="openEditStudentModal('${st.student_code}')"><i class="fa-solid fa-pen-to-square"></i></button>
                             <button class="btn ${st.is_banned ? 'btn-success' : 'btn-warning'}" style="padding:5px 9px; font-size:12px;" title="${st.is_banned ? 'فك الحظر' : 'حظر الحساب'}" onclick="toggleBan('${st.student_code}', ${st.is_banned ? 0 : 1})"><i class="fa-solid ${st.is_banned ? 'fa-unlock' : 'fa-ban'}"></i></button>
                             <button class="btn btn-danger" style="padding:5px 9px; font-size:12px;" title="حذف الطالب" onclick="deleteStudentAccount('${st.student_code}', '${st.full_name}')"><i class="fa-solid fa-trash"></i></button>

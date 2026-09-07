@@ -24,11 +24,12 @@
         .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
         .back-btn {
             width: 40px; height: 40px;
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 18px; transition: background 0.2s;
-         color: #FFFFFF; }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
+            color: #FFFFFF; text-decoration: none;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.3); }
         .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
         .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
 
@@ -161,12 +162,20 @@
 </head>
 <body>
     <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
         const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master') {
+        if (role !== 'master' && role !== 'super_admin') {
             try {
                 const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.codes) {
+                if (!perms.all && !perms.codes) {
                     alert("⛔ ليس لديك صلاحية للوصول إلى قسم توليد الأكواد");
                     window.location.href = "admin-panel.html";
                 }
