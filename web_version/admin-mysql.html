@@ -339,6 +339,7 @@
                     <div class="panel-header">
                         <div class="panel-title"><i class="fa-solid fa-users" style="color: var(--primary);"></i> قائمة طلاب فرقة رابعة خدمة اجتماعية</div>
                         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <button class="btn btn-primary" onclick="printStudentsList()" style="background:#10B981; border:none; box-shadow:0 3px 10px rgba(16,185,129,0.25); font-weight:800;"><i class="fa-solid fa-print"></i> طباعة كشف الأسماء 🖨️</button>
                             <button class="btn btn-secondary" onclick="toggleStudentSort()" id="sortBtn"><i class="fa-solid fa-arrow-down-short-wide"></i> <span id="sortBtnText">الترتيب: الأحدث أولاً ⬇️</span></button>
                             <input type="text" class="form-control" style="max-width: 300px;" placeholder="ابحث بالاسم، الكود، أو الهاتف..." oninput="searchStudents(this.value)">
                         </div>
@@ -1243,6 +1244,176 @@
                 (s.phone && s.phone.includes(v))
             );
             renderStudents(f);
+        }
+
+        function printStudentsList() {
+            const searchInput = document.querySelector('input[oninput*="searchStudents"]');
+            const searchVal = (searchInput ? searchInput.value : '').toLowerCase().trim();
+            let listToPrint = allStudents;
+            if (searchVal) {
+                listToPrint = allStudents.filter(s =>
+                    (s.student_code && s.student_code.toLowerCase().includes(searchVal)) ||
+                    (s.full_name && s.full_name.toLowerCase().includes(searchVal)) ||
+                    (s.phone && s.phone.includes(searchVal))
+                );
+            }
+
+            if (!listToPrint || listToPrint.length === 0) {
+                showToast("لا توجد بيانات طلاب لطباعتها ⚠️", "warning");
+                return;
+            }
+
+            const sorted = [...listToPrint].sort((a, b) => {
+                const idA = a.id || 0;
+                const idB = b.id || 0;
+                return studentSortOrder === 'desc' ? (idB - idA) : (idA - idB);
+            });
+
+            const activeCount = sorted.filter(s => !s.is_banned).length;
+            const bannedCount = sorted.filter(s => s.is_banned).length;
+            const pairedCount = sorted.filter(s => s.device_id).length;
+
+            const now = new Date();
+            const printDate = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+            const printTime = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            let rowsHTML = '';
+            sorted.forEach((st, idx) => {
+                let regDate = '—';
+                if (st.created_at) {
+                    try {
+                        regDate = new Date(st.created_at).toLocaleDateString('ar-EG');
+                    } catch(e){}
+                }
+                rowsHTML += `
+                    <tr>
+                        <td style="text-align:center; font-weight:bold; color:#64748B;">${idx + 1}</td>
+                        <td style="font-weight:800; font-family:monospace; color:#2563EB; text-align:center;" dir="ltr">${st.student_code}</td>
+                        <td style="font-weight:800; color:#1E293B;">${st.full_name || '—'}</td>
+                        <td style="font-weight:700; color:#334155; text-align:center;" dir="ltr">${st.phone || '—'}</td>
+                        <td style="text-align:center;">
+                            <span style="font-size:11px; font-weight:800; padding:2px 8px; border-radius:4px; ${st.is_banned ? 'background:#FEE2E2; color:#B91C1C;' : 'background:#DCFCE7; color:#15803D;'}">
+                                ${st.is_banned ? 'موقوف 🚫' : 'نشط ⚡'}
+                            </span>
+                        </td>
+                        <td style="text-align:center; font-size:11px; font-weight:700; color:#475569;">
+                            ${st.device_id ? '<span style="color:#10B981;">مقترن 📱</span>' : '<span style="color:#94A3B8;">غير مقترن</span>'}
+                        </td>
+                        <td style="text-align:center; font-size:11px; color:#64748B;" dir="ltr">${regDate}</td>
+                        <td style="border-right: 1px dashed #CBD5E1; width: 90px;"></td>
+                    </tr>
+                `;
+            });
+
+            const reportHTML = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>كشف أسماء طلاب الفرقة الرابعة خدمة اجتماعية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A4 portrait; margin: 12mm 10mm; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { margin: 0; padding: 20px; background: #FFFFFF; color: #1E293B; direction: rtl; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #2563EB; padding-bottom: 14px; margin-bottom: 16px; }
+        .platform-title { font-size: 20px; font-weight: 900; color: #1E3A8A; margin: 0; }
+        .platform-sub { font-size: 12px; color: #64748B; font-weight: 700; margin-top: 2px; }
+        .report-badge { background: #EEF2FF; color: #2563EB; border: 1px solid #C7D2FE; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 800; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-box { border-radius: 10px; padding: 10px 12px; text-align: center; border: 1px solid #E2E8F0; }
+        .stat-num { font-size: 20px; font-weight: 900; margin-bottom: 2px; }
+        .stat-label { font-size: 12px; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { background: #F1F5F9; color: #334155; font-size: 12px; font-weight: 800; padding: 9px 8px; border: 1px solid #CBD5E1; text-align: right; }
+        td { font-size: 12px; padding: 7px 8px; border: 1px solid #E2E8F0; vertical-align: middle; }
+        tr:nth-child(even) { background: #F8FAFC; }
+        .report-footer { margin-top: 25px; border-top: 1px dashed #CBD5E1; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748B; font-weight: 700; }
+        .no-print { margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-print { background: #2563EB; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ بدء الطباعة / حفظ كـ PDF</button>
+    </div>
+
+    <div class="report-header">
+        <div>
+            <h1 class="platform-title">🎓 منصة الخطة التعليمية</h1>
+            <div class="platform-sub">الفرقة الرابعة - كلية الخدمة الاجتماعية | العام الأكاديمي 2026</div>
+        </div>
+        <div style="text-align: left;">
+            <div class="report-badge">📋 كشف أسماء الطلاب الرسمي</div>
+            <div style="font-size: 11px; color: #64748B; margin-top: 4px;" dir="ltr">تاريخ الطباعة: ${printDate} - ${printTime}</div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box" style="background:#EFF6FF; border-color:#BFDBFE;">
+            <div class="stat-num" style="color:#1D4ED8;">${sorted.length}</div>
+            <div class="stat-label" style="color:#1E40AF;">إجمالي الطلاب 👥</div>
+        </div>
+        <div class="stat-box" style="background:#F0FDF4; border-color:#BBF7D0;">
+            <div class="stat-num" style="color:#16A34A;">${activeCount}</div>
+            <div class="stat-label" style="color:#15803D;">حسابات نشطة ⚡</div>
+        </div>
+        <div class="stat-box" style="background:#FEF2F2; border-color:#FECACA;">
+            <div class="stat-num" style="color:#DC2626;">${bannedCount}</div>
+            <div class="stat-label" style="color:#991B1B;">حسابات موقوفة 🚫</div>
+        </div>
+        <div class="stat-box" style="background:#FAF5FF; border-color:#E9D5FF;">
+            <div class="stat-num" style="color:#7C3AED;">${pairedCount}</div>
+            <div class="stat-label" style="color:#6B21A8;">أجهزة مقترنة 📱</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 32px; text-align:center;">#</th>
+                <th style="width: 85px; text-align:center;">كود الطالب</th>
+                <th>اسم الطالب الكامل</th>
+                <th style="width: 110px; text-align:center;">رقم الهاتف</th>
+                <th style="width: 80px; text-align:center;">الحالة</th>
+                <th style="width: 85px; text-align:center;">الجهاز</th>
+                <th style="width: 95px; text-align:center;">تاريخ التسجيل</th>
+                <th style="width: 85px; text-align:center;">ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${rowsHTML}
+        </tbody>
+    </table>
+
+    <div class="report-footer">
+        <div>كشف رسمي معتمد صادر من إدارة منصة الخطة 🛡️</div>
+        <div>توقيع المشرف العام: ___________________</div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 400);
+        };
+    <\/script>
+</body>
+</html>`;
+
+            const printWin = window.open('', '_blank');
+            if (printWin) {
+                printWin.document.open();
+                printWin.document.write(reportHTML);
+                printWin.document.close();
+            } else {
+                showToast("يرجى السماح بفتح النوافذ المنبثقة لطباعة الكشف 🖨️", "warning");
+            }
         }
 
         function openEditStudentModal(code) {
