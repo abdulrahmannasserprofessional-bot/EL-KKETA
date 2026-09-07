@@ -924,9 +924,17 @@
                 });
             }
 
+            const escStNameForPrint = (studentName || 'طالب').replace(/'/g, "\\'");
+            const escStCodeForPrint = (studentCode || '').replace(/'/g, "\\'");
+
             Swal.fire({
-                title: `<div style="text-align:right; font-size:17px; font-weight:900; color:#1E293B; display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-user-clock" style="color:#10B981;"></i> سجل نشاط وحركات الطالب: ${studentName || 'طالب'}
+                title: `<div style="text-align:right; font-size:16px; font-weight:900; color:#1E293B; display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-user-clock" style="color:#10B981;"></i> سجل نشاط وحركات الطالب: ${studentName || 'طالب'}
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="printStudentReport('${escStCodeForPrint}', '${escStNameForPrint}')" style="background:#10B981; border:none; padding:6px 14px; font-size:12px; font-weight:800; border-radius:10px; cursor:pointer; color:white; display:inline-flex; align-items:center; gap:6px; box-shadow:0 3px 10px rgba(16,185,129,0.25);">
+                        <i class="fa-solid fa-print"></i> طباعة كتقرير 📄
+                    </button>
                 </div>`,
                 html: `
                     <div style="text-align:right; font-family:'Cairo', sans-serif;">
@@ -973,11 +981,196 @@
                         </div>
                     </div>
                 `,
-                width: '640px',
+                width: '680px',
                 showCloseButton: true,
+                showDenyButton: true,
                 confirmButtonText: 'إغلاق',
-                confirmButtonColor: '#2563EB'
+                confirmButtonColor: '#2563EB',
+                denyButtonText: '<i class="fa-solid fa-print"></i> طباعة كتقرير 📄',
+                denyButtonColor: '#10B981'
+            }).then((result) => {
+                if (result.isDenied) {
+                    printStudentReport(studentCode, studentName);
+                }
             });
+        }
+
+        function printStudentReport(studentCode, studentName) {
+            const studentLogs = allLogs.filter(l => l.student_code === studentCode);
+            const st = allStudents.find(s => s.student_code === studentCode);
+            const phone = (st && st.phone) ? st.phone : 'غير مسجل';
+            const device = (st && st.device_id) ? 'تطبيق الخطة (جهاز مقترن)' : 'متصفح الويب';
+
+            let loginsCount = 0;
+            let videosCount = 0;
+            let pdfsCount = 0;
+            let examsCount = 0;
+
+            studentLogs.forEach(l => {
+                const a = ((l.action || '') + ' ' + (l.details || '')).toLowerCase();
+                if (a.includes('دخول')) loginsCount++;
+                if (a.includes('فيديو') || a.includes('مشاهدة')) videosCount++;
+                if (a.includes('ملخص') || a.includes('pdf')) pdfsCount++;
+                if (a.includes('امتحان') || a.includes('اختبار') || a.includes('تسليم')) examsCount++;
+            });
+
+            const now = new Date();
+            const printDate = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+            const printTime = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+            let rowsHTML = '';
+            if (studentLogs.length === 0) {
+                rowsHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#64748B;">لا توجد أي حركات أو نشاطات مسجلة لهذا الطالب</td></tr>`;
+            } else {
+                studentLogs.forEach((log, index) => {
+                    const dateObj = new Date(log.created_at);
+                    const timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    const dateStr = dateObj.toLocaleDateString('ar-EG');
+                    rowsHTML += `
+                        <tr>
+                            <td style="text-align:center; font-weight:bold; color:#64748B;">${index + 1}</td>
+                            <td style="font-size:12px; font-weight:700; color:#334155;" dir="ltr">${timeStr} | ${dateStr}</td>
+                            <td style="font-weight:800; color:#1E3A8A;">${log.action || 'نشاط'}</td>
+                            <td style="color:#334155; line-height:1.5;">${log.details || '—'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const reportHTML = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير نشاط وحركات الطالب - ${studentName || studentCode}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A4; margin: 12mm; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { margin: 0; padding: 20px; background: #FFFFFF; color: #1E293B; direction: rtl; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #2563EB; padding-bottom: 14px; margin-bottom: 18px; }
+        .platform-title { font-size: 20px; font-weight: 900; color: #1E3A8A; margin: 0; }
+        .platform-sub { font-size: 12px; color: #64748B; font-weight: 700; margin-top: 2px; }
+        .report-badge { background: #EEF2FF; color: #2563EB; border: 1px solid #C7D2FE; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 800; }
+        .student-card { background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .info-item { display: flex; flex-direction: column; }
+        .info-label { font-size: 11px; color: #64748B; font-weight: 700; margin-bottom: 2px; }
+        .info-val { font-size: 14px; font-weight: 800; color: #0F172A; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { border-radius: 10px; padding: 10px 12px; text-align: center; border: 1px solid #E2E8F0; }
+        .stat-num { font-size: 20px; font-weight: 900; margin-bottom: 2px; }
+        .stat-label { font-size: 12px; font-weight: 700; }
+        .table-title { font-size: 14px; font-weight: 800; color: #1E293B; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        th { background: #F1F5F9; color: #334155; font-size: 12px; font-weight: 800; padding: 10px 12px; border: 1px solid #CBD5E1; text-align: right; }
+        td { font-size: 12px; padding: 8px 12px; border: 1px solid #E2E8F0; vertical-align: top; }
+        tr:nth-child(even) { background: #FAFAFA; }
+        .report-footer { margin-top: 30px; border-top: 1px dashed #CBD5E1; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748B; font-weight: 700; }
+        .no-print { margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-print { background: #2563EB; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ بدء الطباعة / حفظ كـ PDF</button>
+    </div>
+
+    <div class="report-header">
+        <div>
+            <h1 class="platform-title">🎓 منصة الخطة التعليمية</h1>
+            <div class="platform-sub">الفرقة الرابعة - كلية الخدمة الاجتماعية | العام الأكاديمي 2026</div>
+        </div>
+        <div style="text-align: left;">
+            <div class="report-badge">📋 تقرير نشاط وحركات الطالب</div>
+            <div style="font-size: 11px; color: #64748B; margin-top: 4px;" dir="ltr">تاريخ التقرير: ${printDate} - ${printTime}</div>
+        </div>
+    </div>
+
+    <div class="student-card">
+        <div class="info-item">
+            <span class="info-label">اسم الطالب:</span>
+            <span class="info-val">${studentName || 'طالب'}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">كود الطالب:</span>
+            <span class="info-val" dir="ltr" style="font-family:monospace; color:#2563EB;">${studentCode}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">رقم الهاتف:</span>
+            <span class="info-val" dir="ltr">${phone}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">حالة الجهاز المقترن:</span>
+            <span class="info-val" style="font-size: 12px;">${device}</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box" style="background:#F0FDF4; border-color:#BBF7D0;">
+            <div class="stat-num" style="color:#16A34A;">${loginsCount}</div>
+            <div class="stat-label" style="color:#15803D;">تسجيلات الدخول 🟢</div>
+        </div>
+        <div class="stat-box" style="background:#EEF2FF; border-color:#C7D2FE;">
+            <div class="stat-num" style="color:#4F46E5;">${videosCount}</div>
+            <div class="stat-label" style="color:#4338CA;">فيديوهات المحاضرات 📺</div>
+        </div>
+        <div class="stat-box" style="background:#FFF7ED; border-color:#FED7AA;">
+            <div class="stat-num" style="color:#EA580C;">${pdfsCount}</div>
+            <div class="stat-label" style="color:#C2410C;">ملخصات وسبورات 📄</div>
+        </div>
+        <div class="stat-box" style="background:#FEF3C7; border-color:#FDE68A;">
+            <div class="stat-num" style="color:#D97706;">${examsCount}</div>
+            <div class="stat-label" style="color:#B45309;">امتحانات وتقييمات 📝</div>
+        </div>
+    </div>
+
+    <div class="table-title">
+        <span>⏱️ السجل التفصيلي للحركات والنشاطات المسجلة:</span>
+        <span style="font-size: 12px; color: #64748B;">إجمالي الحركات: (${studentLogs.length})</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 35px; text-align:center;">#</th>
+                <th style="width: 150px;">التوقيت والتاريخ</th>
+                <th style="width: 170px;">نوع النشاط</th>
+                <th>التفاصيل والمحتوى الأكاديمي</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${rowsHTML}
+        </tbody>
+    </table>
+
+    <div class="report-footer">
+        <div>تم استخراج هذا التقرير آلياً وموثق من نظام إدارة منصة الخطة 🛡️</div>
+        <div>توقيع المشرف العام: ___________________</div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 400);
+        };
+    <\/script>
+</body>
+</html>`;
+
+            const printWin = window.open('', '_blank');
+            if (printWin) {
+                printWin.document.open();
+                printWin.document.write(reportHTML);
+                printWin.document.close();
+            } else {
+                showToast("يرجى السماح بفتح النوافذ المنبثقة لطباعة التقرير 🖨️", "warning");
+            }
         }
 
         async function clearLogs() {
