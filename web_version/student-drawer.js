@@ -4,18 +4,18 @@
  */
 
 (function() {
-    // Inject Drawer CSS
+    // Inject Modern Drawer CSS
     const style = document.createElement('style');
     style.innerHTML = `
         /* Drawer Overlay */
         .elkheta-drawer-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 99999;
             opacity: 0; pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .elkheta-drawer-overlay.active {
             opacity: 1; pointer-events: auto;
@@ -23,17 +23,17 @@
 
         /* Drawer Main Panel */
         .elkheta-drawer {
-            position: fixed; top: 0; right: -360px;
-            width: 320px; max-width: 85vw; height: 100%;
+            position: fixed; top: 0; right: -380px;
+            width: 340px; max-width: 88vw; height: 100%;
             background: #FFFFFF;
             z-index: 100000;
             display: flex; flex-direction: column;
-            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
-            transition: right 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+            box-shadow: -15px 0 50px rgba(15, 23, 42, 0.25);
+            transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: 'Cairo', sans-serif;
             direction: rtl;
-            overflow-y: auto;
             border-left: 1px solid #E2E8F0;
+            overflow: hidden;
         }
         .elkheta-drawer.active {
             right: 0;
@@ -41,124 +41,177 @@
 
         /* Profile Header */
         .elkheta-drawer-header {
-            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+            background: linear-gradient(145deg, #0F172A 0%, #1E293B 45%, #2563EB 100%);
             color: white;
-            padding: 30px 20px 22px;
+            padding: 26px 20px 20px;
             position: relative;
-            box-shadow: 0 10px 25px rgba(67, 56, 202, 0.2);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+            overflow: hidden;
+            flex-shrink: 0;
         }
+        .elkheta-drawer-header::before {
+            content: '';
+            position: absolute;
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            top: -50px; left: -40px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
         .elkheta-drawer-close {
-            position: absolute; top: 18px; left: 18px;
+            position: absolute; top: 16px; left: 16px;
             background: rgba(255, 255, 255, 0.12);
-            color: #E2E8F0; border: none; width: 32px; height: 32px;
-            border-radius: 50%; font-size: 14px; cursor: pointer;
+            backdrop-filter: blur(6px);
+            color: #E2E8F0; border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 34px; height: 34px;
+            border-radius: 50%; font-size: 13px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
+            z-index: 2;
         }
-        .elkheta-drawer-close:hover { background: rgba(255, 255, 255, 0.25); color: white; }
+        .elkheta-drawer-close:hover { 
+            background: rgba(239, 68, 68, 0.85); 
+            border-color: #EF4444; 
+            color: white; 
+            transform: scale(1.05); 
+        }
 
         .elkheta-drawer-user {
-            display: flex; align-items: center; gap: 14px; margin-top: 5px;
+            display: flex; align-items: center; gap: 14px; position: relative; z-index: 1;
         }
         .elkheta-drawer-avatar {
             width: 58px; height: 58px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #6366F1, #A855F7);
-            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 18px;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            font-size: 24px; font-weight: 900; color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
+        }
+        .elkheta-drawer-info {
+            flex: 1; min-width: 0;
         }
         .elkheta-drawer-name {
             font-size: 16px; font-weight: 900; color: #FFFFFF;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 170px;
+            line-height: 1.3;
+        }
+        .elkheta-drawer-stage {
+            font-size: 11px; font-weight: 700; color: #93C5FD; margin-top: 2px;
+            display: flex; align-items: center; gap: 4px;
         }
         .elkheta-drawer-code-pill {
             display: inline-flex; align-items: center; gap: 6px;
             background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             padding: 3px 10px; border-radius: 10px; font-size: 11px;
-            font-weight: 800; color: #E0E7FF; margin-top: 4px;
+            font-weight: 800; color: #F8FAFC; margin-top: 6px;
             cursor: pointer; transition: all 0.2s;
         }
-        .elkheta-drawer-code-pill:hover { background: rgba(255, 255, 255, 0.25); }
+        .elkheta-drawer-code-pill:hover { 
+            background: rgba(255, 255, 255, 0.3); 
+            transform: translateY(-1px);
+        }
 
         /* Stats Bar inside Drawer */
         .elkheta-drawer-stats {
             display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-            margin-top: 16px; padding-top: 14px;
+            margin-top: 15px; padding-top: 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.12);
+            position: relative; z-index: 1;
         }
         .elkheta-drawer-stat-col {
             background: rgba(255, 255, 255, 0.08);
-            border-radius: 12px; padding: 6px 10px; text-align: center;
-            font-size: 11px; font-weight: 800; color: #C7D2FE;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(4px);
+            border-radius: 12px; padding: 7px 10px; text-align: center;
+            font-size: 11px; font-weight: 800; color: #BFDBFE;
         }
         .elkheta-drawer-stat-val {
-            font-size: 14px; font-weight: 900; color: #FFFFFF; display: block;
+            font-size: 14px; font-weight: 900; color: #FFFFFF; display: block; margin-top: 2px;
         }
 
         /* Menu Body */
         .elkheta-drawer-body {
-            padding: 15px 12px;
+            padding: 16px 14px;
             flex: 1;
             overflow-y: auto;
+            background: #F8FAFC;
+        }
+        .elkheta-drawer-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .elkheta-drawer-body::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
         }
         .elkheta-menu-section-title {
-            font-size: 11px; font-weight: 900; color: #94A3B8;
-            padding: 8px 12px 4px; text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 11px; font-weight: 900; color: #64748B;
+            padding: 8px 10px 5px; text-transform: uppercase;
+            letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;
         }
         .elkheta-nav-link {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 11px 14px; margin-bottom: 4px;
+            padding: 10px 14px; margin-bottom: 5px;
             border-radius: 14px; text-decoration: none;
-            color: #334155; font-size: 14px; font-weight: 800;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            color: #334155; font-size: 13.5px; font-weight: 800;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
         .elkheta-nav-link:hover {
-            background: #F1F5F9; color: #4338CA;
+            background: #EEF2FF; color: #2563EB;
+            border-color: #C7D2FE;
             transform: translateX(-4px);
         }
         .elkheta-nav-link.active {
-            background: #EEF2FF; color: #4F46E5;
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            color: #1D4ED8;
+            border-color: #93C5FD;
             font-weight: 900;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
         }
         .elkheta-nav-link-left {
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 11px;
         }
         .elkheta-nav-icon {
             width: 32px; height: 32px; border-radius: 10px;
-            background: #F8FAFC; border: 1px solid #E2E8F0;
+            background: #F1F5F9; border: 1px solid #E2E8F0;
             display: flex; align-items: center; justify-content: center;
             font-size: 15px; transition: all 0.2s;
+            flex-shrink: 0;
         }
         .elkheta-nav-link.active .elkheta-nav-icon {
-            background: #4F46E5; color: white; border-color: #4F46E5;
+            background: #2563EB; color: white; border-color: #2563EB;
         }
         .elkheta-nav-badge {
-            font-size: 10px; font-weight: 900; padding: 2px 8px;
+            font-size: 10px; font-weight: 900; padding: 3px 8px;
             border-radius: 8px; background: #F1F5F9; color: #64748B;
         }
         .elkheta-nav-badge.new {
-            background: #FEF3C7; color: #B45309;
+            background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A;
         }
 
         /* Drawer Footer */
         .elkheta-drawer-footer {
-            padding: 14px 14px 20px;
-            border-top: 1px solid #F1F5F9;
-            background: #FAFAFA;
+            padding: 14px 16px 20px;
+            border-top: 1px solid #E2E8F0;
+            background: #FFFFFF;
+            flex-shrink: 0;
         }
         .elkheta-drawer-logout {
             width: 100%;
-            background: #FFF1F2;
-            color: #E11D48;
-            border: 1.5px solid #FFE4E6;
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1.5px solid #FECACA;
             padding: 12px;
             border-radius: 14px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 900;
             font-family: 'Cairo', sans-serif;
             display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -166,8 +219,10 @@
             transition: all 0.2s;
         }
         .elkheta-drawer-logout:hover {
-            background: #FFE4E6;
+            background: #FEE2E2;
+            border-color: #F87171;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
         }
     `;
     document.head.appendChild(style);
@@ -191,7 +246,6 @@
                 user.code = fallbackCode;
                 try { localStorage.setItem('user', JSON.stringify(user)); } catch(e){}
             } else if (typeof firebase !== 'undefined' && firebase.database && user.fullName) {
-                // Background lookup from Firebase if available
                 firebase.database().ref('Students').once('value').then(snap => {
                     if (snap.exists()) {
                         snap.forEach(child => {
@@ -231,34 +285,42 @@
             return currentPath.includes(page) ? 'active' : '';
         }
 
+        const initial = (user.fullName || 'ط').trim().charAt(0) || '🎓';
+
         drawerEl.innerHTML = `
             <div class="elkheta-drawer-header">
-                <button class="elkheta-drawer-close" onclick="closeStudentDrawer()">✕</button>
+                <button class="elkheta-drawer-close" onclick="closeStudentDrawer()" title="إغلاق">✕</button>
                 <div class="elkheta-drawer-user">
-                    <div class="elkheta-drawer-avatar">🎓</div>
-                    <div>
+                    <div class="elkheta-drawer-avatar" id="drawerUserAvatar">${initial}</div>
+                    <div class="elkheta-drawer-info">
                         <div class="elkheta-drawer-name" id="drawerUserName">${user.fullName || 'طالب منصة الخطة'}</div>
-                        <div class="elkheta-drawer-code-pill" onclick="copyStudentCode('${user.code || ''}')" title="انقر لنسخ الكود">
+                        <div class="elkheta-drawer-stage">
+                            <span>🎓</span>
+                            <span>الفرقة الرابعة - خدمة اجتماعية</span>
+                        </div>
+                        <div class="elkheta-drawer-code-pill" onclick="copyStudentCode('${user.code || user.studentCode || ''}')" title="انقر لنسخ الكود">
                             <span>🔑</span>
-                            <span id="drawerUserCode">${user.code || '---'}</span>
+                            <span id="drawerUserCode">${user.code || user.studentCode || '---'}</span>
                             <span style="font-size:10px; opacity:0.8;">📋</span>
                         </div>
                     </div>
                 </div>
                 <div class="elkheta-drawer-stats">
                     <div class="elkheta-drawer-stat-col">
-                        <span>🏆 النقاط</span>
+                        <span>🏆 مجموع النقاط</span>
                         <span class="elkheta-drawer-stat-val" id="drawerUserPoints">${user.points || 0}</span>
                     </div>
                     <div class="elkheta-drawer-stat-col">
-                        <span>🔥 السلسلة</span>
+                        <span>🔥 السلسلة اليومية</span>
                         <span class="elkheta-drawer-stat-val" id="drawerUserStreak">${user.streak || 1} يوم</span>
                     </div>
                 </div>
             </div>
 
             <div class="elkheta-drawer-body">
-                <div class="elkheta-menu-section-title">مسار التعلم والدراسة 📚</div>
+                <div class="elkheta-menu-section-title">
+                    <span>📚 مسار الدراسة والتعلم</span>
+                </div>
 
                 <a href="home.html" class="elkheta-nav-link ${isActive('home.html')}">
                     <div class="elkheta-nav-link-left">
@@ -270,17 +332,32 @@
                 <a href="courses.html" class="elkheta-nav-link ${isActive('courses.html') || isActive('lectures.html')}">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">📚</span>
-                        <span>المواد الدراسية</span>
+                        <span>المواد والمحاضرات</span>
                     </div>
-                    <span class="elkheta-nav-badge">الدروس</span>
+                    <span class="elkheta-nav-badge">المنهج</span>
                 </a>
 
                 <a href="community.html" class="elkheta-nav-link ${isActive('community.html')}">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">💬</span>
-                        <span>تساؤلات واستفسارات الطلاب</span>
+                        <span>استفسارات وتساؤلات الطلاب</span>
                     </div>
                     <span class="elkheta-nav-badge new">مباشر ✨</span>
+                </a>
+
+                <a href="ai-report.html" class="elkheta-nav-link ${isActive('ai-report.html')}">
+                    <div class="elkheta-nav-link-left">
+                        <span class="elkheta-nav-icon" style="background: rgba(124, 58, 237, 0.15); color: #7C3AED;">🧠</span>
+                        <span>التقرير والتحليل الذكي</span>
+                    </div>
+                    <span class="elkheta-nav-badge" style="background: linear-gradient(135deg, #A855F7, #6366F1); color: white;">AI ⚡</span>
+                </a>
+
+                <a href="leaderboard.html" class="elkheta-nav-link ${isActive('leaderboard.html')}">
+                    <div class="elkheta-nav-link-left">
+                        <span class="elkheta-nav-icon">🏆</span>
+                        <span>أوائل المنصة ولوحة الشرف</span>
+                    </div>
                 </a>
 
                 <a href="mistakes.html" class="elkheta-nav-link ${isActive('mistakes.html')}">
@@ -290,61 +367,41 @@
                     </div>
                 </a>
 
-                <a href="ai-report.html" class="elkheta-nav-link ${isActive('ai-report.html')}">
-                    <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon" style="background: rgba(124, 58, 237, 0.15); color: #7C3AED;">🧠</span>
-                        <span>التقرير والتحليل الذكي</span>
-                    </div>
-                    <span class="elkheta-nav-badge" style="background: linear-gradient(135deg, #A855F7, #6366F1); color: white;">AI ذكي ⚡</span>
-                </a>
-
-                <a href="leaderboard.html" class="elkheta-nav-link ${isActive('leaderboard.html')}">
-                    <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon">🏆</span>
-                        <span>أوائل المنصة والتصنيف</span>
-                    </div>
-                </a>
-
-                <div class="elkheta-menu-section-title" style="margin-top:12px;">أدوات وتطبيق المنصة ⚡</div>
-
-                <div class="elkheta-nav-link" onclick="if(window.openInstallSheet) window.openInstallSheet(); closeStudentDrawer();" style="background:#EEF2FF; color:#4F46E5;">
-                    <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon" style="background:#4F46E5; color:white;">📲</span>
-                        <span>تثبيت التطبيق على جهازك</span>
-                    </div>
-                    <span class="elkheta-nav-badge" style="background:#4F46E5; color:white;">تطبيق ⚡</span>
+                <div class="elkheta-menu-section-title" style="margin-top:14px;">
+                    <span>⚡ تطبيق وأدوات المنصة</span>
                 </div>
 
-
+                <div class="elkheta-nav-link" onclick="if(window.openInstallSheet) window.openInstallSheet(); closeStudentDrawer();" style="background: #F0FDF4; border-color: #BBF7D0; color: #15803D;">
+                    <div class="elkheta-nav-link-left">
+                        <span class="elkheta-nav-icon" style="background:#10B981; color:white; border-color:#10B981;">📲</span>
+                        <span>تثبيت التطبيق على جهازك</span>
+                    </div>
+                    <span class="elkheta-nav-badge" style="background:#10B981; color:white;">تطبيق ⚡</span>
+                </div>
 
                 <a href="profile.html" class="elkheta-nav-link ${isActive('profile.html')}">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">👤</span>
-                        <span>حسابي والبيانات</span>
+                        <span>الملف الشخصي والبيانات</span>
                     </div>
                 </a>
 
-                <div class="elkheta-menu-section-title" style="margin-top:12px;">المساعدة والتواصل 🤝</div>
-
-                <a href="community.html" class="elkheta-nav-link ${isActive('community.html')}">
-                    <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon">💬</span>
-                        <span>طرح استفسار تعليمي</span>
-                    </div>
-                    <span class="elkheta-nav-badge" style="background:#10B981; color:white;">مجاب ⚡</span>
-                </a>
+                <div class="elkheta-menu-section-title" style="margin-top:14px;">
+                    <span>🤝 المساعدة والتواصل</span>
+                </div>
 
                 <a href="https://wa.me/201158210358" target="_blank" class="elkheta-nav-link">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">📞</span>
                         <span>تواصل مع الدعم الفني</span>
                     </div>
+                    <span class="elkheta-nav-badge" style="background:#25D366; color:white;">واتساب</span>
                 </a>
 
                 <a href="privacy.html" class="elkheta-nav-link ${isActive('privacy.html')}">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">📜</span>
-                        <span>سياسة الخصوصية</span>
+                        <span>سياسة الخصوصية والشروط</span>
                     </div>
                 </a>
             </div>
@@ -366,10 +423,13 @@
         const codeEl = document.getElementById('drawerUserCode');
         const ptsEl = document.getElementById('drawerUserPoints');
         const strkEl = document.getElementById('drawerUserStreak');
+        const avEl = document.getElementById('drawerUserAvatar');
+        
         if (nameEl) nameEl.textContent = user.fullName || 'طالب منصة الخطة';
-        if (codeEl) codeEl.textContent = user.code || '---';
+        if (codeEl) codeEl.textContent = user.code || user.studentCode || '---';
         if (ptsEl) ptsEl.textContent = user.points || 0;
         if (strkEl) strkEl.textContent = (user.streak || 1) + ' يوم';
+        if (avEl) avEl.textContent = (user.fullName || 'ط').trim().charAt(0) || '🎓';
 
         if (drawerEl) drawerEl.classList.add('active');
         if (overlayEl) overlayEl.classList.add('active');
@@ -414,7 +474,6 @@
             }
         });
 
-        // Also bind any .drawer-trigger or .icon-btn with burger icon
         document.querySelectorAll('.open-drawer-btn, [data-action="open-drawer"]').forEach(el => {
             el.onclick = (e) => {
                 e.preventDefault();

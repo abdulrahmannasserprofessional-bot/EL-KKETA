@@ -68,9 +68,9 @@
             justify-content: space-between;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border-color);
-            position: sticky;
-            top: 12px;
+            position: relative;
             z-index: 100;
+            margin-bottom: 4px;
         }
 
         .brand-section {
@@ -822,7 +822,7 @@
         <!-- Subject Hero Card -->
         <section class="subject-hero">
             <div class="hero-top-badge">
-                <i class="fa-solid fa-book-bookmark"></i> المنهج والمحاضرات 2026
+                <i class="fa-solid fa-book-bookmark"></i> الفرقة الرابعة - خدمة اجتماعية 2026
             </div>
             <h1 id="subjectTitle">المادة الدراسية</h1>
             <p>تصفح المحاضرات، حمل ملخصات السبورة، وقيّم مستواك بالامتحانات التدريبية.</p>
@@ -1133,8 +1133,6 @@
             document.body.classList.add('dark-theme');
         }
 
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
-        
         // Setup user header avatar & name
         const stName = (user && (user.fullName || user.name)) || 'طالب';
         const stInitial = stName.charAt(0) || '🎓';
@@ -1146,9 +1144,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         let rawSub = urlParams.get('subject') || "المادة الدراسية";
         try { rawSub = decodeURIComponent(rawSub); } catch(e) {}
-        const subject = rawSub;
+        const subject = rawSub.trim();
 
-        document.getElementById('subjectTitle').innerText = subject;
+        const titleEl = document.getElementById('subjectTitle');
+        if (titleEl) titleEl.innerText = subject;
+        document.title = subject + " - ELKHETA";
 
         let currentLectureTitle = "";
         let notesTimeout = null;
