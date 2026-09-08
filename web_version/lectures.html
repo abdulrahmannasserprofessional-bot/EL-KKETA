@@ -2083,6 +2083,22 @@
             currentLectureTitle = title || (currentLectureData ? currentLectureData.title : 'المحاضرة');
             currentLectureKey = (currentLectureData && currentLectureData.id) ? currentLectureData.id : currentLectureTitle;
 
+            // Track completed lecture progress
+            try {
+                const stCode = (user && (user.studentCode || user.code || user.student_code)) || localStorage.getItem('studentCode') || 'GUEST';
+                const compKey = `completed_${stCode}_${subject}`;
+                let compObj = {};
+                try { compObj = JSON.parse(localStorage.getItem(compKey)) || {}; } catch(e){}
+                compObj[currentLectureKey] = Date.now();
+                localStorage.setItem(compKey, JSON.stringify(compObj));
+                if (stCode !== 'GUEST') {
+                    const safeCode = stCode.replace(/[.#$\[\]]/g, '_');
+                    const safeSub = subject.replace(/[.#$\[\]]/g, '_');
+                    const safeLec = currentLectureKey.replace(/[.#$\[\]]/g, '_');
+                    database.ref(`StudentProgress/${safeCode}/${safeSub}/${safeLec}`).set(true);
+                }
+            } catch(e){}
+
             document.getElementById('modalVideoTitle').innerText = currentLectureTitle;
             const subtitleEl = document.getElementById('modalLectureSubtitle');
             if (subtitleEl) subtitleEl.innerText = (currentLectureData && currentLectureData.chapter) ? currentLectureData.chapter : 'منهج الفرقة الرابعة خدمة اجتماعية';

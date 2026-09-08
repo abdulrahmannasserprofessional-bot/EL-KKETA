@@ -852,32 +852,32 @@
                 <div class="hero-stat-card">
                     <div class="stat-icon-wrap" style="color:#60A5FA;">👨‍🎓</div>
                     <div>
-                        <div class="stat-num">+1,500</div>
-                        <div class="stat-label">طالب متميز مسجل</div>
+                        <div class="stat-num" id="metricStudents">+150</div>
+                        <div class="stat-label">طالب مسجل بالمنصة</div>
                     </div>
                 </div>
 
                 <div class="hero-stat-card">
                     <div class="stat-icon-wrap" style="color:#34D399;">📚</div>
                     <div>
-                        <div class="stat-num">محاضرات شاملة</div>
-                        <div class="stat-label">بنوك أسئلة وامتحانات</div>
+                        <div class="stat-num" id="metricLectures">+60</div>
+                        <div class="stat-label">محاضرة وشرح تفصيلي</div>
                     </div>
                 </div>
 
                 <div class="hero-stat-card">
                     <div class="stat-icon-wrap" style="color:#A78BFA;">🧠</div>
                     <div>
-                        <div class="stat-num">تحليل ذكي (AI)</div>
-                        <div class="stat-label">تقرير نقاط القوة والضعف</div>
+                        <div class="stat-num" id="metricAI">تحليل فوري ⚡</div>
+                        <div class="stat-label">تقرير نقاط القوة والضعف (AI)</div>
                     </div>
                 </div>
 
                 <div class="hero-stat-card">
-                    <div class="stat-icon-wrap" style="color:#FBBF24;">⚡</div>
+                    <div class="stat-icon-wrap" style="color:#FBBF24;">📝</div>
                     <div>
-                        <div class="stat-num">تطبيق فوري (PWA)</div>
-                        <div class="stat-label">سرعة وتشغيل أوفلاين</div>
+                        <div class="stat-num" id="metricExams">+30</div>
+                        <div class="stat-label">بنوك أسئلة وامتحانات</div>
                     </div>
                 </div>
             </div>
@@ -1048,6 +1048,38 @@
                 login();
             }
         }
+
+        // Live Real Metrics Loading
+        async function loadLiveMetrics() {
+            try {
+                database.ref('Students').once('value').then(snap => {
+                    if (snap.exists()) {
+                        const count = snap.numChildren();
+                        const el = document.getElementById('metricStudents');
+                        if (el && count > 0) el.textContent = `+${count}`;
+                    }
+                }).catch(()=>{});
+
+                database.ref('Lectures').once('value').then(snap => {
+                    if (snap.exists()) {
+                        let total = 0;
+                        snap.forEach(sub => total += sub.numChildren());
+                        const el = document.getElementById('metricLectures');
+                        if (el && total > 0) el.textContent = `+${total}`;
+                    }
+                }).catch(()=>{});
+
+                database.ref('Exams').once('value').then(snap => {
+                    if (snap.exists()) {
+                        let total = 0;
+                        snap.forEach(sub => total += sub.numChildren());
+                        const el = document.getElementById('metricExams');
+                        if (el && total > 0) el.textContent = `+${total}`;
+                    }
+                }).catch(()=>{});
+            } catch(e){}
+        }
+        loadLiveMetrics();
 
         // Push Notifications Logic
         if ('serviceWorker' in navigator) {
