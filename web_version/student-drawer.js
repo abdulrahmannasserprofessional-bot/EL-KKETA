@@ -23,8 +23,8 @@
 
         /* Drawer Main Panel */
         .elkheta-drawer {
-            position: fixed; top: 0; right: -380px;
-            width: 340px; max-width: 88vw; height: 100%;
+            position: fixed; top: 0; right: -360px;
+            width: 310px; max-width: 85vw; height: 100%;
             background: #FFFFFF;
             z-index: 100000;
             display: flex; flex-direction: column;
@@ -34,6 +34,7 @@
             direction: rtl;
             border-left: 1px solid #E2E8F0;
             overflow: hidden;
+            box-sizing: border-box;
         }
         .elkheta-drawer.active {
             right: 0;
