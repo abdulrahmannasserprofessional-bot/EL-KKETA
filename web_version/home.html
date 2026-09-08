@@ -5,8 +5,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الرئيسية - ELKHETA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>الرئيسية - ELKHETA | منصة الخطة التعليمية</title>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
@@ -15,174 +15,584 @@
             caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.5">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <script src="mysql-api.js"></script>
-    <meta name="theme-color" content="#3B82F6">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192?text=🎓">
+    <meta name="theme-color" content="#1E3A8A">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <style>
         :root {
-            --text-main: #FFFFFF;
-        }
-        .welcome-card {
-            background: linear-gradient(135deg, #E8EAFF 0%, #F4F7FF 100%);
-            margin-top: -45px;
-            position: relative;
-            z-index: 10;
-            text-align: right;
-            border: 1px solid #E8ECFF;
-        }
-        body.dark-theme .welcome-card {
-            background: linear-gradient(135deg, #1E1E2E 0%, #2A2A3D 100%);
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --accent: #6366F1;
+            --bg-body: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
         }
 
-        .user-stats-strip {
-            display: flex;
-            justify-content: space-between;
-            background: white;
-            border-radius: 18px;
-            padding: 12px 18px;
-            margin: 10px 0;
-            border: 1px solid #EEF2FF;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        .stat-badge-item {
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            direction: rtl;
+            overflow-x: hidden;
+        }
+
+        /* Container Layout for Desktop & Mobile */
+        .home-app-wrapper {
+            width: 100%;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Modern Top Navigation Bar */
+        .home-topbar {
+            background: #FFFFFF;
+            border-radius: 22px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
+        }
+
+        .brand-text-wrap h1 {
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.2;
+            color: #0F172A;
+        }
+        .brand-text-wrap span {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        /* Desktop Nav Links */
+        .desktop-nav-links {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
-            font-weight: bold;
         }
 
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 16px; 
-            padding: 10px 20px; 
-            margin-bottom: 30px;
+        .nav-link-btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
         }
-        .dash-item { 
-            margin: 0; 
-            text-align: right; 
-            cursor: pointer; 
-            padding: 24px 20px; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            border-radius: 20px;
+        .nav-link-btn:hover {
+            color: var(--primary);
+            background: #EFF6FF;
+        }
+        .nav-link-btn.active {
+            color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        /* User Profile & Action Controls */
+        .topbar-actions {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-quick-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 6px 14px 6px 8px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .user-quick-chip:hover {
+            background: #EEF2FF;
+            border-color: #C7D2FE;
+        }
+
+        .user-avatar-circle {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #3B82F6, #818CF8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .user-name-short {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1E293B;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-top-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-top-icon:hover {
+            background: #EEF2FF;
+            color: var(--primary);
+            border-color: #C7D2FE;
+        }
+        .btn-top-icon.logout:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+            border-color: #FCA5A5;
+        }
+
+        /* Hero Welcome & Stats Card */
+        .home-hero-card {
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #4F46E5 100%);
+            border-radius: 28px;
+            padding: 32px 30px 26px;
+            color: #FFFFFF;
             position: relative;
             overflow: hidden;
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-            animation: slideUp 0.6s ease-out backwards;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
         }
-        
-        .dash-item::before {
-            content: '';
+
+        .hero-decor-orb-1 {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
-            z-index: 1;
-            border-radius: 20px;
+            top: -60px;
+            left: -50px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
-        .dash-item > * { position: relative; z-index: 2; }
-
-        .dash-item:hover { 
-            transform: translateY(-5px) scale(1.02); 
-            box-shadow: 0 15px 35px rgba(9,132,227,0.15); 
-        }
-        .dash-icon { 
-            font-size: 32px; 
-            margin-bottom: 12px; 
-            display: inline-block; 
-            background: rgba(255,255,255,0.8);
-            padding: 10px;
-            border-radius: 14px;
-            width: fit-content;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease; 
-        }
-        .dash-item:hover .dash-icon { transform: scale(1.1) rotate(-5deg); }
-        .dash-item strong {
-            font-size: 16px;
-            color: #1E293B;
-            font-weight: 800;
-        }
-        .dash-item p {
-            font-size: 12px;
-            color: #64748B;
-            margin: 4px 0 0 0;
-            font-weight: 600;
+        .hero-decor-orb-2 {
+            position: absolute;
+            bottom: -70px;
+            right: 20%;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
-        /* Specific Card Gradients */
-        .card-courses { background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border: 1px solid #C7D2FE; animation-delay: 0.1s; }
-        .card-courses .dash-icon { color: #4F46E5; }
-        
-        .card-community { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 1px solid #6EE7B7; animation-delay: 0.2s; }
-        .card-community .dash-icon { color: #059669; }
-
-        .card-mistakes { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 1px solid #FECACA; animation-delay: 0.3s; }
-        .card-mistakes .dash-icon { color: #DC2626; }
-
-        .card-ai-report { background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%); border: 1px solid #DDD6FE; animation-delay: 0.35s; }
-        .card-ai-report .dash-icon { color: #7C3AED; }
-
-        .card-leaderboard { background: linear-gradient(135deg, #FEFCE8 0%, #FEF9C3 100%); border: 1px solid #FEF08A; grid-column: span 2; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 20px 30px; animation-delay: 0.4s; }
-        .card-leaderboard .dash-icon { margin-bottom: 0; background: transparent; box-shadow: none; font-size: 45px; }
-
-        @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Dark Theme Support */
-        body.dark-theme .dash-item { background: #1E293B; border-color: rgba(255,255,255,0.05); }
-        body.dark-theme .dash-item strong { color: #F1F5F9; }
-        body.dark-theme .dash-item p { color: #94A3B8; }
-        body.dark-theme .dash-icon { background: rgba(0,0,0,0.2); }
-        
-        body.dark-theme .card-courses { background: linear-gradient(135deg, rgba(79,70,229,0.2) 0%, rgba(67,56,202,0.2) 100%); border-color: rgba(79,70,229,0.3); }
-        body.dark-theme .card-community { background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.2) 100%); border-color: rgba(16,185,129,0.3); }
-        body.dark-theme .card-mistakes { background: linear-gradient(135deg, rgba(220,38,38,0.2) 0%, rgba(185,28,28,0.2) 100%); border-color: rgba(220,38,38,0.3); }
-        body.dark-theme .card-ai-report { background: linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(109,40,217,0.2) 100%); border-color: rgba(124,58,237,0.3); }
-        body.dark-theme .card-leaderboard { background: linear-gradient(135deg, rgba(234,179,8,0.15) 0%, rgba(202,138,4,0.15) 100%); border-color: rgba(234,179,8,0.2); }
-
-        body.dark-theme .notice-bar { background: #1E293B; border-color: rgba(255,255,255,0.05); color: #F1F5F9; }
-
-        .notice-bar {
-            background: white;
-            margin: 10px 15px;
-            padding: 14px 18px;
-            border-radius: 18px;
-            font-size: 13.5px;
-            color: #1E293B;
+        .hero-top-row {
             display: flex;
             align-items: center;
-            border: 1px solid #EEF2FF;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        }
-
-        .resume-widget {
-            margin: 10px 15px;
-            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
-            color: var(--text-main);
-            border-radius: 20px;
-            padding: 18px 20px;
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(9, 132, 227, 0.25);
-            transition: transform 0.2s ease;
+            position: relative;
+            z-index: 2;
+            gap: 20px;
         }
-        .resume-widget:hover { transform: translateY(-3px); }
 
-        /* Drawer Styling Overrides for Calm Theme */
+        .hero-greeting-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .hero-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            color: #E0E7FF;
+            font-weight: 600;
+            max-width: 550px;
+        }
+
+        .hero-icon-mascot {
+            font-size: 54px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            animation: floatMascot 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatMascot {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        /* Gamification Stats Strip */
+        .gamification-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .gamify-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .gamify-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gamify-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .gamify-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .gamify-label {
+            font-size: 11.5px;
+            color: #E0E7FF;
+            font-weight: 700;
+        }
+        .gamify-value {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFFFFF;
+        }
+
+        /* Resume Learning Floating Strip */
+        .resume-learning-card {
+            background: #FFFFFF;
+            border: 1.5px solid #C7D2FE;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.08);
+            transition: all 0.25s ease;
+        }
+        .resume-learning-card:hover {
+            transform: translateY(-3px);
+            border-color: #818CF8;
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .resume-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .resume-play-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+        .resume-tag {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .resume-title-text {
+            font-size: 15px;
+            font-weight: 900;
+            color: #1E293B;
+            margin-top: 2px;
+        }
+
+        .resume-action-btn {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            color: white;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Notice Banner */
+        .notice-pill-bar {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+            color: #334155;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .notice-icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #FEF3C7;
+            color: #D97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Section Heading */
+        .section-header-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .section-title {
+            font-size: 19px;
+            font-weight: 900;
+            color: #0F172A;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 6-Card Dashboard Grid */
+        .dashboard-main-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .dash-card-box {
+            background: #FFFFFF;
+            border-radius: 22px;
+            padding: 22px 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dash-card-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border-color: #CBD5E1;
+        }
+
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+        .dash-card-box:hover .dash-card-icon {
+            transform: scale(1.1) rotate(-4deg);
+        }
+
+        .card-badge-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .card-text-body h3 {
+            font-size: 17px;
+            font-weight: 900;
+            color: #0F172A;
+            margin-bottom: 4px;
+        }
+        .card-text-body p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .card-arrow-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--primary);
+            padding-top: 10px;
+            border-top: 1px solid #F1F5F9;
+        }
+
+        /* Card Color Schemes */
+        .card-theme-courses .dash-card-icon { background: #EEF2FF; color: #4F46E5; }
+        .card-theme-courses .card-badge-pill { background: #EEF2FF; color: #4338CA; }
+
+        .card-theme-ai .dash-card-icon { background: #F5F3FF; color: #7C3AED; }
+        .card-theme-ai .card-badge-pill { background: #F5F3FF; color: #6D28D9; }
+
+        .card-theme-rank .dash-card-icon { background: #FEFCE8; color: #CA8A04; }
+        .card-theme-rank .card-badge-pill { background: #FEFCE8; color: #A16207; }
+
+        .card-theme-mistakes .dash-card-icon { background: #FEF2F2; color: #DC2626; }
+        .card-theme-mistakes .card-badge-pill { background: #FEF2F2; color: #B91C1C; }
+
+        .card-theme-community .dash-card-icon { background: #ECFDF5; color: #059669; }
+        .card-theme-community .card-badge-pill { background: #ECFDF5; color: #047857; }
+
+        .card-theme-profile .dash-card-icon { background: #F0FDF4; color: #16A34A; }
+        .card-theme-profile .card-badge-pill { background: #F0FDF4; color: #15803D; }
+
+        /* Mobile Bottom Nav Bar */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid #E2E8F0;
+            height: 68px;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #94A3B8;
+            font-size: 11px;
+            font-weight: 800;
+            gap: 4px;
+            transition: all 0.2s;
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        .bottom-nav-item i {
+            font-size: 18px;
+        }
+        .bottom-nav-item.active {
+            color: var(--primary);
+        }
+
+        /* Drawer Styling */
         .drawer {
             position: fixed;
             top: 0;
@@ -190,333 +600,520 @@
             width: 300px;
             height: 100%;
             background: white;
-            z-index: 5000;
+            z-index: 50000;
             transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
             border-left: 1px solid #EEF2FF;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            direction: rtl;
         }
         .drawer.active { right: 0; }
 
         .drawer-header {
-            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
-            padding: 40px 25px 25px 25px;
-            color: var(--text-main);
+            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 100%);
+            padding: 35px 20px 20px;
+            color: white;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
             border-radius: 0 0 25px 25px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(9, 132, 227, 0.2);
         }
+        .drawer-header h3 { font-size: 18px; font-weight: 900; }
+        .drawer-header p { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 
         .drawer-item {
-            padding: 16px 25px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 15px;
+            font-size: 14px;
             color: #2D3436;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin: 4px 15px;
+            margin: 4px 12px;
             border-radius: 12px;
+            text-decoration: none;
         }
         .drawer-item:hover {
             background: #F0F4FF;
             color: #0984E3;
             transform: translateX(-4px);
         }
-
-        .logout-btn {
-            color: #D63031 !important;
-            background: #FFF0F0;
-            margin-top: auto !important;
-            margin-bottom: 20px !important;
-            border: 1px solid #FFE3E3;
-            justify-content: center;
-        }
-        .logout-btn:hover {
-            background: #FFE3E3;
-            color: #D63031 !important;
-            transform: translateY(-2px);
+        .drawer-item.logout-btn {
+            color: #DC2626;
+            background: #FEF2F2;
+            margin-top: auto;
+            margin-bottom: 20px;
         }
 
-        /* Missing Email Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center; z-index: 10000;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 40000;
+            display: none;
+            backdrop-filter: blur(4px);
         }
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
-        
-        .otp-card {
-            background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 350px;
-            text-align: center; transform: translateY(20px); transition: transform 0.3s ease;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-        .modal-overlay.active .otp-card { transform: translateY(0); }
-        
-        .otp-icon { font-size: 40px; margin-bottom: 10px; }
-        .otp-title { font-size: 18px; font-weight: 800; color: #2D3436; margin-bottom: 5px; }
-        .otp-desc { font-size: 13px; color: #636E72; margin-bottom: 20px; line-height: 1.5; }
-        
-        .email-input {
-            width: 100%; padding: 15px; border: 2px solid #EEF2FF; border-radius: 15px;
-            background: #F8F9FF; font-family: 'Cairo', sans-serif; text-align: center;
-            font-size: 16px; color: #2D3436; outline: none; margin-bottom: 15px;
-        }
-        .email-input:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1); }
+        .overlay.active { display: block; }
 
-        .otp-input-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; direction: ltr; display: none; }
-        .otp-digit {
-            width: 50px; height: 50px; border: 2px solid #EEF2FF; border-radius: 12px;
-            font-size: 20px; font-weight: 800; text-align: center; background: #F8F9FF;
-            transition: all 0.2s; outline: none;
+        /* Responsive Breakpoints */
+        @media (max-width: 991px) {
+            .desktop-nav-links {
+                display: none;
+            }
+            .dashboard-main-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            .home-hero-card {
+                padding: 24px 20px 20px;
+            }
+            .hero-title { font-size: 22px; }
+            .hero-icon-mascot { font-size: 42px; }
         }
-        .otp-digit:focus { border-color: #6c5ce7; background: white; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1); }
-        
-        .verify-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: var(--text-main); border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .verify-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108,92,231,0.3); }
-        .verify-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 640px) {
+            .home-app-wrapper {
+                padding: 10px 12px;
+                gap: 14px;
+            }
+            .home-topbar {
+                border-radius: 18px;
+                padding: 10px 14px;
+            }
+            .brand-logo-badge {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
+            .brand-text-wrap h1 { font-size: 16px; }
+            .brand-text-wrap span { display: none; }
+            .user-name-short { display: none; }
+            .user-quick-chip { padding: 4px; border-radius: 50%; }
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .gamification-strip {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .hero-subtitle { font-size: 12.5px; }
+            .resume-action-btn span { display: none; }
+        }
     </style>
 </head>
 <body>
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
 
-    <div class="header-gradient">
-        <div style="font-size: 24px; font-weight: 800; color: var(--text-main); text-shadow: 0 2px 10px rgba(0,0,0,0.15);">ELKHETA</div>
-        <div id="openDrawer" style="position: absolute; top: 35px; right: 20px; font-size: 20px; cursor: pointer; background: rgba(255,255,255,0.25); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 14px; color: var(--text-main); backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">☰</div>
-        <div onclick="logout()" title="تسجيل الخروج" style="position: absolute; top: 35px; left: 20px; font-size: 20px; cursor: pointer; background: rgba(214, 48, 49, 0.9); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 14px; color: var(--text-main); box-shadow: 0 4px 10px rgba(214, 48, 49, 0.3); transition: transform 0.2s;">🚪</div>
-    </div>
+    <div class="home-app-wrapper">
 
-    <div class="card welcome-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span id="greetingText" style="font-size: 13px; color: #0984E3; font-weight: 800;">مرحباً بك! 👋</span>
-                <h2 id="userName" style="margin: 4px 0 0; font-size: 20px; color: #2D3436;">أهلاً بك يا طالب</h2>
+        <!-- Top Navigation Bar -->
+        <header class="home-topbar">
+            <a href="home.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="brand-text-wrap">
+                    <h1>منصة الخطة</h1>
+                    <span>المنصة التعليمية الشاملة</span>
+                </div>
+            </a>
+
+            <!-- Desktop Links -->
+            <nav class="desktop-nav-links">
+                <a href="home.html" class="nav-link-btn active">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="courses.html" class="nav-link-btn">
+                    <i class="fas fa-book-open"></i>
+                    <span>المواد</span>
+                </a>
+                <a href="ai-report.html" class="nav-link-btn">
+                    <i class="fas fa-brain"></i>
+                    <span>التقرير الذكي</span>
+                </a>
+                <a href="leaderboard.html" class="nav-link-btn">
+                    <i class="fas fa-trophy"></i>
+                    <span>الأوائل</span>
+                </a>
+                <a href="profile.html" class="nav-link-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>حسابي</span>
+                </a>
+            </nav>
+
+            <!-- User Chip & Buttons -->
+            <div class="topbar-actions">
+                <a href="profile.html" class="user-quick-chip" title="عرض الحساب">
+                    <div class="user-avatar-circle" id="userInitial">🎓</div>
+                    <span class="user-name-short" id="userHeaderName">طالب</span>
+                </a>
+                <button type="button" class="btn-top-icon" id="openDrawer" title="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button type="button" class="btn-top-icon logout" onclick="logout()" title="تسجيل الخروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
-            <div style="font-size: 45px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">🚀</div>
-        </div>
+        </header>
 
-        <div class="user-stats-strip">
-            <div class="stat-badge-item">
-                <span style="font-size: 18px;">🔥</span>
-                <span>سلسلة: <span id="streakDays" style="color: var(--primary);">1 يوم</span></span>
+        <!-- Hero Greeting & Gamification Card -->
+        <section class="home-hero-card">
+            <div class="hero-decor-orb-1"></div>
+            <div class="hero-decor-orb-2"></div>
+
+            <div class="hero-top-row">
+                <div>
+                    <div class="hero-greeting-pill" id="greetingPill">
+                        <span id="greetingIcon">☀️</span>
+                        <span id="greetingText">صباح الخير والنشاط!</span>
+                    </div>
+                    <h2 class="hero-title" id="userName">أهلاً بك يا طالب</h2>
+                    <p class="hero-subtitle">جاهز لمواصلة رحلة التفوق والتعلم؟ لديك بنوك أسئلة ومحاضرات جديدة في انتظارك.</p>
+                </div>
+                <div class="hero-icon-mascot">🚀</div>
             </div>
-            <div class="stat-badge-item">
-                <span style="font-size: 18px;">🏆</span>
-                <span>نقاطك: <span id="userPoints" style="color: var(--accent);">0</span></span>
+
+            <!-- Gamification Stats -->
+            <div class="gamification-strip">
+                <div class="gamify-card">
+                    <div class="gamify-icon">🔥</div>
+                    <div class="gamify-info">
+                        <span class="gamify-label">أيام الالتزام</span>
+                        <span class="gamify-value" id="streakDays">1 يوم</span>
+                    </div>
+                </div>
+
+                <div class="gamify-card">
+                    <div class="gamify-icon">🏆</div>
+                    <div class="gamify-info">
+                        <span class="gamify-label">مجموع النقاط</span>
+                        <span class="gamify-value" id="userPoints">0</span>
+                    </div>
+                </div>
+
+                <div class="gamify-card">
+                    <div class="gamify-icon">⭐</div>
+                    <div class="gamify-info">
+                        <span class="gamify-label">المستوى التعليمي</span>
+                        <span class="gamify-value" id="userLevel">مستوى 1</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-badge-item">
-                <span style="font-size: 18px;">⭐</span>
-                <span id="userLevel">المستوى 1</span>
+        </section>
+
+        <!-- Personal Admin Message Banner (If Available) -->
+        <div id="personalNoticeBar" class="notice-pill-bar" style="display: none; background: #EEF2FF; border-color: #818CF8; color: #1E1B4B;">
+            <div class="notice-icon-box" style="background: #6366F1; color: white;">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 11px; color: #4F46E5; font-weight: 800;">رسالة خاصة من إدارة المنصة:</div>
+                <div id="personalNoticeText" style="font-weight: 800; font-size: 13.5px; margin-top: 2px;"></div>
+            </div>
+            <button onclick="dismissPersonalNotice()" style="background: #4F46E5; border: none; color: white; padding: 6px 14px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 12px; font-family: 'Cairo';">تم ✔️</button>
+        </div>
+
+        <!-- Resume Learning Banner (If accessed before) -->
+        <div id="resumeWidget" class="resume-learning-card" style="display: none;" onclick="resumeLastLesson()">
+            <div class="resume-left">
+                <div class="resume-play-icon">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div>
+                    <div class="resume-tag">متابعة من حيث توقفت ⏯️</div>
+                    <div class="resume-title-text" id="resumeTitle">عنوان المحاضرة</div>
+                </div>
+            </div>
+            <div class="resume-action-btn">
+                <span>متابعة الدرس</span>
+                <i class="fas fa-arrow-left"></i>
             </div>
         </div>
-    </div>
 
-    <!-- Personal Message Banner from Admin -->
-    <div id="personalNoticeBar" class="notice-bar" style="display: none; background: linear-gradient(135deg, #4F46E5, #6366F1); color: white; margin-bottom: 12px;">
-        <span style="margin-left: 10px; font-size: 20px;">📢</span>
-        <div style="flex: 1;">
-            <div style="font-size: 11px; opacity: 0.9;">رسالة خاصة من إدارة المنصة:</div>
-            <div id="personalNoticeText" style="font-weight: 800; font-size: 14px; margin-top: 2px;"></div>
-        </div>
-        <button onclick="dismissPersonalNotice()" style="background: rgba(255,255,255,0.25); border: none; color: white; padding: 4px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px;">تم ✔️</button>
-    </div>
-
-    <!-- Latest Notice Bar -->
-    <div class="notice-bar">
-        <span style="margin-left: 10px; font-size: 18px;">🔔</span>
-        <span id="latestNotice" style="flex: 1;">جاري تحميل آخر التنبيهات...</span>
-    </div>
-
-    <!-- Resume Learning Shortcut Widget -->
-    <div id="resumeWidget" class="resume-widget" style="display: none;" onclick="resumeLastLesson()">
-        <div>
-            <div style="font-size: 11px; opacity: 0.85; text-transform: uppercase;">متابعة التعلم ⏯️</div>
-            <div id="resumeTitle" style="font-weight: bold; font-size: 15px; margin-top: 2px;">عنوان آخر درس</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.25); padding: 8px 14px; border-radius: 12px; font-weight: bold; font-size: 13px;">متابعة ⬅️</div>
-    </div>
-
-    <!-- Grid Menu -->
-    <div class="dashboard-grid">
-        <div class="dash-item card-courses" onclick="location.href='courses.html'">
-            <span class="dash-icon">📚</span>
-            <strong>المواد الدراسية</strong>
-            <p>ابدأ مذاكرة دروسك الآن</p>
-        </div>
-        
-        <div class="dash-item card-community" onclick="location.href='community.html'">
-            <span class="dash-icon">💬</span>
-            <strong>أسئلة واستفسارات الطلاب</strong>
-            <p>اطرح أسئلتك وتلقّ إجابات المعلمين</p>
-        </div>
-        
-        <div class="dash-item card-mistakes" onclick="location.href='mistakes.html'">
-            <span class="dash-icon">📝</span>
-            <strong>سجل التعلم</strong>
-            <p>راجع أسئلتك الصعبة وأخطائك</p>
-        </div>
-
-        <div class="dash-item card-ai-report" onclick="location.href='ai-report.html'">
-            <span class="dash-icon">🧠</span>
-            <strong>التقرير والتحليل الذكي</strong>
-            <p>نقاط القوة والضعف وتوصيات المذاكرة</p>
-        </div>
-        
-        <div class="dash-item card-leaderboard" onclick="location.href='leaderboard.html'">
-            <div>
-                <strong style="font-size: 20px;">أوائل المنصة 🏆</strong>
-                <p style="font-size: 14px; margin-top: 6px;">تنافس مع زملائك واكتشف ترتيبك الحالي!</p>
+        <!-- Latest Announcement Notice -->
+        <div class="notice-pill-bar">
+            <div class="notice-icon-box">
+                <i class="fas fa-bell"></i>
             </div>
-            <span class="dash-icon" style="font-size: 40px;">👑</span>
+            <div style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                <span id="latestNotice">جاري تحميل آخر التنبيهات...</span>
+            </div>
         </div>
+
+        <!-- Section Title -->
+        <div class="section-header-wrap">
+            <h2 class="section-title">
+                <i class="fas fa-th-large" style="color: var(--primary);"></i>
+                <span>الأقسام والخدمات التعليمية</span>
+            </h2>
+        </div>
+
+        <!-- Main Dashboard 6-Grid -->
+        <div class="dashboard-main-grid">
+
+            <!-- 1. Courses -->
+            <a href="courses.html" class="dash-card-box card-theme-courses">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <span class="card-badge-pill">الدروس والشروحات</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>المواد الدراسية</h3>
+                    <p>استكشف المواد التعليمية والمحاضرات وبنوك الأسئلة مع شريط الإنجاز.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>دخول المواد</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <!-- 2. AI Diagnostic Report -->
+            <a href="ai-report.html" class="dash-card-box card-theme-ai">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <span class="card-badge-pill">الذكاء الاصطناعي ✨</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>التقرير والتحليل الذكي</h3>
+                    <p>تقرير تفاعلي يشخص نقاط قوتك وضعفك في كل فصل مع توصيات فورية.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>عرض التقرير</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <!-- 3. Leaderboard -->
+            <a href="leaderboard.html" class="dash-card-box card-theme-rank">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <span class="card-badge-pill">المتصدرون 👑</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>أوائل المنصة</h3>
+                    <p>تنافس مع زملائك واكتشف ترتيبك الحالي ودرجاتك بين المتميزين.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>لوحة الشرف</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <!-- 4. Mistakes Bank -->
+            <a href="mistakes.html" class="dash-card-box card-theme-mistakes">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <span class="card-badge-pill">سجل التعلم</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>بنك الأخطاء والمراجعة</h3>
+                    <p>راجع إجاباتك السابقة والأسئلة الصعبة التي تحتاج لإعادة تدريب.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>مراجعة الأخطاء</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <!-- 5. Community Discussions -->
+            <a href="community.html" class="dash-card-box card-theme-community">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <span class="card-badge-pill">الاستفسارات</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>أسئلة ومجتمع الطلاب</h3>
+                    <p>اطرح استفساراتك حول المنهج وتلقّ إجابات وشروحات من المعلمين.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>فتح المجتمع</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+            <!-- 6. Profile & Settings -->
+            <a href="profile.html" class="dash-card-box card-theme-profile">
+                <div class="card-header-row">
+                    <div class="dash-card-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <span class="card-badge-pill">حسابي</span>
+                </div>
+                <div class="card-text-body">
+                    <h3>الملف الشخصي والإعدادات</h3>
+                    <p>استعرض بياناتك، الكود الخاص بك، وتفاصيل اشتراكك في المنصة.</p>
+                </div>
+                <div class="card-arrow-row">
+                    <span>تعديل الحساب</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+            </a>
+
+        </div>
+
     </div>
 
-    <!-- Drawer (Unified Content) -->
+    <!-- Mobile Bottom Fixed Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="home.html" class="bottom-nav-item active">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="bottom-nav-item">
+            <i class="fas fa-book-open"></i>
+            <span>المواد</span>
+        </a>
+        <a href="ai-report.html" class="bottom-nav-item">
+            <i class="fas fa-brain"></i>
+            <span>التقرير</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
+
+    <!-- Side Drawer -->
     <div id="drawer" class="drawer">
-        <!-- User Profile (Drawer) -->
-        <div class="user-profile">
-            <!-- Logo placeholder -->
+        <div class="drawer-header">
+            <div style="font-size: 32px; margin-bottom: 8px;">🎓</div>
+            <h3 id="drawerUserName">منصة الخطة التعليمية</h3>
+            <p id="drawerUserCode">كود الطالب: ---</p>
         </div>
-        <div class="drawer-item" onclick="location.href='community.html'"><span>💬</span> تساؤلات واستفسارات الطلاب</div>
 
-        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')"><span>📞</span> تواصل مع الدعم</div>
-        <div class="drawer-item" onclick="window.open('https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn')"><span>💬</span> جروب الاستفسارات</div>
-        <div class="drawer-item" onclick="location.href='privacy.html'"><span>📜</span> سياسة الخصوصية</div>
-        <div class="drawer-item" onclick="location.href='admin-gate.html'"><span>🔐</span> لوحة الإدارة</div>
-        
-        <div class="drawer-item logout-btn" onclick="logout()"><span>🚪</span> تسجيل الخروج</div>
+        <a href="home.html" class="drawer-item">
+            <i class="fas fa-home" style="color: #2563EB;"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="drawer-item">
+            <i class="fas fa-book-open" style="color: #4F46E5;"></i>
+            <span>المواد الدراسية</span>
+        </a>
+        <a href="ai-report.html" class="drawer-item">
+            <i class="fas fa-brain" style="color: #7C3AED;"></i>
+            <span>التقرير والتحليل الذكي</span>
+        </a>
+        <a href="leaderboard.html" class="drawer-item">
+            <i class="fas fa-trophy" style="color: #CA8A04;"></i>
+            <span>أوائل المنصة</span>
+        </a>
+        <a href="community.html" class="drawer-item">
+            <i class="fas fa-comments" style="color: #059669;"></i>
+            <span>تساؤلات واستفسارات الطلاب</span>
+        </a>
+        <a href="privacy.html" class="drawer-item">
+            <i class="fas fa-shield-alt" style="color: #64748B;"></i>
+            <span>سياسة الخصوصية</span>
+        </a>
+        <a href="admin-gate.html" class="drawer-item">
+            <i class="fas fa-user-shield" style="color: #64748B;"></i>
+            <span>بوابة الإدارة</span>
+        </a>
+        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')">
+            <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+            <span>تواصل مع الدعم الفني</span>
+        </div>
+
+        <div class="drawer-item logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>تسجيل الخروج</span>
+        </div>
     </div>
     <div id="overlay" class="overlay"></div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-        <a href="home.html" class="nav-item active">🏠<br>الرئيسية</a>
-        <a href="courses.html" class="nav-item">📖<br>المواد</a>
-        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
-    </div>
-
-    <!-- Missing Email Modal -->
-    <div class="modal-overlay" id="missingEmailModal">
-        <div class="otp-card">
-            <div class="otp-icon">✉️</div>
-            <div class="otp-title" id="emailModalTitle">أهلاً بك في التحديث الجديد!</div>
-            <div class="otp-desc" id="emailModalDesc">يرجى إضافة بريدك الإلكتروني لضمان التواصل وإرسال الإشعارات والنتائج.</div>
-            
-            <input type="email" id="updateEmailInput" class="email-input" placeholder="أدخل بريدك الإلكتروني" dir="ltr">
-            
-            <div class="otp-input-group" id="updateOtpGroup">
-                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
-                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
-                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
-                <input type="text" class="otp-digit update-otp" maxlength="1" onkeyup="moveToNextUpdate(this, event)">
-            </div>
-            
-            <button class="verify-btn" id="updateEmailBtn" onclick="requestUpdateEmailOTP()">إرسال كود التفعيل 🚀</button>
-        </div>
-    </div>
-
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="toast.js"></script>
-    
+
     <script>
-        function requestUpdateEmailOTP() {
-            const emailInput = document.getElementById('updateEmailInput').value.trim();
-            if (!emailInput) {
-                showToast('يرجى إدخال البريد الإلكتروني', 'warning');
-                return;
-            }
-            if (user && user.studentCode) {
-                user.email = emailInput;
-                database.ref('Students/' + user.studentCode).update({ email: emailInput }).then(() => {
-                    localStorage.setItem('user', JSON.stringify(user));
-                    const modal = document.getElementById('missingEmailModal');
-                    if (modal) modal.classList.remove('active');
-                    showToast("تم حفظ بريدك الإلكتروني بنجاح 🎉", "success");
-                });
-            }
-        }
-
-        function toggleTheme() {
-            if (document.body.classList.contains('dark-theme')) {
-                document.body.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-                showToast("تم التفعيل: المظهر المضيء ☀️", "info");
-            } else {
-                document.body.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-                showToast("تم التفعيل: المظهر الداكن 🌙", "info");
-            }
-        }
-
-
-        
         const user = JSON.parse(localStorage.getItem('user'));
-        const localDeviceId = localStorage.getItem('deviceId');
         
         if (user) {
-            document.getElementById('userName').innerText = "أهلاً بك يا " + (user.fullName || user.full_name || 'طالب');
-            ElkhetaAPI.logActivity(user.studentCode || user.student_code || user.code, user.fullName || user.full_name, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
+            const studentFullName = user.fullName || user.full_name || 'طالب';
+            const studentCode = user.studentCode || user.student_code || user.code || '';
+
+            document.getElementById('userName').innerText = "أهلاً بك يا " + studentFullName + " 👋";
+            document.getElementById('userHeaderName').innerText = studentFullName.split(' ')[0] || 'طالب';
+            document.getElementById('drawerUserName').innerText = studentFullName;
+            document.getElementById('drawerUserCode').innerText = "كود: " + studentCode;
+            
+            // Set initial letter
+            const firstLetter = studentFullName.trim().charAt(0) || 'ط';
+            document.getElementById('userInitial').innerText = firstLetter;
+
+            ElkhetaAPI.logActivity(studentCode, studentFullName, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
             
             // Dynamic Time Greeting
             const hour = new Date().getHours();
             if (hour >= 5 && hour < 12) {
-                document.getElementById('greetingText').innerText = "صباح الخير والنشاط! ☀️";
+                document.getElementById('greetingText').innerText = "صباح الخير والنشاط!";
+                document.getElementById('greetingIcon').innerText = "☀️";
             } else if (hour >= 12 && hour < 18) {
-                document.getElementById('greetingText').innerText = "مساء الخير والهمة العالية! 🌤️";
+                document.getElementById('greetingText').innerText = "مساء الخير والهمة العالية!";
+                document.getElementById('greetingIcon').innerText = "🌤️";
             } else {
-                document.getElementById('greetingText').innerText = "مساء الخير والهدوء! 🌙";
+                document.getElementById('greetingText').innerText = "مساء الخير والهدوء!";
+                document.getElementById('greetingIcon').innerText = "🌙";
             }
 
             // Listen for personal message from admin
-            database.ref('Students/' + user.studentCode + '/personalMessage').on('value', (snap) => {
-                const msg = snap.val();
-                if (msg) {
-                    document.getElementById('personalNoticeBar').style.display = 'flex';
-                    document.getElementById('personalNoticeText').innerText = msg;
-                } else {
-                    document.getElementById('personalNoticeBar').style.display = 'none';
-                }
-            });
+            if (studentCode) {
+                database.ref('Students/' + studentCode + '/personalMessage').on('value', (snap) => {
+                    const msg = snap.val();
+                    if (msg) {
+                        document.getElementById('personalNoticeBar').style.display = 'flex';
+                        document.getElementById('personalNoticeText').innerText = msg;
+                    } else {
+                        document.getElementById('personalNoticeBar').style.display = 'none';
+                    }
+                });
 
-            // Listen for ban status in real time
-            database.ref('Students/' + user.studentCode + '/isBanned').on('value', (snap) => {
-                if (snap.val() === true) {
-                    alert('⚠️ تم إيقاف هذا الحساب من قبل إدارة المنصة.');
-                    logout();
-                }
-            });
+                // Listen for ban status in real time
+                database.ref('Students/' + studentCode + '/isBanned').on('value', (snap) => {
+                    if (snap.val() === true) {
+                        alert('⚠️ تم إيقاف هذا الحساب من قبل إدارة المنصة.');
+                        logout();
+                    }
+                });
 
-            // Load user points & stats from Firebase
-            database.ref('Students/' + user.studentCode + '/stats').on('value', (snap) => {
-                const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
-                const points = stats.totalScore || 0;
-                document.getElementById('userPoints').innerText = points;
+                // Load user points & stats from Firebase
+                database.ref('Students/' + studentCode + '/stats').on('value', (snap) => {
+                    const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
+                    const points = stats.totalScore || 0;
+                    document.getElementById('userPoints').innerText = points;
 
-                // Level calculation
-                const level = Math.floor(points / 200) + 1;
-                document.getElementById('userLevel').innerText = `مستوى ${level}`;
-            });
+                    // Level calculation
+                    const level = Math.floor(points / 200) + 1;
+                    document.getElementById('userLevel').innerText = `مستوى ${level}`;
+                });
+            }
         } else {
             window.location.href = "index.html";
         }
 
         function dismissPersonalNotice() {
-            if (user && user.studentCode) {
-                database.ref('Students/' + user.studentCode + '/personalMessage').remove();
+            if (user && (user.studentCode || user.code)) {
+                const code = user.studentCode || user.code;
+                database.ref('Students/' + code + '/personalMessage').remove();
             }
             document.getElementById('personalNoticeBar').style.display = 'none';
         }
