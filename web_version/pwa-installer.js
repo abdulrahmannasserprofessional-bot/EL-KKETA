@@ -62,37 +62,7 @@
         }
         .pwa-card-widget-btn:hover { transform: scale(1.05); }
 
-        /* Floating Centered Bottom Pill */
-        .pwa-floating-center {
-            position: fixed;
-            bottom: 22px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1.5px solid rgba(99, 102, 241, 0.4);
-            color: white;
-            padding: 10px 22px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-family: 'Cairo', sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-            white-space: nowrap;
-        }
-        .pwa-floating-center:hover {
-            transform: translateX(-50%) translateY(-3px);
-            border-color: #818CF8;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.35);
-        }
-        .pwa-floating-center:active { transform: translateX(-50%) scale(0.97); }
+
 
         /* Custom In-App Install Modal Sheet */
         .pwa-sheet-backdrop {
@@ -268,25 +238,9 @@
 
     window.installPWA = window.openInstallSheet;
 
-    // Render Floating Center Pill on pages without inline install widget
+    // Clean up any legacy floating pills
     window.addEventListener('DOMContentLoaded', () => {
-        // If an inline .pwa-card-widget already exists on the page, don't create overlapping floating pill
-        if (document.querySelector('.pwa-card-widget')) return;
-
-        if (!isStandalone && (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/'))) {
-            // Remove any old buttons if present
-            document.querySelectorAll('.pwa-floating-btn, .pwa-floating-center').forEach(e => e.remove());
-            
-            const pill = document.createElement('div');
-            pill.className = 'pwa-floating-center';
-            pill.innerHTML = `
-                <span style="font-size:16px;">📲</span>
-                <span>تثبيت تطبيق الخطة على جهازك</span>
-                <span style="background:#4F46E5; color:white; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:900;">مجاناً ✨</span>
-            `;
-            pill.onclick = window.openInstallSheet;
-            document.body.appendChild(pill);
-        }
+        document.querySelectorAll('.pwa-floating-btn, .pwa-floating-center').forEach(e => e.remove());
     });
 
 })();
