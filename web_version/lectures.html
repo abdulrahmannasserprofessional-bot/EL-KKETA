@@ -17,62 +17,245 @@
             caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=2.5">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
-        .subject-hero {
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            color: white;
-            padding: 40px 25px 35px;
-            border-radius: 0 0 35px 35px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(59,130,246,0.2);
-            text-align: right;
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --accent: #6366F1;
+            --bg-body: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --border-color: #E2E8F0;
         }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            direction: rtl;
+        }
+
+        .lectures-app-container {
+            width: 100%;
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Topbar */
+        .lectures-topbar {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-nav-icon:hover {
+            background: #EEF2FF;
+            color: var(--primary);
+            border-color: #C7D2FE;
+        }
+
+        /* Subject Hero Card */
+        .subject-hero {
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #4F46E5 100%);
+            color: white;
+            padding: 26px 24px;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .subject-hero::after {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            bottom: -70px;
+            left: -30px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero-top-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            width: fit-content;
+        }
+        .subject-hero h1 {
+            font-size: 24px;
+            font-weight: 900;
+            margin: 4px 0 0;
+            color: #FFFFFF;
+        }
+        .subject-hero p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Category Tabs */
         .category-tabs {
             display: flex;
             gap: 10px;
-            padding: 15px;
-            margin-top: -20px;
+            padding: 4px 0;
             position: relative;
             z-index: 10;
             overflow-x: auto;
             white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
         }
         .tab-btn {
             flex: 1;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            min-width: 110px;
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
             color: var(--text-main);
             padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 13px;
-            font-weight: bold;
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
         .tab-btn.active {
             background: var(--primary);
-            color: var(--text-main);
+            color: #FFFFFF !important;
             border-color: var(--primary);
-            box-shadow: 0 6px 18px rgba(9, 132, 227, 0.3);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Search Box */
+        .search-container {
+            width: 100%;
+        }
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s;
+        }
+        .search-input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.12);
+        }
+        .search-input-wrapper .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #94A3B8;
+            pointer-events: none;
         }
 
         .lesson-package {
-            background: var(--card-bg);
-            border-radius: 16px;
-            margin-bottom: 20px;
+            background: #FFFFFF;
+            border-radius: 20px;
+            margin-bottom: 16px;
             padding: 20px;
-            border: 1px solid var(--border-color);
-            border-right: 5px solid #3B82F6;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+            border: 1.5px solid var(--border-color);
+            border-right: 5px solid var(--primary);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -480,39 +663,126 @@
         .btn-send { background: #4F46E5; }
         .btn-pic { background: #10B981; }
         .btn-mic { background: #EF4444; }
-        .btn-mic.recording { animation: pulseMic 1s infinite alternate; }
-        @keyframes pulseMic { from { transform:scale(1); opacity:1;} to { transform:scale(1.1); opacity:0.8;} }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #EEF2FF;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #A3AED0;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.2s;
+        }
+        .nav-item.active { color: #2563EB; font-weight: 800; }
+        .nav-item i { font-size: 18px; }
 
+        @media (min-width: 992px) {
+            .bottom-nav { display: none !important; }
+            body { padding-bottom: 40px; }
+        }
 </style>
 </head>
 <body>
 
-    <div class="subject-hero">
-        <div class="back-btn" onclick="location.href='courses.html'" style="top: 30px;">⬅️</div>
-        <div style="font-size: 13px; opacity: 0.85; font-weight: bold;">منهج ومحاضرات</div>
-        <div id="subjectTitle" style="font-size: 22px; font-weight: bold; margin-top: 4px;">المادة الدراسية</div>
-    </div>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = "index.html";
+        }
+    </script>
 
-    <!-- Category Tabs -->
-    <div class="category-tabs">
-        <button class="tab-btn active" onclick="switchCategory('all', this)"><span>📚</span> الكل</button>
-        <button class="tab-btn" onclick="switchCategory('videos', this)"><span>📺</span> المحاضرات</button>
-        <button class="tab-btn" onclick="switchCategory('pdfs', this)"><span>📄</span> الملخصات</button>
-        <button class="tab-btn" onclick="switchCategory('quizzes', this)"><span>📝</span> الامتحانات</button>
-    </div>
+    <div class="lectures-app-container">
+        <!-- Top Navigation Bar -->
+        <header class="lectures-topbar">
+            <a href="courses.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 900; font-size: 16px; color: var(--text-main); line-height: 1.2;">المحاضرات والدروس</div>
+                    <div style="font-size: 11.5px; color: var(--text-sub); font-weight: 600;">منصة الخطة التعليمية</div>
+                </div>
+            </a>
+            <div class="topbar-actions">
+                <a href="community.html" class="btn-nav-icon" title="مجتمع واستفسارات الطلاب">
+                    <i class="fa-solid fa-comments"></i>
+                </a>
+                <a href="leaderboard.html" class="btn-nav-icon" title="لوحة الشرف">
+                    <i class="fa-solid fa-trophy"></i>
+                </a>
+                <a href="courses.html" class="btn-nav-icon" title="قائمة المواد">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+        </header>
 
-    <!-- Search Input -->
-    <div class="search-container" style="margin-top: 5px;">
-        <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="lessonSearchInput" placeholder="ابحث في الدروس أو المحاضرات..." oninput="filterLessons()">
+        <!-- Subject Hero Card -->
+        <section class="subject-hero">
+            <div class="hero-top-badge">
+                <i class="fa-solid fa-book-bookmark"></i> المنهج والمحاضرات 2026
+            </div>
+            <h1 id="subjectTitle">المادة الدراسية</h1>
+            <p>تصفح المحاضرات، حمل ملخصات السبورة، وقيّم مستواك بالامتحانات التدريبية.</p>
+        </section>
+
+        <!-- Category Filter Tabs -->
+        <nav class="category-tabs">
+            <button class="tab-btn active" onclick="switchCategory('all', this)"><i class="fa-solid fa-layer-group"></i> الكل</button>
+            <button class="tab-btn" onclick="switchCategory('videos', this)"><i class="fa-solid fa-play-circle"></i> المحاضرات</button>
+            <button class="tab-btn" onclick="switchCategory('pdfs', this)"><i class="fa-solid fa-file-pdf"></i> الملخصات</button>
+            <button class="tab-btn" onclick="switchCategory('quizzes', this)"><i class="fa-solid fa-pen-to-square"></i> الامتحانات</button>
+        </nav>
+
+        <!-- Search Input -->
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input type="text" id="lessonSearchInput" placeholder="ابحث في الدروس أو المحاضرات أو الامتحانات..." oninput="filterLessons()">
+                <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
         </div>
+
+        <!-- Lessons & Content List -->
+        <main id="lessonsList" style="padding: 0 0 30px;">
+            <div style="text-align: center; padding: 50px; color: #94A3B8; background: #FFFFFF; border-radius: 20px; border: 1.5px dashed var(--border-color);">
+                <div style="font-size: 36px; margin-bottom: 8px;">⏳</div>
+                <div style="font-weight: 700; font-size: 15px;">جاري تحميل المحاضرات والملخصات...</div>
+            </div>
+        </main>
     </div>
 
-    <!-- Content List -->
-    <div id="lessonsList" style="padding: 10px 15px 40px;">
-        <div style="text-align: center; padding: 50px; color: #BCBCBC;">جاري تحميل المحتوى...</div>
-    </div>
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="bottom-nav" style="position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #EEF2FF; box-shadow: 0 -5px 20px rgba(0,0,0,0.03); z-index: 1000;">
+        <a href="home.html" class="nav-item" style="text-decoration: none; color: #A3AED0; font-size: 11px; font-weight: 700; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-house" style="font-size: 18px;"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="nav-item active" style="text-decoration: none; color: #2563EB; font-size: 11px; font-weight: 800; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-book-open" style="font-size: 18px;"></i>
+            <span>المواد</span>
+        </a>
+        <a href="community.html" class="nav-item" style="text-decoration: none; color: #A3AED0; font-size: 11px; font-weight: 700; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-comments" style="font-size: 18px;"></i>
+            <span>المجتمع</span>
+        </a>
+        <a href="profile.html" class="nav-item" style="text-decoration: none; color: #A3AED0; font-size: 11px; font-weight: 700; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px;">
+            <i class="fa-solid fa-user" style="font-size: 18px;"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
 
     <!-- Custom Video Player Modal -->
     <div class="player-modal" id="playerModal">

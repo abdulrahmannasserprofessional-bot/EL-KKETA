@@ -12,14 +12,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * { box-sizing: border-box; }
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --accent: #10B981;
+            --bg-body: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: 'Cairo', sans-serif;
-            background: #F8FAFC;
-            color: #1E293B;
-            margin: 0;
-            padding-bottom: 80px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             min-height: 100vh;
+            padding-bottom: 90px;
+            direction: rtl;
         }
 
         body.dark-theme {
@@ -27,48 +44,139 @@
             color: #F8FAFC;
         }
 
-        .header-gradient {
-            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
-            padding: 30px 20px 55px;
-            color: white;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        .community-app-container {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
 
-        body.dark-theme .header-gradient {
-            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
-        }
-
-        .header-top {
+        /* Topbar */
+        .community-topbar {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            max-width: 900px;
-            margin: 0 auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
         }
 
-        .back-btn {
+        body.dark-theme .community-topbar {
+            background: #1E293B;
+            border-color: #334155;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
             width: 42px;
             height: 42px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
+            color: white;
             font-size: 18px;
-            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
-            backdrop-filter: blur(5px);
         }
-        .back-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+        .btn-nav-icon:hover {
+            background: #ECFDF5;
+            color: #059669;
+            border-color: #A7F3D0;
+        }
 
-        .container {
-            max-width: 900px;
-            margin: -35px auto 0;
-            padding: 0 16px;
+        body.dark-theme .btn-nav-icon {
+            background: #0F172A;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+
+        /* Hero Banner */
+        .community-hero-card {
+            background: linear-gradient(135deg, #065F46 0%, #059669 50%, #10B981 100%);
+            border-radius: 24px;
+            padding: 26px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.22);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .community-hero-card::after {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+            bottom: -70px;
+            left: -30px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            width: fit-content;
+        }
+        .community-hero-card h1 {
+            font-size: 22px;
+            font-weight: 900;
+            margin: 0;
+            color: #FFFFFF;
+        }
+        .community-hero-card p {
+            font-size: 13px;
+            opacity: 0.92;
+            margin: 0;
+            line-height: 1.5;
+            font-weight: 600;
         }
 
         /* Ask Question Card */
@@ -453,9 +561,40 @@
             padding: 8px 14px;
             margin-top: 10px;
         }
-        body.dark-theme .recording-live-bar {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #EEF2FF;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+            z-index: 1000;
+        }
+        body.dark-theme .bottom-nav {
+            background: #1E293B;
+            border-color: #334155;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #A3AED0;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.2s;
+        }
+        .nav-item.active { color: #10B981; font-weight: 800; }
+        .nav-item i { font-size: 18px; }
+
+        @media (min-width: 992px) {
+            .bottom-nav { display: none !important; }
+            body { padding-bottom: 40px; }
         }
     </style>
 </head>
@@ -466,26 +605,49 @@
         }
     </script>
 
-    <div class="header-gradient">
-        <div class="header-top">
-            <a href="home.html" class="back-btn" title="العودة للرئيسية">⬅️</a>
-            <div style="text-align: center;">
-                <div style="font-size: 12px; font-weight: 700; opacity: 0.9; text-transform: uppercase;">مجتمع المنصة التفاعلي 🌟</div>
-                <div style="font-size: 20px; font-weight: 900; margin-top: 2px;">💬 تساؤلات واستفسارات الطلاب</div>
+    <div class="community-app-container">
+        <!-- Top Navigation Bar -->
+        <header class="community-topbar">
+            <a href="home.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 900; font-size: 16px; color: var(--text-main); line-height: 1.2;">مجتمع واستفسارات الطلاب</div>
+                    <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">منصة الخطة التعليمية</div>
+                </div>
+            </a>
+            <div class="topbar-actions">
+                <div id="studentAvatarHeader" style="background: #EEF2FF; color: #2563EB; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; border: 1px solid #C7D2FE;">🎓</div>
+                <a href="courses.html" class="btn-nav-icon" title="المواد الدراسية">
+                    <i class="fa-solid fa-book-open"></i>
+                </a>
+                <a href="leaderboard.html" class="btn-nav-icon" title="لوحة الشرف">
+                    <i class="fa-solid fa-trophy"></i>
+                </a>
+                <a href="home.html" class="btn-nav-icon" title="الرئيسية">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
             </div>
-            <div id="studentAvatarHeader" style="background: rgba(255,255,255,0.25); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;">🎓</div>
-        </div>
-    </div>
+        </header>
 
-    <div class="container">
+        <!-- Hero Card -->
+        <section class="community-hero-card">
+            <div class="hero-pill-badge">
+                <i class="fa-solid fa-circle-question"></i> فضاء النقاش والاستفسارات
+            </div>
+            <h1>💬 تساؤلات واستفسارات المناهج</h1>
+            <p>اطرح سؤالك أو استفسارك التعليمي بالصوت أو الصورة، وسيقوم المعلمون والمشرفون بالرد عليك وتوضيح كل النقاط فوراً.</p>
+        </section>
+
         <!-- Ask Question Box -->
         <div class="ask-card">
             <div class="card-title-bar">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
                     <span style="background: rgba(16,185,129,0.1); color: #10B981; padding: 6px; border-radius: 10px;">✍️</span> 
                     طرح سؤال أو استفسار جديد
                 </h3>
-                <span id="userBadgeCode" style="font-size: 11px; background: #EEF2FF; color: #4F46E5; padding: 3px 8px; border-radius: 6px; font-weight: 800;">طالب</span>
+                <span id="userBadgeCode" style="font-size: 11px; background: #EEF2FF; color: #4F46E5; padding: 4px 10px; border-radius: 8px; font-weight: 800;">طالب</span>
             </div>
 
             <!-- Subject & Lecture Pickers -->
@@ -530,20 +692,20 @@
                 <div class="tools-left">
                     <input type="file" id="imageAttachmentInput" accept="image/*" style="display: none;" onchange="handleImageSelected(this)">
                     <button type="button" class="tool-btn" onclick="document.getElementById('imageAttachmentInput').click()" title="إرفاق صورة">
-                        📷 <span>إرفاق صورة</span>
+                        <i class="fa-solid fa-camera"></i> <span>إرفاق صورة</span>
                     </button>
                     <button type="button" id="btnMicRecord" class="tool-btn" onclick="startVoiceRecording()" title="تسجيل صوتي">
-                        🎙️ <span>تسجيل صوتي</span>
+                        <i class="fa-solid fa-microphone"></i> <span>تسجيل صوتي</span>
                     </button>
                 </div>
                 <button type="button" class="btn-submit-q" onclick="submitNewQuestion()">
-                    🚀 <span>نشر السؤال</span>
+                    <i class="fa-solid fa-paper-plane"></i> <span>نشر السؤال</span>
                 </button>
             </div>
         </div>
 
         <!-- Filter & Search Bar -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div>
                 <select id="filterSubjectSelect" class="form-select" onchange="filterQuestions()">
                     <option value="">جميع المواد الدراسية 📚</option>
@@ -560,21 +722,33 @@
         </div>
 
         <!-- Questions Feed -->
-        <div class="questions-feed" id="questionsFeedList">
+        <main class="questions-feed" id="questionsFeedList">
             <div class="empty-state">
                 <div>💬</div>
                 <h3>جاري تحميل تساؤلات الطلاب...</h3>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
-        <a href="courses.html" class="nav-item">📖<br>المواد</a>
-        <a href="community.html" class="nav-item active">💬<br>الأسئلة</a>
-        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
-    </div>
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="nav-item">
+            <i class="fa-solid fa-book-open"></i>
+            <span>المواد</span>
+        </a>
+        <a href="community.html" class="nav-item active">
+            <i class="fa-solid fa-comments"></i>
+            <span>المجتمع</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -992,5 +1166,9 @@
 
         loadAllQuestionsFeed();
     </script>
+    <script src="custom-dialogs.js"></script>
+    <script src="pwa-installer.js"></script>
+    <script src="offline-overlay.js"></script>
+    <script src="student-drawer.js"></script>
 </body>
 </html>

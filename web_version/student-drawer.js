@@ -326,11 +326,12 @@
 
                 <div class="elkheta-menu-section-title" style="margin-top:12px;">المساعدة والتواصل 🤝</div>
 
-                <a href="https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn" target="_blank" class="elkheta-nav-link">
+                <a href="community.html" class="elkheta-nav-link ${isActive('community.html')}">
                     <div class="elkheta-nav-link-left">
                         <span class="elkheta-nav-icon">💬</span>
-                        <span>جروب استفسارات الواتساب</span>
+                        <span>طرح استفسار تعليمي</span>
                     </div>
+                    <span class="elkheta-nav-badge" style="background:#10B981; color:white;">مجاب ⚡</span>
                 </a>
 
                 <a href="https://wa.me/201158210358" target="_blank" class="elkheta-nav-link">

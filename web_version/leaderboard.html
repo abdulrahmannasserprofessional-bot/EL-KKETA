@@ -1,199 +1,498 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أوائل المنصة - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>أوائل المنصة ولوحة الشرف - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <style>
-        .leaderboard-container {
-            max-width: 600px;
-            margin: -30px auto 80px;
-            padding: 0 15px;
-            position: relative;
-            z-index: 10;
+        :root {
+            --primary: #2563EB;
+            --accent: #EAB308;
+            --bg-body: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
         }
 
-        /* Top 3 Podium */
-        .podium {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            direction: rtl;
+            overflow-x: hidden;
+        }
+
+        .leaderboard-app-container {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Topbar */
+        .lb-topbar {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-nav-icon:hover {
+            background: #EEF2FF;
+            color: var(--primary);
+            border-color: #C7D2FE;
+        }
+
+        /* Hero Banner */
+        .lb-hero-banner {
+            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 50%, #3B82F6 100%);
+            border-radius: 26px;
+            padding: 28px 24px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(30, 27, 75, 0.25);
+        }
+
+        .lb-hero-banner h2 {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+        .lb-hero-banner p {
+            font-size: 13.5px;
+            color: #E0E7FF;
+            font-weight: 600;
+        }
+
+        /* Podium Section */
+        .podium-section-wrap {
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            height: 220px;
-            padding-top: 40px;
+            gap: 16px;
+            margin: 20px 0 10px;
+            padding-top: 30px;
         }
 
-        .podium-item {
+        .podium-col {
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+            width: 30%;
+            max-width: 170px;
         }
 
-        .podium-item.first { animation-delay: 0s; z-index: 3; }
-        .podium-item.second { animation-delay: 0.15s; z-index: 2; }
-        .podium-item.third { animation-delay: 0.3s; z-index: 1; }
-
-        .podium-avatar {
-            width: 70px;
-            height: 70px;
+        .podium-avatar-circle {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            background: var(--card-bg);
+            background: #FFFFFF;
+            border: 3.5px solid;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 35px;
-            margin-bottom: -15px;
+            font-size: 32px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            margin-bottom: -18px;
             position: relative;
-            z-index: 2;
-            border: 3px solid;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 5;
         }
 
-        .podium-item.first .podium-avatar { border-color: #fbbf24; width: 90px; height: 90px; font-size: 45px; } /* Gold */
-        .podium-item.second .podium-avatar { border-color: #94a3b8; } /* Silver */
-        .podium-item.third .podium-avatar { border-color: #b45309; } /* Bronze */
+        .podium-col.rank-1 .podium-avatar-circle {
+            width: 90px;
+            height: 90px;
+            font-size: 42px;
+            border-color: #F59E0B;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.45);
+        }
+        .podium-col.rank-2 .podium-avatar-circle {
+            border-color: #94A3B8;
+        }
+        .podium-col.rank-3 .podium-avatar-circle {
+            border-color: #D97706;
+        }
 
-        .podium-crown {
+        .crown-icon-float {
             position: absolute;
-            top: -30px;
-            font-size: 30px;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
-            animation: float 2s infinite ease-in-out;
+            top: -28px;
+            font-size: 28px;
+            animation: crownBounce 2.5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.6));
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes crownBounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-6px) scale(1.1); }
         }
 
-        .podium-base {
-            width: 100px;
+        .podium-stand-box {
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 26px 10px 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: 25px;
-            border-radius: 16px 16px 0 0;
-            color: var(--text-main);
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            color: white;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
 
-        .podium-item.first .podium-base { height: 160px; background: linear-gradient(135deg, #fbbf24, #f59e0b); width: 120px; }
-        .podium-item.second .podium-base { height: 120px; background: linear-gradient(135deg, #cbd5e1, #94a3b8); }
-        .podium-item.third .podium-base { height: 90px; background: linear-gradient(135deg, #d97706, #b45309); }
-
-        .podium-name { font-weight: 800; font-size: 14px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 5px; }
-        .podium-item.first .podium-name { font-size: 16px; }
-        .podium-score { font-size: 12px; opacity: 0.9; font-weight: bold; }
-        .podium-item.first .podium-score { font-size: 14px; }
-        
-        .podium-rank { font-size: 40px; font-weight: 900; opacity: 0.2; margin-top: auto; padding-bottom: 5px; }
-
-        /* List Items */
-        .rank-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .podium-col.rank-1 .podium-stand-box {
+            height: 165px;
+            background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+        }
+        .podium-col.rank-2 .podium-stand-box {
+            height: 130px;
+            background: linear-gradient(180deg, #94A3B8 0%, #64748B 100%);
+        }
+        .podium-col.rank-3 .podium-stand-box {
+            height: 105px;
+            background: linear-gradient(180deg, #D97706 0%, #B45309 100%);
         }
 
-        .rank-item {
-            background: var(--card-bg);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 16px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: slideUp 0.4s ease backwards;
-            transition: 0.3s;
-        }
-        
-        .rank-item:hover {
-            transform: translateY(-2px);
-            background: rgba(0,0,0,0.05);
-        }
-
-        /* Current user highlighting */
-        .rank-item.is-me {
-            border-color: var(--primary);
-            background: rgba(59, 130, 246, 0.15);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .rank-number {
-            font-size: 20px;
+        .podium-student-name {
+            font-size: 14px;
             font-weight: 900;
-            color: var(--text-muted);
-            min-width: 30px;
-            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+            margin-bottom: 2px;
+        }
+        .podium-col.rank-1 .podium-student-name {
+            font-size: 16px;
         }
 
-        .rank-avatar {
-            font-size: 30px;
-            background: rgba(0,0,0,0.05);
-            width: 50px; height: 50px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 12px;
-        }
-
-        .rank-info { flex: 1; overflow: hidden; }
-        .rank-name { font-weight: 800; font-size: 16px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .rank-exams { font-size: 12px; color: var(--text-sub); }
-
-        .rank-score {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--primary);
-            text-align: left;
-            background: rgba(59, 130, 246, 0.1);
-            padding: 5px 12px;
+        .podium-score-badge {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 8px;
             border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 800;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .podium-rank-num {
+            font-size: 32px;
+            font-weight: 900;
+            opacity: 0.35;
+            margin-top: auto;
+            line-height: 1;
         }
 
-        .loading-state {
+        /* Rank List Cards */
+        .ranks-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rank-card-row {
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+        .rank-card-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            border-color: #CBD5E1;
+        }
+
+        .rank-card-row.is-me {
+            background: #EFF6FF;
+            border-color: #93C5FD;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.15);
+        }
+
+        .rank-left-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .rank-number-pill {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #F1F5F9;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .rank-card-row.is-me .rank-number-pill {
+            background: var(--primary);
+            color: white;
+        }
+
+        .rank-avatar-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .rank-student-info {
+            overflow: hidden;
+        }
+        .rank-student-name {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #0F172A;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rank-student-sub {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .rank-score-chip {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 900;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .loading-state-box {
             text-align: center;
-            padding: 50px;
-            color: var(--text-sub);
-            font-size: 18px;
-            font-weight: bold;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* Mobile Bottom Nav */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid #E2E8F0;
+            height: 68px;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #94A3B8;
+            font-size: 11px;
+            font-weight: 800;
+            gap: 4px;
+            padding: 8px 12px;
+        }
+        .bottom-nav-item i { font-size: 18px; }
+        .bottom-nav-item.active { color: var(--primary); }
+
+        @media (max-width: 991px) {
+            .mobile-bottom-nav { display: flex; }
+        }
+
+        @media (max-width: 600px) {
+            .leaderboard-app-container {
+                padding: 10px 12px;
+                gap: 14px;
+            }
+            .podium-avatar-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 26px;
+            }
+            .podium-col.rank-1 .podium-avatar-circle {
+                width: 74px;
+                height: 74px;
+                font-size: 34px;
+            }
+            .podium-student-name { font-size: 12px; }
+            .podium-col.rank-1 .podium-student-name { font-size: 13px; }
+            .rank-card-row { padding: 12px 14px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header-gradient" style="height: 180px; padding-top: 30px;">
-        <div class="back-btn" onclick="location.href='home.html'">🔙</div>
-        <div style="font-size: 24px; font-weight: 800; margin-top: 10px;">لوحة الشرف 🏆</div>
-        <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">أوائل منصة الخطة بناءً على إجمالي النقاط</div>
-    </div>
+    <div class="leaderboard-app-container">
 
-    <div class="leaderboard-container">
-        <div id="loadingState" class="loading-state">جاري سحب الترتيب... ⏳</div>
-        
-        <div id="podiumContainer" class="podium" style="display: none;">
-            <!-- Podium gets injected here -->
+        <!-- Topbar -->
+        <header class="lb-topbar">
+            <a href="home.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 16px; font-weight: 900;">لوحة الشرف</h1>
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">منصة الخطة التعليمية</span>
+                </div>
+            </a>
+
+            <div class="topbar-actions">
+                <a href="home.html" class="btn-nav-icon" title="الرئيسية">
+                    <i class="fas fa-home"></i>
+                </a>
+                <button type="button" class="btn-nav-icon" id="openDrawer" title="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Banner -->
+        <section class="lb-hero-banner">
+            <h2>لوحة المتصدرين والمتميزين 🏆</h2>
+            <p>ترتيب أوائل الطلاب بناءً على مجموع النقاط وحل الامتحانات والمواظبة اليومية.</p>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state-box">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary); margin-bottom: 8px; display: block;"></i>
+            <span>جاري سحب الترتيب الحقيقي للطلاب...</span>
         </div>
 
-        <div id="rankList" class="rank-list" style="display: none;">
-            <!-- Other ranks get injected here -->
+        <!-- Top 3 Podium -->
+        <div id="podiumContainer" class="podium-section-wrap" style="display: none;">
+            <!-- Injected via JS -->
         </div>
+
+        <!-- Ranks 4 to 50 -->
+        <div id="rankList" class="ranks-list-container" style="display: none;">
+            <!-- Injected via JS -->
+        </div>
+
     </div>
 
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-bottom-nav">
+        <a href="home.html" class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="bottom-nav-item">
+            <i class="fas fa-book-open"></i>
+            <span>المواد</span>
+        </a>
+        <a href="ai-report.html" class="bottom-nav-item">
+            <i class="fas fa-brain"></i>
+            <span>التقرير</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
-    
+
     <script>
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) window.location.href = "index.html";
@@ -201,7 +500,7 @@
         const avatars = ['🧑‍🎓', '👨‍💻', '👩‍💻', '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🥷', '🕵️', '🧑‍🚀'];
 
         function getAvatar(name) {
-            // Consistent avatar based on name length so it doesn't change randomly on refresh
+            if (!name) return '🧑‍🎓';
             return avatars[name.length % avatars.length];
         }
 
@@ -210,107 +509,103 @@
             
             if (!snap.exists()) {
                 document.getElementById('loadingState').style.display = 'block';
-                document.getElementById('loadingState').textContent = 'لا يوجد طلاب في لوحة الشرف حتى الآن!';
+                document.getElementById('loadingState').textContent = 'لا يوجد طلاب مسجلين في لوحة الشرف حتى الآن!';
                 return;
             }
 
-            // Convert to array and sort descending
             let students = [];
             snap.forEach(child => {
                 students.push(child.val());
             });
             students.sort((a, b) => b.score - a.score);
 
-            // Separate Top 3
             const top3 = students.slice(0, 3);
-            const others = students.slice(3, 50); // Limit to top 50 total
+            const others = students.slice(3, 50);
 
             const podiumContainer = document.getElementById('podiumContainer');
             const rankList = document.getElementById('rankList');
 
             if (top3.length > 0) {
                 podiumContainer.style.display = 'flex';
-                
-                // Construct Podium HTML (Order: 2, 1, 3 for visual display)
                 let podiumHtml = '';
-                
-                // Second Place
+
+                // Second Place (Silver)
                 if (top3[1]) {
                     podiumHtml += `
-                        <div class="podium-item second">
-                            <div class="podium-avatar">${getAvatar(top3[1].fullName)}</div>
-                            <div class="podium-base">
-                                <div class="podium-name">${top3[1].fullName.split(' ')[0]}</div>
-                                <div class="podium-score">${top3[1].score} نقطة</div>
-                                <div class="podium-rank">2</div>
+                        <div class="podium-col rank-2">
+                            <div class="podium-avatar-circle">${getAvatar(top3[1].fullName)}</div>
+                            <div class="podium-stand-box">
+                                <div class="podium-student-name">${top3[1].fullName.split(' ')[0]}</div>
+                                <div class="podium-score-badge">${top3[1].score} نقطة</div>
+                                <div class="podium-rank-num">2</div>
                             </div>
                         </div>
                     `;
                 }
 
-                // First Place
+                // First Place (Gold + Crown)
                 if (top3[0]) {
                     podiumHtml += `
-                        <div class="podium-item first">
-                            <div class="podium-crown">👑</div>
-                            <div class="podium-avatar">${getAvatar(top3[0].fullName)}</div>
-                            <div class="podium-base">
-                                <div class="podium-name">${top3[0].fullName.split(' ')[0]}</div>
-                                <div class="podium-score">${top3[0].score} نقطة</div>
-                                <div class="podium-rank">1</div>
+                        <div class="podium-col rank-1">
+                            <span class="crown-icon-float">👑</span>
+                            <div class="podium-avatar-circle">${getAvatar(top3[0].fullName)}</div>
+                            <div class="podium-stand-box">
+                                <div class="podium-student-name">${top3[0].fullName.split(' ')[0]}</div>
+                                <div class="podium-score-badge">${top3[0].score} نقطة</div>
+                                <div class="podium-rank-num">1</div>
                             </div>
                         </div>
                     `;
                 }
 
-                // Third Place
+                // Third Place (Bronze)
                 if (top3[2]) {
                     podiumHtml += `
-                        <div class="podium-item third">
-                            <div class="podium-avatar">${getAvatar(top3[2].fullName)}</div>
-                            <div class="podium-base">
-                                <div class="podium-name">${top3[2].fullName.split(' ')[0]}</div>
-                                <div class="podium-score">${top3[2].score} نقطة</div>
-                                <div class="podium-rank">3</div>
+                        <div class="podium-col rank-3">
+                            <div class="podium-avatar-circle">${getAvatar(top3[2].fullName)}</div>
+                            <div class="podium-stand-box">
+                                <div class="podium-student-name">${top3[2].fullName.split(' ')[0]}</div>
+                                <div class="podium-score-badge">${top3[2].score} نقطة</div>
+                                <div class="podium-rank-num">3</div>
                             </div>
                         </div>
                     `;
                 }
-                
+
                 podiumContainer.innerHTML = podiumHtml;
             }
 
-            if (others.length > 0 || students.length > 0) {
+            if (others.length > 0) {
                 rankList.style.display = 'flex';
-                
                 let listHtml = '';
                 others.forEach((s, index) => {
                     const actualRank = index + 4;
                     const isMe = s.studentCode === user.studentCode;
                     const examsTaken = s.examsTaken || 0;
-                    
+
                     listHtml += `
-                        <div class="rank-item ${isMe ? 'is-me' : ''}" style="animation-delay: ${index * 0.05}s">
-                            <div class="rank-number">${actualRank}</div>
-                            <div class="rank-avatar">${getAvatar(s.fullName)}</div>
-                            <div class="rank-info">
-                                <div class="rank-name">${s.fullName} ${isMe ? '(أنت)' : ''}</div>
-                                <div class="rank-exams">أتم ${examsTaken} امتحانات</div>
+                        <div class="rank-card-row ${isMe ? 'is-me' : ''}">
+                            <div class="rank-left-group">
+                                <div class="rank-number-pill">${actualRank}</div>
+                                <div class="rank-avatar-box">${getAvatar(s.fullName)}</div>
+                                <div class="rank-student-info">
+                                    <div class="rank-student-name">${s.fullName} ${isMe ? '<span style="color:var(--primary); font-size:12px;">(أنت)</span>' : ''}</div>
+                                    <div class="rank-student-sub">أتم ${examsTaken} امتحانات واختبارات</div>
+                                </div>
                             </div>
-                            <div class="rank-score">${s.score}</div>
+                            <div class="rank-score-chip">${s.score} نقطة</div>
                         </div>
                     `;
                 });
-                
                 rankList.innerHTML = listHtml;
             }
-
         }).catch(err => {
             console.error(err);
             document.getElementById('loadingState').textContent = 'حدث خطأ أثناء تحميل لوحة الشرف!';
         });
     </script>
     <script src="student-drawer.js"></script>
+    <script src="student-guard.js"></script>
 </body>
 </html>
 

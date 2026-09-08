@@ -18,191 +18,293 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #3730A3;
-            --bg: #F8FAFC;
-            --surface: #FFFFFF;
-            --text-main: #1E293B;
-            --text-sub: #64748B;
-            --border: #E2E8F0;
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --accent: #6366F1;
+            --bg-body: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--bg);
+            background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
             padding-bottom: 90px;
+            direction: rtl;
         }
 
-        /* Header */
-        .page-header {
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            padding: 40px 20px 60px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
+        .courses-app-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .page-header::after {
-            content: '';
-            position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            bottom: -80px; right: -30px; border-radius: 50%;
-        }
-        .header-top {
+
+        /* Topbar */
+        .courses-topbar {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
         }
-        .back-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.2s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
-        .header-title { font-size: 22px; font-weight: 900; }
-        .header-sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-
-        /* Search Wrap */
-        .search-wrap {
-            max-width: 600px;
-            margin: -25px auto 20px;
-            padding: 0 20px;
-            position: relative;
-            z-index: 10;
-        }
-        .search-input {
-            width: 100%;
-            padding: 16px 20px 16px 50px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            font-family: inherit;
-            font-size: 15px;
-            color: var(--text-main);
-            outline: none;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-        .search-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
-        }
-        .search-icon {
-            position: absolute;
-            left: 38px;
-            top: 50%;
-            transform: translateY(-50%);
+            color: white;
             font-size: 18px;
-            color: #94A3B8;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
 
-        /* Container */
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Grid */
-        .subjects-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .btn-nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-nav-icon:hover {
+            background: #EEF2FF;
+            color: var(--primary);
+            border-color: #C7D2FE;
+        }
+
+        /* Hero Banner Card */
+        .courses-hero-card {
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #4F46E5 100%);
+            border-radius: 24px;
+            padding: 26px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
         }
-        @media (max-width: 380px) {
-            .subjects-grid { grid-template-columns: 1fr; }
+        .courses-hero-card::after {
+            content: '';
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            bottom: -80px;
+            left: -30px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero-info-area {
+            position: relative;
+            z-index: 2;
+        }
+        .hero-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            margin-bottom: 8px;
+        }
+        .hero-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+        .hero-sub {
+            font-size: 13px;
+            opacity: 0.9;
+            max-width: 550px;
+            line-height: 1.5;
+        }
+
+        /* Search Section */
+        .search-container-box {
+            position: relative;
+            width: 100%;
+        }
+        .search-input-field {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.25s;
+        }
+        .search-input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.12);
+        }
+        .search-icon-inside {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #94A3B8;
+            pointer-events: none;
+        }
+
+        /* Subjects Grid */
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        @media (max-width: 640px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Subject Card */
         .subject-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 22px 18px;
-            text-align: center;
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
         }
         .subject-card:hover {
             transform: translateY(-4px);
             border-color: var(--primary);
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
         }
-        .subject-card:active { transform: scale(0.98); }
+        .subject-card:active {
+            transform: scale(0.98);
+        }
 
         .subject-color-strip {
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .subject-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
         .subject-icon-box {
-            width: 65px;
-            height: 65px;
-            border-radius: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            margin-bottom: 12px;
+            font-size: 26px;
             background: #EEF2FF;
+            flex-shrink: 0;
             transition: transform 0.25s;
         }
         .subject-card:hover .subject-icon-box {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.08) rotate(4deg);
+        }
+
+        .subject-text-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .subject-name {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .subject-badge {
+        .subject-lectures-count {
             font-size: 12px;
-            color: var(--primary);
+            color: var(--text-muted);
             font-weight: 700;
-            background: #EEF2FF;
-            padding: 3px 10px;
-            border-radius: 12px;
-            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        /* Interactive Subject Progress Ring & Bar */
+        /* Progress box */
         .subject-progress-box {
             width: 100%;
-            margin-top: 10px;
             background: #F8FAFC;
             border: 1px solid #EEF2FF;
             border-radius: 14px;
-            padding: 8px 10px;
+            padding: 10px 12px;
             text-align: right;
             transition: all 0.2s;
         }
@@ -210,13 +312,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
             color: #475569;
             margin-bottom: 6px;
         }
         .progress-pct-badge {
-            color: #4F46E5;
+            color: #2563EB;
             font-weight: 900;
             font-size: 12px;
         }
@@ -231,30 +333,52 @@
         .progress-fill {
             height: 100%;
             border-radius: 10px;
-            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            background: linear-gradient(90deg, #2563EB 0%, #06B6D4 100%);
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .progress-subtext {
-            font-size: 10.5px;
+            font-size: 11px;
             color: #64748B;
             font-weight: 700;
-            margin-top: 5px;
-            text-align: center;
+            margin-top: 6px;
             line-height: 1.3;
+        }
+
+        .subject-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 2px;
+        }
+
+        .explore-btn-hint {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #94A3B8;
+            background: #FFFFFF;
+            border-radius: 20px;
+            border: 1px dashed var(--border-color);
         }
-        .empty-state div { font-size: 50px; margin-bottom: 12px; }
+        .empty-state div { font-size: 44px; margin-bottom: 10px; }
         .empty-state p { font-size: 15px; font-weight: 700; }
 
-        /* Bottom Nav */
+        /* Bottom Nav for Mobile */
         .bottom-nav {
             position: fixed;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 65px;
             background: white;
             display: flex;
@@ -273,11 +397,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
             transition: all 0.2s;
         }
-        .nav-item.active { color: #3B82F6; }
-        .nav-item span { font-size: 20px; }
+        .nav-item.active { color: #2563EB; font-weight: 800; }
+        .nav-item i { font-size: 18px; }
+
+        @media (min-width: 992px) {
+            .bottom-nav { display: none; }
+            body { padding-bottom: 40px; }
+        }
     </style>
 </head>
 <body>
@@ -289,37 +418,76 @@
         }
     </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <a href="home.html" class="back-btn">⬅️</a>
-            <div>
-                <div class="header-title">📚 المواد الدراسية</div>
-                <div class="header-sub">اختر المادة واستكشف الدروس والامتحانات</div>
+    <div class="courses-app-container">
+        <!-- Top Navigation Bar -->
+        <header class="courses-topbar">
+            <a href="home.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 900; font-size: 16px; color: var(--text-main); line-height: 1.2;">المواد الدراسية</div>
+                    <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">منصة الخطة التعليمية</div>
+                </div>
+            </a>
+            <div class="topbar-actions">
+                <a href="community.html" class="btn-nav-icon" title="مجتمع واستفسارات الطلاب">
+                    <i class="fa-solid fa-comments"></i>
+                </a>
+                <a href="leaderboard.html" class="btn-nav-icon" title="لوحة الشرف والأوائل">
+                    <i class="fa-solid fa-trophy"></i>
+                </a>
+                <a href="home.html" class="btn-nav-icon" title="العودة للرئيسية">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
             </div>
-            <div style="width:44px;"></div>
+        </header>
+
+        <!-- Hero Card -->
+        <section class="courses-hero-card">
+            <div class="hero-info-area">
+                <div class="hero-pill-badge">
+                    <i class="fa-solid fa-book-open"></i> مساراتك التعليمية
+                </div>
+                <h1 class="hero-title">📚 المواد والمناهج الدراسية</h1>
+                <p class="hero-sub">اختر المادة لتصفح المحاضرات، حل الامتحانات، ومتابعة شريط إنجازك التفاعلي أولاً بأول.</p>
+            </div>
+        </section>
+
+        <!-- Search Bar -->
+        <div class="search-container-box">
+            <input type="text" class="search-input-field" id="searchSubjectInput" placeholder="ابحث عن مادة أو فرع دراسي..." oninput="filterSubjects()">
+            <span class="search-icon-inside"><i class="fa-solid fa-magnifying-glass"></i></span>
         </div>
-    </div>
 
-    <div class="search-wrap">
-        <input type="text" class="search-input" id="searchSubjectInput" placeholder="ابحث باسم المادة..." oninput="filterSubjects()">
-        <span class="search-icon">🔍</span>
-    </div>
-
-    <div class="container">
-        <div id="subjectsContainer" class="subjects-grid">
+        <!-- Subjects Grid -->
+        <main id="subjectsContainer" class="subjects-grid">
             <div class="empty-state" style="grid-column: 1 / -1;">
                 <div>⏳</div>
-                <p>جاري تحميل المواد الدراسية...</p>
+                <p>جاري تحميل المواد الدراسية وربط شريط الإنجاز...</p>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-        <a href="home.html" class="nav-item"><span>🏠</span>الرئيسية</a>
-        <a href="courses.html" class="nav-item active"><span>📖</span>المواد</a>
-        <a href="profile.html" class="nav-item"><span>👤</span>حسابي</a>
-    </div>
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="nav-item active">
+            <i class="fa-solid fa-book-open"></i>
+            <span>المواد</span>
+        </a>
+        <a href="community.html" class="nav-item">
+            <i class="fa-solid fa-comments"></i>
+            <span>المجتمع</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -513,9 +681,21 @@
 
                 card.innerHTML = `
                     <div class="subject-color-strip" style="background: ${grad};"></div>
-                    <div class="subject-icon-box">${icon}</div>
-                    <div class="subject-name">${sub.name}</div>
+                    <div class="subject-card-header">
+                        <div class="subject-icon-box">${icon}</div>
+                        <div class="subject-text-info">
+                            <div class="subject-name" title="${sub.name}">${sub.name}</div>
+                            <div class="subject-lectures-count">
+                                <i class="fa-solid fa-play-circle" style="color:var(--primary);"></i>
+                                ${count > 0 ? `${count} محاضرات ودروس` : 'جاري إضافة الدروس'}
+                            </div>
+                        </div>
+                    </div>
                     ${progressHTML}
+                    <div class="subject-card-footer">
+                        <span class="explore-btn-hint">استكشف المادة <i class="fa-solid fa-arrow-left"></i></span>
+                        <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">منهج 2026</span>
+                    </div>
                 `;
                 container.appendChild(card);
             });
