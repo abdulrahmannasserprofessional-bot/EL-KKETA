@@ -94,15 +94,78 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
 
+        /* Desktop Nav Links */
+        .desktop-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link-btn {
+            text-decoration: none;
+            color: #475569;
+            font-weight: 700;
+            font-size: 13.5px;
+            padding: 8px 14px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .nav-link-btn:hover {
+            background: #EEF2FF;
+            color: var(--primary);
+        }
+        .nav-link-btn.active {
+            background: #EFF6FF;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        @media (max-width: 860px) {
+            .desktop-nav-links { display: none; }
+        }
+
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+        }
+
+        .user-quick-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #F8FAFC;
+            border: 1px solid var(--border-color);
+            padding: 5px 12px 5px 6px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        .user-quick-chip:hover {
+            background: #EEF2FF;
+            border-color: #C7D2FE;
+        }
+        .user-avatar-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
         }
 
         .btn-nav-icon {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 12px;
             background: #F8FAFC;
             border: 1px solid var(--border-color);
@@ -110,7 +173,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
@@ -717,13 +780,39 @@
                     <div style="font-size: 11.5px; color: var(--text-sub); font-weight: 600;">منصة الخطة التعليمية</div>
                 </div>
             </a>
-            <div class="topbar-actions">
-                <a href="community.html" class="btn-nav-icon" title="مجتمع واستفسارات الطلاب">
-                    <i class="fa-solid fa-comments"></i>
+
+            <!-- Desktop Nav Links -->
+            <nav class="desktop-nav-links">
+                <a href="home.html" class="nav-link-btn">
+                    <i class="fa-solid fa-house"></i>
+                    <span>الرئيسية</span>
                 </a>
-                <a href="leaderboard.html" class="btn-nav-icon" title="لوحة الشرف">
+                <a href="courses.html" class="nav-link-btn active">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>المواد</span>
+                </a>
+                <a href="ai-report.html" class="nav-link-btn">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>التقرير الذكي</span>
+                </a>
+                <a href="leaderboard.html" class="nav-link-btn">
                     <i class="fa-solid fa-trophy"></i>
+                    <span>الأوائل</span>
                 </a>
+                <a href="community.html" class="nav-link-btn">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>المجتمع</span>
+                </a>
+            </nav>
+
+            <div class="topbar-actions">
+                <a href="profile.html" class="user-quick-chip" title="عرض الحساب">
+                    <div class="user-avatar-circle" id="userHeaderAvatar">🎓</div>
+                    <span id="userHeaderName">طالب</span>
+                </a>
+                <button type="button" class="btn-nav-icon" id="openDrawer" title="القائمة الجانبية">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
                 <a href="courses.html" class="btn-nav-icon" title="قائمة المواد">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
@@ -1032,13 +1121,6 @@
         </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottom-nav">
-        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
-        <a href="courses.html" class="nav-item active">📖<br>المواد</a>
-        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
-    </div>
-
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -1051,6 +1133,16 @@
             document.body.classList.add('dark-theme');
         }
 
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        
+        // Setup user header avatar & name
+        const stName = (user && (user.fullName || user.name)) || 'طالب';
+        const stInitial = stName.charAt(0) || '🎓';
+        const nameEl = document.getElementById('userHeaderName');
+        const avEl = document.getElementById('userHeaderAvatar');
+        if (nameEl) nameEl.textContent = stName.split(' ')[0] || stName;
+        if (avEl) avEl.textContent = stInitial;
+
         const urlParams = new URLSearchParams(window.location.search);
         let rawSub = urlParams.get('subject') || "المادة الدراسية";
         try { rawSub = decodeURIComponent(rawSub); } catch(e) {}
@@ -1058,12 +1150,30 @@
 
         document.getElementById('subjectTitle').innerText = subject;
 
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
         let currentLectureTitle = "";
         let notesTimeout = null;
 
         let allLessons = [];
         let currentCategory = 'all';
+
+        function normalizeArabic(str) {
+            return (str || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+        }
+
+        function matchSubjectName(subA, subB) {
+            if (!subA || !subB) return false;
+            const normA = normalizeArabic(subA).toLowerCase().replace(/[\s_]/g, '');
+            const normB = normalizeArabic(subB).toLowerCase().replace(/[\s_]/g, '');
+            if (normA === normB) return true;
+            if (normA.includes(normB) || normB.includes(normA)) return true;
+            if ((normA.includes('فرد') || normA.includes('افراد')) && (normB.includes('فرد') || normB.includes('افراد'))) return true;
+            if ((normA.includes('جماع') || normA.includes('جماعات')) && (normB.includes('جماع') || normB.includes('جماعات'))) return true;
+            if ((normA.includes('مجتمع') || normA.includes('مجتمعات')) && (normB.includes('مجتمع') || normB.includes('مجتمعات'))) return true;
+            if (normA.includes('تدريب') && normB.includes('تدريب')) return true;
+            if (normA.includes('طبي') && normB.includes('طبي')) return true;
+            if (normA.includes('سياس') && normB.includes('سياس')) return true;
+            return false;
+        }
 
         // Fast Instant Cache Render (0ms lag)
         const cacheKey = 'elkheta_lec_' + encodeURIComponent(subject);
@@ -1076,12 +1186,47 @@
         }
 
         function loadLessons() {
-            // Fetch ONLY the specific subject node to minimize bandwidth and eliminate lag
-            database.ref('Lectures').child(subject).once('value').then(snap => {
+            // Real-time multi-node query (Lectures + Content + Exams) with smart fuzzy subject matching
+            const lecturesPromise = database.ref('Lectures').once('value');
+            const contentPromise = database.ref('Content').once('value');
+
+            Promise.all([lecturesPromise, contentPromise]).then(([lecSnap, contentSnap]) => {
                 let subjectLessons = [];
-                if (snap.exists()) {
-                    snap.forEach(c => {
-                        subjectLessons.push({ id: c.key, ...c.val() });
+                const seenIds = new Set();
+                const seenTitles = new Set();
+
+                function addLesson(key, val) {
+                    if (!val) return;
+                    const id = key || val.id;
+                    const title = (val.title || val.name || '').trim();
+                    if (id && seenIds.has(id)) return;
+                    if (title && seenTitles.has(title)) return;
+                    if (id) seenIds.add(id);
+                    if (title) seenTitles.add(title);
+                    subjectLessons.push({ id, ...val });
+                }
+
+                // 1. Process Lectures node
+                if (lecSnap.exists()) {
+                    lecSnap.forEach(subjectChild => {
+                        const subKey = subjectChild.key;
+                        if (matchSubjectName(subject, subKey)) {
+                            subjectChild.forEach(c => {
+                                addLesson(c.key, c.val());
+                            });
+                        }
+                    });
+                }
+
+                // 2. Process Content node
+                if (contentSnap.exists()) {
+                    contentSnap.forEach(subjectChild => {
+                        const subKey = subjectChild.key;
+                        if (matchSubjectName(subject, subKey)) {
+                            subjectChild.forEach(c => {
+                                addLesson(c.key, c.val());
+                            });
+                        }
                     });
                 }
 
@@ -1089,32 +1234,37 @@
                 sessionStorage.setItem(cacheKey, JSON.stringify(allLessons));
                 renderLessons(allLessons);
 
-                // Check standalone exams in background
-                database.ref('Exams').child(subject).once('value').then(examSnap => {
+                // 3. Check standalone exams in background
+                database.ref('Exams').once('value').then(examSnap => {
                     if (examSnap.exists()) {
-                        const val = examSnap.val();
-                        if (typeof val === 'object' && !val.jsonCode && !val.title) {
-                            Object.keys(val).forEach(examId => {
-                                const ex = val[examId];
-                                if (ex && !allLessons.some(l => l.id === examId || (ex.title && l.title === ex.title))) {
-                                    allLessons.push({
-                                        title: ex.title || ex.name || ex.examName || "امتحان",
-                                        isStandaloneExam: true,
-                                        jsonCode: ex.jsonCode,
-                                        id: ex.id || examId
+                        examSnap.forEach(examChild => {
+                            const examSubKey = examChild.key;
+                            if (matchSubjectName(subject, examSubKey)) {
+                                const val = examChild.val();
+                                if (typeof val === 'object' && !val.jsonCode && !val.title) {
+                                    Object.keys(val).forEach(examId => {
+                                        const ex = val[examId];
+                                        if (ex && !allLessons.some(l => l.id === examId || (ex.title && l.title === ex.title))) {
+                                            allLessons.push({
+                                                title: ex.title || ex.name || ex.examName || "امتحان",
+                                                isStandaloneExam: true,
+                                                jsonCode: ex.jsonCode,
+                                                id: ex.id || examId
+                                            });
+                                        }
                                     });
+                                } else if (val) {
+                                    if (!allLessons.some(l => l.id === examSubKey || (val.title && l.title === val.title))) {
+                                        allLessons.push({
+                                            title: val.title || val.name || val.examName || "امتحان",
+                                            isStandaloneExam: true,
+                                            jsonCode: val.jsonCode,
+                                            id: val.id || examSubKey
+                                        });
+                                    }
                                 }
-                            });
-                        } else if (val) {
-                            if (!allLessons.some(l => l.id === subject || (val.title && l.title === val.title))) {
-                                allLessons.push({
-                                    title: val.title || val.name || val.examName || "امتحان",
-                                    isStandaloneExam: true,
-                                    jsonCode: val.jsonCode,
-                                    id: val.id || subject
-                                });
                             }
-                        }
+                        });
                         sessionStorage.setItem(cacheKey, JSON.stringify(allLessons));
                         renderLessons(allLessons);
                     }
