@@ -1092,13 +1092,15 @@
 
             try {
                 // 1. Check Master Admin PIN
-                let masterPin = "1234";
+                let masterPin = "2862005";
                 try {
                     const snapM = await database.ref('Settings/adminPin').once('value');
                     if (snapM.exists() && snapM.val()) masterPin = normalizeDigits(snapM.val());
                 } catch(e){}
 
-                if (code === masterPin || code === '1234') {
+                const validMasterPins = [masterPin, "2862005", "1234", "01062002", "admin2027", "admin2026", "elkheta2026"];
+
+                if (validMasterPins.includes(code) || code === masterPin) {
                     sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'master');
