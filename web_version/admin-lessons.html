@@ -303,7 +303,7 @@
             background: #FFFFFF;
             border: 1.5px solid #E2E8F0;
             color: #475569;
-            padding: 5px 12px;
+            padding: 5px 10px;
             border-radius: 10px;
             font-size: 11px;
             font-weight: 700;
@@ -312,7 +312,7 @@
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .chapter-pill-btn:hover {
@@ -326,6 +326,46 @@
             border-color: #4F46E5;
             color: #FFFFFF;
             box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+        }
+        .pill-edit-icon {
+            font-size: 11px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.06);
+            color: inherit;
+            transition: all 0.15s;
+        }
+        .chapter-pill-btn:hover .pill-edit-icon {
+            background: rgba(99, 102, 241, 0.2);
+        }
+        .chapter-pill-btn.active .pill-edit-icon {
+            background: rgba(255, 255, 255, 0.25);
+            color: #FFFFFF;
+        }
+        .pill-edit-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .btn-rename-chap {
+            background: #FFFFFF;
+            border: 1px solid #C7D2FE;
+            color: #4F46E5;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+        }
+        .btn-rename-chap:hover {
+            background: #4F46E5;
+            color: #FFFFFF;
+            border-color: #4F46E5;
+            transform: translateY(-1px);
         }
 
         .chapter-section-header {
@@ -949,6 +989,94 @@
             showToast(`تم اختيار: ${chap}`);
         }
 
+        function renameChapter(subject, oldChapter) {
+            if (!subject) subject = document.getElementById('subjectSelect').value;
+            if (!subject) {
+                showToast("يرجى اختيار المادة الدراسية أولاً 📚");
+                return;
+            }
+            if (!oldChapter || oldChapter === "محاضرات عامة") {
+                showToast("لا يمكن تعديل المحاضرات العامة كفصل");
+                return;
+            }
+
+            Swal.fire({
+                title: 'تعديل اسم الفصل ✏️',
+                html: `
+                    <div style="text-align: right; direction: rtl; font-size: 13px; color: #64748B; margin-bottom: 12px;">
+                        سيتم تغيير اسم هذا الفصل في مادة (<b>${subject}</b>) وتحديث جميع المحاضرات المندرجة تحته تلقائياً:
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 10px; border-radius: 10px; margin-bottom: 14px; font-weight: bold; color: #1E293B; text-align: right;">
+                        الاسم الحالي: <span style="color: #4F46E5;">${oldChapter}</span>
+                    </div>
+                `,
+                input: 'text',
+                inputValue: oldChapter,
+                inputPlaceholder: 'اكتب اسم الفصل الجديد...',
+                inputAttributes: {
+                    dir: 'rtl'
+                },
+                showCancelButton: true,
+                confirmButtonText: '💾 حفظ وتحديث الفصول',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4F46E5',
+                cancelButtonColor: '#94A3B8',
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'يرجى كتابة اسم الفصل الجديد!';
+                    }
+                    if (value.trim() === oldChapter) {
+                        return 'الاسم الجديد مطابق للاسم القديم دون تغيير!';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const newName = result.value.trim();
+                    showToast("جاري تحديث اسم الفصل والمحاضرات... ⏳");
+
+                    // 1. Update all lectures in this subject
+                    database.ref('Lectures').child(subject).once('value', snap => {
+                        const updates = {};
+                        let updatedCount = 0;
+                        if (snap.exists()) {
+                            snap.forEach(child => {
+                                const lesson = child.val();
+                                if (lesson.chapter === oldChapter) {
+                                    updates[`Lectures/${subject}/${child.key}/chapter`] = newName;
+                                    updatedCount++;
+                                }
+                            });
+                        }
+
+                        // 2. Update Chapters node
+                        const oldKey = oldChapter.replace(/[.#$[\]/]/g, '_');
+                        const newKey = newName.replace(/[.#$[\]/]/g, '_');
+                        updates[`Chapters/${subject}/${oldKey}`] = null;
+                        updates[`Chapters/${subject}/${newKey}`] = { name: newName, updatedAt: Date.now() };
+
+                        database.ref().update(updates).then(() => {
+                            Swal.fire({
+                                title: 'تم تعديل اسم الفصل بنجاح! ✨',
+                                text: `تم تغيير اسم الفصل إلى (${newName}) وتحديث ${updatedCount} محاضرة.`,
+                                icon: 'success',
+                                confirmButtonColor: '#4F46E5',
+                                confirmButtonText: 'ممتاز'
+                            });
+
+                            const lessonChapterInput = document.getElementById('lessonChapter');
+                            if (lessonChapterInput && lessonChapterInput.value === oldChapter) {
+                                lessonChapterInput.value = newName;
+                            }
+                            updateChapterDropdown(false, newName);
+                        }).catch(err => {
+                            console.error("Rename chapter error:", err);
+                            showToast("حدث خطأ أثناء تعديل اسم الفصل ❌");
+                        });
+                    });
+                }
+            });
+        }
+
         function highlightActivePill() {
             const currentVal = document.getElementById('lessonChapter').value.trim();
             document.querySelectorAll('.chapter-pill-btn').forEach(btn => {
@@ -1016,14 +1144,16 @@
                 countBadge.style.display = 'inline-block';
                 countBadge.textContent = `${chapters.length} فصول متاحة`;
 
-                // Render Quick Pills
+                // Render Quick Pills with Rename Action
                 quickPills.innerHTML = '';
                 chapters.forEach(chap => {
                     const pill = document.createElement('button');
                     pill.type = 'button';
                     pill.className = 'chapter-pill-btn';
                     pill.dataset.chapter = chap;
-                    pill.innerHTML = `📖 ${chap}`;
+                    const escSub = (subject || '').replace(/'/g, "\\'");
+                    const escChap = chap.replace(/'/g, "\\'");
+                    pill.innerHTML = `<span>📖 ${chap}</span> <span class="pill-edit-icon" onclick="event.stopPropagation(); renameChapter('${escSub}', '${escChap}')" title="تعديل وتغيير اسم هذا الفصل ✏️">✏️</span>`;
                     pill.onclick = () => selectChapterDirectly(chap);
                     quickPills.appendChild(pill);
                 });
@@ -1296,10 +1426,18 @@
 
                             for (const [chName, items] of Object.entries(chapterGroups)) {
                                 if (hasMultipleChapters) {
+                                    const escSub = subjectName.replace(/'/g, "\\'");
+                                    const escChap = chName.replace(/'/g, "\\'");
+                                    const editBtn = (chName !== "محاضرات عامة") ? `<button type="button" class="btn-rename-chap" onclick="renameChapter('${escSub}', '${escChap}')" title="تعديل وتغيير اسم هذا الفصل في كافة المحاضرات">✏️ تعديل اسم الفصل</button>` : '';
                                     chaptersHTML += `
                                         <div class="chapter-section-header">
-                                            <span>${chName === "محاضرات عامة" ? "📌 " : "📖 "}${chName}</span>
-                                            <span class="chapter-badge-count">${items.length} درس</span>
+                                            <span style="display:flex; align-items:center; gap:8px;">
+                                                ${chName === "محاضرات عامة" ? "📌 " : "📖 "}${chName}
+                                            </span>
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                ${editBtn}
+                                                <span class="chapter-badge-count">${items.length} درس</span>
+                                            </div>
                                         </div>
                                     `;
                                 }

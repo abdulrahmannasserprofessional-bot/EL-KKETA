@@ -19,6 +19,7 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.5">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         .subject-hero {
@@ -164,11 +165,183 @@
             cursor: not-allowed;
             border: 1px dashed #CBD5E1;
         }
+
+        .btn-locked {
+            background: #FEF3C7 !important;
+            color: #92400E !important;
+            border: 1.5px dashed #F59E0B !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        .btn-locked:hover {
+            background: #FDE68A !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
         
         body.dark-theme .btn-video { background: rgba(79,70,229,0.15); color: #818CF8; }
         body.dark-theme .btn-pdf { background: rgba(234,88,12,0.15); color: #F97316; }
         body.dark-theme .btn-quiz { background: rgba(22,163,74,0.15); color: #4ADE80; }
         body.dark-theme .btn-disabled { background: transparent; border-color: rgba(255,255,255,0.1); color: #64748B; }
+        body.dark-theme .btn-locked { background: rgba(245, 158, 11, 0.15) !important; color: #FBBF24 !important; border-color: rgba(245, 158, 11, 0.4) !important; }
+
+        /* Luxurious Scheduled Card & Countdown */
+        .scheduled-premium-card {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.5) 0%, rgba(255, 251, 235, 0.9) 50%, rgba(254, 215, 170, 0.4) 100%);
+            border: 1.5px solid #F59E0B;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-top: 12px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .scheduled-premium-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.25);
+            border-color: #D97706;
+        }
+        body.dark-theme .scheduled-premium-card {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.2) 0%, rgba(30, 41, 59, 0.9) 100%);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .scheduled-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .scheduled-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #92400E;
+            background: #FEF3C7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #FDE68A;
+        }
+        body.dark-theme .scheduled-tag {
+            background: rgba(245, 158, 11, 0.25);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        .scheduled-pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #F59E0B;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .scheduled-date-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: #78350F;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        body.dark-theme .scheduled-date-badge {
+            background: rgba(30, 41, 59, 0.9);
+            color: #FDE68A;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .scheduled-timer-grid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            direction: ltr;
+            margin: 10px 0 8px;
+        }
+        .time-segment {
+            background: #FFFFFF;
+            border: 1.5px solid #FDE68A;
+            border-radius: 12px;
+            padding: 6px 12px;
+            min-width: 55px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(245, 158, 11, 0.08);
+            transition: all 0.2s;
+        }
+        body.dark-theme .time-segment {
+            background: #1E293B;
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        .time-num {
+            display: block;
+            font-size: 18px;
+            font-weight: 900;
+            color: #D97706;
+            line-height: 1.1;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+        body.dark-theme .time-num {
+            color: #FBBF24;
+        }
+        .time-lbl {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            color: #94A3B8;
+            margin-top: 3px;
+        }
+        .time-divider {
+            font-size: 18px;
+            font-weight: 900;
+            color: #F59E0B;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .scheduled-subtext {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #92400E;
+            font-weight: 700;
+            margin-top: 8px;
+            border-top: 1px dashed rgba(245, 158, 11, 0.3);
+            padding-top: 8px;
+        }
+        body.dark-theme .scheduled-subtext {
+            color: #FDE68A;
+            border-top-color: rgba(245, 158, 11, 0.2);
+        }
+        .scheduled-click-tip {
+            font-size: 10px;
+            color: #B45309;
+            background: #FEF3C7;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+        body.dark-theme .scheduled-click-tip {
+            background: rgba(245, 158, 11, 0.2);
+            color: #FBBF24;
+        }
 
         /* Video Player Modal (Light & Clean Platform Theme) */
         .player-modal {
@@ -730,11 +903,47 @@
                         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
                         const mins = Math.floor((diff / 1000 / 60) % 60);
-                        const timeStr = days > 0 ? `${days} أيام و ${hours} ساعة` : `${hours} ساعة و ${mins} دقيقة`;
+                        const secs = Math.floor((diff / 1000) % 60);
                         
+                        const lockDate = new Date(lesson.unlockTime);
+                        const dateFormatted = `${lockDate.toLocaleDateString('ar-EG', { weekday:'short', month:'short', day:'numeric' })} - ${lockDate.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' })}`;
+
                         lockHTML = `
-                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 6px 12px; border-radius: 8px; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #B45309; font-weight: bold;">
-                                <span style="font-size: 14px;">⏳</span> مجدولة وتفتح بعد: <span dir="ltr" style="background: #ffffff; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: #D97706;">${timeStr}</span>
+                            <div class="scheduled-premium-card" onclick="showLockedModalByIndex(${index})">
+                                <div class="scheduled-header-row">
+                                    <div class="scheduled-tag">
+                                        <span class="scheduled-pulse-dot"></span>
+                                        <span>محاضرة حصرية مجدولة 🔒</span>
+                                    </div>
+                                    <div class="scheduled-date-badge">
+                                        📅 ${dateFormatted}
+                                    </div>
+                                </div>
+                                <div class="scheduled-timer-grid" data-unlock="${lesson.unlockTime}">
+                                    <div class="time-segment">
+                                        <span class="time-num time-days">${days < 10 ? '0' + days : days}</span>
+                                        <span class="time-lbl">أيام</span>
+                                    </div>
+                                    <span class="time-divider">:</span>
+                                    <div class="time-segment">
+                                        <span class="time-num time-hours">${hours < 10 ? '0' + hours : hours}</span>
+                                        <span class="time-lbl">ساعة</span>
+                                    </div>
+                                    <span class="time-divider">:</span>
+                                    <div class="time-segment">
+                                        <span class="time-num time-mins">${mins < 10 ? '0' + mins : mins}</span>
+                                        <span class="time-lbl">دقيقة</span>
+                                    </div>
+                                    <span class="time-divider">:</span>
+                                    <div class="time-segment">
+                                        <span class="time-num time-secs">${secs < 10 ? '0' + secs : secs}</span>
+                                        <span class="time-lbl">ثانية</span>
+                                    </div>
+                                </div>
+                                <div class="scheduled-subtext">
+                                    <span>⏳ تفتح تلقائياً فور انتهاء العد التنازلي</span>
+                                    <span class="scheduled-click-tip">اضغط للتفاصيل 👈</span>
+                                </div>
                             </div>
                         `;
                     }
@@ -751,33 +960,73 @@
                     if (lesson.isStandaloneExam) {
                         if (currentCategory === 'all' || currentCategory === 'quizzes') {
                             hasItemsForCurrentView = true;
-                            groupItemsHTML.push(`
-                                <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin:0 0 12px 0;">
-                                    <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id}')">
-                                        <div style="width:48px; height:48px; background:#E8F8F5; color:#00B894; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">📝</div>
-                                        <div>
-                                            <strong style="font-size:15px; display:block;">${lesson.title}</strong>
-                                            <div style="margin-top: 4px;">${badgesHTML}</div>
-                                            ${descHTML}
+                            if (isLocked) {
+                                groupItemsHTML.push(`
+                                    <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin:0 0 12px 0; border: 1.5px dashed #F59E0B;" onclick="showLockedModalByIndex(${index})">
+                                        <div style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                                            <div style="width:48px; height:48px; background:#FEF3C7; color:#D97706; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">🔒</div>
+                                            <div>
+                                                <strong style="font-size:15px; display:block;">${lesson.title}</strong>
+                                                <div style="margin-top: 4px;"><span style="background:#FEF3C7; color:#92400E; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">🔒 مجدول</span></div>
+                                                ${descHTML}
+                                            </div>
+                                        </div>
+                                        <button class="action-btn btn-locked" style="padding:6px 12px; font-size:11px;" onclick="showLockedModalByIndex(${index})">🔒 مجدول</button>
+                                    </div>
+                                `);
+                            } else {
+                                groupItemsHTML.push(`
+                                    <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin:0 0 12px 0;">
+                                        <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id}')">
+                                            <div style="width:48px; height:48px; background:#E8F8F5; color:#00B894; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:24px;">📝</div>
+                                            <div>
+                                                <strong style="font-size:15px; display:block;">${lesson.title}</strong>
+                                                <div style="margin-top: 4px;">${badgesHTML}</div>
+                                                ${descHTML}
+                                            </div>
+                                        </div>
+                                        <div style="display:flex; gap:6px;">
+                                            <button class="action-btn btn-quiz" style="background:#f1f5f9; color:#475569; padding:6px 12px; font-size:11px;" onclick="downloadOfflineExam('${escTitle}', '${lesson.id}')" title="تحميل الامتحان بصيغة HTML أوفلاين">📥 تحميل</button>
+                                            <button class="action-btn btn-quiz" style="padding:6px 12px; font-size:11px;" onclick="startExam('${escTitle}', '${lesson.id}')">بدء 🚀</button>
                                         </div>
                                     </div>
-                                    <div style="display:flex; gap:6px;">
-                                        <button class="action-btn btn-quiz" style="background:#f1f5f9; color:#475569; padding:6px 12px; font-size:11px;" onclick="downloadOfflineExam('${escTitle}', '${lesson.id}')" title="تحميل الامتحان بصيغة HTML أوفلاين">📥 تحميل</button>
-                                        <button class="action-btn btn-quiz" style="padding:6px 12px; font-size:11px;" onclick="startExam('${escTitle}', '${lesson.id}')">بدء 🚀</button>
-                                    </div>
-                                </div>
-                            `);
+                                `);
+                            }
                         }
                         return;
                     }
 
                     if (currentCategory === 'all') {
                         hasItemsForCurrentView = true;
+                        
+                        let actionsHTML = '';
+                        if (isLocked) {
+                            actionsHTML = `
+                                <button class="action-btn btn-locked" onclick="showLockedModalByIndex(${index})"><i>🔒</i> محتوى المحاضرة (مجدول)</button>
+                                <button class="action-btn btn-locked" onclick="showLockedModalByIndex(${index})"><i>🔒</i> ملخص (مجدول)</button>
+                                <button class="action-btn btn-locked" onclick="showLockedModalByIndex(${index})"><i>🔒</i> امتحان (مجدول)</button>
+                                <button class="action-btn" style="background:#FFFBEB; color:#D97706; border:1px solid #FDE68A;" onclick="openLectureQA(${index})"><i>💬</i> أسئلة الطلاب</button>
+                            `;
+                        } else {
+                            actionsHTML = `
+                                ${escVideoUrl 
+                                    ? `<button class="action-btn btn-video" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})"><i>📺</i> محتوى المحاضرة</button>` 
+                                    : `<button class="action-btn btn-disabled" onclick="openVideoPlayer('', '${escTitle}', ${index})"><i style="filter: grayscale(1);">📺</i> محتوى المحاضرة</button>`}
+                                ${escPdfUrl 
+                                    ? `<button class="action-btn btn-pdf" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})"><i>📄</i> ملخص</button>` 
+                                    : `<button class="action-btn btn-disabled" onclick="showToast('الملخص غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📄</i> غير متوفر</button>`}
+                                ${hasExam 
+                                    ? `<button class="action-btn btn-quiz" onclick="startExam('${escTitle}', '${lesson.id || ''}')"><i>📝</i> امتحان</button>` 
+                                    : `<button class="action-btn btn-disabled" onclick="showToast('الامتحان غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📝</i> غير متوفر</button>`}
+                                <button class="action-btn" style="background:#FFFBEB; color:#D97706; border:1px solid #FDE68A;" onclick="openLectureQA(${index})"><i>💬</i> أسئلة الطلاب</button>
+                            `;
+                        }
+
                         groupItemsHTML.push(`
-                            <div class="lesson-package">
+                            <div class="lesson-package" ${isLocked ? 'style="border-right-color: #F59E0B;"' : ''}>
                                 <div class="lesson-header-row">
                                     <div class="lesson-title-area">
-                                        <div class="lesson-number">${index+1}</div>
+                                        <div class="lesson-number" ${isLocked ? 'style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245,158,11,0.4);"' : ''}>${index+1}</div>
                                         <div class="lesson-info">
                                             <h4>${lesson.title}</h4>
                                             <div style="margin-top: 4px;"><span>⏱️ ${lesson.duration || 'متوفر'}</span> ${badgesHTML}</div>
@@ -787,59 +1036,88 @@
                                     </div>
                                 </div>
                                 <div class="lesson-actions">
-                                    ${escVideoUrl 
-                                        ? `<button class="action-btn btn-video" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})"><i>📺</i> محتوى المحاضرة</button>` 
-                                        : `<button class="action-btn btn-disabled" onclick="openLectureDetails(${index})"><i style="filter: grayscale(1);">📺</i> محتوى المحاضرة</button>`}
-                                    ${escPdfUrl 
-                                        ? `<button class="action-btn btn-pdf" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})"><i>📄</i> ملخص</button>` 
-                                        : `<button class="action-btn btn-disabled" onclick="showToast('الملخص غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📄</i> غير متوفر</button>`}
-                                    ${hasExam 
-                                        ? `<button class="action-btn btn-quiz" onclick="startExam('${escTitle}', '${lesson.id || ''}')"><i>📝</i> امتحان</button>` 
-                                        : `<button class="action-btn btn-disabled" onclick="showToast('الامتحان غير متوفر حالياً', 'warning')"><i style="filter: grayscale(1);">📝</i> غير متوفر</button>`}
-                                    <button class="action-btn" style="background:#FFFBEB; color:#D97706; border:1px solid #FDE68A;" onclick="openLectureQA(${index})"><i>💬</i> أسئلة الطلاب</button>
+                                    ${actionsHTML}
                                 </div>
                             </div>
                         `);
                     } else if (currentCategory === 'videos' && lesson.videoUrl) {
                         hasItemsForCurrentView = true;
-                        groupItemsHTML.push(`
-                            <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <div style="width:40px; height:40px; background:#EEF2FF; color:#4F46E5; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📺</div>
-                                    <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">فيديو المحاضرة</span></div>
+                        if (isLocked) {
+                            groupItemsHTML.push(`
+                                <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border: 1.5px dashed #F59E0B; cursor:pointer;" onclick="showLockedModalByIndex(${index})">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div style="width:40px; height:40px; background:#FEF3C7; color:#D97706; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">🔒</div>
+                                        <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:#D97706; font-weight:bold;">فيديو مجدول للفتح قريباً</span></div>
+                                    </div>
+                                    <span class="action-btn btn-locked" style="padding:6px 12px; font-size:11px;">🔒 مجدول</span>
                                 </div>
-                                <span style="background:rgba(79,70,229,0.1); color:#4F46E5; padding:6px 12px; border-radius:10px; font-weight:bold; font-size:11px;">تشغيل</span>
-                            </div>
-                        `);
+                            `);
+                        } else {
+                            groupItemsHTML.push(`
+                                <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div style="width:40px; height:40px; background:#EEF2FF; color:#4F46E5; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📺</div>
+                                        <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">فيديو المحاضرة</span></div>
+                                    </div>
+                                    <span style="background:rgba(79,70,229,0.1); color:#4F46E5; padding:6px 12px; border-radius:10px; font-weight:bold; font-size:11px;">تشغيل</span>
+                                </div>
+                            `);
+                        }
                     } else if (currentCategory === 'pdfs' && lesson.pdfUrl) {
                         hasItemsForCurrentView = true;
-                        groupItemsHTML.push(`
-                            <div style="background: #FFFFFF; border-radius: 24px; padding: 25px 20px; width: 100%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #E2E8F0; display: flex; flex-direction: column; align-items: center; margin: 0 auto 20px; text-align: center;">
-                                <div style="width: 70px; height: 70px; background: #FEF3C7; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
-                                    <div style="font-size: 26px;">📄</div>
-                                    <span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-top: -2px;">PDF</span>
+                        if (isLocked) {
+                            groupItemsHTML.push(`
+                                <div style="background: #FFFFFF; border-radius: 24px; padding: 25px 20px; width: 100%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1.5px dashed #F59E0B; display: flex; flex-direction: column; align-items: center; margin: 0 auto 20px; text-align: center; cursor:pointer;" onclick="showLockedModalByIndex(${index})">
+                                    <div style="width: 70px; height: 70px; background: #FEF3C7; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                                        <div style="font-size: 26px;">🔒</div>
+                                        <span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-top: -2px;">مجدول</span>
+                                    </div>
+                                    <h3 style="font-size: 16px; font-weight: 800; color: #1E293B; margin: 0 0 4px 0;">${lesson.title}</h3>
+                                    <span style="font-size: 11px; color: #D97706; font-weight: 700; margin-bottom: 14px;">🔒 يفتح تلقائياً في موعد النشر</span>
+                                    <button class="action-btn btn-locked" style="width: 100%; justify-content: center; padding: 10px;" onclick="showLockedModalByIndex(${index})">🔒 عرض موعد النشر</button>
                                 </div>
-                                <h3 style="font-size: 16px; font-weight: 800; color: #1E293B; margin: 0 0 4px 0;">${lesson.title}</h3>
-                                <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 4px;">السبورة والملخص</span>
-                                <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 18px;">${lesson.chapter || 'محاضرة معتمدة'}</span>
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
-                                    <button onclick="showToast('تم تحديد الملخص كمكتمل! ✅', 'success')" title="مكتمل" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✔️</button>
-                                    <button onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})" title="معاينة وتصفح" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">👁️</button>
-                                    <button onclick="downloadPdfDirectUrl('${escPdfUrl}', '${escTitle}')" title="تحميل الملف" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">📥</button>
+                            `);
+                        } else {
+                            groupItemsHTML.push(`
+                                <div style="background: #FFFFFF; border-radius: 24px; padding: 25px 20px; width: 100%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #E2E8F0; display: flex; flex-direction: column; align-items: center; margin: 0 auto 20px; text-align: center;">
+                                    <div style="width: 70px; height: 70px; background: #FEF3C7; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                                        <div style="font-size: 26px;">📄</div>
+                                        <span style="background: #F59E0B; color: white; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 4px; margin-top: -2px;">PDF</span>
+                                    </div>
+                                    <h3 style="font-size: 16px; font-weight: 800; color: #1E293B; margin: 0 0 4px 0;">${lesson.title}</h3>
+                                    <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 4px;">السبورة والملخص</span>
+                                    <span style="font-size: 11px; color: #94A3B8; font-weight: 700; margin-bottom: 18px;">${lesson.chapter || 'محاضرة معتمدة'}</span>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                        <button onclick="showToast('تم تحديد الملخص كمكتمل! ✅', 'success')" title="مكتمل" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✔️</button>
+                                        <button onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})" title="معاينة وتصفح" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">👁️</button>
+                                        <button onclick="downloadPdfDirectUrl('${escPdfUrl}', '${escTitle}')" title="تحميل الملف" style="width: 42px; height: 42px; background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 12px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;">📥</button>
+                                    </div>
                                 </div>
-                            </div>
-                        `);
+                            `);
+                        }
                     } else if (currentCategory === 'quizzes' && hasExam) {
                         hasItemsForCurrentView = true;
-                        groupItemsHTML.push(`
-                            <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id || ''}')">
-                                    <div style="width:40px; height:40px; background:#E8F8F5; color:#00B894; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📝</div>
-                                    <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">امتحان المحاضرة</span></div>
+                        if (isLocked) {
+                            groupItemsHTML.push(`
+                                <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border: 1.5px dashed #F59E0B; cursor:pointer;" onclick="showLockedModalByIndex(${index})">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div style="width:40px; height:40px; background:#FEF3C7; color:#D97706; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">🔒</div>
+                                        <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:#D97706; font-weight:bold;">امتحان مجدول للفتح قريباً</span></div>
+                                    </div>
+                                    <button class="action-btn btn-locked" style="padding:6px 16px; font-size:12px;" onclick="showLockedModalByIndex(${index})">🔒 مجدول</button>
                                 </div>
-                                <button class="action-btn btn-quiz" style="padding:6px 16px; font-size:12px;" onclick="startExam('${escTitle}', '${lesson.id || ''}')">بدء الامتحان 🚀</button>
-                            </div>
-                        `);
+                            `);
+                        } else {
+                            groupItemsHTML.push(`
+                                <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                    <div style="display:flex; align-items:center; gap:12px; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id || ''}')">
+                                        <div style="width:40px; height:40px; background:#E8F8F5; color:#00B894; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">📝</div>
+                                        <div><strong style="font-size:14px; display:block;">${lesson.title}</strong><span style="font-size:11px; color:var(--text-sub);">امتحان المحاضرة</span></div>
+                                    </div>
+                                    <button class="action-btn btn-quiz" style="padding:6px 16px; font-size:12px;" onclick="startExam('${escTitle}', '${lesson.id || ''}')">بدء الامتحان 🚀</button>
+                                </div>
+                            `);
+                        }
                     }
                 });
 
@@ -859,6 +1137,114 @@
                     list.appendChild(groupContainer);
                 }
             }
+
+            startCountdownTickers();
+        }
+
+        let countdownInterval = null;
+        function startCountdownTickers() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const timerBoxes = document.querySelectorAll('.scheduled-timer-grid[data-unlock]');
+                let needRefresh = false;
+                timerBoxes.forEach(box => {
+                    const unlockTime = parseInt(box.getAttribute('data-unlock'), 10);
+                    const diff = unlockTime - Date.now();
+                    if (diff <= 0) {
+                        needRefresh = true;
+                    } else {
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                        const mins = Math.floor((diff / 1000 / 60) % 60);
+                        const secs = Math.floor((diff / 1000) % 60);
+
+                        const dEl = box.querySelector('.time-days');
+                        const hEl = box.querySelector('.time-hours');
+                        const mEl = box.querySelector('.time-mins');
+                        const sEl = box.querySelector('.time-secs');
+
+                        if (dEl) dEl.innerText = days < 10 ? '0' + days : days;
+                        if (hEl) hEl.innerText = hours < 10 ? '0' + hours : hours;
+                        if (mEl) mEl.innerText = mins < 10 ? '0' + mins : mins;
+                        if (sEl) sEl.innerText = secs < 10 ? '0' + secs : secs;
+                    }
+                });
+                if (needRefresh) {
+                    renderLessons(allLessons);
+                }
+            }, 1000);
+        }
+
+        function showLockedModalByIndex(index) {
+            if (typeof index === 'number' && allLessons[index]) {
+                showLockedModal(allLessons[index]);
+            }
+        }
+
+        function showLockedModal(lesson) {
+            if (!lesson) return;
+            const lockDate = new Date(lesson.unlockTime);
+            const diff = (lesson.unlockTime || Date.now()) - Date.now();
+            const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+            const hours = Math.max(0, Math.floor((diff / (1000 * 60 * 60)) % 24));
+            const mins = Math.max(0, Math.floor((diff / 1000 / 60) % 60));
+            const secs = Math.max(0, Math.floor((diff / 1000) % 60));
+
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const dateFormatted = lockDate.toLocaleDateString('ar-EG', dateOptions);
+
+            Swal.fire({
+                title: '',
+                html: `
+                    <div style="text-align: center; padding: 5px 0;">
+                        <div style="width: 75px; height: 75px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35); border: 3px solid #F59E0B;">
+                            🔒
+                        </div>
+                        <div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:800; padding:3px 12px; border-radius:20px; border:1px solid #FDE68A; margin-bottom:10px;">
+                            ✨ محاضرة حصرية مجدولة
+                        </div>
+                        <h3 style="font-size: 17px; font-weight: 900; color: #1E293B; margin: 0 0 6px 0; line-height:1.4;">${lesson.title}</h3>
+                        <div style="font-size: 12px; color: #64748B; font-weight: bold; margin-bottom: 18px;">${lesson.chapter || 'منهج المادة الدراسية'}</div>
+
+                        <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                            <div style="font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 10px;">⏳ متبقي على إتاحة المحتوى لجميع الطلاب:</div>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; direction: ltr;">
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${days < 10 ? '0' + days : days}</span>
+                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">أيام</span>
+                                </div>
+                                <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${hours < 10 ? '0' + hours : hours}</span>
+                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">ساعة</span>
+                                </div>
+                                <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${mins < 10 ? '0' + mins : mins}</span>
+                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">دقيقة</span>
+                                </div>
+                                <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${secs < 10 ? '0' + secs : secs}</span>
+                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">ثانية</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border: 1px solid #FDE68A; border-radius: 14px; padding: 12px 14px; font-size: 12px; font-weight: bold; color: #92400E; margin-bottom: 14px; text-align:center;">
+                            📅 موعد الفتح التلقائي:<br>
+                            <span style="font-size: 13px; color: #B45309; font-weight:800;">${dateFormatted}</span>
+                        </div>
+
+                        <div style="background:#F1F5F9; border-radius:12px; padding:10px 14px; font-size: 11px; color: #64748B; line-height: 1.6; text-align:right;">
+                            💡 تم رفع محتوى المحاضرة وملحقاتها بالكامل مسبقاً، وسيتم فتح إمكانية مشاهدة الفيديو وتصفح الملخص وخوض الامتحان مباشرةً وبشكل تلقائي بمجرد انتهاء الوقت.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'حسناً، بانتظار المحاضرة 🌟',
+                confirmButtonColor: '#D97706',
+                showCloseButton: true
+            });
         }
 
         let currentPdfUrl = "";
@@ -991,6 +1377,11 @@
 
             const lesson = (currentPdfIndex >= 0 && allLessons[currentPdfIndex]) ? allLessons[currentPdfIndex] : null;
 
+            if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
+                showLockedModal(lesson);
+                return;
+            }
+
             // Update Card Date
             let dateStr = new Date().toISOString().split('T')[0];
             if (lesson && lesson.createdAt) {
@@ -1067,6 +1458,11 @@
 
         function downloadPdfDirectUrl(url, title) {
             if (!url) return;
+            const lesson = allLessons.find(l => (l.pdfUrl && l.pdfUrl === url) || (l.title && l.title === title));
+            if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
+                showLockedModal(lesson);
+                return;
+            }
             const { downloadUrl, viewUrl } = getDirectPdfUrls(url);
             
             if (url.includes('drive.google.com')) {
@@ -1678,6 +2074,12 @@
         function openVideoPlayer(videoUrl, title, index) {
             currentLectureIndex = (typeof index === 'number') ? index : allLessons.findIndex(l => l.title === title || (videoUrl && l.videoUrl === videoUrl));
             currentLectureData = (currentLectureIndex >= 0 && allLessons[currentLectureIndex]) ? allLessons[currentLectureIndex] : { title, videoUrl };
+
+            if (currentLectureData && currentLectureData.unlockTime && Date.now() < currentLectureData.unlockTime) {
+                showLockedModal(currentLectureData);
+                return;
+            }
+
             currentLectureTitle = title || (currentLectureData ? currentLectureData.title : 'المحاضرة');
             currentLectureKey = (currentLectureData && currentLectureData.id) ? currentLectureData.id : currentLectureTitle;
 
@@ -1944,7 +2346,22 @@
             document.getElementById('playerModal').classList.remove('active');
         }
 
+        function downloadOfflineExam(lessonTitle, lessonId) {
+            const found = allLessons.find(l => l.id === lessonId || l.title === lessonTitle);
+            if (found && found.unlockTime && Date.now() < found.unlockTime) {
+                showLockedModal(found);
+                return;
+            }
+            startExam(lessonTitle, lessonId);
+        }
+
         function startExam(lessonTitle, lessonIdOrCode) {
+            const found = allLessons.find(l => l.id === lessonIdOrCode || l.title === lessonTitle);
+            if (found && found.unlockTime && Date.now() < found.unlockTime) {
+                showLockedModal(found);
+                return;
+            }
+
             if (user && user.studentCode) {
                 try {
                     database.ref('ActivityLogs').push().set({
@@ -1958,10 +2375,9 @@
                 } catch(e){}
             }
 
-            const found = allLessons.find(l => l.id === lessonIdOrCode || l.title === lessonTitle);
             const jsonCode = (found && found.jsonCode) ? found.jsonCode : lessonIdOrCode;
 
-            if (jsonCode && jsonCode.trim().startsWith('[') || jsonCode && jsonCode.trim().startsWith('{')) {
+            if (jsonCode && (jsonCode.trim().startsWith('[') || jsonCode.trim().startsWith('{'))) {
                 sessionStorage.setItem('currentExamData', jsonCode);
                 window.location.href = `quiz.html?subject=${encodeURIComponent(subject)}&fromStorage=true`;
                 return;
