@@ -285,9 +285,17 @@
 
                 <a href="mistakes.html" class="elkheta-nav-link ${isActive('mistakes.html')}">
                     <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon">🧠</span>
+                        <span class="elkheta-nav-icon">📝</span>
                         <span>سجل الأسئلة والأخطاء</span>
                     </div>
+                </a>
+
+                <a href="ai-report.html" class="elkheta-nav-link ${isActive('ai-report.html')}">
+                    <div class="elkheta-nav-link-left">
+                        <span class="elkheta-nav-icon" style="background: rgba(124, 58, 237, 0.15); color: #7C3AED;">🧠</span>
+                        <span>التقرير والتحليل الذكي</span>
+                    </div>
+                    <span class="elkheta-nav-badge" style="background: linear-gradient(135deg, #A855F7, #6366F1); color: white;">AI ذكي ⚡</span>
                 </a>
 
                 <a href="leaderboard.html" class="elkheta-nav-link ${isActive('leaderboard.html')}">

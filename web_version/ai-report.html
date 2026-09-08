@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقرير والتحليل الذكي للمستوى - ELKHETA AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --ai-primary: #7C3AED;
+            --ai-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #D946EF 100%);
+            --ai-card-bg: #FFFFFF;
+            --ai-border: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F8FAFC;
+            color: #1E293B;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        body.dark-theme {
+            background: #0F172A;
+            color: #F8FAFC;
+            --ai-card-bg: #1E293B;
+            --ai-border: #334155;
+        }
+
+        .header-ai {
+            background: var(--ai-gradient);
+            padding: 24px 20px 45px;
+            color: white;
+            border-radius: 0 0 32px 32px;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.25);
+            position: relative;
+        }
+
+        .header-ai-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 900px;
+            margin: 0 auto 15px;
+        }
+
+        .ai-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+        .ai-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .ai-header-title {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .ai-header-title h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .ai-header-title p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        /* Container */
+        .ai-container {
+            max-width: 900px;
+            margin: -25px auto 40px;
+            padding: 0 15px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Hero Overview Card */
+        .hero-score-card {
+            background: var(--ai-card-bg);
+            border: 1.5px solid var(--ai-border);
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.dark-theme .hero-score-card {
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .student-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .student-avatar-ai {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: var(--ai-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .score-circle-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(124, 58, 237, 0.08);
+            border: 1.5px solid rgba(124, 58, 237, 0.2);
+            padding: 10px 18px;
+            border-radius: 20px;
+        }
+
+        .score-circle-val {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--ai-primary);
+            line-height: 1;
+        }
+
+        /* Quick Metrics 4-grid */
+        .metrics-4grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .mini-stat-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        body.dark-theme .mini-stat-card {
+            background: #0F172A;
+            border-color: #334155;
+        }
+        .mini-stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .mini-stat-card.good {
+            border-color: #86EFAC;
+            background: rgba(34, 197, 94, 0.08);
+        }
+        .mini-stat-card.alert {
+            border-color: #FCA5A5;
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* AI Diagnosis Narrative Box (Glowing Sparkles) */
+        .ai-diagnosis-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(217, 70, 239, 0.08) 100%);
+            border: 2px solid rgba(139, 92, 246, 0.35);
+            border-radius: 22px;
+            padding: 20px 22px;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.08);
+        }
+
+        .ai-diagnosis-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .ai-badge-live {
+            background: var(--ai-gradient);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .ai-narrative-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #334155;
+            font-weight: 600;
+        }
+        body.dark-theme .ai-narrative-text {
+            color: #E2E8F0;
+        }
+
+        .highlight-strength {
+            color: #16A34A;
+            background: rgba(34, 197, 94, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            display: inline-block;
+        }
+
+        .highlight-weakness {
+            color: #DC2626;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            display: inline-block;
+        }
+
+        /* 2 Columns: Strengths vs Weaknesses */
+        .sw-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media(max-width: 650px) {
+            .sw-grid { grid-template-columns: 1fr; }
+        }
+
+        .sw-card {
+            background: var(--ai-card-bg);
+            border-radius: 22px;
+            padding: 20px;
+            border: 1.5px solid var(--ai-border);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        .sw-card.strength-theme {
+            border-color: #86EFAC;
+            border-top: 5px solid #22C55E;
+        }
+        .sw-card.weakness-theme {
+            border-color: #FCA5A5;
+            border-top: 5px solid #EF4444;
+        }
+
+        .sw-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .sw-item {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        body.dark-theme .sw-item {
+            background: #0F172A;
+            border-color: #334155;
+        }
+
+        .sw-item-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1E293B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        body.dark-theme .sw-item-title { color: #F8FAFC; }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 7px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        body.dark-theme .progress-bar-wrap { background: #334155; }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fill-green { background: linear-gradient(90deg, #10B981, #059669); }
+        .fill-yellow { background: linear-gradient(90deg, #F59E0B, #D97706); }
+        .fill-red { background: linear-gradient(90deg, #EF4444, #DC2626); }
+
+        .btn-action-sm {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: 'Cairo';
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            width: fit-content;
+            transition: all 0.2s;
+        }
+        .btn-action-sm:hover {
+            background: #4338CA;
+            transform: translateY(-1px);
+        }
+
+        /* Subjects Detailed Breakdown Accordions */
+        .subject-matrix-card {
+            background: var(--ai-card-bg);
+            border: 1.5px solid var(--ai-border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .section-heading {
+            font-size: 17px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chapter-row {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        body.dark-theme .chapter-row {
+            background: #0F172A;
+            border-color: #334155;
+        }
+
+        .chapter-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge-pill {
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .badge-mastered { background: rgba(34, 197, 94, 0.15); color: #16A34A; }
+        .badge-warning { background: rgba(239, 68, 68, 0.15); color: #DC2626; }
+        .badge-moderate { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+
+        /* Action Steps Strip */
+        .action-plan-card {
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(49, 46, 129, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .plan-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 16px;
+            border-radius: 14px;
+        }
+
+        .plan-step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #6366F1;
+            color: white;
+            font-weight: 900;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Buttons Footer */
+        .report-actions-footer {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .btn-footer {
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-family: 'Cairo';
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-share { background: #25D366; color: white; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .btn-share:hover { transform: translateY(-2px); background: #20BA5A; }
+        .btn-retry { background: #4F46E5; color: white; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); }
+        .btn-retry:hover { transform: translateY(-2px); background: #4338CA; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748B;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-ai">
+        <div class="header-ai-top">
+            <button class="ai-nav-btn" onclick="history.back()" title="رجوع">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div style="display: flex; gap: 8px;">
+                <button class="ai-nav-btn" onclick="toggleTheme()" title="تغيير المظهر">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="ai-nav-btn" onclick="openStudentDrawer()" title="القائمة">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div class="ai-header-title">
+            <h1><span>🧠</span> التقرير والتحليل الذكي للمستوى</h1>
+            <p>تحليل ذكي لإجاباتك وامتحاناتك وتحديد نقاط القوة والضعف وتوصيات المذاكرة</p>
+        </div>
+    </div>
+
+    <div class="ai-container" id="aiMainContainer">
+        <!-- Loading State -->
+        <div class="hero-score-card" id="loadingCard">
+            <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 45px; margin-bottom: 12px;">🤖</div>
+                <h3 style="margin: 0; font-size: 18px; color: var(--ai-primary);">جاري تشغيل محرك الذكاء الاصطناعي وتحليل أداء الطالب...</h3>
+                <p style="font-size: 13px; color: #64748B; margin-top: 6px;">يتم استخراج وتحليل نتائجك في كافة الامتحانات والفصول لتقديم التوصية الدقيقة.</p>
+            </div>
+        </div>
+
+        <div id="aiReportContent" style="display: none; flex-direction: column; gap: 20px;">
+            <!-- 1. Hero Score Card -->
+            <div class="hero-score-card">
+                <div class="hero-top-row">
+                    <div class="student-profile-badge">
+                        <div class="student-avatar-ai">🎓</div>
+                        <div>
+                            <h2 style="margin: 0; font-size: 18px; font-weight: 900;" id="aiStudentName">طالب منصة الخطة</h2>
+                            <div style="font-size: 12px; color: #64748B; font-weight: 700;" id="aiStudentCode">كود الطالب: ---</div>
+                        </div>
+                    </div>
+                    <div class="score-circle-container">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 800; color: #64748B;">مؤشر التمكن العام</div>
+                            <div style="font-size: 12px; font-weight: 900; color: var(--ai-primary);" id="aiHealthRating">متميز 🌟</div>
+                        </div>
+                        <div class="score-circle-val" id="aiOverallPercentage">0%</div>
+                    </div>
+                </div>
+
+                <!-- 4 Quick Stats -->
+                <div class="metrics-4grid">
+                    <div class="mini-stat-card">
+                        <span style="font-size: 18px;">📝</span>
+                        <strong style="font-size: 16px;" id="statTotalExams">0</strong>
+                        <span style="font-size: 11px; color: #64748B;">امتحانات مكتملة</span>
+                    </div>
+                    <div class="mini-stat-card good">
+                        <span style="font-size: 18px;">🌟</span>
+                        <strong style="font-size: 16px; color: #16A34A;" id="statStrengthsCount">0</strong>
+                        <span style="font-size: 11px; color: #16A34A;">فصول متقنة بقوة</span>
+                    </div>
+                    <div class="mini-stat-card alert">
+                        <span style="font-size: 18px;">⚠️</span>
+                        <strong style="font-size: 16px; color: #DC2626;" id="statWeaknessCount">0</strong>
+                        <span style="font-size: 11px; color: #DC2626;">دروس بحاجة لمراجعة</span>
+                    </div>
+                    <div class="mini-stat-card">
+                        <span style="font-size: 18px;">🎯</span>
+                        <strong style="font-size: 16px;" id="statCorrectAnswers">0</strong>
+                        <span style="font-size: 11px; color: #64748B;">إجابات صحيحة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. AI Smart Diagnosis & Prescription -->
+            <div class="ai-diagnosis-box">
+                <div class="ai-diagnosis-header">
+                    <span class="ai-badge-live"><i class="fa-solid fa-wand-magic-sparkles"></i> التشخيص والتوجيه الذكي للمذاكرة</span>
+                    <span style="font-size: 11px; font-weight: 700; color: #6366F1;">مُحدَّث لحظياً ⚡</span>
+                </div>
+                <div class="ai-narrative-text" id="aiNarrativeContent">
+                    جاري صياغة التقرير...
+                </div>
+            </div>
+
+            <!-- 3. Strengths vs Weaknesses (2 Columns) -->
+            <div class="sw-grid">
+                <!-- Strengths -->
+                <div class="sw-card strength-theme">
+                    <div class="sw-card-header" style="color: #15803D;">
+                        <span>🌟</span>
+                        <span>نقاط القوة والإتقان المتميز</span>
+                    </div>
+                    <div id="strengthsList" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Weaknesses -->
+                <div class="sw-card weakness-theme">
+                    <div class="sw-card-header" style="color: #B91C1C;">
+                        <span>⚠️</span>
+                        <span>نقاط تحتاج تركيز وتطوير</span>
+                    </div>
+                    <div id="weaknessesList" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Subject & Chapter Mastery Breakdown -->
+            <div class="subject-matrix-card">
+                <div class="section-heading">
+                    <i class="fa-solid fa-chart-pie" style="color: var(--ai-primary);"></i>
+                    <span>مصفوفة إتقان المواد والفصول الدراسية</span>
+                </div>
+                <div id="subjectsMatrixList" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <!-- 5. Step-by-Step Personalized Action Plan -->
+            <div class="action-plan-card">
+                <div style="display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 900;">
+                    <span>🚀</span>
+                    <span>الخطة الذكية المقترحة لرفع مستواك إلى 100%</span>
+                </div>
+                <div id="actionPlanSteps" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <!-- 6. Footer Actions -->
+            <div class="report-actions-footer">
+                <button class="btn-footer btn-retry" onclick="location.href='mistakes.html'">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>تدريب وحل سجل الأخطاء</span>
+                </button>
+                <button class="btn-footer btn-share" onclick="shareAIReport()">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>مشاركة تقرير مستواي عبر واتساب</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item">📖<br>المواد</a>
+        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="toast.js"></script>
+    <script src="student-drawer.js"></script>
+
+    <script>
+        // Check theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Student Data
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const studentCode = (user.studentCode || user.code || '').trim();
+        const studentName = user.fullName || user.name || 'طالب منصة الخطة';
+        const safeStCode = studentCode.replace(/[.#$\[\]]/g, '_');
+
+        document.getElementById('aiStudentName').textContent = studentName;
+        document.getElementById('aiStudentCode').textContent = `كود الطالب: ${studentCode || '---'}`;
+
+        // Data holders
+        let allLecturesData = {}; // { subjectName: [ { id, title, chapter, ... } ] }
+        let studentExamResults = []; // [ { subjectName, examId, score, totalQuestions, percentage, passed, timestamp } ]
+        let studentMistakes = JSON.parse(localStorage.getItem('mistakes_list') || '[]');
+
+        // Initialize AI Report Engine
+        initAIReportEngine();
+
+        async function initAIReportEngine() {
+            try {
+                // 1. Fetch Lectures to map Chapters and Lessons
+                const lecSnap = await database.ref('Lectures').once('value');
+                if (lecSnap.exists()) {
+                    lecSnap.forEach(subChild => {
+                        const subName = subChild.key;
+                        allLecturesData[subName] = [];
+                        subChild.forEach(lChild => {
+                            const lVal = lChild.val();
+                            allLecturesData[subName].push({
+                                id: lVal.id || lChild.key,
+                                title: lVal.title || lChild.key,
+                                chapter: lVal.chapter || lVal.chapterName || 'الفصل الأول',
+                                subject: subName
+                            });
+                        });
+                    });
+                }
+
+                // 2. Fetch Student Exam Results across all subjects
+                const examsSnap = await database.ref('ExamResults').once('value');
+                studentExamResults = [];
+                if (examsSnap.exists()) {
+                    examsSnap.forEach(subChild => {
+                        const subName = subChild.key;
+                        subChild.forEach(examChild => {
+                            const examId = examChild.key;
+                            if (examChild.hasChild(safeStCode)) {
+                                const res = examChild.child(safeStCode).val();
+                                studentExamResults.push({
+                                    subjectName: subName,
+                                    examId: examId,
+                                    score: res.score || 0,
+                                    totalQuestions: res.totalQuestions || 1,
+                                    percentage: res.percentage || 0,
+                                    passed: res.passed || false,
+                                    timestamp: res.timestamp || 0
+                                });
+                            }
+                        });
+                    });
+                }
+
+                // 3. Process and Render AI Analytics
+                buildAIDiagnosticReport();
+
+            } catch (err) {
+                console.error("Error loading AI analytics:", err);
+                buildAIDiagnosticReport(); // Fallback to local mistakes if offline
+            }
+        }
+
+        function buildAIDiagnosticReport() {
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('aiReportContent').style.display = 'flex';
+
+            // Calculate Metrics
+            const totalExams = studentExamResults.length;
+            let totalScore = 0;
+            let totalQuestions = 0;
+            studentExamResults.forEach(r => {
+                totalScore += r.score;
+                totalQuestions += r.totalQuestions;
+            });
+
+            // Overall Mastery %
+            let overallPct = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+            
+            // If student has no recorded exams yet, check mistakes list
+            if (totalExams === 0 && studentMistakes.length > 0) {
+                overallPct = Math.max(30, 100 - (studentMistakes.length * 10));
+            } else if (totalExams === 0 && studentMistakes.length === 0) {
+                overallPct = 100; // Fresh clean student
+            }
+
+            document.getElementById('statTotalExams').textContent = totalExams;
+            document.getElementById('statCorrectAnswers').textContent = totalScore;
+            document.getElementById('aiOverallPercentage').textContent = `${overallPct}%`;
+
+            // Evaluation Label
+            let evalTier = 'مبتدئ ✨';
+            if (overallPct >= 85) evalTier = 'مستوى عبقري ومتميز 🌟';
+            else if (overallPct >= 70) evalTier = 'مستوى متقدم وجيد جداً 👍';
+            else if (overallPct >= 50) evalTier = 'مستوى متوسط قابل للتطوير 📈';
+            else evalTier = 'بحاجة لتدريب ومراجعة مكثفة 🎯';
+            document.getElementById('aiHealthRating').textContent = evalTier;
+
+            // Group Results by Subject and Chapter
+            // { subjectName: { chapterName: { correct, total, lessons: [] } } }
+            const chapterAnalysis = {};
+
+            // Initialize all known chapters from Lectures
+            for (const sub in allLecturesData) {
+                chapterAnalysis[sub] = {};
+                allLecturesData[sub].forEach(lec => {
+                    const chName = lec.chapter || 'الفصل الأول';
+                    if (!chapterAnalysis[sub][chName]) {
+                        chapterAnalysis[sub][chName] = {
+                            subject: sub,
+                            chapterName: chName,
+                            correct: 0,
+                            total: 0,
+                            lessons: [],
+                            mistakeCount: 0
+                        };
+                    }
+                    chapterAnalysis[sub][chName].lessons.push(lec);
+                });
+            }
+
+            // Fill with exam results
+            studentExamResults.forEach(res => {
+                const sub = res.subjectName;
+                if (!chapterAnalysis[sub]) chapterAnalysis[sub] = {};
+                
+                // Try to find matching chapter from exam title or lecture title
+                let matchedChapter = 'الفصل الأول';
+                for (const ch in chapterAnalysis[sub]) {
+                    if (res.examId && res.examId.includes(ch)) {
+                        matchedChapter = ch;
+                        break;
+                    }
+                }
+                if (!chapterAnalysis[sub][matchedChapter]) {
+                    chapterAnalysis[sub][matchedChapter] = { subject: sub, chapterName: matchedChapter, correct: 0, total: 0, lessons: [], mistakeCount: 0 };
+                }
+
+                chapterAnalysis[sub][matchedChapter].correct += res.score;
+                chapterAnalysis[sub][matchedChapter].total += res.totalQuestions;
+            });
+
+            // Count mistakes mapped to chapters/lessons
+            studentMistakes.forEach(m => {
+                const sub = m.subjectName || Object.keys(chapterAnalysis)[0] || 'المادة الأولى';
+                if (chapterAnalysis[sub]) {
+                    for (const ch in chapterAnalysis[sub]) {
+                        chapterAnalysis[sub][ch].mistakeCount++;
+                    }
+                }
+            });
+
+            // Evaluate Strengths and Weaknesses
+            const strengths = [];
+            const weaknesses = [];
+
+            for (const sub in chapterAnalysis) {
+                for (const ch in chapterAnalysis[sub]) {
+                    const data = chapterAnalysis[sub][ch];
+                    const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : (data.mistakeCount === 0 ? 90 : 50);
+                    
+                    data.calculatedPercentage = pct;
+
+                    if (pct >= 75) {
+                        strengths.push(data);
+                    } else {
+                        weaknesses.push(data);
+                    }
+                }
+            }
+
+            // Update Counts
+            document.getElementById('statStrengthsCount').textContent = strengths.length;
+            document.getElementById('statWeaknessCount').textContent = weaknesses.length;
+
+            // Generate AI Narrative Text
+            renderAINarrative(strengths, weaknesses, overallPct, totalExams);
+
+            // Render Strengths List
+            renderStrengthsList(strengths);
+
+            // Render Weaknesses List
+            renderWeaknessesList(weaknesses);
+
+            // Render Subjects Matrix
+            renderSubjectsMatrix(chapterAnalysis);
+
+            // Render Action Plan Steps
+            renderActionPlan(weaknesses, strengths);
+        }
+
+        // Formulate personalized human-like AI diagnosis
+        function renderAINarrative(strengths, weaknesses, overallPct, totalExams) {
+            const container = document.getElementById('aiNarrativeContent');
+            
+            let strongestStr = strengths.length > 0 
+                ? `${strengths[0].chapterName} في مادة (${strengths[0].subject}) بنسبة ${strengths[0].calculatedPercentage}%` 
+                : 'الدروس التمهيدية';
+            
+            let weakestStr = weaknesses.length > 0
+                ? `${weaknesses[0].chapterName} في مادة (${weaknesses[0].subject})`
+                : null;
+
+            let lessonAdvice = '';
+            if (weaknesses.length > 0 && weaknesses[0].lessons && weaknesses[0].lessons.length > 0) {
+                const targetLesson = weaknesses[0].lessons[0].title;
+                lessonAdvice = `درس <span class="highlight-weakness">${targetLesson}</span>`;
+            } else if (weaknesses.length > 0) {
+                lessonAdvice = `مراجعة أسئلة <span class="highlight-weakness">${weaknesses[0].chapterName}</span>`;
+            }
+
+            let text = '';
+            if (totalExams === 0 && studentMistakes.length === 0) {
+                text = `
+                    👋 أهلاً بك يا <strong>${studentName}</strong>! نظام الذكاء الاصطناعي جاهز لتحليل مستواك بمجرد خوضك للامتحانات الأولى. ننصحك ببدء مذاكرة المحاضرات وحل امتحانات الفصول لتوليد خريطتك الأكاديمية الشاملة بدقة.
+                `;
+            } else if (weaknesses.length === 0) {
+                text = `
+                    🎉 ما شاء الله يا <strong>${studentName}</strong>! أداؤك الأكاديمي استثنائي ومثالي عبر جميع الفصول، وأنت <span class="highlight-strength">متميز جداً في ${strongestStr}</span> بنسبة إتقان كاملة! استمر على هذا التألق للمحافظة على صدارة أوائل المنصة 🏆.
+                `;
+            } else {
+                text = `
+                    🎯 بناءً على تحليل الذكاء الاصطناعي الدقيق لإجاباتك وامتحاناتك السابقة:
+                    <br><br>
+                    أنت <span class="highlight-strength">متميز ومتفوق في ${strongestStr}</span> بأداء رائع 🌟، ولكن رصد المحلل الذكي تراجعاً طفيفاً في <strong>${weakestStr}</strong>. 
+                    <br><br>
+                    💡 <strong>التوجيه العلاجي الذكي:</strong> ننصحك بمراجعة ${lessonAdvice} وإعادة حل الأسئلة الصعبة في سجل التعلم لرفع معدلك العام فوراً إلى الامتياز الكامل 🚀.
+                `;
+            }
+
+            container.innerHTML = text;
+        }
+
+        function renderStrengthsList(strengths) {
+            const container = document.getElementById('strengthsList');
+            if (strengths.length === 0) {
+                container.innerHTML = `
+                    <div style="font-size: 13px; color: #64748B; text-align: center; padding: 20px;">
+                        قم بإكمال المزيد من الامتحانات بدرجات عالية لإظهار نقاط قوتك هنا 🌟
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            strengths.slice(0, 3).forEach(s => {
+                html += `
+                    <div class="sw-item">
+                        <div class="sw-item-title">
+                            <span>📚 ${s.subject} - ${s.chapterName}</span>
+                            <span style="color: #16A34A; font-weight: 900;">${s.calculatedPercentage}% ✅</span>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-fill fill-green" style="width: ${s.calculatedPercentage}%;"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #15803D; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                            <span>🏆</span>
+                            <span>إتقان ممتاز للمفاهيم والأسئلة</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderWeaknessesList(weaknesses) {
+            const container = document.getElementById('weaknessesList');
+            if (weaknesses.length === 0) {
+                container.innerHTML = `
+                    <div style="font-size: 13px; color: #16A34A; text-align: center; padding: 20px; font-weight: 800;">
+                        ✨ لا توجد نقاط ضعف حالياً! أداؤك متوازن وممتاز في جميع الفصول.
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            weaknesses.slice(0, 3).forEach(w => {
+                const targetLec = (w.lessons && w.lessons[0]) ? w.lessons[0].title : w.chapterName;
+                html += `
+                    <div class="sw-item" style="border-right: 3.5px solid #EF4444;">
+                        <div class="sw-item-title">
+                            <span>📚 ${w.subject} - ${w.chapterName}</span>
+                            <span style="color: #DC2626; font-weight: 900;">${w.calculatedPercentage}% ⚠️</span>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-fill fill-red" style="width: ${w.calculatedPercentage}%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; flex-wrap: wrap; gap: 6px;">
+                            <span style="font-size: 11px; color: #DC2626; font-weight: 700;">يُنصح بمراجعة: ${targetLec}</span>
+                            <button class="btn-action-sm" onclick="location.href='lectures.html?subject=${encodeURIComponent(w.subject)}'">
+                                <i class="fa-solid fa-play"></i>
+                                <span>فتح الدرس للمراجعة</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderSubjectsMatrix(chapterAnalysis) {
+            const container = document.getElementById('subjectsMatrixList');
+            let html = '';
+
+            for (const sub in chapterAnalysis) {
+                let chaptersHtml = '';
+                for (const ch in chapterAnalysis[sub]) {
+                    const data = chapterAnalysis[sub][ch];
+                    const pct = data.calculatedPercentage || 80;
+                    
+                    let badgeClass = pct >= 75 ? 'badge-mastered' : (pct >= 50 ? 'badge-moderate' : 'badge-warning');
+                    let badgeText = pct >= 75 ? 'متقن بامتياز 🌟' : (pct >= 50 ? 'متوسط ⏳' : 'بحاجة لمراجعة ⚠️');
+                    let fillClass = pct >= 75 ? 'fill-green' : (pct >= 50 ? 'fill-yellow' : 'fill-red');
+
+                    chaptersHtml += `
+                        <div class="chapter-row">
+                            <div class="chapter-top">
+                                <strong style="font-size: 13.5px; color: var(--text-color);">📖 ${ch}</strong>
+                                <span class="badge-pill ${badgeClass}">${badgeText} (${pct}%)</span>
+                            </div>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-fill ${fillClass}" style="width: ${pct}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div style="background: rgba(124,58,237,0.03); border: 1px solid var(--ai-border); border-radius: 16px; padding: 14px 16px;">
+                        <h4 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 900; color: #4F46E5;">📚 مادة: ${sub}</h4>
+                        ${chaptersHtml}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html || '<div class="empty-state">لا توجد مواد دراسية مضافة بعد.</div>';
+        }
+
+        function renderActionPlan(weaknesses, strengths) {
+            const container = document.getElementById('actionPlanSteps');
+            let html = '';
+
+            if (weaknesses.length > 0) {
+                const w = weaknesses[0];
+                const lecTitle = (w.lessons && w.lessons[0]) ? w.lessons[0].title : w.chapterName;
+                html += `
+                    <div class="plan-step">
+                        <div class="plan-step-num">1</div>
+                        <div style="flex: 1;">
+                            <strong style="font-size: 13.5px; display: block; margin-bottom: 2px;">مراجعة فيديو درس (${lecTitle})</strong>
+                            <p style="margin: 0; font-size: 12px; opacity: 0.85;">شاهد شرح الدرس مرة أخرى مع تدوين الملاحظات على النقاط غير الواضحة.</p>
+                        </div>
+                        <button class="btn-action-sm" style="background: white; color: #312E81;" onclick="location.href='lectures.html?subject=${encodeURIComponent(w.subject)}'">شاهد الآن 🎬</button>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="plan-step">
+                    <div class="plan-step-num">2</div>
+                    <div style="flex: 1;">
+                        <strong style="font-size: 13.5px; display: block; margin-bottom: 2px;">إعادة حل الأسئلة الصعبة في سجل الأخطاء</strong>
+                        <p style="margin: 0; font-size: 12px; opacity: 0.85;">التدريب المستمر على الأسئلة التي أخطأت فيها يثبت المعلومة في الذاكرة بنسبة 100%.</p>
+                    </div>
+                    <button class="btn-action-sm" style="background: white; color: #312E81;" onclick="location.href='mistakes.html'">حل الأخطاء 🔄</button>
+                </div>
+
+                <div class="plan-step">
+                    <div class="plan-step-num">3</div>
+                    <div style="flex: 1;">
+                        <strong style="font-size: 13.5px; display: block; margin-bottom: 2px;">خوض امتحان تدريبي جديد والمنافسة على الأوائل</strong>
+                        <p style="margin: 0; font-size: 12px; opacity: 0.85;">اختبر مستواك بعد المراجعة لترى كيف يرتفع مؤشر تمكنك الأكاديمي فوراً.</p>
+                    </div>
+                    <button class="btn-action-sm" style="background: white; color: #312E81;" onclick="location.href='courses.html'">الامتحانات 📝</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // WhatsApp Share Generator
+        function shareAIReport() {
+            const overall = document.getElementById('aiOverallPercentage').textContent;
+            const rating = document.getElementById('aiHealthRating').textContent;
+            
+            const msg = `🎓 *تقرير مستواي الأكاديمي من منصة الخطة التعليمية (ELKHETA)* 🌟\n\n👤 *الطالب:* ${studentName}\n📊 *مؤشر التمكن العام:* ${overall} (${rating})\n🧠 *تم تحليل أدائي ونقاط القوة والضعف بواسطة الذكاء الاصطناعي.*\n\n✨ يمكنك متابعة دروسك وامتحاناتك عبر منصة الخطة: https://elkheta2026.web.app`;
+            
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
