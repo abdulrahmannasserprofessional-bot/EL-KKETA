@@ -1,4 +1,4 @@
-const CACHE_NAME = 'elkheta-v-2026-FORCE-NO-CACHE';
+const CACHE_NAME = 'elkheta-v-2027-FORCE-NO-CACHE';
 const STATIC_ASSETS = [
     'style.css',
     'logo.png',

@@ -13,154 +13,656 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --primary-glow: rgba(37, 99, 235, 0.35);
+            --accent: #8B5CF6;
+            --bg-body: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --card-border: #E2E8F0;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+        }
+
+        body.dark-theme {
+            --bg-body: #0B0F19;
+            --card-bg: #131B2E;
+            --card-border: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100vw;
+        }
+
         body {
             font-family: 'Cairo', sans-serif;
-            background: #F8FAFC;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             min-height: 100vh;
-            color: #1E293B;
-            padding-bottom: 30px;
+            padding-bottom: 50px;
+            direction: rtl;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* ─── Header ─── */
-        .admin-header {
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            padding: 50px 20px 70px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .admin-header::before {
-            content: '';
-            position: absolute;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
-            top: -100px; right: -50px;
-            border-radius: 50%;
-        }
-        .admin-header::after {
-            content: '';
-            position: absolute;
-            width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(167,139,250,0.2) 0%, transparent 70%);
-            bottom: -50px; left: 20px;
-            border-radius: 50%;
-        }
-        .header-content { position: relative; z-index: 2; }
-        .header-icon {
-            width: 70px; height: 70px;
-            background: #FFFFFF;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0,0,0,0.2);
-            border-radius: 22px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 15px;
-        }
-        .header-title { font-size: 22px; font-weight: 900; letter-spacing: 0.5px;  color: #FFFFFF; }
-        .header-sub { font-size: 13px; margin-top: 5px;  color: rgba(255,255,255,0.85); }
-
-        /* Stats row */
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            padding: 0 15px;
-            margin-top: -30px;
-            position: relative;
-            z-index: 10;
-        }
-        .stat-card {
-            flex: 1;
-            background: #FFFFFF;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 20px;
-            padding: 16px 10px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .stat-val { font-size: 22px; font-weight: 900; color: #4F46E5; }
-        .stat-lbl { font-size: 11px; color: rgba(0,0,0,0.5); margin-top: 2px; }
-
-        /* Grid */
-        .section-title {
-            padding: 20px 20px 8px;
-            font-size: 13px;
-            font-weight: 700;
-            color: rgba(0,0,0,0.4);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 0 15px;
-        }
-        .admin-item {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 20px;
-            padding: 20px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-            color: #1E293B;
+        .admin-app-container {
+            width: 100%;
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 16px 20px;
             display: flex;
             flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ─── Top Navbar ─── */
+        .admin-topbar {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 20px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo-badge {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 14px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
-        .admin-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08);
-            border-color: #CBD5E1;
+
+        .status-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 11.5px;
+            font-weight: 800;
         }
-        .admin-item:active { transform: scale(0.97); }
-
-        .item-icon {
-            width: 50px; height: 50px;
-            border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
+        body.dark-theme .status-live-pill {
+            color: #34D399;
+            background: rgba(16, 185, 129, 0.2);
         }
-        .item-label { font-size: 14px; font-weight: 700; color: #1E293B; }
-        .item-desc { font-size: 11px; color: #64748B; margin-top: -4px; }
 
-        /* Colors */
-        .admin-item.blue .item-icon { background: #EEF2FF; color: #4F46E5; }
-        .admin-item.green .item-icon { background: #ECFDF5; color: #10B981; }
-        .admin-item.yellow .item-icon { background: #FFFBEB; color: #F59E0B; }
-        .admin-item.pink .item-icon { background: #FDF2F8; color: #EC4899; }
-        .admin-item.purple .item-icon { background: #F5F3FF; color: #8B5CF6; }
-        .admin-item.cyan .item-icon { background: #ECFEFF; color: #06B6D4; }
-        .admin-item.red .item-icon { background: #FEF2F2; color: #EF4444; }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 10px #10B981;
+            animation: liveBlink 1.8s infinite ease-in-out;
+        }
+        @keyframes liveBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
 
-        /* Logout */
-        .logout-area { text-align: center; margin-top: 30px; padding: 0 15px; }
-        .logout-btn {
-            background: #FEF2F2;
-            border: 1px solid #FECACA;
-            color: #EF4444;
-            padding: 12px 24px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 700;
+        .btn-top-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-body);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-top-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .btn-top-action.logout-top:hover {
+            border-color: #EF4444;
+            color: #EF4444;
+            background: #FEF2F2;
+        }
+
+        /* ─── Executive Master Hero Card ─── */
+        .admin-hero-card {
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E3A8A 75%, #2563EB 100%);
+            border-radius: 26px;
+            padding: 30px 26px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 16px 40px rgba(30, 58, 138, 0.28);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .admin-hero-card::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
+            top: -100px;
+            left: -60px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .admin-hero-card::after {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, transparent 70%);
+            bottom: -60px;
+            right: -30px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .admin-user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-avatar-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E1B4B 100%);
+            border: 2.5px solid #F59E0B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 0 8px 25px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .admin-identity h1 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.3;
+        }
+
+        .admin-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #FEF3C7;
+            margin-top: 5px;
+        }
+
+        .hero-date-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        .date-pill {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 5px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #E2E8F0;
+        }
+        .batch-pill {
+            font-size: 11px;
+            color: #93C5FD;
+            font-weight: 700;
+        }
+
+        /* ─── 4 Luxury KPI Stat Cards ─── */
+        .kpi-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 22px;
+            padding: 18px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-color: #93C5FD;
+        }
+
+        .kpi-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-blue .kpi-icon-wrap { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+        .kpi-purple .kpi-icon-wrap { background: linear-gradient(135deg, #7C3AED, #9333EA); }
+        .kpi-emerald .kpi-icon-wrap { background: linear-gradient(135deg, #059669, #10B981); }
+        .kpi-amber .kpi-icon-wrap { background: linear-gradient(135deg, #D97706, #F59E0B); }
+
+        .kpi-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .kpi-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+        .kpi-lbl {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ─── Section Dividers ─── */
+        .admin-section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0 4px;
+            padding: 0 4px;
+        }
+        .section-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title-wrap h2 {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+        }
+        .section-title-wrap i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        .section-badge-tag {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+
+        /* ─── Action Cards Grid ─── */
+        .admin-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 22px;
+            padding: 20px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+        .action-card:hover {
+            transform: translateY(-3px);
+            border-color: #93C5FD;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        body.dark-theme .action-card:hover {
+            border-color: #3B82F6;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Featured VIP Card */
+        .action-card.featured-mysql {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(99, 102, 241, 0.12) 100%);
+            border: 2px solid #818CF8;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+        }
+        body.dark-theme .action-card.featured-mysql {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.35) 0%, rgba(67, 56, 202, 0.25) 100%);
+            border-color: #6366F1;
+        }
+
+        .card-left-content {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .card-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .action-card:hover .card-icon-box {
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        .card-texts {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+        .card-badge {
+            font-size: 10px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+        .badge-live-red {
+            background: #EF4444;
+            color: white;
+            animation: pulseGlowBadge 1.5s infinite alternate;
+        }
+        .badge-vip {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        .badge-ai {
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+            color: white;
+        }
+
+        @keyframes pulseGlowBadge {
+            from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            to { box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+        }
+
+        .card-desc {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 3px;
+            line-height: 1.5;
+        }
+
+        .card-arrow-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: var(--bg-body);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            margin-right: 10px;
+            transition: all 0.2s;
+        }
+        .action-card:hover .card-arrow-icon {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        /* ─── Footer Controls ─── */
+        .admin-footer-bar {
+            background: var(--card-bg);
+            border: 1.5px solid var(--card-border);
+            border-radius: 20px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .footer-watermark-text {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout-full {
+            background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+            color: #DC2626;
+            border: 1.5px solid #FECACA;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 900;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-family: 'Cairo', sans-serif;
+            transition: all 0.2s;
         }
-        .logout-btn:hover { background: #FEE2E2; }
-        .footer-note { text-align: center; font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 20px; }
+        body.dark-theme .btn-logout-full {
+            background: rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.35);
+            color: #F87171;
+        }
+        .btn-logout-full:hover {
+            background: #FEE2E2;
+            border-color: #F87171;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+        }
+
+        /* ─── Mobile Responsiveness ─── */
+        @media (max-width: 900px) {
+            .kpi-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .admin-app-container {
+                padding: 10px 12px;
+                gap: 14px;
+            }
+            .admin-topbar {
+                padding: 10px 14px;
+                border-radius: 16px;
+                top: 6px;
+            }
+            .brand-text-sub {
+                display: none;
+            }
+            .status-live-pill span:not(.status-dot) {
+                display: none;
+            }
+            .admin-hero-card {
+                padding: 20px 16px;
+                border-radius: 20px;
+                gap: 12px;
+            }
+            .admin-avatar-box {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+                border-radius: 16px;
+            }
+            .admin-identity h1 {
+                font-size: 18px;
+            }
+            .hero-date-badge {
+                align-items: flex-start;
+                width: 100%;
+                margin-top: 6px;
+                border-top: 1px solid rgba(255, 255, 255, 0.12);
+                padding-top: 8px;
+            }
+            .kpi-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .kpi-card {
+                padding: 12px 10px;
+                border-radius: 16px;
+                gap: 10px;
+            }
+            .kpi-icon-wrap {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                border-radius: 12px;
+            }
+            .kpi-val {
+                font-size: 19px;
+            }
+            .kpi-lbl {
+                font-size: 10.5px;
+            }
+            .admin-cards-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .action-card {
+                padding: 14px 12px;
+                border-radius: 18px;
+            }
+            .card-icon-box {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+                border-radius: 14px;
+            }
+            .card-title {
+                font-size: 14px;
+            }
+            .card-desc {
+                font-size: 11px;
+            }
+            .admin-footer-bar {
+                flex-direction: column;
+                gap: 12px;
+                padding: 14px;
+                text-align: center;
+            }
+            .btn-logout-full {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -176,95 +678,324 @@
                 window.location.href = "admin-gate.html";
             }
         }
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
     </script>
 
-    <div class="admin-header">
-        <div class="header-content">
-            <div class="header-icon" id="adminHeaderIcon">👑</div>
-            <div class="header-title" id="adminHeaderTitle">لوحة تحكم المنصة</div>
-            <div class="header-sub" id="adminHeaderSub">مرحباً بك — صلاحيات كاملة</div>
-        </div>
-    </div>
+    <div class="admin-app-container">
 
-    <!-- Stats -->
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-val" id="statStudents">—</div>
-            <div class="stat-lbl">طالب مسجل</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-val" id="statLectures">0</div>
-            <div class="stat-lbl">محاضرة مرفوعة</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-val" id="statResults">0</div>
-            <div class="stat-lbl">امتحان تم تسليمه</div>
-        </div>
-    </div>
+        <!-- Top Navigation Bar -->
+        <header class="admin-topbar">
+            <a href="admin-panel.html" class="brand-section">
+                <div class="brand-logo-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 900; font-size: 15px; line-height: 1.2;">لوحة القيادة العليا</div>
+                    <div class="brand-text-sub" style="font-size: 11px; color: var(--text-muted); font-weight: 700;">منصة الخطة التعليمية</div>
+                </div>
+            </a>
 
-    <div class="section-title" id="secContentTitle">📋 إدارة المحتوى وقاعدة البيانات</div>
-    <div class="admin-grid" id="gridContent">
-        <div class="admin-item blue" style="background: linear-gradient(135deg, #EEF2FF, #E0E7FF); border: 2px solid #6366F1;" onclick="location.href='admin-mysql.html'">
-            <div class="item-icon" style="background: #4F46E5; color: white;">⚡</div>
-            <div class="item-label" style="color: #312E81; font-weight: 800;">لوحة MySQL السحابية</div>
-            <div class="item-desc" style="color: #4338CA; font-weight: 600;">إدارة قاعدة البيانات و REST API</div>
-        </div>
-        <div class="admin-item blue" data-perm="courses" onclick="location.href='admin-courses.html'">
-            <div class="item-icon">📖</div>
-            <div class="item-label">المواد الدراسية</div>
-            <div class="item-desc">إضافة وحذف المواد</div>
-        </div>
-        <div class="admin-item green" data-perm="lessons" onclick="location.href='admin-lessons.html'">
-            <div class="item-icon">📽️</div>
-            <div class="item-label">الدروس والامتحانات</div>
-            <div class="item-desc">رفع الدروس، الامتحانات، والملخصات</div>
-        </div>
-        <div class="admin-item yellow" data-perm="lessons" onclick="location.href='admin-community.html'" style="position: relative;">
-            <div id="communityUnansweredBadge" style="display: none; position: absolute; top: 12px; left: 12px; background: #EF4444; color: white; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 900; box-shadow: 0 2px 8px rgba(239,68,68,0.5);">0 جديد 🔴</div>
-            <div class="item-icon" style="background: #FFFBEB; color: #D97706;">💬</div>
-            <div class="item-label">تساؤلات وأسئلة الطلاب</div>
-            <div class="item-desc">الرد على استفسارات الطلاب (صوت، صورة، نص)</div>
-        </div>
-        <div class="admin-item pink" data-perm="notifications" onclick="location.href='admin-notifications.html'">
-            <div class="item-icon">🔔</div>
-            <div class="item-label">إرسال تنبيه</div>
-            <div class="item-desc">إشعار لجميع الطلاب</div>
-        </div>
-    </div>
+            <div class="topbar-actions">
+                <div class="status-live-pill" title="حالة الاتصال المباشر بقاعدة البيانات">
+                    <div class="status-dot"></div>
+                    <span>النظام نشط ومباشر</span>
+                </div>
+                <button type="button" class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (ليلي / نهاري)">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+                <a href="home.html" class="btn-top-action" title="معاينة بوابة الطلاب">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </a>
+                <button type="button" class="btn-top-action logout-top" onclick="adminLogout()" title="تسجيل الخروج">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
 
-    <div class="section-title" id="secUsersTitle">📊 النتائج والطلاب والمنصة</div>
-    <div class="admin-grid" id="gridUsers">
-        <div class="admin-item blue" data-perm="reports" onclick="location.href='admin-results.html'">
-            <div class="item-icon">📊</div>
-            <div class="item-label">نتائج ودرجات الطلاب</div>
-            <div class="item-desc">كشف درجات ونسب اجتياز الامتحانات</div>
-        </div>
-        <div class="admin-item yellow" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
-            <div class="item-icon">📝</div>
-            <div class="item-label">تحليل أخطاء الطلاب</div>
-            <div class="item-desc">الأسئلة الشائعة الخطأ مع كشف أسماء الطلاب</div>
-        </div>
-        <div class="admin-item cyan" data-perm="students" onclick="location.href='admin-students.html'">
-            <div class="item-icon">👥</div>
-            <div class="item-label">الطلاب المسجلين</div>
-            <div class="item-desc">عرض وإدارة الحسابات</div>
-        </div>
-        <div class="admin-item purple" data-perm="config" onclick="location.href='admin-config.html'">
-            <div class="item-icon">🛠️</div>
-            <div class="item-label">الإعدادات وحلول المشاكل</div>
-            <div class="item-desc">حل مشاكل الدخول، فك الحظر، وإدارة المشرفين</div>
-        </div>
-    </div>
+        <!-- Executive Hero Banner -->
+        <section class="admin-hero-card">
+            <div class="hero-top-row">
+                <div class="admin-user-profile">
+                    <div class="admin-avatar-box" id="adminHeaderIcon">👑</div>
+                    <div class="admin-identity">
+                        <h1 id="adminHeaderTitle">لوحة تحكم المدير العام</h1>
+                        <div class="admin-role-badge" id="adminHeaderSub">
+                            <i class="fa-solid fa-certificate"></i>
+                            <span>صلاحيات كاملة — المدير التنفيذي</span>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="logout-area">
-        <button class="logout-btn" onclick="adminLogout()">🚪 تسجيل الخروج من الإدارة</button>
+                <div class="hero-date-badge">
+                    <div class="date-pill" id="liveDateClock">📅 جاري التحديث...</div>
+                    <div class="batch-pill">الفرقة الرابعة • كلية الخدمة الاجتماعية 2027 🎓</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 Luxury KPI Stat Cards -->
+        <section class="kpi-stats-grid">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-icon-wrap">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="kpi-info">
+                    <div class="kpi-val" id="statStudents">—</div>
+                    <div class="kpi-lbl">طالب مسجل</div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div class="kpi-info">
+                    <div class="kpi-val" id="statLectures">0</div>
+                    <div class="kpi-lbl">محاضرة مرفوعة</div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-emerald">
+                <div class="kpi-icon-wrap">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div class="kpi-info">
+                    <div class="kpi-val" id="statResults">0</div>
+                    <div class="kpi-lbl">امتحان تم تسليمه</div>
+                </div>
+            </div>
+
+            <div class="kpi-card kpi-amber">
+                <div class="kpi-icon-wrap">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <div class="kpi-info">
+                    <div class="kpi-val" id="statUnanswered">0</div>
+                    <div class="kpi-lbl">سؤال معلق للطلاب</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: المحتوى وقواعد البيانات -->
+        <div class="admin-section-heading" id="secContentTitle">
+            <div class="section-title-wrap">
+                <i class="fa-solid fa-layer-group"></i>
+                <h2>إدارة المحتوى وقاعدة البيانات السحابية</h2>
+            </div>
+            <span class="section-badge-tag">مسار المقررات والمناهج</span>
+        </div>
+
+        <div class="admin-cards-grid" id="gridContent">
+            <!-- 1. MySQL Cloud Panel (VIP Featured) -->
+            <div class="action-card featured-mysql" onclick="location.href='admin-mysql.html'" title="فتح لوحة التحكم السحابية المباشرة">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #4F46E5, #3730A3);">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">لوحة MySQL السحابية الشاملة</span>
+                            <span class="card-badge badge-vip">VIP ⚡</span>
+                        </div>
+                        <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 2. Subjects & Courses -->
+            <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">المواد والمقررات الدراسية</span>
+                        </div>
+                        <div class="card-desc">إضافة، تعديل، وترتيب المواد لدفعة الفرقة الرابعة 2027</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 3. Lessons & Exams -->
+            <div class="action-card" data-perm="lessons" onclick="location.href='admin-lessons.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #10B981);">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">الدروس والامتحانات والملخصات</span>
+                        </div>
+                        <div class="card-desc">رفع وتحديث فيديوهات الشرح، بنوك الأسئلة، وملفات الـ PDF</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 4. Community Q&A -->
+            <div class="action-card" data-perm="lessons" onclick="location.href='admin-community.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #F59E0B);">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">تساؤلات واستفسارات الطلاب</span>
+                            <span id="communityUnansweredBadge" class="card-badge badge-live-red" style="display: none;">0 جديد 🔴</span>
+                        </div>
+                        <div class="card-desc">الرد المباشر على استفسارات الطلاب (تسجيل صوتي، صور، نص)</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 5. Push Notifications -->
+            <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #DB2777, #EC4899);">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">مركز الإشعارات والتنبيهات</span>
+                        </div>
+                        <div class="card-desc">إرسال إشعارات فورية وتنبيهات مخصصة لجميع الطلاب المسجلين</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+        </div>
+
+        <!-- Section 2: المتابعة والطلاب والأمان -->
+        <div class="admin-section-heading" id="secUsersTitle" style="margin-top: 14px;">
+            <div class="section-title-wrap">
+                <i class="fa-solid fa-chart-line"></i>
+                <h2>التحليلات ومتابعة الطلاب وإعدادات الأمان</h2>
+            </div>
+            <span class="section-badge-tag">الرقابة والأداء</span>
+        </div>
+
+        <div class="admin-cards-grid" id="gridUsers">
+            <!-- 1. Exam Results -->
+            <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #3B82F6);">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">كشف نتائج ودرجات الطلاب</span>
+                        </div>
+                        <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 2. Mistakes & AI Analytics -->
+            <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #7C3AED, #8B5CF6);">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
+                            <span class="card-badge badge-ai">AI ⚡</span>
+                        </div>
+                        <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 3. Registered Students -->
+            <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0EA5E9);">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
+                        </div>
+                        <div class="card-desc">توليد الأكواد، فحص أجهزة الدخول، وتعديل بيانات الطلاب</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 4. System Settings & Supervisors -->
+            <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #475569, #334155);">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
+                        </div>
+                        <div class="card-desc">إدارة صلاحيات المشرفين، فك الحظر، وحلول مشاكل الدخول</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+        </div>
+
+        <!-- Footer Control Bar -->
+        <footer class="admin-footer-bar">
+            <div class="footer-watermark-text">
+                <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
+                <span>منصة الخطة التعليمية • لوحة الإدارة العليا v2.7 • دفعة 2027 🎓</span>
+            </div>
+            <button class="btn-logout-full" onclick="adminLogout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>تسجيل الخروج من لوحة الإدارة</span>
+            </button>
+        </footer>
+
     </div>
-    <div class="footer-note">ELKHETA Admin Panel — All rights reserved</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
+        // Theme Toggle Logic
+        function toggleAdminTheme() {
+            const isDark = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        // Initialize Theme Icon
+        if (localStorage.getItem('theme') === 'dark') {
+            updateThemeIcon(true);
+        }
+
+        // Live Clock
+        function updateLiveClock() {
+            const el = document.getElementById('liveDateClock');
+            if (!el) return;
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            el.innerHTML = `📅 ${now.toLocaleDateString('ar-EG', options)}`;
+        }
+        updateLiveClock();
+        setInterval(updateLiveClock, 60000);
+
         const role = sessionStorage.getItem('adminRole') || 'master';
         const adminName = sessionStorage.getItem('adminName') || 'المدير العام';
         const roleTitle = sessionStorage.getItem('adminRoleTitle') || '';
@@ -285,7 +1016,7 @@
             document.getElementById('adminHeaderSub').textContent = `${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط`;
 
             // Filter Items according to permissions
-            document.querySelectorAll('.admin-item[data-perm]').forEach(item => {
+            document.querySelectorAll('.action-card[data-perm]').forEach(item => {
                 const permKey = item.getAttribute('data-perm');
                 let hasAccess = false;
                 if (permKey === 'config') {
@@ -302,11 +1033,19 @@
             // Check if section grids are empty and hide headers
             ['gridContent', 'gridUsers'].forEach(gridId => {
                 const grid = document.getElementById(gridId);
-                const visibleChildren = Array.from(grid.children).filter(c => c.style.display !== 'none');
-                if (visibleChildren.length === 0) {
-                    grid.style.display = 'none';
-                    if (gridId === 'gridContent') document.getElementById('secContentTitle').style.display = 'none';
-                    if (gridId === 'gridUsers') document.getElementById('secUsersTitle').style.display = 'none';
+                if (grid) {
+                    const visibleChildren = Array.from(grid.children).filter(c => c.style.display !== 'none');
+                    if (visibleChildren.length === 0) {
+                        grid.style.display = 'none';
+                        if (gridId === 'gridContent') {
+                            const t = document.getElementById('secContentTitle');
+                            if (t) t.style.display = 'none';
+                        }
+                        if (gridId === 'gridUsers') {
+                            const t = document.getElementById('secUsersTitle');
+                            if (t) t.style.display = 'none';
+                        }
+                    }
                 }
             });
         }
@@ -317,7 +1056,7 @@
             window.location.href = "admin-gate.html";
         }
 
-        // Load stats from Firebase & MySQL in real-time
+        // Load stats from Firebase in real-time
         database.ref('Students').on('value', snap => {
             if (snap.exists()) {
                 document.getElementById('statStudents').textContent = snap.numChildren();
@@ -344,7 +1083,7 @@
             document.getElementById('statResults').textContent = total;
         });
 
-        // Listen to Community for unanswered questions badge
+        // Listen to Community for unanswered questions badge & stat
         database.ref('Community').on('value', snap => {
             let unanswered = 0;
             if (snap.exists()) {
@@ -360,11 +1099,14 @@
                     });
                 });
             }
+            const statUn = document.getElementById('statUnanswered');
+            if (statUn) statUn.textContent = unanswered;
+
             const b = document.getElementById('communityUnansweredBadge');
             if (b) {
                 if (unanswered > 0) {
                     b.textContent = `${unanswered} جديد 🔴`;
-                    b.style.display = 'block';
+                    b.style.display = 'inline-block';
                 } else {
                     b.style.display = 'none';
                 }

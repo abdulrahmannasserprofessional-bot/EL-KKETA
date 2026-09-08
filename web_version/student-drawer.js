@@ -440,7 +440,255 @@
         const initial = (user.fullName || 'ط').trim().charAt(0) || '🎓';
         const isDark = document.body.classList.contains('dark-theme') || localStorage.getItem('theme') === 'dark';
 
+        drawerEl.innerHTML = `
+            <!-- VIP Header -->
+            <div class="elkheta-drawer-header">
+                <button type="button" class="elkheta-drawer-close" onclick="closeStudentDrawer()" title="إغلاق القائمة">✕</button>
+                <div class="elkheta-user-row">
+                    <div class="elkheta-avatar-wrap">
+                        <div class="elkheta-avatar">${initial}</div>
+                        <div class="elkheta-online-indicator" title="متصل الآن"></div>
+                    </div>
+                    <div class="elkheta-user-meta">
+                        <div class="elkheta-user-name">${user.fullName || 'طالب منصة الخطة'}</div>
+                        <div class="elkheta-user-code-pill" onclick="copyDrawerStudentCode()" title="اضغط لنسخ الكود الخاص بك">
+                            <span>🔑</span>
+                            <span id="drawerUserCode">${user.code || '---'}</span>
+                            <span style="font-size: 9px; opacity: 0.7;">📋</span>
+                        </div>
+                        <div class="elkheta-stage-pill">الفرقة الرابعة • خدمة اجتماعية 2027 🎓</div>
+                    </div>
+                </div>
 
+                <!-- Triple KPIs -->
+                <div class="elkheta-drawer-kpis">
+                    <div class="elkheta-kpi-pill">
+                        <div class="val">⭐ ${user.points || 0}</div>
+                        <div class="lbl">النقاط</div>
+                    </div>
+                    <div class="elkheta-kpi-pill">
+                        <div class="val">🔥 ${user.streak || 1} أيام</div>
+                        <div class="lbl">الاستمرار</div>
+                    </div>
+                    <div class="elkheta-kpi-pill">
+                        <div class="val">🏆 لفل ${user.level || 1}</div>
+                        <div class="lbl">المستوى</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Utility Strip -->
+            <div class="elkheta-quick-strip">
+                <button type="button" class="elkheta-quick-btn" id="drawerThemeBtn" onclick="toggleDrawerTheme()">
+                    ${isDark ? '☀️ نهاري' : '🌙 ليلي'}
+                </button>
+                <button type="button" class="elkheta-quick-btn" onclick="window.showPwaInstallModal && window.showPwaInstallModal()">
+                    📲 التطبيق
+                </button>
+                <a href="ai-report.html" class="elkheta-quick-btn">
+                    🧠 تقريري
+                </a>
+            </div>
+
+            <!-- Menu Body -->
+            <div class="elkheta-drawer-body">
+                <!-- Section 1: التعليم والمحاضرات -->
+                <div class="elkheta-menu-section-title">المحتوى الأكاديمي والتعلم</div>
+
+                <a href="home.html" class="elkheta-nav-card ${isActive('home.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">🏠</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">الرئيسية</span>
+                            <span class="elkheta-nav-subtitle">نظرة عامة والدروس الحالية</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="courses.html" class="elkheta-nav-card ${isActive('courses.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #7C3AED, #9333EA);">📚</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">المواد والمقررات</span>
+                            <span class="elkheta-nav-subtitle">محاضرات وبنوك أسئلة 2027</span>
+                        </div>
+                    </div>
+                    <span class="elkheta-nav-badge-pill badge-purple">دفعة 2027</span>
+                </a>
+
+                <a href="planner.html" class="elkheta-nav-card ${isActive('planner.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #059669, #10B981);">📅</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">الخطة الدراسية وجدول المذاكرة</span>
+                            <span class="elkheta-nav-subtitle">تنظيم الوقت وجدول المحاضرات</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="map.html" class="elkheta-nav-card ${isActive('map.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #0284C7, #0EA5E9);">🗺️</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">المراكز وقاعات الشرح</span>
+                            <span class="elkheta-nav-subtitle">عناوين السناتر والخرائط</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Section 2: التفاعل والذكاء والتقييم -->
+                <div class="elkheta-menu-section-title" style="margin-top: 10px;">التفاعل والتقييم والذكاء</div>
+
+                <a href="community.html" class="elkheta-nav-card ${isActive('community.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #D97706, #F59E0B);">💬</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">مجتمع واستفسارات الطلاب</span>
+                            <span class="elkheta-nav-subtitle">اطرح سؤالك لدكاترة ومعيدي المادة</span>
+                        </div>
+                    </div>
+                    <span class="elkheta-nav-badge-pill badge-amber">مباشر ⚡</span>
+                </a>
+
+                <a href="leaderboard.html" class="elkheta-nav-card ${isActive('leaderboard.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #EA580C, #F97316);">🏆</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">لوحة الأوائل والمتفوقين</span>
+                            <span class="elkheta-nav-subtitle">ترتيب أبطال الدفعة أسبوعياً</span>
+                        </div>
+                    </div>
+                    <span class="elkheta-nav-badge-pill badge-emerald">VIP</span>
+                </a>
+
+                <a href="mistakes.html" class="elkheta-nav-card ${isActive('mistakes.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">🎯</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">بنك أخطائي ومراجعاتي</span>
+                            <span class="elkheta-nav-subtitle">إعادة حل وتثبيت النقاط الصعبة</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="offline.html" class="elkheta-nav-card ${isActive('offline.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #475569, #64748B);">⚡</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">وضع بدون إنترنت</span>
+                            <span class="elkheta-nav-subtitle">المحاضرات والملخصات المحفوظة</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Section 3: الحساب الشخصي -->
+                <div class="elkheta-menu-section-title" style="margin-top: 10px;">إعدادات الحساب</div>
+
+                <a href="profile.html" class="elkheta-nav-card ${isActive('profile.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">👤</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">الملف الشخصي والبيانات</span>
+                            <span class="elkheta-nav-subtitle">تعديل الاسم ورقم الهاتف والمستوى</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="elkheta-drawer-footer">
+                <button type="button" class="elkheta-drawer-logout" onclick="drawerLogout()">
+                    <span>🚪 تسجيل الخروج</span>
+                </button>
+                <div class="elkheta-footer-watermark">
+                    منصة الخطة التعليمية • دفعة 2027 🎓
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(drawerEl);
+    }
+
+    window.toggleStudentDrawer = function() {
+        if (!drawerEl) buildDrawer();
+        if (drawerEl.classList.contains('active')) {
+            closeStudentDrawer();
+        } else {
+            openStudentDrawer();
+        }
+    };
+
+    window.openStudentDrawer = function() {
+        if (!drawerEl) buildDrawer();
+        overlayEl.classList.add('active');
+        drawerEl.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeStudentDrawer = function() {
+        if (drawerEl) drawerEl.classList.remove('active');
+        if (overlayEl) overlayEl.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    window.toggleDrawerTheme = function() {
+        toggleAppTheme();
+    };
+
+    window.copyDrawerStudentCode = function() {
+        const user = getStoredUser();
+        const code = user.code || localStorage.getItem('studentCode') || '';
+        if (code && code !== '---') {
+            navigator.clipboard.writeText(code).then(() => {
+                if (window.showToast) {
+                    window.showToast(`تم نسخ الكود: ${code} بنجاح 📋`, 'success');
+                } else {
+                    alert(`تم نسخ كود الدخول: ${code}`);
+                }
+            }).catch(() => {});
+        }
+    };
+
+    window.drawerLogout = function() {
+        if (window.confirmLogout) {
+            window.confirmLogout();
+        } else if (window.Swal) {
+            Swal.fire({
+                title: 'تسجيل الخروج',
+                text: 'هل أنت متأكد من رغبتك في تسجيل الخروج من المنصة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، تسجيل الخروج',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            });
+        } else {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+    };
+
+    // Auto attach click triggers to all hamburger buttons
+    function attachDrawerTriggers() {
+        buildDrawer();
+        document.querySelectorAll('.menu-btn, .header-menu-btn, [data-action="open-drawer"], .drawer-toggle-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.toggleStudentDrawer();
+            };
+        });
+    }
 
     // ==========================================
     // Real-Time Personal Notice & Push Activation
@@ -531,15 +779,6 @@
         });
     };
 
-    // Auto-initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPersonalNoticeListener);
-    } else {
-        initPersonalNoticeListener();
-    }
-
-
-
     // ==========================================
     // Real-Time Detailed Content Addition Listener (Zero-Refresh Alert)
     // ==========================================
@@ -596,7 +835,14 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initContentAdditionAnnouncer);
+        document.addEventListener('DOMContentLoaded', () => {
+            attachDrawerTriggers();
+            initPersonalNoticeListener();
+            initContentAdditionAnnouncer();
+        });
     } else {
+        attachDrawerTriggers();
+        initPersonalNoticeListener();
         initContentAdditionAnnouncer();
     }
+})();
