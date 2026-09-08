@@ -1084,6 +1084,12 @@
             btn.style.opacity = "0.75";
             btn.disabled = true;
 
+            const resetBtn = () => {
+                btn.textContent = "دخول للمنصة 🚀";
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            };
+
             try {
                 // 1. Check Master Admin PIN
                 let masterPin = "1234";
@@ -1107,51 +1113,53 @@
                 }
 
                 // 2. Check Supervisors Table
-                const snapSup = await database.ref('Supervisors').once('value');
-                let foundSup = null;
-                if (snapSup.exists()) {
-                    snapSup.forEach(child => {
-                        const sup = child.val();
-                        if (sup && sup.pin) {
-                            const supPinNorm = normalizeDigits(sup.pin);
-                            if (supPinNorm === code && sup.isActive !== false) {
-                                foundSup = { ...sup, id: child.key };
+                try {
+                    const snapSup = await database.ref('Supervisors').once('value');
+                    let foundSup = null;
+                    if (snapSup && snapSup.exists()) {
+                        snapSup.forEach(child => {
+                            const sup = child.val();
+                            if (sup && sup.pin) {
+                                const supPinNorm = normalizeDigits(sup.pin);
+                                if (supPinNorm === code && sup.isActive !== false) {
+                                    foundSup = { ...sup, id: child.key };
+                                }
                             }
-                        }
-                    });
-                }
+                        });
+                    }
 
-                if (foundSup) {
-                    sessionStorage.setItem('isAdmin', 'true');
-                    localStorage.setItem('isAdmin', 'true');
-                    sessionStorage.setItem('adminRole', 'supervisor');
-                    localStorage.setItem('adminRole', 'supervisor');
-                    sessionStorage.setItem('adminSupervisorId', foundSup.id);
-                    localStorage.setItem('adminSupervisorId', foundSup.id);
-                    sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
-                    localStorage.setItem('adminName', foundSup.name || 'مشرف');
-                    sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
-                    localStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
-                    sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
-                    localStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
-                    showToast(`أهلاً بك يا ${foundSup.name} 🛡️`, "success");
-                    setTimeout(() => location.href = "admin-panel.html", 800);
-                    return;
+                    if (foundSup) {
+                        sessionStorage.setItem('isAdmin', 'true');
+                        localStorage.setItem('isAdmin', 'true');
+                        sessionStorage.setItem('adminRole', 'supervisor');
+                        localStorage.setItem('adminRole', 'supervisor');
+                        sessionStorage.setItem('adminSupervisorId', foundSup.id);
+                        localStorage.setItem('adminSupervisorId', foundSup.id);
+                        sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
+                        localStorage.setItem('adminName', foundSup.name || 'مشرف');
+                        sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
+                        localStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
+                        sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
+                        localStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
+                        showToast(`أهلاً بك يا ${foundSup.name} 🛡️`, "success");
+                        setTimeout(() => location.href = "admin-panel.html", 800);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Supervisor check error:", e);
                 }
 
                 // 3. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
 
-                // فحص قاعدة بيانات MySQL أولاً بسرعة مع مهلة قصيرة
+                // فحص قاعدة بيانات MySQL أولاً بسرعة
                 try {
                     const dataSql = await ElkhetaAPI.getStudents(upperCode);
                     if (dataSql && dataSql.success && dataSql.students && dataSql.students.length > 0) {
                         const sqlStudent = dataSql.students.find(s => s.student_code && s.student_code.toUpperCase() === upperCode);
                         if (sqlStudent) {
                             if (sqlStudent.is_banned == 1 || sqlStudent.is_banned === true) {
-                                btn.textContent = "دخول للمنصة 🚀";
-                                btn.style.opacity = "1";
-                                btn.disabled = false;
+                                resetBtn();
                                 Swal.fire({
                                     title: '🚫 حسابك موقوف ومعطل',
                                     html: `عزيزي الطالب <strong>${sqlStudent.full_name}</strong>،<br>تم إيقاف وتعطيل حسابك من قبل إدارة المنصة!<br>يرجى التواصل مع الدعم الفني.`,
@@ -1170,56 +1178,59 @@
                             return;
                         }
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn("MySQL student check error:", e);
+                }
 
-                const snapStudent = await database.ref('Students/' + upperCode).once('value');
-                if (snapStudent.exists()) {
-                    const studentData = snapStudent.val();
-                    if (studentData.isBanned === true) {
-                        btn.textContent = "دخول للمنصة 🚀";
-                        btn.style.opacity = "1";
-                        btn.disabled = false;
-                        Swal.fire({
-                            title: '🚫 حسابك موقوف ومعطل',
-                            text: 'تم إيقاف وتعطيل حسابك من قبل إدارة المنصة! يرجى التواصل مع الدعم الفني.',
-                            icon: 'error',
-                            confirmButtonText: 'حسناً فهمت',
-                            confirmButtonColor: '#EF4444'
-                        });
+                // فحص قاعدة بيانات Firebase
+                try {
+                    const snapStudent = await database.ref('Students/' + upperCode).once('value');
+                    if (snapStudent && snapStudent.exists()) {
+                        const studentData = snapStudent.val();
+                        if (studentData.isBanned === true) {
+                            resetBtn();
+                            Swal.fire({
+                                title: '🚫 حسابك موقوف ومعطل',
+                                text: 'تم إيقاف وتعطيل حسابك من قبل إدارة المنصة! يرجى التواصل مع الدعم الفني.',
+                                icon: 'error',
+                                confirmButtonText: 'حسناً فهمت',
+                                confirmButtonColor: '#EF4444'
+                            });
+                            return;
+                        }
+
+                        localStorage.setItem('user', JSON.stringify(studentData));
+                        logActivity(upperCode, studentData.fullName || 'طالب', 'تسجيل الدخول للمنصة');
+                        studentData.code = upperCode;
+                        localStorage.setItem('studentCode', upperCode);
+                        showToast("تم تسجيل الدخول بنجاح 🎉", "success");
+                        setTimeout(() => location.href = "home.html", 800);
                         return;
                     }
-
-                    localStorage.setItem('user', JSON.stringify(studentData));
-                    logActivity(upperCode, studentData.fullName || 'طالب', 'تسجيل الدخول للمنصة');
-                    studentData.code = upperCode;
-                    localStorage.setItem('studentCode', upperCode);
-                    showToast("تم تسجيل الدخول بنجاح 🎉", "success");
-                    setTimeout(() => location.href = "home.html", 800);
-                    return;
+                } catch(e) {
+                    console.warn("Firebase student check error:", e);
                 }
 
                 // 4. Check Activation Codes
-                const snapCode = await database.ref('ActivationCodes/' + upperCode).once('value');
-                if (snapCode.exists()) {
-                    btn.textContent = "دخول للمنصة 🚀";
-                    btn.style.opacity = "1";
-                    btn.disabled = false;
-                    showToast("الكود متاح! أكمل بياناتك 📝", "info");
-                    setTimeout(() => location.href = "register.html?code=" + upperCode, 1000);
-                    return;
+                try {
+                    const snapCode = await database.ref('ActivationCodes/' + upperCode).once('value');
+                    if (snapCode && snapCode.exists()) {
+                        resetBtn();
+                        showToast("الكود متاح! أكمل بياناتك 📝", "info");
+                        setTimeout(() => location.href = "register.html?code=" + upperCode, 1000);
+                        return;
+                    }
+                } catch(e) {
+                    console.warn("ActivationCodes check error:", e);
                 }
 
                 // Not found
-                btn.textContent = "دخول للمنصة 🚀";
-                btn.style.opacity = "1";
-                btn.disabled = false;
-                showToast("⚠️ الكود المدخل غير صحيح، يرجى التأكد والمحاولة مرة أخرى", "error");
+                resetBtn();
+                showToast("⚠️ الكود المدخل غير صحيح أو غير مسجل", "error");
 
             } catch (err) {
                 console.error(err);
-                btn.textContent = "دخول للمنصة 🚀";
-                btn.style.opacity = "1";
-                btn.disabled = false;
+                resetBtn();
                 showToast("حدث خطأ في الاتصال بقاعدة البيانات", "error");
             }
         }
