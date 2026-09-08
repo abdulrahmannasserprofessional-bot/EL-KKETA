@@ -730,67 +730,9 @@
         }
         .overlay.active { display: block; }
 
-        /* Custom Notification Modal */
-        .notif-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            z-index: 90000; display: flex; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .notif-modal-overlay.active { opacity: 1; visibility: visible; }
-        .notif-modal {
-            background: white; border-radius: 28px; padding: 35px 25px; width: 88%; max-width: 340px;
-            text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
-            transform: translateY(30px) scale(0.9); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            color: #1E293B;
-        }
-        .notif-modal-overlay.active .notif-modal { transform: translateY(0) scale(1); }
-        .notif-icon {
-            width: 68px; height: 68px; background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; margin: 0 auto 16px; box-shadow: 0 10px 25px rgba(255,154,158,0.4);
-            animation: ring 2s ease infinite;
-        }
-        @keyframes ring {
-            0%, 100% { transform: rotate(0deg); }
-            10% { transform: rotate(15deg); }
-            20% { transform: rotate(-10deg); }
-            30% { transform: rotate(5deg); }
-            40% { transform: rotate(-5deg); }
-            50% { transform: rotate(0deg); }
-        }
-        .notif-title { font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 8px; }
-        .notif-desc { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 22px; }
-        .notif-btn-primary {
-            background: linear-gradient(135deg, #1E3A8A, #3B82F6); color: white; border: none;
-            padding: 13px 20px; border-radius: 14px; font-weight: 800; width: 100%; font-size: 14px;
-            margin-bottom: 10px; cursor: pointer; box-shadow: 0 8px 20px rgba(59,130,246,0.3); transition: all 0.2s;
-            font-family: 'Cairo';
-        }
-        .notif-btn-secondary {
-            background: transparent; color: #94A3B8; border: none; font-weight: 700;
-            padding: 8px; width: 100%; cursor: pointer; font-size: 13px; font-family: 'Cairo';
-        }
-
-        .subscribed-badge {
-            background: #F0FDF4; color: #166534; padding: 10px 14px; border-radius: 12px;
-            font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 8px;
-            margin-bottom: 16px; border: 1px solid #BBF7D0; text-align: right; line-height: 1.4;
-        }
     </style>
 </head>
 <body>
-
-    <!-- Notification Request Modal -->
-    <div class="notif-modal-overlay" id="notifModal">
-        <div class="notif-modal">
-            <div class="notif-icon">🔔</div>
-            <div class="notif-title">لا تفوت أي محاضرة جديدة!</div>
-            <div class="notif-desc">اشترك الآن في الإشعارات المجانية لتصلك رسالة فورية عند رفع أي محاضرة أو امتحان جديد.</div>
-            <button class="notif-btn-primary" onclick="requestNativePermission()">تفعيل الإشعارات فوراً ✔</button>
-            <button class="notif-btn-secondary" onclick="closeNotifModal()">ليس الآن</button>
-        </div>
-    </div>
 
     <!-- Ambient Glowing Blobs & Grid -->
     <div class="ambient-glow-1"></div>
@@ -1081,7 +1023,7 @@
         }
         loadLiveMetrics();
 
-        // Push Notifications Logic
+        // Push Notifications Logic (Background silent token sync if permitted)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/firebase-messaging-sw.js?v=3').then((registration) => {
@@ -1089,55 +1031,16 @@
                     const vapidKey = 'BK2Het_ENvBkD0uvH4niGTNActwGg2kA23DHjczA45Q10a_nkUyTSJnOrsyORkq61A17SAbeGvkcBm1NCm0qP90';
                     
                     if (Notification.permission === 'granted') {
-                        // Already subscribed
                         messaging.getToken({ vapidKey: vapidKey, serviceWorkerRegistration: registration }).then(token => {
                             if(token) database.ref('PushTokens/' + token).set(true);
                         }).catch(err => console.log('Token error', err));
-                        showSubscribedMessage();
-                    } else if (Notification.permission === 'default') {
-                        // Ask gracefully with custom UI
-                        setTimeout(() => {
-                            document.getElementById('notifModal').classList.add('active');
-                        }, 1200);
                     }
-
-                    window.requestNativePermission = function() {
-                        document.getElementById('notifModal').classList.remove('active');
-                        Notification.requestPermission().then((permission) => {
-                            if (permission === 'granted') {
-                                messaging.getToken({ vapidKey: vapidKey, serviceWorkerRegistration: registration }).then(token => {
-                                    if(token) database.ref('PushTokens/' + token).set(true);
-                                    showSubscribedMessage();
-                                    showToast("تم تفعيل الإشعارات بنجاح 🎉", "success");
-                                }).catch((err) => console.log('FCM Token error', err));
-                            }
-                        });
-                    };
-
-                    window.closeNotifModal = function() {
-                        document.getElementById('notifModal').classList.remove('active');
-                    };
 
                     messaging.onMessage((payload) => {
                         showToast("🔔 إشعار جديد: " + (payload.notification?.title || ''), "info");
                     });
-                });
+                }).catch(()=>{});
             });
-        }
-
-        function showSubscribedMessage() {
-            const loginCard = document.querySelector('.login-card');
-            if (!document.getElementById('subBadge')) {
-                const badge = document.createElement('div');
-                badge.id = 'subBadge';
-                badge.className = 'subscribed-badge';
-                badge.innerHTML = `<span style="font-size:18px;">✨</span> <div>أنت مشترك في نظام الإشعارات. ستعرف فوراً عند إضافة أي محتوى جديد!</div>`;
-                // Insert right after the <p> tag inside .login-card
-                const pTag = loginCard.querySelector('p');
-                if (pTag) {
-                    pTag.parentNode.insertBefore(badge, pTag.nextSibling);
-                }
-            }
         }
         function generateDeviceId() {
             if (!localStorage.getItem('deviceId')) {
