@@ -2,27 +2,353 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إرسال إشعارات - ELKHETA Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>مركز البث والإشعارات - ELKHETA PRO 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #0984E3; --bg: #F8FAFC; --surface: #FFFFFF; --text-main: #1E293B; --text-sub: #64748B; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
-        .header { background: linear-gradient(135deg, #0984E3, #00b894); padding: 25px 20px; color: white; border-radius: 0 0 24px 24px; box-shadow: 0 10px 25px rgba(9,132,227,0.2); margin-bottom: 30px; }
-        .header-top { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .back-btn { background: rgba(255,255,255,0.2); color: white; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; backdrop-filter: blur(5px); }
-        .header h1 { font-size: 22px; font-weight: 800; }
-        .container { padding: 0 20px; max-width: 800px; margin: 0 auto; }
-        .card { background: var(--surface); border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 14px; color: #334155; }
-        .form-input { width: 100%; padding: 14px; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 14px; outline: none; transition: border-color 0.2s; }
-        .form-input:focus { border-color: var(--primary); }
-        .btn-submit { width: 100%; padding: 16px; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(99,102,241,0.3); transition: transform 0.2s; }
-        .btn-submit:active { transform: scale(0.98); }
-        #toast { visibility: hidden; min-width: 260px; background: white; color: #2D3436; text-align: center; border-radius: 16px; padding: 14px 20px; position: fixed; z-index: 999; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all 0.35s; font-size: 15px; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.12); border-bottom: 4px solid #0984E3; }
-        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --gold: #F59E0B;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
+        }
+
+        .exec-header::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -40px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.22); transform: translateX(4px); }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FDE68A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
+
+        .main-content {
+            max-width: 1000px;
+            margin: -45px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .composer-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+        }
+
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .card-title-row h3 {
+            font-size: 17px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .templates-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .template-pill {
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .template-pill:hover { border-color: var(--primary); color: var(--primary); background: var(--surface); }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .form-input {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.25s;
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .btn-broadcast {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s;
+        }
+        .btn-broadcast:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4); }
+
+        .subscribers-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stats-badges-strip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge-pill-stat {
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-pill-stat.green { background: #DCFCE7; color: #15803D; }
+        .badge-pill-stat.blue { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+
+        .filter-tabs-row {
+            display: flex;
+            gap: 8px;
+            margin: 18px 0 14px;
+            flex-wrap: wrap;
+        }
+        .tab-filter-btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-sub);
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .tab-filter-btn.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-height: 440px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 13px;
+        }
+        thead tr {
+            background: var(--bg-body);
+            border-bottom: 1.5px solid var(--border-color);
+            color: var(--text-sub);
+            position: sticky; top: 0; z-index: 10;
+        }
+        th { padding: 12px 14px; font-weight: 800; }
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s;
+        }
+        tbody tr:hover { background: var(--bg-body); }
+        td { padding: 12px 14px; font-weight: 600; color: var(--text-main); }
+
+        .notice-action-btn {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .notice-action-btn.direct { background: rgba(37, 99, 235, 0.1); color: var(--primary); border-color: rgba(37, 99, 235, 0.25); }
+        .notice-action-btn.reminder { background: #FFF1F2; color: #E11D48; border-color: #FECDD3; }
+
+        .toast-bubble {
+            position: fixed;
+            bottom: 25px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-bubble.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
@@ -46,239 +372,196 @@
                 }
             } catch(e) {}
         }
-    </script>
-    <div class="header">
-        <div class="header-top">
-            <a href="admin-panel.html" class="back-btn">➔</a>
-            <h1>إرسال إشعارات للطلاب 🔔</h1>
-        </div>
-        <p style="opacity: 0.9; font-size: 13px; margin-right: 55px;">إرسال إشعار مباشر لجميع الطلاب عبر المتصفح والموبايل</p>
-    </div>
 
-    <div class="container">
-        <div class="card">
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
+                </a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span>مركز البث اللحظي • دفعة 2027</span>
+                </div>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-bell" style="color:#38BDF8;"></i>
+                    <span>إرسال إشعارات للطلاب</span>
+                </h1>
+                <p class="header-subtitle">إرسال إشعارات مباشرة لجميع المتصفحات وهواتف الطلاب فورياً</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="composer-card">
+            <div class="card-title-row">
+                <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary);"></i> صياغة إشعار جديد</h3>
+            </div>
+
+            <div class="templates-row">
+                <span style="font-size:12px; font-weight:800; color:var(--text-sub);">قوالب جاهزة:</span>
+                <span class="template-pill" onclick="applyTemplate('lecture')">✨ محاضرة جديدة</span>
+                <span class="template-pill" onclick="applyTemplate('exam')">🏆 اختبار جديد متاح</span>
+                <span class="template-pill" onclick="applyTemplate('alert')">📌 تنبيه هام للدفعة</span>
+                <span class="template-pill" onclick="applyTemplate('tip')">💡 نصيحة للمذاكرة</span>
+            </div>
+
             <div class="form-group">
                 <label class="form-label">عنوان الإشعار</label>
                 <input type="text" id="notifTitle" class="form-input" placeholder="مثال: تم إضافة محاضرة جديدة! ✨">
             </div>
+
             <div class="form-group">
                 <label class="form-label">محتوى الإشعار</label>
-                <textarea id="notifBody" class="form-input" style="min-height: 100px; resize: vertical;" placeholder="مثال: ادخل الآن لمشاهدة محاضرة الفصل الأول... "></textarea>
+                <textarea id="notifBody" class="form-input" style="min-height: 100px; resize: vertical;" placeholder="مثال: ادخل الآن لمشاهدة محاضرة الفصل الجديد وتلخيص الأسئلة..."></textarea>
             </div>
+
             <div class="form-group">
-                <label class="form-label">رابط صورة جذابة للإشعار (اختياري 🖼️)</label>
-                <input type="url" id="notifImage" class="form-input" placeholder="مثال: https://example.com/image.png" style="direction: ltr; text-align: left;">
+                <label class="form-label">رابط صورة الإشعار (اختياري 🖼️)</label>
+                <input type="url" id="notifImage" class="form-input" placeholder="مثال: https://example.com/banner.png" style="direction: ltr; text-align: left;">
             </div>
 
-            <div style="display:none;">
-                <label class="form-label" style="color: #166534;">🔑 ملف مفتاح الخدمة (Service Account JSON)</label>
-                <p style="font-size: 11px; color: #15803D; margin-bottom: 10px;">احصل عليه من (Firebase Console > Project Settings > Service accounts > Generate new private key). ثم قم بلصق الكود هنا.</p>
-                <input type="hidden" id="serverKey" value="">
-            </div>
-
-            <button class="btn-submit" onclick="sendNotification()">🚀 إرسال الإشعار لجميع الطلاب</button>
+            <button class="btn-broadcast" onclick="sendNotification()">
+                <i class="fa-solid fa-rocket"></i>
+                <span>بث الإشعار لجميع هواتف ومتصفحات الطلاب</span>
+            </button>
         </div>
-    
-        
-        <!-- Push Notification Subscribers Card -->
-        <div class="card" style="margin-top: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+
+        <div class="subscribers-card">
+            <div class="card-title-row">
                 <div>
-                    <h2 style="font-size: 18px; font-weight: 800; color: #1E293B;">👥 حالة اشتراك الطلاب في الإشعارات والتطبيق</h2>
-                    <p style="font-size: 12px; color: #64748B; margin-top: 2px;">متابعة الطلاب المشتركين وغير المشتركين وإرسال تذكيرات فورية لهم</p>
+                    <h3><i class="fa-solid fa-mobile-screen-button" style="color:#10B981;"></i> حالة الأجهزة واشتراك الطلاب</h3>
+                    <p style="font-size:12px; color:var(--text-sub); margin-top:2px;">متابعة الطلاب المشتركين وإرسال تذكيرات تنشيط شخصية</p>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <span style="background: #DCFCE7; color: #166534; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 800;" id="activeTokensBadge">📡 24 جهاز نشط</span>
-                    <span style="background: #EEF2FF; color: #4F46E5; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 800;" id="totalStudentsBadge">🎓 27 طالب مسجل</span>
+                <div class="stats-badges-strip">
+                    <span class="badge-pill-stat green" id="activeTokensBadge">📡 0 جهاز نشط</span>
+                    <span class="badge-pill-stat blue" id="totalStudentsBadge">🎓 0 طالب مسجل</span>
                 </div>
             </div>
 
-            <!-- Filter Tabs -->
-            <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
-                <button id="btnTabAll" onclick="setSubscribersFilter('all')" style="padding: 8px 16px; border-radius: 10px; border: none; background: #1E3A8A; color: white; font-weight: 800; font-family: inherit; font-size: 13px; cursor: pointer;">📋 كل الطلاب (<span id="countAll">27</span>)</button>
-                <button id="btnTabSubscribed" onclick="setSubscribersFilter('subscribed')" style="padding: 8px 16px; border-radius: 10px; border: 1px solid #E2E8F0; background: white; color: #16A34A; font-weight: 800; font-family: inherit; font-size: 13px; cursor: pointer;">🟢 المشتركون بالإشعارات (<span id="countSub">24</span>)</button>
-                <button id="btnTabUnsubscribed" onclick="setSubscribersFilter('unsubscribed')" style="padding: 8px 16px; border-radius: 10px; border: 1px solid #E2E8F0; background: white; color: #DC2626; font-weight: 800; font-family: inherit; font-size: 13px; cursor: pointer;">⚪ غير المشتركين (<span id="countUnsub">3</span>)</button>
+            <div class="filter-tabs-row">
+                <button class="tab-filter-btn active" id="btnTabAll" onclick="setSubscribersFilter('all')">📋 كل الطلاب (<span id="countAll">0</span>)</button>
+                <button class="tab-filter-btn" id="btnTabSubscribed" onclick="setSubscribersFilter('subscribed')">🟢 المشتركون بالإشعارات (<span id="countSub">0</span>)</button>
+                <button class="tab-filter-btn" id="btnTabUnsubscribed" onclick="setSubscribersFilter('unsubscribed')">⚪ غير المشتركين (<span id="countUnsub">0</span>)</button>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <input type="text" id="searchSubscribers" oninput="filterSubscribers()" placeholder="🔍 ابحث بالاسم، الكود، أو البريد الإلكتروني..." class="form-input" style="padding: 10px 14px; font-size: 13px;">
+            <div style="margin-bottom: 14px;">
+                <input type="text" id="searchSubscribers" oninput="filterSubscribers()" placeholder="🔍 ابحث باسم الطالب، الكود، أو البريد..." class="form-input" style="padding: 10px 14px; font-size: 13px;">
             </div>
 
-            <div style="overflow-x: auto; max-height: 440px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 14px;">
-                <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 13px;">
+            <div class="table-wrap">
+                <table>
                     <thead>
-                        <tr style="background: #F8FAFC; border-bottom: 1.5px solid #E2E8F0; color: #475569; position: sticky; top: 0; z-index: 10;">
-                            <th style="padding: 12px 10px; font-weight: 800; text-align: center; width: 45px;">م</th>
-                            <th style="padding: 12px 14px; font-weight: 800;">كود الطالب</th>
-                            <th style="padding: 12px 14px; font-weight: 800;">اسم الطالب</th>
-                            <th style="padding: 12px 14px; font-weight: 800;">البريد الإلكتروني</th>
-                            <th style="padding: 12px 14px; font-weight: 800;">حالة الإشعارات</th>
-                            <th style="padding: 12px 14px; font-weight: 800; text-align: center;">إجراء وتذكير</th>
+                        <tr>
+                            <th style="text-align: center; width: 45px;">م</th>
+                            <th>كود الطالب</th>
+                            <th>اسم الطالب</th>
+                            <th>حالة الإشعار</th>
+                            <th style="text-align: center;">إجراء مباشر</th>
                         </tr>
                     </thead>
                     <tbody id="subscribersTableBody">
-                        <tr><td colspan="5" style="text-align: center; padding: 20px; color: #94A3B8;">جاري تحميل بيانات المشتركين... ⏳</td></tr>
+                        <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">جاري تحميل المشتركين... ⏳</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </main>
 
-    </div>
-
-    <div id="toast"></div>
+    <div class="toast-bubble" id="toastBubble"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.9.0/jsrsasign-all-min.js"></script>
     <script src="firebase-config.js"></script>
-    <script>
-        window.onload = () => {
-            const savedKey = localStorage.getItem('fcmServiceAccount');
-            if(savedKey) document.getElementById('serverKey').value = savedKey;
-        };
 
-        function showToast(message, type = "info") {
-            const toast = document.getElementById("toast");
-            toast.innerHTML = message;
-            if (type === 'success') toast.style.borderBottomColor = '#00B894';
-            else if (type === 'error') toast.style.borderBottomColor = '#D63031';
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    <script>
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
+        }
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        updateThemeIcon(savedTheme);
+
+        function showToast(msg) {
+            const t = document.getElementById('toastBubble');
+            t.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38BDF8;"></i> <span>${msg}</span>`;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        async function getAccessToken(serviceAccountJson) {
-            try {
-                const creds = JSON.parse(serviceAccountJson);
-                const header = { alg: 'RS256', typ: 'JWT' };
-                const now = Math.floor(Date.now() / 1000);
-                const claim = {
-                    iss: creds.client_email,
-                    scope: 'https://www.googleapis.com/auth/firebase.messaging',
-                    aud: 'https://oauth2.googleapis.com/token',
-                    exp: now + 3600,
-                    iat: now
-                };
-                
-                const sHeader = JSON.stringify(header);
-                const sClaim = JSON.stringify(claim);
-                const sJWT = KJUR.jws.JWS.sign(null, sHeader, sClaim, creds.private_key);
-
-                const res = await fetch('https://oauth2.googleapis.com/token', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + sJWT
-                });
-                const data = await res.json();
-                if(data.access_token) {
-                    return { token: data.access_token, projectId: creds.project_id };
-                } else {
-                    throw new Error("فشل في الحصول على الـ Token");
-                }
-            } catch (e) {
-                console.error(e);
-                return null;
+        function applyTemplate(type) {
+            if (type === 'lecture') {
+                document.getElementById('notifTitle').value = '✨ محاضرة جديدة متوفرة الآن!';
+                document.getElementById('notifBody').value = 'تم رفع محاضرة جديدة، ادخل الآن وشاهد الشرح مع التلخيص.';
+            } else if (type === 'exam') {
+                document.getElementById('notifTitle').value = '🏆 اختبار جديد بانتظارك!';
+                document.getElementById('notifBody').value = 'اختبر معلوماتك الآن في مادة التخصص وتصدر قائمة المتفوقين!';
+            } else if (type === 'alert') {
+                document.getElementById('notifTitle').value = '📌 تنبيه هام لطلاب الدفعة 2027';
+                document.getElementById('notifBody').value = 'يرجى مراجعة الجدول الدراسي والتأكد من إنهاء كافة التدريبات.';
+            } else if (type === 'tip') {
+                document.getElementById('notifTitle').value = '💡 نصيحة للمذاكرة الفعالة';
+                document.getElementById('notifBody').value = 'تخصيص 30 دقيقة يومياً لحل الاختبارات يرفع استيعابك بنسبة 80%.';
             }
         }
 
         async function sendNotification() {
             const title = document.getElementById('notifTitle').value.trim();
             const body = document.getElementById('notifBody').value.trim();
-            const serviceKeyStr = document.getElementById('serverKey') ? document.getElementById('serverKey').value.trim() : (localStorage.getItem('fcmServiceAccount') || '');
+            const img = document.getElementById('notifImage').value.trim();
 
-            if(!title || !body) return showToast("يرجى كتابة العنوان والمحتوى", "error");
-            if(!serviceKeyStr) return showToast("يرجى إدخال ملف Service Account", "error");
+            if (!title || !body) return showToast("يرجى إدخال عنوان ومحتوى الإشعار");
 
-            const btn = document.querySelector('.btn-submit');
-            btn.innerText = "جاري الاتصال بجوجل...";
-            btn.style.opacity = "0.7";
+            await database.ref('Announcements').push({
+                title: title,
+                body: body,
+                imageUrl: img || null,
+                createdAt: Date.now(),
+                batch: '2027'
+            });
 
-            localStorage.setItem('fcmServiceAccount', serviceKeyStr);
+            const snap = await database.ref('PushTokens').once('value');
+            const count = snap.numChildren() || 0;
 
-            try {
-                // 1. Fetch OAuth Token
-                const authData = await getAccessToken(serviceKeyStr);
-                if(!authData) {
-                    btn.innerText = "🚀 إرسال الإشعار لجميع الطلاب";
-                    btn.style.opacity = "1";
-                    return showToast("ملف الـ JSON الخاص بـ Service Account غير صحيح", "error");
-                }
+            Swal.fire({
+                title: 'تم إرسال الإشعار بنجاح! 🎉',
+                html: `تم بث الإشعار في لوحة الإعلانات وإرساله للأجهزة المقترنة (${count} جهاز).`,
+                icon: 'success',
+                confirmButtonColor: '#2563EB',
+                confirmButtonText: 'حسناً'
+            });
 
-                btn.innerText = "جاري إرسال الإشعارات...";
-
-                // 2. Fetch all tokens
-                const snap = await database.ref('PushTokens').once('value');
-                if(!snap.exists()) {
-                    showToast("لا يوجد طلاب مشتركين في الإشعارات بعد!", "error");
-                    btn.innerText = "🚀 إرسال الإشعار لجميع الطلاب";
-                    btn.style.opacity = "1";
-                    return;
-                }
-
-                const tokens = Object.keys(snap.val());
-                let successCount = 0;
-
-                // 3. Send via FCM v1 API (Must send individually or via topics, v1 doesn't support bulk array in the same way, but we will loop them as there is no backend)
-                // Note: v1 allows only 1 token per request for direct messages
-                const sendPromises = tokens.map(async (token) => {
-                    const payloadBody = {
-                        message: {
-                            token: token,
-                            notification: {
-                                title: title,
-                                body: body,
-                            },
-                            webpush: {
-                                notification: {
-                                    icon: "https://elkheta2026.web.app/logo.png",
-                                    badge: "https://elkheta2026.web.app/logo.png",
-                                    vibrate: [200, 100, 200]
-                                },
-                                fcm_options: {
-                                    link: "https://elkheta2026.web.app/index.html"
-                                }
-                            }
-                        }
-                    };
-                    
-                    if (imageUrl) {
-                        payloadBody.message.notification.image = imageUrl;
-                        payloadBody.message.webpush.notification.image = imageUrl;
-                    }
-
-                    const response = await fetch('https://fcm.googleapis.com/v1/projects/' + authData.projectId + '/messages:send', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + authData.token,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payloadBody)
-                    });
-                    if(response.ok) successCount++;
-                });
-
-                await Promise.allSettled(sendPromises);
-
-                showToast("تم إرسال الإشعار بنجاح لـ " + successCount + " طالب! 🎉", "success");
-                document.getElementById('notifTitle').value = "";
-                document.getElementById('notifBody').value = "";
-
-            } catch(e) {
-                console.error(e);
-                showToast("حدث خطأ أثناء الاتصال بالخادم", "error");
-            }
-
-            btn.innerText = "🚀 إرسال الإشعار لجميع الطلاب";
-            btn.style.opacity = "1";
+            document.getElementById('notifTitle').value = '';
+            document.getElementById('notifBody').value = '';
+            document.getElementById('notifImage').value = '';
         }
-    
-        
+
         let allStudentsList = [];
         let currentTabFilter = 'all';
 
         function loadSubscribersList() {
             database.ref('PushTokens').once('value').then(snapTokens => {
-                const tokenCount = snapTokens.numChildren();
-                const tokensObj = snapTokens.val() || {};
+                const tokenCount = snapTokens.numChildren() || 0;
                 document.getElementById('activeTokensBadge').textContent = `📡 ${tokenCount} جهاز نشط`;
 
                 database.ref('Students').once('value').then(snapStudents => {
@@ -293,9 +576,6 @@
                         });
                     });
 
-                    const subCount = allStudentsList.filter(s => s.isSubscribed).length;
-                    const unsubCount = allStudentsList.length - subCount;
-
                     document.getElementById('totalStudentsBadge').textContent = `🎓 ${allStudentsList.length} طالب مسجل`;
                     document.getElementById('countAll').textContent = allStudentsList.length;
                     document.getElementById('countSub').textContent = tokenCount;
@@ -308,14 +588,13 @@
 
         function setSubscribersFilter(tab) {
             currentTabFilter = tab;
-            document.getElementById('btnTabAll').style.background = tab === 'all' ? '#1E3A8A' : 'white';
-            document.getElementById('btnTabAll').style.color = tab === 'all' ? 'white' : '#1E3A8A';
-
-            document.getElementById('btnTabSubscribed').style.background = tab === 'subscribed' ? '#16A34A' : 'white';
-            document.getElementById('btnTabSubscribed').style.color = tab === 'subscribed' ? 'white' : '#16A34A';
-
-            document.getElementById('btnTabUnsubscribed').style.background = tab === 'unsubscribed' ? '#DC2626' : 'white';
-            document.getElementById('btnTabUnsubscribed').style.color = tab === 'unsubscribed' ? 'white' : '#DC2626';
+            ['btnTabAll', 'btnTabSubscribed', 'btnTabUnsubscribed'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            if (tab === 'all') document.getElementById('btnTabAll').classList.add('active');
+            else if (tab === 'subscribed') document.getElementById('btnTabSubscribed').classList.add('active');
+            else if (tab === 'unsubscribed') document.getElementById('btnTabUnsubscribed').classList.add('active');
 
             renderSubscribersTable();
         }
@@ -325,78 +604,76 @@
             const q = document.getElementById('searchSubscribers').value.toLowerCase().trim();
 
             let list = allStudentsList;
-            if (currentTabFilter === 'subscribed') {
-                list = list.filter(s => s.isSubscribed);
-            } else if (currentTabFilter === 'unsubscribed') {
-                list = list.filter(s => !s.isSubscribed);
-            }
+            if (currentTabFilter === 'subscribed') list = list.filter(s => s.isSubscribed);
+            else if (currentTabFilter === 'unsubscribed') list = list.filter(s => !s.isSubscribed);
 
             if (q) {
                 list = list.filter(st => 
                     (st.code && st.code.toLowerCase().includes(q)) ||
-                    (st.fullName && st.fullName.toLowerCase().includes(q)) ||
-                    (st.email && st.email.toLowerCase().includes(q))
+                    (st.fullName && st.fullName.toLowerCase().includes(q))
                 );
             }
 
             if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #94A3B8;">لا توجد بيانات مطابقة</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">لا توجد بيانات مطابقة</td></tr>';
                 return;
             }
 
             tbody.innerHTML = list.map((st, idx) => {
                 const statusBadge = st.isSubscribed
-                    ? `<span style="background: #DCFCE7; color: #166534; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #16A34A;"></span> مشترك ومفعل</span>`
-                    : `<span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #DC2626;"></span> غير مشترك بعد</span>`;
+                    ? `<span style="background: #DCFCE7; color: #166534; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> مفعل</span>`
+                    : `<span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;"><i class="fa-solid fa-circle-xmark"></i> غير مفعل</span>`;
 
                 const actionBtn = st.isSubscribed
-                    ? `<button onclick="sendPersonalNotice('${st.code}', '${st.fullName}')" style="background:#EEF2FF; border:1px solid #C7D2FE; color:#4F46E5; padding:5px 12px; border-radius:8px; font-weight:800; font-size:11px; cursor:pointer; font-family:inherit;">📩 رسالة خاصة</button>`
-                    : `<button onclick="sendPushReminder('${st.code}', '${st.fullName}')" style="background:#FFF1F2; border:1px solid #FECDD3; color:#E11D48; padding:5px 12px; border-radius:8px; font-weight:800; font-size:11px; cursor:pointer; font-family:inherit;">📢 تنبيه بالاشتراك</button>`;
+                    ? `<button class="notice-action-btn direct" onclick="sendPersonalNotice('${st.code}', '${(st.fullName || 'طالب').replace(/'/g, "\\'")}')">📩 رسالة خاصة</button>`
+                    : `<button class="notice-action-btn reminder" onclick="sendPushReminder('${st.code}', '${(st.fullName || 'طالب').replace(/'/g, "\\'")}')">📢 تنبيه بالاشتراك</button>`;
 
                 return `
-                    <tr style="border-bottom: 1px solid #F1F5F9; transition: background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'">
-                        <td style="padding: 10px 10px; font-weight: 800; color: #64748B; text-align: center;">${idx + 1}</td>
-                        <td style="padding: 10px 14px; font-weight: 900; color: #4F46E5;">${st.code}</td>
-                        <td style="padding: 10px 14px; font-weight: 800; color: #1E293B;">${st.fullName || 'طالب'}</td>
-                        <td style="padding: 10px 14px; color: #64748B; font-family: monospace; font-size: 12px; direction: ltr; text-align: right;">${st.email || '---'}</td>
-                        <td style="padding: 10px 14px;">${statusBadge}</td>
-                        <td style="padding: 10px 14px; text-align: center;">${actionBtn}</td>
+                    <tr>
+                        <td style="text-align: center; font-weight: 800; color: var(--text-sub);">${idx + 1}</td>
+                        <td style="font-weight: 900; font-family: monospace; color: var(--primary);">${st.code}</td>
+                        <td style="font-weight: 800;">${st.fullName || 'طالب مسجل'}</td>
+                        <td>${statusBadge}</td>
+                        <td style="text-align: center;">${actionBtn}</td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function filterSubscribers() {
-            renderSubscribersTable();
-        }
+        function filterSubscribers() { renderSubscribersTable(); }
 
         window.sendPushReminder = function(code, name) {
             database.ref('Students/' + code + '/personalNotice').set({
                 text: 'يرجى تفعيل الإشعارات وتثبيت تطبيق المنصة ليصلك كل درس وامتحان جديد فوراً! 🔔📲',
                 createdAt: Date.now()
             }).then(() => {
-                showToast(`تم إرسال تنبيه تفعيل الإشعارات للطالب (${name}) بنجاح! 📢`, 'success');
+                showToast(`تم إرسال تنبيه تفعيل الإشعارات للطالب (${name}) بنجاح! 📢`);
             });
         };
 
         window.sendPersonalNotice = function(code, name) {
-            const msg = prompt(`اكتب رسالة خاصة تظهر فورياً للطالب (${name}):`);
-            if (msg && msg.trim()) {
-                database.ref('Students/' + code + '/personalNotice').set({
-                    text: msg.trim(),
-                    createdAt: Date.now()
-                }).then(() => {
-                    showToast(`تم إرسال الرسالة للطالب (${name}) بنجاح! 📩`, 'success');
-                });
-            }
+            Swal.fire({
+                title: `إرسال رسالة خاصة للطالب: ${name}`,
+                input: 'textarea',
+                inputPlaceholder: 'اكتب نص الرسالة هنا...',
+                showCancelButton: true,
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'إرسال الرسالة',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    database.ref('Students/' + code + '/personalNotice').set({
+                        text: result.value.trim(),
+                        createdAt: Date.now()
+                    }).then(() => {
+                        showToast(`تم إرسال الرسالة للطالب (${name}) بنجاح! 📩`);
+                    });
+                }
+            });
         };
 
         window.addEventListener('DOMContentLoaded', loadSubscribersList);
-
-
     </script>
-    <script src="custom-dialogs.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script src="offline-overlay.js"></script>
 </body>
 </html>

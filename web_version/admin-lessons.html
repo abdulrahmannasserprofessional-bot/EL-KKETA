@@ -1,464 +1,555 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المحاضرات - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>إدارة المحاضرات والامتحانات - ELKHETA PRO 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
-
-        .page-header {
-            background: linear-gradient(135deg, #1E1B4B, #312E81);
-            padding: 50px 20px 70px;
-            position: relative; overflow: hidden;
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --gold: #F59E0B;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-glass: rgba(255, 255, 255, 0.9);
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
         }
-        .page-header::after {
+
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --surface-glass: rgba(15, 23, 42, 0.92);
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100vw;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            direction: rtl;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
+        }
+
+        .exec-header::after {
             content: '';
             position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 70%);
-            bottom: -80px; right: -30px; border-radius: 50%;
+            bottom: -60px; left: -40px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
-        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
-        .back-btn {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 18px; transition: background 0.2s;
-            color: #FFFFFF; text-decoration: none;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
-        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
-        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
 
-        .add-card {
-            margin: -30px 15px 0;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 24px;
-            padding: 22px;
-            position: relative; z-index: 10;
-        }
-        .add-card h3 { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.6); margin-bottom: 14px; }
-
-        .form-group { margin-bottom: 10px; }
-        .form-label { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 6px; display: block; font-weight: 600; }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 13px 16px;
-            background: #F8FAFC;
-            border: 1.5px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            color: #1E293B;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
-        }
-        .form-input:focus, .form-select:focus { border-color: #818CF8; background: rgba(129,140,248,0.07); }
-        .form-input::placeholder { color: rgba(0,0,0,0.25); }
-
-        .form-hint { font-size: 11px; color: rgba(0,0,0,0.3); margin-top: 4px; }
-
-        .btn-add {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4F46E5, #6366F1);
-            border: none;
-            border-radius: 16px;
-            color: #FFFFFF;
-            font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 8px 25px rgba(99,102,241,0.35);
-            transition: all 0.2s;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4F46E5, #6366F1);
-            border: none;
-            border-radius: 16px;
-            color: #FFFFFF;
-            font-family: 'Cairo', sans-serif;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 8px 25px rgba(99,102,241,0.35);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(99,102,241,0.45); }
-        .btn-submit:active { transform: scale(0.98); }
-
-        .list-header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            max-width: 900px;
-            margin: 25px auto 12px;
-            padding: 0 15px; 
-        }
-        .list-title { font-size: 16px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px; }
-        .count-badge { background: #EEF2FF; color: #4F46E5; border: 1px solid #E0E7FF; border-radius: 10px; padding: 4px 12px; font-size: 13px; font-weight: 800; }
-
-        /* Published Lessons Groups & Cards */
-        .lessons-container {
-            max-width: 900px;
+        .header-container {
+            max-width: 1060px;
             margin: 0 auto;
-            padding: 0 15px;
+            position: relative;
+            z-index: 3;
         }
 
-        .subject-group {
-            background: #FFFFFF;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            transition: all 0.2s ease;
-        }
-
-        .subject-group:hover {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-            border-color: #CBD5E1;
-        }
-
-        .subject-group-header {
-            font-size: 16px;
-            font-weight: 800;
-            color: #1E3A8A;
+        .header-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1.5px solid #F1F5F9;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
         }
 
-        .subject-group-header .group-badge {
-            font-size: 12px;
-            font-weight: 700;
-            background: #EFF6FF;
-            color: #2563EB;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid #DBEAFE;
-        }
-
-        .lesson-item {
-            background: #F8FAFC;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 16px 18px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .lesson-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .lesson-item:hover {
-            background: #FFFFFF;
-            border-color: #818CF8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.08);
-        }
-
-        .lesson-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .lesson-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: #0F172A;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
-        .lesson-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .meta-pill {
+        .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.22); transform: translateX(4px); }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(15deg); }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FDE68A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
+
+        .main-content {
+            max-width: 1060px;
+            margin: -45px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px 18px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
+        .kpi-card.blue::before { background: #2563EB; }
+        .kpi-card.purple::before { background: #8B5CF6; }
+        .kpi-card.green::before { background: #10B981; }
+        .kpi-card.amber::before { background: #F59E0B; }
+
+        .kpi-info h4 { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+        .kpi-info .kpi-num { font-size: 22px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
+        .kpi-icon {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .kpi-card.blue .kpi-icon { background: rgba(37, 99, 235, 0.1); color: #2563EB; }
+        .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+        .kpi-card.green .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .kpi-card.amber .kpi-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+
+        /* Form Card */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+        }
+
+        .form-card-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 640px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.25s;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        /* Chapter Quick Chips */
+        .chapter-pills-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .chapter-pill-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
             padding: 4px 10px;
             border-radius: 8px;
             font-size: 11px;
-            font-weight: 700;
-            background: #EFF6FF;
-            color: #2563EB;
-            border: 1px solid #DBEAFE;
-            white-space: nowrap;
-        }
-
-        .meta-pill svg {
-            flex-shrink: 0;
-        }
-
-        .meta-pill.pill-nodata {
-            background: #F1F5F9;
-            color: #64748B;
-            border-color: #E2E8F0;
-        }
-
-        .meta-pill.pill-success {
-            background: #ECFDF5;
-            color: #059669;
-            border-color: #A7F3D0;
-        }
-
-        .meta-pill.pill-video {
-            background: #EFF6FF;
-            color: #2563EB;
-            border-color: #BFDBFE;
-        }
-
-        .meta-pill.pill-pdf {
-            background: #FDF2F8;
-            color: #DB2777;
-            border-color: #FBCFE8;
-        }
-
-        .meta-pill.pill-warning {
-            background: #FFFBEB;
-            color: #D97706;
-            border-color: #FDE68A;
-        }
-
-        .lesson-actions-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .btn-edit {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #EEF2FF;
-            border: 1.5px solid #C7D2FE;
-            color: #4F46E5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-edit:hover {
-            background: #4F46E5;
-            color: #FFFFFF;
-            border-color: #4F46E5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
-        }
-
-        .btn-delete {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #FEF2F2;
-            border: 1.5px solid #FECACA;
-            color: #DC2626;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-delete:hover {
-            background: #DC2626;
-            color: #FFFFFF;
-            border-color: #DC2626;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
-        }
-
-        .chapter-pill-btn {
-            background: #FFFFFF;
-            border: 1.5px solid #E2E8F0;
-            color: #475569;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            font-family: 'Cairo', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        .chapter-pill-btn:hover {
-            border-color: #6366F1;
-            color: #4F46E5;
-            background: #EEF2FF;
-            transform: translateY(-1px);
-        }
-        .chapter-pill-btn.active {
-            background: #4F46E5;
-            border-color: #4F46E5;
-            color: #FFFFFF;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
-        }
-        .pill-edit-icon {
-            font-size: 11px;
-            padding: 2px 4px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.06);
-            color: inherit;
-            transition: all 0.15s;
-        }
-        .chapter-pill-btn:hover .pill-edit-icon {
-            background: rgba(99, 102, 241, 0.2);
-        }
-        .chapter-pill-btn.active .pill-edit-icon {
-            background: rgba(255, 255, 255, 0.25);
-            color: #FFFFFF;
-        }
-        .pill-edit-icon:hover {
-            transform: scale(1.2);
-        }
-
-        .btn-rename-chap {
-            background: #FFFFFF;
-            border: 1px solid #C7D2FE;
-            color: #4F46E5;
-            font-size: 11px;
             font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            font-family: inherit;
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-family: inherit;
+            transition: 0.2s;
         }
-        .btn-rename-chap:hover {
-            background: #4F46E5;
-            color: #FFFFFF;
-            border-color: #4F46E5;
-            transform: translateY(-1px);
+        .chapter-pill-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .chapter-pill-btn.active { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
+
+        /* Media Box */
+        .media-box {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+        .media-box-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .chapter-section-header {
+        .media-grid {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 768px) {
+            .media-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Exam Box */
+        .exam-box {
+            background: var(--bg-body);
+            border: 1.5px solid rgba(16, 185, 129, 0.3);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+        .exam-box-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #F1F5F9;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .exam-count-badge {
+            background: #DCFCE7;
+            color: #15803D;
+            border: 1px solid #86EFAC;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .exam-tool-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 640px) {
+            .exam-tool-buttons { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .btn-exam-tool {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-exam-tool:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+
+        .btn-publish-main {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 900;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.25s;
+        }
+        .btn-publish-main:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); }
+
+        /* Published Lessons Container */
+        .list-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0 14px;
+            padding: 0 4px;
+        }
+        .list-section-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subject-group-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            transition: 0.2s;
+        }
+        .subject-group-card:hover { border-color: var(--primary); }
+
+        .group-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+        .group-title { font-size: 16px; font-weight: 900; color: var(--text-main); }
+        .group-badge {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .chapter-divider {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
             padding: 8px 14px;
             border-radius: 12px;
-            margin: 14px 0 10px;
+            margin: 12px 0 8px;
             font-size: 13px;
             font-weight: 800;
-            color: #334155;
-            border: 1px solid #E2E8F0;
-        }
-        .chapter-section-header:first-child {
-            margin-top: 0;
-        }
-        .chapter-badge-count {
-            background: #FFFFFF;
-            border: 1px solid #CBD5E1;
-            color: #475569;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
+            color: var(--text-main);
         }
 
-        .empty-state { text-align: center; padding: 60px 20px; color: #64748B; background: #FFFFFF; border-radius: 20px; border: 1.5px dashed #CBD5E1; margin: 0 15px; }
-        .empty-state div { font-size: 45px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; font-weight: 700; color: #64748B; }
-
-        .toast {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #1E293B; border: 1px solid rgba(0,0,0,0.15);
-            color: #FFFFFF; padding: 14px 24px; border-radius: 16px;
-            font-size: 14px; font-weight: 700; z-index: 99999;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3); max-width: 90vw; text-align: center;
+        .lesson-card-item {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            transition: 0.2s;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-
-        /* Responsive styling */
+        .lesson-card-item:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+        }
         @media (max-width: 640px) {
-            .lesson-item {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-            .lesson-actions-wrap {
-                width: 100%;
-                justify-content: flex-end;
-                border-top: 1px solid #E2E8F0;
-                padding-top: 10px;
-            }
-            .add-card {
-                margin: -30px 10px 0 !important;
-                padding: 20px 16px !important;
-            }
-            .subject-group {
-                padding: 16px;
-                margin-bottom: 15px;
-            }
+            .lesson-card-item { flex-direction: column; align-items: stretch; gap: 12px; }
         }
 
-        /* ─── Confirm Modal ─── */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px); z-index: 99998;
+        .lesson-info-box { flex: 1; min-width: 0; }
+        .lesson-card-title { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+        .lesson-tags-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .meta-tag {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .meta-tag.video { background: #EFF6FF; color: #1D4ED8; }
+        .meta-tag.pdf { background: #FDF2F8; color: #BE185D; }
+        .meta-tag.exam { background: #DCFCE7; color: #15803D; }
+        .meta-tag.muted { background: var(--surface); color: var(--text-sub); border: 1px solid var(--border-color); }
+
+        .actions-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        @media (max-width: 640px) {
+            .actions-btn-group { justify-content: flex-end; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        }
+
+        .btn-card-action {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .modal-overlay.open { opacity: 1; pointer-events: all; }
-        .modal-box {
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 340px;
+        .btn-card-action.edit { color: #2563EB; }
+        .btn-card-action.edit:hover { background: #2563EB; color: #FFFFFF; border-color: #2563EB; }
+        .btn-card-action.delete { color: #DC2626; }
+        .btn-card-action.delete:hover { background: #DC2626; color: #FFFFFF; border-color: #DC2626; }
+
+        .empty-box {
             text-align: center;
-            transform: scale(0.85) translateY(20px);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            padding: 50px 20px;
+            color: var(--text-sub);
+            background: var(--surface);
+            border-radius: 22px;
+            border: 1.5px dashed var(--border-color);
         }
-        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
-        .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
-        .modal-msg { font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.7; margin-bottom: 24px; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
-        .modal-btn.cancel { background: rgba(255,255,255,0.07); color: rgba(0,0,0,0.6); border: 1px solid rgba(0,0,0,0.1); }
-        .modal-btn.cancel:hover { background: rgba(255,255,255,0.12); }
-        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #FFFFFF; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
-        .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
+        .empty-box i { font-size: 40px; color: var(--primary); opacity: 0.4; margin-bottom: 12px; }
+
+        .toast-bubble {
+            position: fixed;
+            bottom: 25px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-bubble.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <script>
@@ -472,266 +563,245 @@
                 window.location.href = "admin-gate.html";
             }
         }
-        const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
-        if (role !== 'master' && role !== 'super_admin') {
-            try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || localStorage.getItem('adminPermissions') || '{}');
-                if (!perms.all && !perms.lessons) {
-                    alert("⛔ ليس لديك صلاحية للوصول إلى قسم المحاضرات والامتحانات");
-                    window.location.href = "admin-panel.html";
-                }
-            } catch(e) {}
-        }
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
-            <div>
-                <div class="header-title">📽️ إدارة المحاضرات</div>
-                <div class="header-sub">أضف دروساً جديدة وربطها بالمواد</div>
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
+                </a>
+                <div class="header-actions">
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>إدارة المحتوى والمحاضرات • دفعة 2027</span>
+                </div>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-video" style="color:#38BDF8;"></i>
+                    <span>رفع وجدولة المحاضرات والامتحانات</span>
+                </h1>
+                <p class="header-subtitle">إضافة وتعديل شروحات الفيديو، ملخصات PDF، وبنوك الأسئلة الإلكترونية</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="add-card" style="max-width: 900px; margin: -30px auto 0; background: #ffffff; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.06); padding: 30px;">
-        <h3 style="font-size: 18px; color: #1E293B; margin-bottom: 25px; display: flex; align-items: center; gap: 8px;">
-            <span style="background: rgba(79, 70, 229, 0.1); color: #4F46E5; padding: 6px; border-radius: 10px;">✨</span> 
-            إضافة محتوى جديد
-        </h3>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-            <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">📚 المادة الدراسية</label>
-                <select id="subjectSelect" class="form-select" style="background: #F8FAFC;" onchange="onSubjectChange()">
-                    <option value="">اختر المادة...</option>
-                </select>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label class="form-label" style="margin-bottom: 0;">🏷️ الفصل / الباب (اختياري)</label>
-                    <span id="chapterCountBadge" style="font-size: 11px; color: #4F46E5; background: #EEF2FF; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: none;"></span>
+    <main class="main-content">
+        <!-- KPI Stats -->
+        <div class="kpi-grid">
+            <div class="kpi-card blue">
+                <div class="kpi-info">
+                    <h4>إجمالي المحاضرات</h4>
+                    <div class="kpi-num" id="totalLessonsCount">—</div>
                 </div>
-                
-                <!-- Chapter Selector Dropdown -->
-                <select id="chapterSelect" class="form-select" style="background: #F8FAFC;" onchange="onChapterSelectChange()">
-                    <option value="">-- بدون فصل (محاضرة عامة) --</option>
-                    <option value="__NEW__">➕ كتابة / إنشاء فصل جديد...</option>
-                </select>
+                <div class="kpi-icon"><i class="fa-solid fa-film"></i></div>
+            </div>
+            <div class="kpi-card purple">
+                <div class="kpi-info">
+                    <h4>المواد النشطة</h4>
+                    <div class="kpi-num" id="activeSubjectsCount">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-book-open"></i></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-info">
+                    <h4>امتحانات وبابل شيت</h4>
+                    <div class="kpi-num" id="examsCount">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-list-check"></i></div>
+            </div>
+            <div class="kpi-card amber">
+                <div class="kpi-info">
+                    <h4>ملخصات PDF</h4>
+                    <div class="kpi-num" id="pdfCount">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-file-pdf"></i></div>
+            </div>
+        </div>
 
-                <!-- Custom / New Chapter Input -->
-                <div id="newChapterInputContainer" style="margin-top: 8px; display: none;">
-                    <div style="position: relative;">
-                        <input type="text" id="lessonChapter" class="form-input" placeholder="✍️ اكتب اسم الفصل / الباب الجديد هنا (مثال: الفصل الأول)..." oninput="onChapterInputChange()">
+        <!-- Add / Edit Form Card -->
+        <div class="form-card" id="lessonFormCard">
+            <div class="form-card-title">
+                <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i>
+                <span id="formCardHeaderTitle">إضافة محاضرة أو درس جديد</span>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">📚 المادة الدراسية</label>
+                    <select id="subjectSelect" class="form-control" onchange="onSubjectChange()">
+                        <option value="">اختر المادة...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+                        <label class="form-label" style="margin-bottom:0;">🏷️ الفصل / الباب (اختياري)</label>
+                        <span id="chapterCountBadge" style="font-size:11px; color:var(--primary); font-weight:800; display:none;"></span>
                     </div>
-                </div>
-
-                <!-- Quick Suggested Chapter Chips -->
-                <div id="quickChaptersContainer" style="margin-top: 8px; display: none; flex-wrap: wrap; gap: 6px; align-items: center;">
-                    <span style="font-size: 11px; color: #64748B; font-weight: 700;">فصول سابقة:</span>
-                    <div id="quickChaptersPills" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 25px;">
-            <label class="form-label">✍️ عنوان المحاضرة أو الامتحان</label>
-            <input type="text" id="lessonTitle" class="form-input" placeholder="مثال: المحاضرة 1 - مقدمة في المادة" style="font-size: 15px; padding: 15px;">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 25px;">
-            <label class="form-label">📝 وصف المحاضرة ومحتوياتها (اختياري)</label>
-            <textarea id="lessonDesc" class="form-input" style="min-height: 80px; resize: vertical; padding: 15px;" placeholder="مثال: هذه المحاضرة تحتوي على فيديو شرح، وملخص PDF، وامتحان بابل شيت..."></textarea>
-        </div>
-
-        <div style="background: linear-gradient(145deg, #F8FAFC, #F1F5F9); border: 1px solid #E2E8F0; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-            <h4 style="margin: 0 0 15px 0; color: #334155; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                📺 المرفقات الأساسية (فيديو / ملخص)
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 140px; gap: 15px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="color: #64748B;">رابط الفيديو (يوتيوب مدرج/غير مدرج / Google Drive / MP4)</label>
-                    <input type="url" id="videoUrl" class="form-input" placeholder="مثال: https://youtu.be/... أو رابط درايف" style="background: #ffffff;">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="color: #64748B;">رابط ملخص PDF (اختياري)</label>
-                    <input type="url" id="pdfUrl" class="form-input" placeholder="https://..." style="background: #ffffff;">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="color: #64748B;">حجم الـ PDF (اختياري)</label>
-                    <input type="text" id="pdfSize" class="form-input" placeholder="مثال: 3.5 MB" style="background: #ffffff;">
-                </div>
-            </div>
-        </div>
-
-        <div style="background: linear-gradient(145deg, #F0FDF4, #DCFCE7); border: 1.5px solid #BBF7D0; padding: 20px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(16,185,129,0.05);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
-                <h4 style="margin: 0; color: #166534; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                    📝 امتحان إلكتروني مدمج (بابل شيت ومقالي)
-                </h4>
-                <span id="examQuestionsCountBadge" style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
-                    0 أسئلة مضافة
-                </span>
-            </div>
-
-            <!-- Quick Question Add Toolbar -->
-            <div style="margin-bottom: 12px;">
-                <div style="font-size: 12px; font-weight: 700; color: #15803D; margin-bottom: 8px;">⚡ إضافة سؤال جديد بنقرة واحدة:</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
-                    <button type="button" onclick="insertQuestionTemplate('mcq')" style="background: #FFFFFF; border: 1.5px solid #86EFAC; color: #166534; padding: 9px 12px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        🔘 اختياري (MCQ)
-                    </button>
-                    <button type="button" onclick="insertQuestionTemplate('tf')" style="background: #FFFFFF; border: 1.5px solid #86EFAC; color: #166534; padding: 9px 12px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        ⚖️ صح أم خطأ
-                    </button>
-                    <button type="button" onclick="insertQuestionTemplate('essay')" style="background: #FFFFFF; border: 1.5px solid #86EFAC; color: #166534; padding: 9px 12px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        ✍️ سؤال مقالي
-                    </button>
-                    <button type="button" onclick="insertQuestionTemplate('matching')" style="background: #FFFFFF; border: 1.5px solid #86EFAC; color: #166534; padding: 9px 12px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        🔗 سؤال توصيل
-                    </button>
-                </div>
-            </div>
-
-            <!-- JSON Editor Textarea -->
-            <div class="form-group" style="margin-bottom: 8px;">
-                <textarea id="examJson" oninput="updateQuestionCountLive()" class="form-input" style="min-height: 200px; resize: vertical; font-family: monospace; direction: ltr; text-align: left; background: #ffffff; border: 1.5px solid #86EFAC; font-size: 13px; line-height: 1.5; border-radius: 12px;" placeholder="[
-  // يمكنك النقر على أزرار الإضافة السريعة بالأعلى لإضافة الأسئلة تلقائياً
-]"></textarea>
-            </div>
-
-            <!-- Utility Action Bar -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" onclick="formatAndValidateExamJson()" style="background: #166534; color: white; border: none; padding: 7px 14px; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                        ✨ فحص وتنسيق الأسئلة
-                    </button>
-                    <button type="button" onclick="clearExamJson()" style="background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; padding: 7px 14px; border-radius: 8px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer;">
-                        🗑️ مسح الأسئلة
-                    </button>
-                </div>
-                <button type="button" onclick="toggleTemplatesHelp()" style="background: transparent; border: none; color: #15803D; font-family: inherit; font-size: 12px; font-weight: 800; cursor: pointer; text-decoration: underline;">
-                    📋 استعراض الصيغ الجاهزة
-                </button>
-            </div>
-
-            <!-- Collapsible Raw Templates Helper -->
-            <div id="templatesHelpBox" style="display: none; margin-top: 15px; background: #ffffff; border: 1px solid #BBF7D0; border-radius: 12px; padding: 14px;">
-                <div style="font-size: 12px; font-weight: 800; color: #15803D; margin-bottom: 10px;">📋 كود النماذج الجاهزة للاستئناس:</div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
-                        <span style="font-size: 11px; font-weight: 800; color: #475569;">1. نموذج الاختيار من متعدد:</span>
-                        <button onclick="copyHelperText(this)" style="position: absolute; top: 6px; left: 6px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;">نسخ</button>
-                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 8px; color: #334155;">{
-  "text": "سؤال اختياري؟",
-  "options": ["أ", "ب", "ج", "د"],
-  "correctAnswerIndex": 0,
-  "explanation": "تفسير الإجابة"
-}</div>
+                    <select id="chapterSelect" class="form-control" onchange="onChapterSelectChange()">
+                        <option value="">-- بدون فصل (محاضرة عامة) --</option>
+                        <option value="__NEW__">➕ كتابة / إنشاء فصل جديد...</option>
+                    </select>
+                    <div id="newChapterInputContainer" style="margin-top:8px; display:none;">
+                        <input type="text" id="lessonChapter" class="form-control" placeholder="✍️ اكتب اسم الفصل الجديد (مثال: الفصل الأول)..." oninput="onChapterInputChange()">
                     </div>
-
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; position: relative;">
-                        <span style="font-size: 11px; font-weight: 800; color: #475569;">2. نموذج صح أو خطأ:</span>
-                        <button onclick="copyHelperText(this)" style="position: absolute; top: 6px; left: 6px; background: #E2E8F0; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;">نسخ</button>
-                        <div class="code-snippet" style="font-size: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto; white-space: pre-wrap; margin-top: 8px; color: #334155;">{
-  "text": "السؤال هنا صح أم خطأ؟",
-  "options": ["✅", "❌"],
-  "correctAnswerIndex": 0,
-  "explanation": "التفسير"
-}</div>
+                    <div id="quickChaptersContainer" style="display:none;" class="chapter-pills-wrap">
+                        <span style="font-size:11px; color:var(--text-sub); font-weight:700;">فصول سابقة:</span>
+                        <div id="quickChaptersPills" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
                     </div>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="form-label">✍️ عنوان المحاضرة أو الامتحان</label>
+                <input type="text" id="lessonTitle" class="form-control" placeholder="مثال: المحاضرة 1 - مقدمة في المادة">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">📝 وصف المحاضرة ومحتوياتها (اختياري)</label>
+                <textarea id="lessonDesc" class="form-control" style="min-height:75px; resize:vertical;" placeholder="مثال: هذه المحاضرة تحتوي على فيديو شرح، وملخص PDF، وامتحان بابل شيت..."></textarea>
+            </div>
+
+            <!-- Media Attachments -->
+            <div class="media-box">
+                <div class="media-box-title">
+                    <i class="fa-solid fa-photo-film" style="color:var(--primary);"></i>
+                    <span>المرفقات الأساسية (فيديو الشرح / ملخص PDF)</span>
+                </div>
+                <div class="media-grid">
+                    <div>
+                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">رابط الفيديو (YouTube / Drive / MP4)</label>
+                        <input type="url" id="videoUrl" class="form-control" placeholder="https://..." style="direction:ltr; text-align:left;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">رابط ملخص PDF</label>
+                        <input type="url" id="pdfUrl" class="form-control" placeholder="https://..." style="direction:ltr; text-align:left;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">حجم PDF</label>
+                        <input type="text" id="pdfSize" class="form-control" placeholder="3.5 MB" style="direction:ltr; text-align:left;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Box -->
+            <div class="exam-box">
+                <div class="exam-box-header">
+                    <div style="font-size:14px; font-weight:900; color:#166534; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-spell-check"></i>
+                        <span>امتحان إلكتروني مدمج (بابل شيت ومقالي)</span>
+                    </div>
+                    <span id="examQuestionsCountBadge" class="exam-count-badge">0 أسئلة مضافة</span>
+                </div>
+
+                <div class="exam-tool-buttons">
+                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('mcq')">🔘 اختياري (MCQ)</button>
+                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('tf')">⚖️ صح أم خطأ</button>
+                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('essay')">✍️ سؤال مقالي</button>
+                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('matching')">🔗 سؤال توصيل</button>
+                </div>
+
+                <div class="form-group" style="margin-bottom:8px;">
+                    <textarea id="examJson" oninput="updateQuestionCountLive()" class="form-control" style="min-height:160px; font-family:monospace; direction:ltr; text-align:left; font-size:12px;" placeholder="[ // انقر على أزرار الأسئلة بالأعلى لإضافة بنك الأسئلة تلقائياً ]"></textarea>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" onclick="formatAndValidateExamJson()" class="chapter-pill-btn" style="background:#10B981; color:white; border-color:#10B981;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> فحص وتنسيق
+                        </button>
+                        <button type="button" onclick="clearExamJson()" class="chapter-pill-btn" style="color:#DC2626;">
+                            <i class="fa-solid fa-trash-can"></i> مسح الأسئلة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">⏱️ مدة العرض</label>
+                    <input type="text" id="duration" class="form-control" placeholder="مثال: 45 دقيقة">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">⏳ جدولة النشر (اختياري)</label>
+                    <input type="datetime-local" id="lessonUnlockTime" class="form-control">
+                </div>
+            </div>
+
+            <button class="btn-publish-main" id="submitLessonBtn" onclick="addLesson()">
+                <i class="fa-solid fa-rocket"></i>
+                <span id="submitBtnText">نشر المحتوى التعليمي الآن</span>
+            </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
-            <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">⏱️ مدة العرض (اختياري)</label>
-                <input type="text" id="duration" class="form-input" placeholder="مثال: 45 دقيقة">
+        <!-- Published Lessons Header -->
+        <div class="list-section-header">
+            <div class="list-section-title">
+                <i class="fa-solid fa-books" style="color:var(--primary);"></i>
+                <span>جميع المحاضرات المنشورة</span>
             </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">⏳ جدولة النشر (اختياري)</label>
-                <input type="datetime-local" id="lessonUnlockTime" class="form-input">
-            </div>
+            <span class="group-badge" id="lessonCount">جاري التحميل...</span>
         </div>
 
-        <button class="btn-submit" onclick="addLesson()" style="padding: 16px; font-size: 16px; letter-spacing: 0.5px;">🚀 نشر المحتوى الآن</button>
-    </div>
-
-    <div class="list-header">
-        <span class="list-title">📚 جميع المحاضرات المنشورة</span>
-        <span class="count-badge" id="lessonCount">جاري التحميل...</span>
-    </div>
-
-    <div class="lessons-container" id="adminLessonsList">
-        <div class="empty-state"><div>📽️</div><p>جاري تحميل المحاضرات...</p></div>
-    </div>
-
-    <!-- Confirm Modal -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-box">
-            <div class="modal-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
-            <div class="modal-title">تأكيد الحذف</div>
-            <div class="modal-msg" id="modalMsg">هل أنت متأكد؟</div>
-            <div class="modal-btns">
-                <button class="modal-btn cancel" onclick="closeModal()">إلغاء</button>
-                <button class="modal-btn confirm-del" id="modalConfirmBtn">حذف نهائياً </button>
+        <!-- Lessons Container -->
+        <div class="lessons-container" id="adminLessonsList">
+            <div class="empty-box">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>جاري تحميل المحاضرات...</p>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast-bubble" id="toastBubble"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script>
-        const templates = {
-            bubble: `[
-  {
-    "text": "السؤال الأول (اختياري): ما هي عاصمة مصر؟",
-    "options": ["الإسكندرية", "القاهرة", "الأقصر", "أسوان"],
-    "correctAnswerIndex": 1,
-    "explanation": "القاهرة هي العاصمة، وتتميز بموقعها الاستراتيجي."
-  }
-]`,
-            essay: `[
-  {
-    "type": "essay",
-    "text": "بم تفسر: أهمية دراسة التاريخ؟",
-    "modelAnswer": "لأنه يساعد على فهم الماضي وتجارب الأمم السابقة واستشراف المستقبل."
-  }
-]`,
-            matching: `[
-  {
-    "type": "matching",
-    "text": "صل الكلمات بمعانيها:",
-    "pairs": [
-      { "left": "كتاب", "right": "Book" },
-      { "left": "قلم", "right": "Pen" },
-      { "left": "مدرسة", "right": "School" }
-    ]
-  }
-]`
-        };
 
+    <script>
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
+        }
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        updateThemeIcon(savedTheme);
+
+        function showToast(msg) {
+            const t = document.getElementById('toastBubble');
+            t.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38BDF8;"></i> <span>${msg}</span>`;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // Exam templates
         function insertQuestionTemplate(type) {
             const textarea = document.getElementById('examJson');
             let currentContent = textarea.value.trim();
             let questionsArray = [];
 
-            // Try to parse existing content if present
             if (currentContent) {
                 try {
-                    // Remove starting/ending comments if any
                     let cleaned = currentContent.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
                     let parsed = JSON.parse(cleaned);
-                    if (Array.isArray(parsed)) {
-                        questionsArray = parsed;
-                    }
-                } catch(e) {
-                    // If not valid JSON, we will smartly wrap or append
-                }
+                    if (Array.isArray(parsed)) questionsArray = parsed;
+                } catch(e) {}
             }
 
             let nextNum = questionsArray.length + 1;
@@ -742,7 +812,7 @@
                     text: `سؤال ${nextNum} (اختيار من متعدد): اكتب نص السؤال هنا؟`,
                     options: ["الخيار الأول", "الخيار الثاني", "الخيار الثالث", "الخيار الرابع"],
                     correctAnswerIndex: 0,
-                    explanation: "تفسير وتعليل الإجابة الصحيحة يظهر للطالب بعد الحل..."
+                    explanation: "تفسير الإجابة الصحيحة..."
                 };
             } else if (type === 'tf') {
                 newQ = {
@@ -755,12 +825,12 @@
                 newQ = {
                     type: "essay",
                     text: `سؤال ${nextNum} (مقالي): بم تفسر / اذكر السبب؟`,
-                    modelAnswer: "اكتب الإجابة النموذجية أو التفسير الكامل هنا..."
+                    modelAnswer: "اكتب الإجابة النموذجية والتفسير هنا..."
                 };
             } else if (type === 'matching') {
                 newQ = {
                     type: "matching",
-                    text: `سؤال ${nextNum} (توصيل): صل العبارات في العمود (أ) بما يناسبها في (ب):`,
+                    text: `سؤال ${nextNum} (توصيل): صل العبارات المناسبة:`,
                     pairs: [
                         { left: "العنصر الأول", right: "المطابق له" },
                         { left: "العنصر الثاني", right: "المطابق له" }
@@ -769,45 +839,36 @@
             }
 
             if (newQ) {
-                if (questionsArray.length > 0 || currentContent === "" || currentContent === "[]") {
-                    questionsArray.push(newQ);
-                    textarea.value = JSON.stringify(questionsArray, null, 2);
-                } else {
-                    // Raw append
-                    textarea.value = JSON.stringify([newQ], null, 2);
-                }
+                questionsArray.push(newQ);
+                textarea.value = JSON.stringify(questionsArray, null, 2);
                 updateQuestionCountLive();
-                showToast("✅ تمت إضافة السؤال بنجاح!");
+                showToast("تمت إضافة السؤال بنجاح!");
             }
         }
 
         function formatAndValidateExamJson() {
             const textarea = document.getElementById('examJson');
             const val = textarea.value.trim();
-            if (!val) {
-                return showToast("حقل الأسئلة فارغ حالياً");
-            }
+            if (!val) return showToast("حقل الأسئلة فارغ حالياً");
+
             try {
                 let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
                 let parsed = JSON.parse(cleaned);
-                if (!Array.isArray(parsed)) {
-                    throw new Error("يجب أن تكون الأسئلة محاطة بأقواس مربعة [ ] كمصفوفة.");
-                }
+                if (!Array.isArray(parsed)) throw new Error("يجب أن تكون الأسئلة محاطة بمصفوفة [ ]");
                 textarea.value = JSON.stringify(parsed, null, 2);
                 updateQuestionCountLive();
                 Swal.fire({
                     title: "تم التحقق بنجاح! ✨",
-                    html: `الكود سليم 100% ويحتوي على <b>${parsed.length}</b> سؤال جاهز للنشر.`,
+                    html: `الكود سليم 100% ويحتوي على <b>${parsed.length}</b> سؤال.`,
                     icon: "success",
-                    confirmButtonText: "رائع",
-                    confirmButtonColor: "#166534"
+                    confirmButtonColor: "#2563EB",
+                    confirmButtonText: "رائع"
                 });
-            } catch (err) {
+            } catch(err) {
                 Swal.fire({
-                    title: "خطأ في صياغة الكود ⚠️",
-                    html: `<div style="text-align:right; font-size:13px; direction:ltr; font-family:monospace; background:#FEE2E2; padding:10px; border-radius:8px; color:#DC2626; margin-top:10px;">${err.message}</div><p style="margin-top:10px; font-size:13px; color:#475569;">تأكد من وجود الأقواس والفواصل (,) بين الأسئلة وعدم نسيان علامات التنصيص.</p>`,
+                    title: "خطأ في صياغة الكود",
+                    text: err.message,
                     icon: "error",
-                    confirmButtonText: "سأقوم بتعديله",
                     confirmButtonColor: "#DC2626"
                 });
             }
@@ -815,7 +876,7 @@
 
         function clearExamJson() {
             Swal.fire({
-                title: "هل تريد مسح جميع الأسئلة؟",
+                title: "مسح جميع الأسئلة؟",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DC2626",
@@ -858,60 +919,22 @@
             }
         }
 
-        function toggleTemplatesHelp() {
-            const box = document.getElementById('templatesHelpBox');
-            if (!box) return;
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function changeTemplate() {
-            const select = document.getElementById('examTypeSelect');
-            const textarea = document.getElementById('examJson');
-            if (!select || !textarea) return;
-            
-            if (select.value && templates[select.value]) {
-                textarea.value = templates[select.value];
-            } else {
-                textarea.value = ""; // Clear if default is selected
-            }
-            updateQuestionCountLive();
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3500);
-        }
-
-        let pendingDeleteFn = null;
-        function showConfirm(message, onConfirm) { Swal.fire({
-        title: "تأكيد",
-        html: message,
-        icon: "warning", color: "#1E293B",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "نعم، متأكد",
-        cancelButtonText: "إلغاء"
-    }).then((result) => { if (result.isConfirmed && onConfirm) { onConfirm(); } }); }
-        function closeModal() { document.getElementById('confirmModal').classList.remove('open'); pendingDeleteFn = null; }
-        document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
         // Load subjects
         database.ref('Subjects').on('value', snap => {
             const select = document.getElementById('subjectSelect');
             const currentVal = select.value;
             select.innerHTML = '<option value="">اختر المادة...</option>';
+            let count = 0;
             if (snap.exists()) {
                 snap.forEach(child => {
+                    count++;
                     const sub = child.val();
                     const name = sub.name || child.key;
                     select.innerHTML += `<option value="${name}">${name}</option>`;
                 });
             }
-            if (currentVal) {
-                select.value = currentVal;
-            }
+            document.getElementById('activeSubjectsCount').textContent = count;
+            if (currentVal) select.value = currentVal;
         });
 
         let editingLessonId = null;
@@ -920,7 +943,6 @@
         window.subjectChaptersMap = {};
         window.storedChaptersMap = {};
 
-        // Load saved chapters from Chapters node
         database.ref('Chapters').on('value', snap => {
             window.storedChaptersMap = {};
             if (snap.exists()) {
@@ -991,86 +1013,38 @@
 
         function renameChapter(subject, oldChapter) {
             if (!subject) subject = document.getElementById('subjectSelect').value;
-            if (!subject) {
-                showToast("يرجى اختيار المادة الدراسية أولاً 📚");
-                return;
-            }
-            if (!oldChapter || oldChapter === "محاضرات عامة") {
-                showToast("لا يمكن تعديل المحاضرات العامة كفصل");
-                return;
-            }
+            if (!subject) return showToast("يرجى اختيار المادة الدراسية أولاً");
+            if (!oldChapter || oldChapter === "محاضرات عامة") return showToast("لا يمكن تعديل المحاضرات العامة كفصل");
 
             Swal.fire({
                 title: 'تعديل اسم الفصل ✏️',
-                html: `
-                    <div style="text-align: right; direction: rtl; font-size: 13px; color: #64748B; margin-bottom: 12px;">
-                        سيتم تغيير اسم هذا الفصل في مادة (<b>${subject}</b>) وتحديث جميع المحاضرات المندرجة تحته تلقائياً:
-                    </div>
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 10px; border-radius: 10px; margin-bottom: 14px; font-weight: bold; color: #1E293B; text-align: right;">
-                        الاسم الحالي: <span style="color: #4F46E5;">${oldChapter}</span>
-                    </div>
-                `,
+                text: `اكتب الاسم الجديد للفصل (${oldChapter}):`,
                 input: 'text',
                 inputValue: oldChapter,
-                inputPlaceholder: 'اكتب اسم الفصل الجديد...',
-                inputAttributes: {
-                    dir: 'rtl'
-                },
                 showCancelButton: true,
-                confirmButtonText: '💾 حفظ وتحديث الفصول',
+                confirmButtonText: 'حفظ وتحديث',
                 cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#4F46E5',
-                cancelButtonColor: '#94A3B8',
-                inputValidator: (value) => {
-                    if (!value || !value.trim()) {
-                        return 'يرجى كتابة اسم الفصل الجديد!';
-                    }
-                    if (value.trim() === oldChapter) {
-                        return 'الاسم الجديد مطابق للاسم القديم دون تغيير!';
-                    }
-                }
+                confirmButtonColor: '#2563EB'
             }).then((result) => {
                 if (result.isConfirmed && result.value) {
                     const newName = result.value.trim();
-                    showToast("جاري تحديث اسم الفصل والمحاضرات... ⏳");
-
-                    // 1. Update all lectures in this subject
                     database.ref('Lectures').child(subject).once('value', snap => {
                         const updates = {};
-                        let updatedCount = 0;
                         if (snap.exists()) {
                             snap.forEach(child => {
-                                const lesson = child.val();
-                                if (lesson.chapter === oldChapter) {
+                                if (child.val().chapter === oldChapter) {
                                     updates[`Lectures/${subject}/${child.key}/chapter`] = newName;
-                                    updatedCount++;
                                 }
                             });
                         }
-
-                        // 2. Update Chapters node
                         const oldKey = oldChapter.replace(/[.#$[\]/]/g, '_');
                         const newKey = newName.replace(/[.#$[\]/]/g, '_');
                         updates[`Chapters/${subject}/${oldKey}`] = null;
                         updates[`Chapters/${subject}/${newKey}`] = { name: newName, updatedAt: Date.now() };
 
                         database.ref().update(updates).then(() => {
-                            Swal.fire({
-                                title: 'تم تعديل اسم الفصل بنجاح! ✨',
-                                text: `تم تغيير اسم الفصل إلى (${newName}) وتحديث ${updatedCount} محاضرة.`,
-                                icon: 'success',
-                                confirmButtonColor: '#4F46E5',
-                                confirmButtonText: 'ممتاز'
-                            });
-
-                            const lessonChapterInput = document.getElementById('lessonChapter');
-                            if (lessonChapterInput && lessonChapterInput.value === oldChapter) {
-                                lessonChapterInput.value = newName;
-                            }
+                            Swal.fire('تم التعديل!', `تم تغيير اسم الفصل إلى (${newName}).`, 'success');
                             updateChapterDropdown(false, newName);
-                        }).catch(err => {
-                            console.error("Rename chapter error:", err);
-                            showToast("حدث خطأ أثناء تعديل اسم الفصل ❌");
                         });
                     });
                 }
@@ -1081,11 +1055,7 @@
             const currentVal = document.getElementById('lessonChapter').value.trim();
             document.querySelectorAll('.chapter-pill-btn').forEach(btn => {
                 const pillText = btn.dataset.chapter;
-                if (pillText && pillText === currentVal) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                btn.classList.toggle('active', pillText && pillText === currentVal);
             });
         }
 
@@ -1100,7 +1070,6 @@
 
             if (!chapterSelect) return;
 
-            // Collect distinct chapters
             const chaptersSet = new Set();
             const counts = {};
 
@@ -1119,8 +1088,6 @@
             }
 
             const chapters = Array.from(chaptersSet);
-
-            // Rebuild dropdown
             chapterSelect.innerHTML = '';
             
             const optDefault = document.createElement('option');
@@ -1130,7 +1097,7 @@
 
             if (chapters.length > 0) {
                 const optGroup = document.createElement('optgroup');
-                optGroup.label = `الفصول السابقة في (${subject}):`;
+                optGroup.label = `الفصول المتاحة في (${subject}):`;
                 
                 chapters.forEach(chap => {
                     const opt = document.createElement('option');
@@ -1142,9 +1109,8 @@
                 chapterSelect.appendChild(optGroup);
 
                 countBadge.style.display = 'inline-block';
-                countBadge.textContent = `${chapters.length} فصول متاحة`;
+                countBadge.textContent = `${chapters.length} فصول`;
 
-                // Render Quick Pills with Rename Action
                 quickPills.innerHTML = '';
                 chapters.forEach(chap => {
                     const pill = document.createElement('button');
@@ -1153,7 +1119,7 @@
                     pill.dataset.chapter = chap;
                     const escSub = (subject || '').replace(/'/g, "\\'");
                     const escChap = chap.replace(/'/g, "\\'");
-                    pill.innerHTML = `<span>📖 ${chap}</span> <span class="pill-edit-icon" onclick="event.stopPropagation(); renameChapter('${escSub}', '${escChap}')" title="تعديل وتغيير اسم هذا الفصل ✏️">✏️</span>`;
+                    pill.innerHTML = `<span>📖 ${chap}</span> <i class="fa-solid fa-pencil" style="font-size:10px; margin-right:4px;" onclick="event.stopPropagation(); renameChapter('${escSub}', '${escChap}')" title="تعديل اسم الفصل"></i>`;
                     pill.onclick = () => selectChapterDirectly(chap);
                     quickPills.appendChild(pill);
                 });
@@ -1169,9 +1135,8 @@
             optNew.textContent = "➕ كتابة / إنشاء فصل جديد...";
             chapterSelect.appendChild(optNew);
 
-            // Set selection
             if (targetChapter !== null) {
-                if (targetChapter === "" || targetChapter === "undefined" || targetChapter === "null" || targetChapter === "عام") {
+                if (targetChapter === "" || targetChapter === "undefined" || targetChapter === "null") {
                     chapterSelect.value = "";
                     lessonChapterInput.value = "";
                     newChapterContainer.style.display = 'none';
@@ -1185,38 +1150,11 @@
                     newChapterContainer.style.display = 'block';
                 }
             } else if (resetSelection) {
-                if (chapters.length > 0) {
-                    chapterSelect.value = "";
-                    lessonChapterInput.value = "";
-                    newChapterContainer.style.display = 'none';
-                } else {
-                    chapterSelect.value = "__NEW__";
-                    lessonChapterInput.value = "";
-                    newChapterContainer.style.display = subject ? 'block' : 'none';
-                }
+                chapterSelect.value = "";
+                lessonChapterInput.value = "";
+                newChapterContainer.style.display = 'none';
             }
             highlightActivePill();
-        }
-
-        function copyHelperText(btn) {
-            const container = btn.parentElement;
-            const snippet = container.querySelector('.code-snippet').innerText;
-            // Clean up the comment part to only copy JSON
-            let cleanJson = snippet;
-            if (snippet.includes('//')) {
-                cleanJson = snippet.split('\n').slice(1).join('\n');
-            }
-            navigator.clipboard.writeText(cleanJson).then(() => {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = "✅ تم النسخ";
-                btn.style.background = "#D1FAE5";
-                btn.style.color = "#065F46";
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = "#E2E8F0";
-                    btn.style.color = "#475569";
-                }, 2000);
-            });
         }
 
         function startEditLessonByKey(key) {
@@ -1243,7 +1181,6 @@
             updateQuestionCountLive();
             
             if (unlockTimeStr && unlockTimeStr !== 'undefined' && unlockTimeStr !== 'null') {
-                // Convert timestamp to YYYY-MM-DDThh:mm
                 const date = new Date(parseInt(unlockTimeStr));
                 const tzoffset = date.getTimezoneOffset() * 60000;
                 const localISOTime = (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
@@ -1252,9 +1189,9 @@
                 document.getElementById('lessonUnlockTime').value = "";
             }
             
-            const btn = document.querySelector('.btn-submit');
-            btn.innerHTML = "💾 حفظ التعديلات";
-            btn.style.background = "linear-gradient(135deg, #10B981, #34D399)";
+            document.getElementById('formCardHeaderTitle').textContent = "تعديل المحتوى التعليمي: " + title;
+            document.getElementById('submitBtnText').textContent = "💾 حفظ تعديلات المحتوى";
+            document.getElementById('submitLessonBtn').style.background = "linear-gradient(135deg, #10B981, #059669)";
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1271,7 +1208,6 @@
             const unlockInput = document.getElementById('lessonUnlockTime').value;
             const unlockTime = unlockInput ? new Date(unlockInput).getTime() : null;
 
-            // Resolve chapter
             const chapterSelect = document.getElementById('chapterSelect');
             let chapter = "";
             if (chapterSelect.value === '__NEW__') {
@@ -1288,7 +1224,6 @@
 
             const data = { title, description: desc, videoUrl: video, pdfUrl: pdf, pdfSize, jsonCode: examJson, duration, chapter, unlockTime };
 
-            // Remember chapter in Chapters node for permanent persistence
             if (chapter) {
                 const chapKey = chapter.replace(/[.#$[\]/]/g, '_');
                 database.ref('Chapters/' + subject + '/' + chapKey).set({ name: chapter, updatedAt: Date.now() }).catch(() => {});
@@ -1320,7 +1255,7 @@
                         timestamp: Date.now()
                     });
 
-                    showToast("تمت الإضافة ونشر التنبيه لجميع الطلاب بنجاح ✅");
+                    showToast("تمت إضافة المحتوى بنجاح ✅");
                     resetForm();
                 }).catch(() => showToast("حدث خطأ أثناء الإضافة ❌"));
             }
@@ -1338,32 +1273,29 @@
             document.getElementById('duration').value = "";
             document.getElementById('lessonUnlockTime').value = "";
             
+            document.getElementById('formCardHeaderTitle').textContent = "إضافة محاضرة أو درس جديد";
+            document.getElementById('submitBtnText').textContent = "نشر المحتوى التعليمي الآن";
+            document.getElementById('submitLessonBtn').style.background = "linear-gradient(135deg, #2563EB, #1D4ED8)";
+
             updateChapterDropdown(true, "");
             updateQuestionCountLive();
-            
-            const btn = document.querySelector('.btn-submit');
-            btn.innerHTML = "🚀 نشر المحتوى الآن";
-            btn.style.background = "linear-gradient(135deg, #4F46E5, #818CF8)";
         }
-
-        let lessonDeleteMap = {};
 
         function loadAllLessons() {
             database.ref('Lectures').on('value', snap => {
                 const container = document.getElementById('adminLessonsList');
                 container.innerHTML = "";
-                lessonDeleteMap = {};
                 window.allLessonsMap = {};
                 window.subjectChaptersMap = {};
                 let totalLessons = 0;
+                let totalExams = 0;
+                let totalPdfs = 0;
 
                 if (snap.exists()) {
                     snap.forEach(subjectSnap => {
                         const subjectName = subjectSnap.key;
                         window.subjectChaptersMap[subjectName] = {};
                         let lessonsInSubject = 0;
-
-                        // Group lessons in subject by chapter
                         const chapterGroups = {};
 
                         subjectSnap.forEach(lessonSnap => {
@@ -1372,48 +1304,45 @@
                             totalLessons++;
                             lessonsInSubject++;
 
+                            if (lesson.jsonCode) totalExams++;
+                            if (lesson.pdfUrl) totalPdfs++;
+
                             const chapName = (lesson.chapter || "").trim() || "محاضرات عامة";
                             if (chapName !== "محاضرات عامة") {
                                 window.subjectChaptersMap[subjectName][chapName] = (window.subjectChaptersMap[subjectName][chapName] || 0) + 1;
                             }
 
-                            if (!chapterGroups[chapName]) {
-                                chapterGroups[chapName] = [];
-                            }
-
-                            const deleteId = `ldel_${totalLessons}`;
-                            lessonDeleteMap[deleteId] = { subject: subjectName, id: firebaseKey, title: lesson.title };
+                            if (!chapterGroups[chapName]) chapterGroups[chapName] = [];
                             window.allLessonsMap[firebaseKey] = { ...lesson, subjectName, firebaseKey };
 
-                            const videoPill = lesson.videoUrl ? `<span class="meta-pill pill-video"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> يوجد فيديو</span>` : `<span class="meta-pill pill-nodata">لا يوجد فيديو</span>`;
-                            const pdfPill = lesson.pdfUrl ? `<span class="meta-pill pill-pdf"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> يوجد PDF</span>` : `<span class="meta-pill pill-nodata">لا يوجد PDF</span>`;
-                            const examPill = lesson.jsonCode ? `<span class="meta-pill pill-success"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> امتحان مرفق</span>` : `<span class="meta-pill pill-nodata">بدون امتحان</span>`;
-                            
-                            let lockPill = `<span class="meta-pill pill-nodata">⏱ متوفر فوراً</span>`;
-                            if (lesson.unlockTime) {
-                                const lockDate = new Date(lesson.unlockTime);
-                                const isLockedNow = Date.now() < lesson.unlockTime;
-                                const lockClass = isLockedNow ? 'pill-warning' : 'pill-success';
-                                const lockIcon = isLockedNow ? '🔒 مبرمجة لـ' : '🔓 متاحة منذ';
-                                lockPill = `<span class="meta-pill ${lockClass}">${lockIcon}: ${lockDate.toLocaleDateString('ar-EG')} ${lockDate.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}</span>`;
-                            }
+                            const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
+                            const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
+                            const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
+                            const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
+
+                            const escKey = firebaseKey.replace(/'/g, "\\'");
+                            const escTitle = (lesson.title || 'المحاضرة').replace(/'/g, "\\'");
+                            const escSub = subjectName.replace(/'/g, "\\'");
 
                             chapterGroups[chapName].push(`
-                                <div class="lesson-item">
-                                    <div class="lesson-info">
-                                        <div class="lesson-title">${lesson.title}</div>
-                                        <div class="lesson-meta">
-                                            ${videoPill}
-                                            ${pdfPill}
-                                            ${examPill}
-                                            <span class="meta-pill pill-nodata">⏳ ${lesson.duration || 'غير محدد'}</span>
-                                            ${lesson.chapter ? `<span class="meta-pill pill-nodata" style="background:#EEF2FF; color:#4F46E5; border-color:#C7D2FE;">📖 ${lesson.chapter}</span>` : ''}
-                                            ${lockPill}
+                                <div class="lesson-card-item">
+                                    <div class="lesson-info-box">
+                                        <div class="lesson-card-title">${lesson.title}</div>
+                                        <div class="lesson-tags-row">
+                                            ${videoTag}
+                                            ${pdfTag}
+                                            ${examTag}
+                                            ${durationTag}
+                                            ${lesson.chapter ? `<span class="meta-tag muted" style="color:var(--primary);">📖 ${lesson.chapter}</span>` : ''}
                                         </div>
                                     </div>
-                                    <div class="lesson-actions-wrap">
-                                        <button class="btn-edit" onclick="startEditLessonByKey('${firebaseKey}')" title="تعديل المحاضرة"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                                        <button class="btn-delete" data-id="${deleteId}" title="حذف المحاضرة"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                    <div class="actions-btn-group">
+                                        <button class="btn-card-action edit" onclick="startEditLessonByKey('${escKey}')" title="تعديل المحاضرة">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="btn-card-action delete" onclick="deleteLessonDirect('${escSub}', '${escKey}', '${escTitle}')" title="حذف المحاضرة">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
                                     </div>
                                 </div>
                             `);
@@ -1428,16 +1357,11 @@
                                 if (hasMultipleChapters) {
                                     const escSub = subjectName.replace(/'/g, "\\'");
                                     const escChap = chName.replace(/'/g, "\\'");
-                                    const editBtn = (chName !== "محاضرات عامة") ? `<button type="button" class="btn-rename-chap" onclick="renameChapter('${escSub}', '${escChap}')" title="تعديل وتغيير اسم هذا الفصل في كافة المحاضرات">✏️ تعديل اسم الفصل</button>` : '';
+                                    const editBtn = (chName !== "محاضرات عامة") ? `<button type="button" class="chapter-pill-btn" onclick="renameChapter('${escSub}', '${escChap}')" title="تعديل اسم الفصل"><i class="fa-solid fa-pencil"></i> تعديل الفصل</button>` : '';
                                     chaptersHTML += `
-                                        <div class="chapter-section-header">
-                                            <span style="display:flex; align-items:center; gap:8px;">
-                                                ${chName === "محاضرات عامة" ? "📌 " : "📖 "}${chName}
-                                            </span>
-                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                ${editBtn}
-                                                <span class="chapter-badge-count">${items.length} درس</span>
-                                            </div>
+                                        <div class="chapter-divider">
+                                            <span>${chName === "محاضرات عامة" ? "📌 " : "📖 "}${chName} (${items.length} درس)</span>
+                                            ${editBtn}
                                         </div>
                                     `;
                                 }
@@ -1445,10 +1369,10 @@
                             }
 
                             const group = document.createElement('div');
-                            group.className = 'subject-group';
+                            group.className = 'subject-group-card';
                             group.innerHTML = `
-                                <div class="subject-group-header">
-                                    <span>📚 ${subjectName}</span>
+                                <div class="group-header-row">
+                                    <div class="group-title">📚 ${subjectName}</div>
                                     <span class="group-badge">${lessonsInSubject} محاضرة</span>
                                 </div>
                                 ${chaptersHTML}
@@ -1456,25 +1380,43 @@
                             container.appendChild(group);
                         }
                     });
+
+                    document.getElementById('totalLessonsCount').textContent = totalLessons;
+                    document.getElementById('examsCount').textContent = totalExams;
+                    document.getElementById('pdfCount').textContent = totalPdfs;
                     document.getElementById('lessonCount').textContent = totalLessons + ' محاضرة';
 
-                    // Refresh chapter options for the currently selected subject if any
                     updateChapterDropdown(false);
-
-                    container.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const ref = lessonDeleteMap[btn.dataset.id];
-                            if (!ref) return;
-                            showConfirm(
-                                `هل أنت متأكد من حذف هذه المحاضرة؟<br><br><strong style="color:#DC2626">${ref.title}</strong>`,
-                                () => database.ref('Lectures').child(ref.subject).child(ref.id).remove()
-                                    .then(() => showToast(" تم حذف المحاضرة بنجاح"))
-                            );
-                        });
-                    });
                 } else {
-                    container.innerHTML = `<div class="empty-state"><div>📽️</div><p>لا توجد محاضرات منشورة حالياً</p></div>`;
+                    container.innerHTML = `
+                        <div class="empty-box">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <p>لا توجد محاضرات منشورة حالياً في أي مادة</p>
+                        </div>
+                    `;
+                    document.getElementById('totalLessonsCount').textContent = '0';
+                    document.getElementById('examsCount').textContent = '0';
+                    document.getElementById('pdfCount').textContent = '0';
                     document.getElementById('lessonCount').textContent = '0 محاضرة';
+                }
+            });
+        }
+
+        function deleteLessonDirect(subject, id, title) {
+            Swal.fire({
+                title: 'حذف المحاضرة؟',
+                html: `هل أنت متأكد من حذف:<br><b style="color:#DC2626">${title}</b> من مادة (${subject})؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، حذف نهائياً',
+                cancelButtonText: 'إلغاء'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    database.ref('Lectures').child(subject).child(id).remove().then(() => {
+                        showToast("تم حذف المحاضرة بنجاح 🗑️");
+                    });
                 }
             });
         }
@@ -1483,15 +1425,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

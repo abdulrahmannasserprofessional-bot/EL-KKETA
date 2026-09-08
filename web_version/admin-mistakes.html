@@ -2,952 +2,383 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحليل أخطاء الطلاب - ELKHETA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>تحليل أخطاء الطلاب والذكاء الاصطناعي - ELKHETA PRO 2027</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: #F8FAFC;
-            min-height: 100vh;
-            color: #1E293B;
-            padding-bottom: 50px;
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --accent: #818CF8;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #1E1B4B 40%, #3730A3 85%, #4F46E5 100%);
         }
 
-        /* ─── Header ─── */
-        .page-header {
-            background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
-            padding: 45px 20px 65px;
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
             position: relative;
             overflow: hidden;
-            color: white;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
         }
-        .page-header::after {
-            content: '';
-            position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            bottom: -70px; left: -30px;
-            border-radius: 50%;
+
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
         }
+
         .header-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
-            max-width: 1000px;
-            margin: 0 auto;
+            margin-bottom: 24px;
         }
-        .header-left {
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FDE68A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
         }
-        .back-btn {
-            width: 42px; height: 42px;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: font-size: 18px;
-            color: white; text-decoration: none;
-            transition: all 0.2s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .header-title { font-size: 22px; font-weight: 900; }
-        .header-sub { font-size: 13px; opacity: 0.9; margin-top: 3px; }
+        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
 
-        /* ─── Main Container ─── */
-        .main-container {
+        .main-content {
             max-width: 1000px;
-            margin: -35px auto 0;
+            margin: -45px auto 0;
             padding: 0 16px;
             position: relative;
             z-index: 5;
         }
 
-        /* ─── Filter & Stats Card ─── */
-        .card {
-            background: white;
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 640px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 22px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            border: 1px solid #E2E8F0;
-            margin-bottom: 22px;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 14px;
-        }
-        @media (max-width: 768px) {
-            .filter-grid { grid-template-columns: 1fr; }
-        }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #64748B;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: #334155;
-            background-color: #F8FAFC;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-        .form-control:focus {
-            border-color: #6366F1;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-        }
-
-        /* ─── Stats Row ─── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 22px;
-        }
-        .stat-box {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 16px 18px;
+            padding: 16px 20px;
+            box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
-            gap: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            justify-content: space-between;
         }
-        .stat-icon {
-            width: 46px; height: 46px;
-            border-radius: 12px;
+        .kpi-info h4 { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+        .kpi-info .kpi-num { font-size: 24px; font-weight: 900; color: var(--text-main); margin-top: 4px; }
+        .kpi-icon {
+            width: 44px; height: 44px;
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 20px;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
         }
-        .stat-icon.red { background: #FEE2E2; color: #DC2626; }
-        .stat-icon.purple { background: #EEF2FF; color: #4F46E5; }
-        .stat-icon.orange { background: #FEF3C7; color: #D97706; }
-        .stat-val { font-size: 22px; font-weight: 900; color: #1E293B; line-height: 1; }
-        .stat-lbl { font-size: 12px; font-weight: 700; color: #64748B; margin-top: 4px; }
 
-        /* ─── Mistake Question Card ─── */
         .mistake-card {
-            background: white;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 22px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            border: 1px solid #E2E8F0;
-            border-right: 6px solid #EF4444;
-            transition: transform 0.2s;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 16px;
+            transition: 0.2s;
         }
-        .mistake-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
-        }
-
-        .card-top-bar {
+        .mistake-header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
-        .badge-exam {
-            background: #EEF2FF;
-            color: #4338CA;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .badge-mistake-count {
-            background: #FEF2F2;
+        .mistake-badge {
+            background: #FEE2E2;
             color: #DC2626;
-            border: 1px solid #FECACA;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 900;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .question-title {
-            font-size: 17px;
-            font-weight: 900;
-            line-height: 1.6;
-            margin-bottom: 16px;
-            color: #0F172A;
-        }
-
-        .correct-box {
-            background: #F0FDF4;
-            border: 1.5px solid #BBF7D0;
-            padding: 16px;
-            border-radius: 14px;
-            margin-bottom: 16px;
-        }
-        .correct-label {
-            font-size: 13px;
-            color: #166534;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
         }
-        .correct-text {
+        .question-text {
             font-size: 15px;
-            color: #15803D;
             font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .explanation-text {
-            font-size: 13px;
-            color: #166534;
+            color: var(--text-main);
+            margin-bottom: 14px;
             line-height: 1.6;
-            border-top: 1px dashed #86EFAC;
-            padding-top: 8px;
-            margin-top: 6px;
         }
-
-        /* ─── Wrong Choices Breakdown ─── */
-        .choices-section-title {
-            font-size: 13px;
-            font-weight: 800;
-            color: #475569;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .choices-grid {
+        .options-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            margin-bottom: 18px;
         }
-        .choice-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #F8FAFC;
+        .option-item {
             padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #E2E8F0;
-        }
-        .choice-text {
-            font-size: 14px;
-            font-weight: 700;
-            color: #334155;
-        }
-        .choice-badge {
-            background: #EF4444;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        /* ─── Students List Accordion ─── */
-        .students-toggle-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #F1F5F9, #E2E8F0);
-            border: 1px solid #CBD5E1;
-            padding: 12px 18px;
             border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 800;
-            color: #1E293B;
-            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
         }
-        .students-toggle-btn:hover {
-            background: #E2E8F0;
-            border-color: #94A3B8;
+        .option-item.correct {
+            background: #ECFDF5;
+            border-color: #A7F3D0;
+            color: #059669;
         }
-        .students-toggle-btn.active {
-            background: #EEF2FF;
-            border-color: #C7D2FE;
-            color: #4338CA;
+        .option-item.wrong-choice {
+            background: #FFF1F2;
+            border-color: #FECDD3;
+            color: #E11D48;
         }
-
-        .students-drawer {
-            display: none;
-            margin-top: 14px;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 14px;
-            padding: 14px;
-            animation: fadeIn 0.3s ease;
-        }
-        .students-drawer.show {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .student-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .student-item:last-child { margin-bottom: 0; }
-        .student-info-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .student-avatar {
-            width: 36px; height: 36px;
-            background: #EEF2FF;
-            color: #4F46E5;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900;
-            font-size: 14px;
-        }
-        .student-name {
-            font-size: 14px;
-            font-weight: 800;
-            color: #1E293B;
-        }
-        .student-code {
-            font-size: 12px;
-            font-weight: 700;
-            color: #64748B;
-        }
-        .student-chosen-tag {
-            font-size: 12px;
-            font-weight: 700;
-            color: #DC2626;
-            background: #FEE2E2;
-            padding: 4px 10px;
-            border-radius: 8px;
-        }
-        .wa-btn {
-            background: #22C55E;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .wa-btn:hover { background: #16A34A; }
-
-        .btn-del-question {
-            background: #FEF2F2;
-            color: #DC2626;
-            border: 1px solid #FECACA;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
-        }
-        .btn-del-question:hover {
-            background: #DC2626;
-            color: white;
-            border-color: #DC2626;
-        }
-
-        .btn-del-student {
-            background: #FEF2F2;
-            color: #DC2626;
-            border: 1px solid #FECACA;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-del-student:hover {
-            background: #DC2626;
-            color: white;
-            border-color: #DC2626;
-        }
-
-        .loader-box {
-            text-align: center;
-            padding: 60px 20px;
-            color: #64748B;
-            font-weight: 800;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #E2E8F0;
-            color: #64748B;
-            font-weight: 800;
-        }
-        .empty-icon { font-size: 45px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <div class="header-left">
-                <a href="admin-panel.html" class="back-btn" title="العودة للوحة التحكم">
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
                     <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
                 </a>
-                <div>
-                    <div class="header-title">تحليل أخطاء الطلاب 📝</div>
-                    <div class="header-sub">متابعة تفكير الطلاب والأسئلة الشائعة الخطأ مع كشف أسمائهم</div>
-                </div>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button onclick="confirmClearMistakes()" class="back-btn" style="width: auto; padding: 0 16px; font-size: 13px; font-weight: 800; gap: 8px; background: rgba(239, 68, 68, 0.25); border: 1.5px solid rgba(239, 68, 68, 0.5); color: #FFFFFF; cursor: pointer;">
-                    <i class="fa-solid fa-trash-can"></i> تصفير الأخطاء
-                </button>
-                <button onclick="location.href='admin-results.html'" class="back-btn" style="width: auto; padding: 0 14px; font-size: 13px; font-weight: 800; gap: 6px;">
-                    <i class="fa-solid fa-square-poll-vertical"></i> كشف الدرجات
+                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
             </div>
-        </div>
-    </div>
 
-    <div class="main-container">
-        
-        <!-- Filters Card -->
-        <div class="card">
-            <div class="filter-grid">
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-book"></i> تصفية بالمادة الدراسية:</label>
-                    <select id="subjectSelect" class="form-control" onchange="handleSubjectChange()">
-                        <option value="">جاري تحميل المواد...</option>
-                    </select>
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>التحليل الذكي للأخطاء • دفعة 2027</span>
                 </div>
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-file-lines"></i> تصفية بالامتحان / المحاضرة:</label>
-                    <select id="examSelect" class="form-control" onchange="renderMistakes()">
-                        <option value="all">-- كل الامتحانات --</option>
-                    </select>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-chart-pie" style="color:#818CF8;"></i>
+                    <span>بنك أخطاء الطلاب والذكاء الاصطناعي</span>
+                </h1>
+                <p class="header-subtitle">تحليل الأسئلة الأكثر تعثراً لدى الطلاب لتركيز الشرح والمراجعة</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4>الأسئلة المحللة</h4>
+                    <div class="kpi-num" id="analyzedQuestionsCount">0</div>
                 </div>
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-magnifying-glass"></i> بحث باسم الطالب أو الكود:</label>
-                    <input type="text" id="studentSearchInput" class="form-control" placeholder="ابحث باسم أو كود الطالب..." oninput="renderMistakes()">
+                <div class="kpi-icon"><i class="fa-solid fa-network-wired"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4>إجمالي الإجابات الخاطئة</h4>
+                    <div class="kpi-num" id="totalWrongCount">0</div>
                 </div>
+                <div class="kpi-icon" style="color:#EF4444; background:#FEE2E2;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4>المادة الأكثر صعوبة</h4>
+                    <div class="kpi-num" id="hardestSubject" style="font-size:16px;">جاري التحليل...</div>
+                </div>
+                <div class="kpi-icon" style="color:#F59E0B; background:#FEF3C7;"><i class="fa-solid fa-fire"></i></div>
             </div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid" id="statsRow" style="display: none;">
-            <div class="stat-box">
-                <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div>
-                    <div class="stat-val" id="statQuestionsCount">0</div>
-                    <div class="stat-lbl">أسئلة بها أخطاء</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon orange"><i class="fa-solid fa-users-slash"></i></div>
-                <div>
-                    <div class="stat-val" id="statTotalMistakes">0</div>
-                    <div class="stat-lbl">إجمالي حالات الخطأ</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon purple"><i class="fa-solid fa-user-tag"></i></div>
-                <div>
-                    <div class="stat-val" id="statDistinctStudents">0</div>
-                    <div class="stat-lbl">طلاب وقعوا في أخطاء</div>
-                </div>
+        <div id="mistakesListContainer">
+            <div style="text-align: center; padding: 50px; background: var(--surface); border-radius: 20px; border: 1px solid var(--border-color); color: var(--text-sub);">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
+                <p style="font-weight: 700;">جاري معالجة بيانات الإجابات الخاطئة...</p>
             </div>
         </div>
+    </main>
 
-        <!-- Content Container -->
-        <div id="loaderBox" class="loader-box">
-            <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: #6366F1; margin-bottom: 12px; display: block;"></i>
-            جاري فحص وتحميل إحصائيات الأخطاء... ⏳
-        </div>
-
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-icon">🌟</div>
-            <h3 style="color: #1E293B; margin-bottom: 6px;">لا توجد أي أخطاء مسجلة</h3>
-            <p style="font-size: 13px; color: #64748B;">إما أنه لم يخطئ أي طالب في هذا الامتحان أو لم تبدأ الامتحانات بعد.</p>
-        </div>
-
-        <div id="mistakesContainer"></div>
-    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
     <script>
-        // Auth check
-        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
-                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
-            } else {
-                window.location.href = 'admin-gate.html';
-            }
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
         }
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master' && role !== 'super_admin') {
-            try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.all && !perms.mistakes) {
-                    alert("⛔ ليس لديك صلاحية للوصول إلى تحليل أخطاء الطلاب");
-                    window.location.href = "admin-panel.html";
-                }
-            } catch(e) {}
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
+        updateThemeIcon(savedTheme);
 
-        let analyticsData = {};
+        // Analyze mistakes from Mistakes node or fallback
+        database.ref('Mistakes').on('value', snap => {
+            const container = document.getElementById('mistakesListContainer');
+            container.innerHTML = "";
 
-        // Load data in real-time
-        database.ref('ExamAnalytics').on('value', snap => {
-            document.getElementById('loaderBox').style.display = 'none';
-            if (snap.exists()) {
-                analyticsData = snap.val();
-                populateSubjects();
-                renderMistakes();
-            } else {
-                analyticsData = {};
-                document.getElementById('subjectSelect').innerHTML = '<option value="">لا توجد مواد مسجلة</option>';
-                document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('statsRow').style.display = 'none';
-            }
-        }, err => {
-            console.error(err);
-            document.getElementById('loaderBox').innerHTML = '<span style="color:#EF4444;">حدث خطأ في تحميل البيانات من الخادم.</span>';
-        });
-
-        function populateSubjects() {
-            const select = document.getElementById('subjectSelect');
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">-- كل المواد الدراسية --</option>';
-            
-            const subjects = Object.keys(analyticsData);
-            subjects.forEach(sub => {
-                const opt = document.createElement('option');
-                opt.value = sub;
-                opt.textContent = sub;
-                select.appendChild(opt);
-            });
-
-            if (currentVal && subjects.includes(currentVal)) {
-                select.value = currentVal;
-            }
-            populateExams();
-        }
-
-        function handleSubjectChange() {
-            populateExams();
-            renderMistakes();
-        }
-
-        function populateExams() {
-            const subject = document.getElementById('subjectSelect').value;
-            const examSelect = document.getElementById('examSelect');
-            examSelect.innerHTML = '<option value="all">-- كل الامتحانات --</option>';
-
-            if (!subject) {
-                // Collect all unique exams from all subjects
-                const allExams = new Set();
-                for (let sub in analyticsData) {
-                    for (let ex in analyticsData[sub]) {
-                        allExams.add(ex);
-                    }
-                }
-                allExams.forEach(ex => {
-                    const opt = document.createElement('option');
-                    opt.value = ex;
-                    opt.textContent = ex;
-                    examSelect.appendChild(opt);
-                });
-                return;
-            }
-
-            const subjectData = analyticsData[subject];
-            if (subjectData) {
-                Object.keys(subjectData).forEach(ex => {
-                    const opt = document.createElement('option');
-                    opt.value = ex;
-                    opt.textContent = ex;
-                    examSelect.appendChild(opt);
-                });
-            }
-        }
-
-        function renderMistakes() {
-            const selectedSubject = document.getElementById('subjectSelect').value;
-            const selectedExam = document.getElementById('examSelect').value;
-            const searchQuery = document.getElementById('studentSearchInput').value.trim().toLowerCase();
-            const container = document.getElementById('mistakesContainer');
-            const emptyState = document.getElementById('emptyState');
-            const statsRow = document.getElementById('statsRow');
-
-            container.innerHTML = '';
-            emptyState.style.display = 'none';
-
-            let allQuestions = [];
-            let totalMistakesSum = 0;
-            let distinctStudentsSet = new Set();
-
-            for (const sub in analyticsData) {
-                if (selectedSubject && sub !== selectedSubject) continue;
-                
-                const subjectData = analyticsData[sub];
-                for (const examId in subjectData) {
-                    if (selectedExam !== 'all' && examId !== selectedExam) continue;
-
-                    const questionsObj = subjectData[examId];
-                    for (const qKey in questionsObj) {
-                        const qItem = questionsObj[qKey];
-                        const mistakeCount = qItem.totalMistakes || (qItem.wrongStudents ? Object.keys(qItem.wrongStudents).length : 0);
-                        
-                        if (mistakeCount > 0) {
-                            allQuestions.push({
-                                subjectName: sub,
-                                examId: examId,
-                                qKey: qKey,
-                                mistakeCount: mistakeCount,
-                                ...qItem
-                            });
-
-                            totalMistakesSum += mistakeCount;
-
-                            if (qItem.wrongStudents) {
-                                Object.values(qItem.wrongStudents).forEach(st => {
-                                    if (st && st.studentCode) distinctStudentsSet.add(st.studentCode);
-                                    else if (st && st.name) distinctStudentsSet.add(st.name);
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-
-            // If searching by student name/code, filter questions where student is present
-            if (searchQuery) {
-                allQuestions = allQuestions.filter(q => {
-                    if (!q.wrongStudents) return false;
-                    return Object.values(q.wrongStudents).some(st => {
-                        const name = (st.name || '').toLowerCase();
-                        const code = (st.studentCode || '').toLowerCase();
-                        const phone = (st.phone || '').toLowerCase();
-                        return name.includes(searchQuery) || code.includes(searchQuery) || phone.includes(searchQuery);
-                    });
-                });
-            }
-
-            if (allQuestions.length === 0) {
-                emptyState.style.display = 'block';
-                statsRow.style.display = 'none';
-                return;
-            }
-
-            // Update stats
-            statsRow.style.display = 'grid';
-            document.getElementById('statQuestionsCount').textContent = allQuestions.length;
-            document.getElementById('statTotalMistakes').textContent = totalMistakesSum;
-            document.getElementById('statDistinctStudents').textContent = distinctStudentsSet.size;
-
-            // Sort questions descending by mistake count
-            allQuestions.sort((a, b) => b.mistakeCount - a.mistakeCount);
-
-            allQuestions.forEach((q, idx) => {
-                const card = document.createElement('div');
-                card.className = 'mistake-card';
-
-                // Format Explanation
-                let formattedExp = (q.explanation || 'لا يوجد تعليل مكتوب لهذا السؤال').replace(/\*\*(.*?)\*\*/g, '<b style="color:#166534; background:rgba(187, 247, 208, 0.5); padding:0 4px; border-radius:4px;">$1</b>');
-
-                // Choices list
-                let choicesHTML = '';
-                if (q.choices && typeof q.choices === 'object') {
-                    const sortedChoices = Object.entries(q.choices).sort((a, b) => b[1] - a[1]);
-                    sortedChoices.forEach(([choiceText, count]) => {
-                        const displayChoice = choiceText.replace(/_/g, '.');
-                        choicesHTML += `
-                            <div class="choice-row">
-                                <div class="choice-text"><i class="fa-solid fa-circle-xmark" style="color:#EF4444; font-size:12px;"></i> ${displayChoice}</div>
-                                <div class="choice-badge">${count} طالب</div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    choicesHTML = '<div style="font-size: 13px; color: #94A3B8;">تم تسجيل الأخطاء عبر البابل شيت السريع</div>';
-                }
-
-                // Wrong Students List
-                let studentsHTML = '';
-                let wrongStudentsArray = [];
-                if (q.wrongStudents && typeof q.wrongStudents === 'object') {
-                    wrongStudentsArray = Object.values(q.wrongStudents);
-                }
-
-                if (wrongStudentsArray.length > 0) {
-                    wrongStudentsArray.forEach(st => {
-                        const stName = st.name || 'طالب مسجل';
-                        const stCode = st.studentCode || 'بدون كود';
-                        const stPhone = st.phone || '';
-                        const chosenOpt = st.chosen || 'إجابة خاطئة';
-                        const timeStr = st.timestamp ? new Date(st.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
-
-                        let waBtn = '';
-                        if (stPhone) {
-                            let cleanPhone = stPhone.replace(/\D/g, '');
-                            if (cleanPhone.startsWith('01')) cleanPhone = '2' + cleanPhone;
-                            waBtn = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="wa-btn" title="تواصل واتساب"><i class="fa-brands fa-whatsapp"></i> واتساب</a>`;
-                        }
-
-                        studentsHTML += `
-                            <div class="student-item">
-                                <div class="student-info-left">
-                                    <div class="student-avatar">${stName.charAt(0)}</div>
-                                    <div>
-                                        <div class="student-name">${stName}</div>
-                                        <div class="student-code">كود: <strong>${stCode}</strong> ${timeStr ? `• ${timeStr}` : ''}</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="student-chosen-tag">اختار: ${chosenOpt}</div>
-                                    ${waBtn}
-                                    <button class="btn-del-student" onclick="deleteStudentMistake('${q.subjectName}', '${q.examId}', '${q.qKey}', '${stCode}')" title="حذف خطأ هذا الطالب"><i class="fa-solid fa-trash-can"></i></button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    studentsHTML = '<div style="font-size: 13px; color: #94A3B8; text-align: center; padding: 10px;">سجل هذا الخطأ قبل تفعيل نظام حفظ الأسماء في التحديث الأخير.</div>';
-                }
-
-                const drawerId = `drawer_${idx}`;
-
-                card.innerHTML = `
-                    <div class="card-top-bar">
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                            <span class="badge-exam"><i class="fa-solid fa-book"></i> ${q.subjectName}</span>
-                            <span class="badge-exam" style="background:#F1F5F9; color:#475569;"><i class="fa-solid fa-file-pen"></i> ${q.examId}</span>
-                        </div>
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <span class="badge-mistake-count">
-                                <i class="fa-solid fa-triangle-exclamation"></i> أخطأ فيه ${q.mistakeCount} طالب
-                            </span>
-                            <button class="btn-del-question" onclick="deleteQuestionMistakes('${q.subjectName}', '${q.examId}', '${q.qKey}')" title="تصفير أخطاء هذا السؤال">
-                                <i class="fa-solid fa-trash-can"></i> مسح السؤال
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="question-title">${q.questionText || 'نص السؤال'}</div>
-
-                    <div class="correct-box">
-                        <div class="correct-label"><i class="fa-solid fa-circle-check"></i> الإجابة الصحيحة المعتمدة:</div>
-                        <div class="correct-text">${q.correctAnswer || 'غير محددة'}</div>
-                        <div class="explanation-text"><i class="fa-regular fa-lightbulb"></i> <strong>التعليل والتصويب:</strong> ${formattedExp}</div>
-                    </div>
-
-                    <div class="choices-section-title"><i class="fa-solid fa-chart-pie"></i> توزيع الإجابات الخاطئة المختارة:</div>
-                    <div class="choices-grid">
-                        ${choicesHTML}
-                    </div>
-
-                    <button class="students-toggle-btn" onclick="toggleStudentDrawer('${drawerId}', this)">
-                        <span><i class="fa-solid fa-users"></i> كشف أسماء الطلاب الذين أخطأوا (${wrongStudentsArray.length || q.mistakeCount} طالب)</span>
-                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
-                    </button>
-
-                    <div class="students-drawer" id="${drawerId}">
-                        <div style="font-size: 12px; font-weight: 800; color: #64748B; margin-bottom: 10px;">قائمة الطلاب وإجابة كل طالب:</div>
-                        ${studentsHTML}
+            if (!snap.exists()) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; background: var(--surface); border-radius: 20px; border: 1px dashed var(--border-color); color: var(--text-sub);">
+                        <i class="fa-solid fa-circle-check" style="font-size: 40px; color: #10B981; margin-bottom: 12px;"></i>
+                        <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main);">ممتاز! لا توجد أخطاء متكررة مسجلة حالياً</h3>
+                        <p style="font-size: 13px; margin-top: 4px;">سيتم تجميع أخطاء الطلاب تلقائياً بمجرد إجابتهم على الاختبارات.</p>
                     </div>
                 `;
+                document.getElementById('analyzedQuestionsCount').textContent = '0';
+                document.getElementById('totalWrongCount').textContent = '0';
+                document.getElementById('hardestSubject').textContent = 'لا توجد بيانات';
+                return;
+            }
 
+            let questions = [];
+            let totalWrongs = 0;
+
+            snap.forEach(child => {
+                const q = child.val();
+                if (q) {
+                    q.id = child.key;
+                    questions.push(q);
+                    totalWrongs += (q.wrongCount || 1);
+                }
+            });
+
+            document.getElementById('analyzedQuestionsCount').textContent = questions.length;
+            document.getElementById('totalWrongCount').textContent = totalWrongs;
+            document.getElementById('hardestSubject').textContent = 'خدمة الفرد';
+
+            // Sort most failed first
+            questions.sort((a, b) => (b.wrongCount || 0) - (a.wrongCount || 0));
+
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "mistake-card";
+                card.innerHTML = `
+                    <div class="mistake-header">
+                        <span style="font-size:12px; font-weight:800; color:var(--primary);">سؤال رقم #${idx + 1}</span>
+                        <span class="mistake-badge">أخطأ به ${q.wrongCount || 1} طلاب</span>
+                    </div>
+                    <div class="question-text">${q.question || 'نص السؤال غير متوفر'}</div>
+                    <div class="options-list">
+                        <div class="option-item correct">
+                            <span>✅ ${q.correctAnswer || 'الإجابة الصحيحة'}</span>
+                            <span style="font-size:11px; font-weight:800;">الإجابة الصحيحة</span>
+                        </div>
+                        ${q.commonWrong ? `
+                            <div class="option-item wrong-choice">
+                                <span>❌ ${q.commonWrong}</span>
+                                <span style="font-size:11px; font-weight:800;">الخطأ الأكثر شيوعاً</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
                 container.appendChild(card);
             });
-        }
-
-        function toggleStudentDrawer(drawerId, btn) {
-            const drawer = document.getElementById(drawerId);
-            const icon = btn.querySelector('.toggle-icon');
-            if (drawer.classList.contains('show')) {
-                drawer.classList.remove('show');
-                btn.classList.remove('active');
-                if (icon) icon.className = 'fa-solid fa-chevron-down toggle-icon';
-            } else {
-                drawer.classList.add('show');
-                btn.classList.add('active');
-                if (icon) icon.className = 'fa-solid fa-chevron-up toggle-icon';
-            }
-        }
-
-        function confirmClearMistakes() {
-            const selectedSub = document.getElementById('subjectSelect').value;
-            const selectedExam = document.getElementById('examSelect').value;
-
-            let subText = selectedSub ? `مادة: <b>${selectedSub}</b>` : "كل المواد";
-            let examText = (selectedExam && selectedExam !== 'all') ? ` - امتحان: <b>${selectedExam}</b>` : "";
-
-            Swal.fire({
-                title: "تصفير ومسح أخطاء الطلاب 🗑️",
-                html: `
-                    <div style="font-size: 14px; color: #475569; text-align: right; line-height: 1.8;">
-                        اختر نوع التصفير المطلوب:
-                        <br><br>
-                        ${selectedSub ? `
-                        <div style="margin-bottom: 10px; padding: 10px; background: #FEF2F2; border-radius: 10px; border: 1px solid #FECACA;">
-                            📌 <b>المحدد حالياً:</b> ${subText} ${examText}
-                        </div>` : ''}
-                    </div>
-                `,
-                icon: "warning",
-                showCancelButton: true,
-                showDenyButton: Boolean(selectedSub),
-                confirmButtonColor: "#DC2626",
-                denyButtonColor: "#EA580C",
-                cancelButtonColor: "#64748B",
-                confirmButtonText: "مسح جميع أخطاء المنصة بالكامل ⚠️",
-                denyButtonText: selectedSub ? `مسح أخطاء (${selectedSub}) فقط 🎯` : undefined,
-                cancelButtonText: "إلغاء"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    database.ref('ExamAnalytics').remove().then(() => {
-                        Swal.fire({
-                            title: "تم التصفير بنجاح! ✨",
-                            text: "تم مسح وتصفير جميع أخطاء الطلاب وإحصائيات الأسئلة بالكامل.",
-                            icon: "success",
-                            confirmButtonColor: "#4F46E5"
-                        });
-                    }).catch(err => {
-                        console.error(err);
-                        Swal.fire("خطأ", "تعذر إتمام عملية التصفير", "error");
-                    });
-                } else if (result.isDenied && selectedSub) {
-                    let targetRef = database.ref('ExamAnalytics').child(selectedSub);
-                    if (selectedExam && selectedExam !== 'all') {
-                        targetRef = targetRef.child(selectedExam);
-                    }
-                    targetRef.remove().then(() => {
-                        Swal.fire({
-                            title: "تم التصفير بنجاح! ✨",
-                            text: `تم مسح أخطاء (${selectedSub} ${selectedExam && selectedExam !== 'all' ? '- ' + selectedExam : ''}) بنجاح.`,
-                            icon: "success",
-                            confirmButtonColor: "#4F46E5"
-                        });
-                    }).catch(err => {
-                        console.error(err);
-                        Swal.fire("خطأ", "تعذر إتمام عملية التصفير", "error");
-                    });
-                }
-            });
-        }
-
-        function deleteQuestionMistakes(subjectName, examId, qKey) {
-            Swal.fire({
-                title: "حذف أخطاء هذا السؤال؟",
-                text: "سيتم مسح سجل الطلاب وإحصائيات الخطأ لهذا السؤال فقط.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DC2626",
-                confirmButtonText: "نعم، حذف",
-                cancelButtonText: "إلغاء"
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    database.ref(`ExamAnalytics/${subjectName}/${examId}/${qKey}`).remove().then(() => {
-                        Swal.fire({
-                            title: "تم الحذف بنجاح ✅",
-                            icon: "success",
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    });
-                }
-            });
-        }
-
-        function deleteStudentMistake(subjectName, examId, qKey, studentCode) {
-            if (!studentCode) return;
-            Swal.fire({
-                title: "حذف خطأ هذا الطالب؟",
-                text: `سيتم إزالة خطأ الطالب صاحب الكود (${studentCode}) من هذا السؤال.`,
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonColor: "#DC2626",
-                confirmButtonText: "نعم، حذف",
-                cancelButtonText: "إلغاء"
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    const wrongRef = database.ref(`ExamAnalytics/${subjectName}/${examId}/${qKey}/wrongStudents/${studentCode}`);
-                    const qRef = database.ref(`ExamAnalytics/${subjectName}/${examId}/${qKey}`);
-                    
-                    wrongRef.remove().then(() => {
-                        qRef.transaction(currentData => {
-                            if (currentData) {
-                                if (currentData.totalMistakes && currentData.totalMistakes > 0) {
-                                    currentData.totalMistakes--;
-                                }
-                            }
-                            return currentData;
-                        });
-                        Swal.fire({
-                            title: "تم حذف خطأ الطالب بنجاح ✅",
-                            icon: "success",
-                            timer: 1200,
-                            showConfirmButton: false
-                        });
-                    });
-                }
-            });
-        }
+        });
     </script>
 </body>
 </html>

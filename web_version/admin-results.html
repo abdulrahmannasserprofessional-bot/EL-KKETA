@@ -2,678 +2,571 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نتائج ودرجات الطلاب - ELKHETA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>نتائج ودرجات الطلاب - ELKHETA PRO 2027</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: #F8FAFC;
-            min-height: 100vh;
-            color: #1E293B;
-            padding-bottom: 50px;
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --gold: #F59E0B;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
         }
 
-        /* ─── Header ─── */
-        .page-header {
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            padding: 45px 20px 65px;
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
             position: relative;
             overflow: hidden;
-            color: white;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
         }
-        .page-header::after {
+
+        .exec-header::after {
             content: '';
             position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            bottom: -70px; left: -30px;
+            bottom: -60px; left: -40px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
         }
+
+        .header-container {
+            max-width: 1060px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+        }
+
         .header-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
-            max-width: 1100px;
-            margin: 0 auto;
+            margin-bottom: 24px;
         }
-        .header-left {
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.22); transform: translateX(4px); }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FDE68A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
         }
-        .back-btn {
-            width: 42px; height: 42px;
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 18px;
-            color: white; text-decoration: none;
-            transition: all 0.2s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .header-title { font-size: 22px; font-weight: 900; }
-        .header-sub { font-size: 13px; opacity: 0.9; margin-top: 3px; }
+        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
 
-        /* ─── Main Container ─── */
-        .main-container {
-            max-width: 1100px;
-            margin: -35px auto 0;
+        .main-content {
+            max-width: 1060px;
+            margin: -45px auto 0;
             padding: 0 16px;
             position: relative;
             z-index: 5;
         }
 
-        /* ─── Card ─── */
-        .card {
-            background: white;
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 22px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            border: 1px solid #E2E8F0;
-            margin-bottom: 22px;
+            padding: 16px 18px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .kpi-info h4 { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+        .kpi-info .kpi-num { font-size: 22px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
+        .kpi-icon {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .kpi-card.blue .kpi-icon { background: rgba(37, 99, 235, 0.1); color: #2563EB; }
+        .kpi-card.green .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .kpi-card.amber .kpi-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+
+        .filter-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
         }
 
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
         }
-
-        .form-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #64748B;
-            margin-bottom: 6px;
-            display: block;
+        @media (max-width: 768px) {
+            .filter-grid { grid-template-columns: 1fr; }
         }
 
         .form-control {
             width: 100%;
             padding: 12px 14px;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-main);
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: #334155;
-            background-color: #F8FAFC;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-        .form-control:focus {
-            border-color: #3B82F6;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-        }
-
-        /* ─── Stats Grid ─── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 22px;
-        }
-        .stat-box {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 16px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        }
-        .stat-icon {
-            width: 46px; height: 46px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-        }
-        .stat-icon.blue { background: #EEF2FF; color: #2563EB; }
-        .stat-icon.green { background: #ECFDF5; color: #10B981; }
-        .stat-icon.orange { background: #FFFBEB; color: #F59E0B; }
-        .stat-icon.purple { background: #F5F3FF; color: #8B5CF6; }
-        .stat-val { font-size: 22px; font-weight: 900; color: #1E293B; line-height: 1; }
-        .stat-lbl { font-size: 12px; font-weight: 700; color: #64748B; margin-top: 4px; }
-
-        /* ─── Table & Cards ─── */
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 16px;
-            border: 1px solid #E2E8F0;
-            background: white;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-        }
-        th {
-            background: #F8FAFC;
-            padding: 14px 16px;
             font-size: 13px;
-            font-weight: 800;
-            color: #475569;
-            border-bottom: 1.5px solid #E2E8F0;
-            white-space: nowrap;
+            font-weight: 700;
+            outline: none;
+            transition: 0.2s;
         }
-        td {
-            padding: 14px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #1E293B;
-            border-bottom: 1px solid #F1F5F9;
-            white-space: nowrap;
-        }
-        tr:hover td {
-            background: #F8FAFC;
+        .form-control:focus { border-color: var(--primary); background: var(--surface); }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .student-cell {
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 18px 20px;
+            box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            gap: 16px;
+            transition: 0.2s;
         }
-        .avatar-circle {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: #EEF2FF;
-            color: #4F46E5;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900;
-            font-size: 14px;
+        .result-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+        @media (max-width: 640px) {
+            .result-card { flex-direction: column; align-items: stretch; }
         }
 
-        .badge {
-            display: inline-flex;
+        .score-gauge-box {
+            display: flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
+            gap: 14px;
         }
-        .badge-success { background: #DCFCE7; color: #166534; }
-        .badge-danger { background: #FEE2E2; color: #991B1B; }
-        .badge-warning { background: #FEF3C7; color: #92400E; }
-        .badge-primary { background: #DBEAFE; color: #1E40AF; }
+        .score-circle {
+            width: 54px; height: 54px; min-width: 54px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 900;
+            color: #FFFFFF;
+        }
+        .score-circle.high { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .score-circle.mid { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3); }
+        .score-circle.low { background: linear-gradient(135deg, #EF4444, #DC2626); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
 
-        .score-pill {
-            font-size: 15px;
-            font-weight: 900;
-            color: #1E3A8A;
+        .result-details h4 { font-size: 15px; font-weight: 800; color: var(--text-main); }
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-sub);
         }
 
         .action-btns {
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-        .btn-sm {
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .btn-wa { background: #22C55E; color: white; }
-        .btn-wa:hover { background: #16A34A; }
-        .btn-report { background: #EEF2FF; color: #4F46E5; }
-        .btn-report:hover { background: #E0E7FF; }
-        .btn-del { background: #FEE2E2; color: #DC2626; }
-        .btn-del:hover { background: #FECACA; }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            background: white;
-            border-radius: 20px;
-            border: 1px solid #E2E8F0;
-            color: #64748B;
-            font-weight: 800;
-        }
-        .empty-icon { font-size: 45px; margin-bottom: 12px; }
-
-        .btn-export {
-            background: #10B981;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 10px 18px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
             gap: 8px;
-            transition: all 0.2s;
         }
-        .btn-export:hover { background: #059669; }
+        @media (max-width: 640px) {
+            .action-btns { justify-content: flex-end; border-top: 1px dashed var(--border-color); padding-top: 10px; }
+        }
+
+        .btn-action {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-action:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
+        .btn-action.danger { color: #DC2626; border-color: #FECACA; background: #FEF2F2; }
+        .btn-action.danger:hover { background: #FEE2E2; }
     </style>
 </head>
 <body>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true') {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <div class="header-left">
-                <a href="admin-panel.html" class="back-btn" title="العودة للوحة التحكم">
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
                     <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
                 </a>
-                <div>
-                    <div class="header-title">نتائج ودرجات الطلاب 📊</div>
-                    <div class="header-sub">كشف ومتابعة درجات ونسب اجتياز امتحانات المنصة</div>
-                </div>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button onclick="location.href='admin-mistakes.html'" class="back-btn" style="width: auto; padding: 0 14px; font-size: 13px; font-weight: 800; gap: 6px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> تحليل الأخطاء
-                </button>
-                <button onclick="exportCSV()" class="btn-export">
-                    <i class="fa-solid fa-file-excel"></i> تصدير إكسيل
-                </button>
+
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>سجلات الاختبارات • دفعة 2027</span>
+                </div>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-square-poll-vertical" style="color:#38BDF8;"></i>
+                    <span>نتائج ودرجات الطلاب</span>
+                </h1>
+                <p class="header-subtitle">متابعة دقيقة لدرجات الاختبارات الإلكترونية والتقييمات الدورية</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="main-container">
-        
-        <!-- Filters Card -->
-        <div class="card">
+    <main class="main-content">
+        <div class="kpi-grid">
+            <div class="kpi-card blue">
+                <div class="kpi-info">
+                    <h4>إجمالي الاختبارات</h4>
+                    <div class="kpi-num" id="totalSubmissions">0</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-list-check"></i></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-info">
+                    <h4>متوسط الدرجات</h4>
+                    <div class="kpi-num" id="avgCohortScore">0%</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+            </div>
+            <div class="kpi-card amber">
+                <div class="kpi-info">
+                    <h4>أعلى درجة مسجلة</h4>
+                    <div class="kpi-num" id="highestScore">100%</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-trophy"></i></div>
+            </div>
+            <div class="kpi-card purple">
+                <div class="kpi-info">
+                    <h4>نسبة النجاح العامة</h4>
+                    <div class="kpi-num" id="passRate">0%</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-award"></i></div>
+            </div>
+        </div>
+
+        <div class="filter-card">
             <div class="filter-grid">
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-book"></i> المادة الدراسية:</label>
-                    <select id="subjectSelect" class="form-control" onchange="handleSubjectChange()">
-                        <option value="">-- كل المواد --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-file-lines"></i> الامتحان / المحاضرة:</label>
-                    <select id="examSelect" class="form-control" onchange="renderResults()">
-                        <option value="all">-- كل الامتحانات --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-filter"></i> حالة النتيجة:</label>
-                    <select id="statusFilter" class="form-control" onchange="renderResults()">
-                        <option value="all">جميع الحالات (الكل)</option>
-                        <option value="passed">الناجحين فقط (≥ 50%) 🟢</option>
-                        <option value="failed">الراسبين فقط (< 50%) 🔴</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label"><i class="fa-solid fa-magnifying-glass"></i> بحث باسم الطالب أو الكود:</label>
-                    <input type="text" id="searchInput" class="form-control" placeholder="ابحث باسم الطالب أو الكود..." oninput="renderResults()">
-                </div>
+                <input type="text" class="form-control" id="searchResultInput" placeholder="🔍 ابحث باسم الطالب، كود الطالب، أو اسم الامتحان..." oninput="filterResults()">
+                <select class="form-control" id="subjectFilter" onchange="filterResults()">
+                    <option value="all">جميع المواد الدراسية</option>
+                </select>
+                <select class="form-control" id="scoreTierFilter" onchange="filterResults()">
+                    <option value="all">كافة مستويات الدرجات</option>
+                    <option value="high">المتفوقين (85% فأعلى)</option>
+                    <option value="mid">المتوسطين (65% - 84%)</option>
+                    <option value="low">يحتاجون متابعة (أقل من 65%)</option>
+                </select>
             </div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid" id="statsRow">
-            <div class="stat-box">
-                <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
-                <div>
-                    <div class="stat-val" id="statTotalStudents">0</div>
-                    <div class="stat-lbl">إجمالي الممتحنين</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
-                <div>
-                    <div class="stat-val" id="statPassRate">0%</div>
-                    <div class="stat-lbl">نسبة النجاح العامة</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon purple"><i class="fa-solid fa-star"></i></div>
-                <div>
-                    <div class="stat-val" id="statAvgScore">0%</div>
-                    <div class="stat-lbl">متوسط الدرجات</div>
-                </div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon orange"><i class="fa-solid fa-trophy"></i></div>
-                <div>
-                    <div class="stat-val" id="statTopScore">0%</div>
-                    <div class="stat-lbl">أعلى درجة محققة</div>
-                </div>
+        <div class="results-list" id="resultsListContainer">
+            <div style="text-align: center; padding: 40px; color: var(--text-sub); background: var(--surface); border-radius: 20px; border: 1px solid var(--border-color);">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
+                <p style="font-weight: 700;">جاري استخراج وتحليل نتائج الطلاب...</p>
             </div>
         </div>
+    </main>
 
-        <!-- Table Container -->
-        <div class="card" style="padding: 0; overflow: hidden;">
-            <div id="loaderBox" style="text-align: center; padding: 60px 20px; color: #64748B; font-weight: 800;">
-                <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: #3B82F6; margin-bottom: 12px; display: block;"></i>
-                جاري تحميل نتائج الامتحانات... ⏳
-            </div>
-
-            <div id="emptyState" class="empty-state" style="display: none; border: none;">
-                <div class="empty-icon">📝</div>
-                <h3 style="color: #1E293B; margin-bottom: 6px;">لا توجد أي نتائج مسجلة حتى الآن</h3>
-                <p style="font-size: 13px; color: #64748B;">عندما ينهي الطلاب امتحاناتهم ستظهر درجاتهم وتفاصيلهم هنا فوراً وبشكل تلقائي.</p>
-            </div>
-
-            <div class="table-responsive" id="tableWrapper" style="display: none; border: none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الطالب</th>
-                            <th>كود الطالب</th>
-                            <th>المادة</th>
-                            <th>الامتحان</th>
-                            <th>الدرجة</th>
-                            <th>النسبة</th>
-                            <th>الحالة</th>
-                            <th>تاريخ التسليم</th>
-                            <th>إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
     <script>
-        // Auth check
-        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
-                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
-            } else {
-                window.location.href = 'admin-gate.html';
-            }
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
         }
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master' && role !== 'super_admin') {
-            try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.all && !perms.reports && !perms.mistakes) {
-                    alert("⛔ ليس لديك صلاحية للوصول إلى كشف درجات الطلاب");
-                    window.location.href = "admin-panel.html";
-                }
-            } catch(e) {}
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
+        updateThemeIcon(savedTheme);
 
-        let rawResultsData = {};
-        let currentFilteredList = [];
+        let allResults = [];
+        let studentsMap = {};
 
-        // Real-time listener for ExamResults
-        database.ref('ExamResults').on('value', snap => {
-            document.getElementById('loaderBox').style.display = 'none';
+        // Load subjects
+        database.ref('Subjects').once('value', snap => {
+            const select = document.getElementById('subjectFilter');
             if (snap.exists()) {
-                rawResultsData = snap.val();
-                populateSubjectFilter();
-                renderResults();
-            } else {
-                rawResultsData = {};
-                renderResults();
+                snap.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.key;
+                    opt.textContent = sub.val().name || sub.key;
+                    select.appendChild(opt);
+                });
             }
-        }, err => {
-            console.error(err);
-            document.getElementById('loaderBox').innerHTML = '<span style="color:#EF4444;">خطأ في تحميل النتائج</span>';
         });
 
-        function populateSubjectFilter() {
-            const select = document.getElementById('subjectSelect');
-            const currentVal = select.value;
-            select.innerHTML = '<option value="">-- كل المواد --</option>';
+        // Load Students & Exam results
+        database.ref('Students').on('value', snapStudents => {
+            studentsMap = {};
+            allResults = [];
 
-            const subjects = Object.keys(rawResultsData);
-            subjects.forEach(sub => {
-                const opt = document.createElement('option');
-                opt.value = sub;
-                opt.textContent = sub;
-                select.appendChild(opt);
-            });
-
-            if (currentVal && subjects.includes(currentVal)) {
-                select.value = currentVal;
-            }
-            populateExamFilter();
-        }
-
-        function handleSubjectChange() {
-            populateExamFilter();
-            renderResults();
-        }
-
-        function populateExamFilter() {
-            const subject = document.getElementById('subjectSelect').value;
-            const examSelect = document.getElementById('examSelect');
-            examSelect.innerHTML = '<option value="all">-- كل الامتحانات --</option>';
-
-            if (!subject) {
-                const allExams = new Set();
-                for (let sub in rawResultsData) {
-                    for (let ex in rawResultsData[sub]) {
-                        allExams.add(ex);
-                    }
-                }
-                allExams.forEach(ex => {
-                    const opt = document.createElement('option');
-                    opt.value = ex;
-                    opt.textContent = ex;
-                    examSelect.appendChild(opt);
-                });
-                return;
-            }
-
-            const subjectData = rawResultsData[subject];
-            if (subjectData) {
-                Object.keys(subjectData).forEach(ex => {
-                    const opt = document.createElement('option');
-                    opt.value = ex;
-                    opt.textContent = ex;
-                    examSelect.appendChild(opt);
-                });
-            }
-        }
-
-        function renderResults() {
-            const selectedSubject = document.getElementById('subjectSelect').value;
-            const selectedExam = document.getElementById('examSelect').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-
-            const tbody = document.getElementById('resultsTableBody');
-            const tableWrapper = document.getElementById('tableWrapper');
-            const emptyState = document.getElementById('emptyState');
-
-            tbody.innerHTML = '';
-            let list = [];
-
-            for (const sub in rawResultsData) {
-                if (selectedSubject && sub !== selectedSubject) continue;
-                const subObj = rawResultsData[sub];
-
-                for (const examId in subObj) {
-                    if (selectedExam !== 'all' && examId !== selectedExam) continue;
-                    const examStudents = subObj[examId];
-
-                    for (const stCode in examStudents) {
-                        const row = examStudents[stCode];
-                        list.push({
-                            studentCode: row.studentCode || stCode,
-                            studentName: row.studentName || 'طالب مسجل',
-                            phone: row.phone || '',
-                            score: row.score !== undefined ? row.score : 0,
-                            totalQuestions: row.totalQuestions || 0,
-                            wrongCount: row.wrongCount || 0,
-                            percentage: row.percentage !== undefined ? row.percentage : 0,
-                            passed: row.passed !== undefined ? row.passed : (row.percentage >= 50),
-                            subjectName: row.subjectName || sub,
-                            examId: row.examId || examId,
-                            timestamp: row.timestamp || 0
+            if (snapStudents.exists()) {
+                snapStudents.forEach(child => {
+                    const st = child.val() || {};
+                    studentsMap[child.key] = st;
+                    
+                    if (st.exams) {
+                        Object.keys(st.exams).forEach(examId => {
+                            const ex = st.exams[examId];
+                            allResults.push({
+                                studentCode: child.key,
+                                studentName: st.fullName || st.name || 'طالب مسجل',
+                                studentPhone: st.whatsapp || st.phone || '',
+                                examId: examId,
+                                examTitle: ex.title || ex.examName || examId,
+                                subjectId: ex.subjectId || '',
+                                score: ex.score || 0,
+                                totalQuestions: ex.total || ex.totalQuestions || 10,
+                                percentage: (typeof ex.percentage === 'number') ? ex.percentage : Math.round((ex.score / (ex.total || 10)) * 100),
+                                submittedAt: ex.submittedAt || ex.timestamp || Date.now()
+                            });
                         });
                     }
-                }
-            }
-
-            // Filter by status
-            if (statusFilter === 'passed') {
-                list = list.filter(item => item.passed);
-            } else if (statusFilter === 'failed') {
-                list = list.filter(item => !item.passed);
-            }
-
-            // Search Filter
-            if (searchQuery) {
-                list = list.filter(item => {
-                    const name = (item.studentName || '').toLowerCase();
-                    const code = (item.studentCode || '').toLowerCase();
-                    const phone = (item.phone || '').toLowerCase();
-                    return name.includes(searchQuery) || code.includes(searchQuery) || phone.includes(searchQuery);
                 });
             }
 
-            // Sort by newest timestamp first
-            list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            currentFilteredList = list;
+            // Calculate KPIs
+            const totalCount = allResults.length;
+            document.getElementById('totalSubmissions').textContent = totalCount;
+            if (totalCount > 0) {
+                const totalPercent = allResults.reduce((acc, r) => acc + r.percentage, 0);
+                const avg = Math.round(totalPercent / totalCount);
+                const passedCount = allResults.filter(r => r.percentage >= 60).length;
+                document.getElementById('avgCohortScore').textContent = avg + '%';
+                document.getElementById('passRate').textContent = Math.round((passedCount / totalCount) * 100) + '%';
+            }
 
-            if (list.length === 0) {
-                tableWrapper.style.display = 'none';
-                emptyState.style.display = 'block';
-                updateStats(0, 0, 0, 0);
+            filterResults();
+        });
+
+        function filterResults() {
+            const q = document.getElementById('searchResultInput').value.trim().toLowerCase();
+            const subject = document.getElementById('subjectFilter').value;
+            const tier = document.getElementById('scoreTierFilter').value;
+
+            let filtered = allResults;
+            if (subject !== 'all') filtered = filtered.filter(r => r.subjectId === subject);
+            if (tier === 'high') filtered = filtered.filter(r => r.percentage >= 85);
+            else if (tier === 'mid') filtered = filtered.filter(r => r.percentage >= 65 && r.percentage < 85);
+            else if (tier === 'low') filtered = filtered.filter(r => r.percentage < 65);
+
+            if (q) {
+                filtered = filtered.filter(r =>
+                    r.studentName.toLowerCase().includes(q) ||
+                    r.studentCode.toLowerCase().includes(q) ||
+                    r.examTitle.toLowerCase().includes(q)
+                );
+            }
+
+            renderResults(filtered);
+        }
+
+        function renderResults(list) {
+            const container = document.getElementById('resultsListContainer');
+            container.innerHTML = "";
+
+            if (!list || list.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; background: var(--surface); border-radius: 20px; border: 1px dashed var(--border-color); color: var(--text-sub);">
+                        <i class="fa-solid fa-clipboard-question" style="font-size: 40px; opacity: 0.4; margin-bottom: 10px;"></i>
+                        <p style="font-weight: 800;">لا توجد نتائج اختبارات مطابقة</p>
+                    </div>
+                `;
                 return;
             }
 
-            tableWrapper.style.display = 'block';
-            emptyState.style.display = 'none';
+            // Sort newest first
+            const sorted = [...list].sort((a, b) => b.submittedAt - a.submittedAt);
 
-            // Calculate KPIs
-            let totalExaminees = list.length;
-            let passCount = list.filter(i => i.passed).length;
-            let passRate = Math.round((passCount / totalExaminees) * 100);
-            let sumPct = list.reduce((acc, i) => acc + (i.percentage || 0), 0);
-            let avgPct = Math.round(sumPct / totalExaminees);
-            let maxPct = Math.max(...list.map(i => i.percentage || 0));
+            sorted.forEach(res => {
+                let tierClass = 'high';
+                if (res.percentage < 65) tierClass = 'low';
+                else if (res.percentage < 85) tierClass = 'mid';
 
-            updateStats(totalExaminees, passRate, avgPct, maxPct);
-
-            // Render Rows
-            list.forEach((item, idx) => {
-                const tr = document.createElement('tr');
-                const stName = item.studentName || 'طالب';
-                const stCode = item.studentCode || 'بدون كود';
-                const pct = item.percentage || 0;
-                
-                let pctBadgeClass = pct >= 80 ? 'badge-success' : (pct >= 50 ? 'badge-warning' : 'badge-danger');
-                let statusBadge = item.passed 
-                    ? `<span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> ناجح</span>`
-                    : `<span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> راسب</span>`;
-
-                let timeStr = item.timestamp ? new Date(item.timestamp).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '—';
-
-                let waLink = '';
-                if (item.phone) {
-                    let cleanPhone = item.phone.replace(/\D/g, '');
-                    if (cleanPhone.startsWith('01')) cleanPhone = '2' + cleanPhone;
-                    waLink = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn-sm btn-wa" title="مراسلة واتساب"><i class="fa-brands fa-whatsapp"></i></a>`;
-                }
-
-                tr.innerHTML = `
-                    <td><strong>${idx + 1}</strong></td>
-                    <td>
-                        <div class="student-cell">
-                            <div class="avatar-circle">${stName.charAt(0)}</div>
-                            <div>
-                                <div style="font-weight: 800; color: #1E293B;">${stName}</div>
-                                <div style="font-size: 11px; color: #64748B;">${item.phone || 'لا يوجد هاتف'}</div>
+                const card = document.createElement('div');
+                card.className = "result-card";
+                card.innerHTML = `
+                    <div class="score-gauge-box">
+                        <div class="score-circle ${tierClass}">${res.percentage}%</div>
+                        <div class="result-details">
+                            <h4>${res.studentName}</h4>
+                            <div class="result-meta">
+                                <span><i class="fa-regular fa-file-lines" style="color:var(--primary);"></i> ${res.examTitle}</span>
+                                <span>•</span>
+                                <span style="font-family:monospace; font-weight:800; color:#C2410C;">${res.studentCode}</span>
+                                <span>•</span>
+                                <span>📅 ${new Date(res.submittedAt).toLocaleDateString('ar-EG')}</span>
                             </div>
                         </div>
-                    </td>
-                    <td><span style="font-family: monospace; font-weight: 800; color: #2563EB;">${stCode}</span></td>
-                    <td><span class="badge badge-primary">${item.subjectName}</span></td>
-                    <td><strong>${item.examId}</strong></td>
-                    <td><span class="score-pill">${item.score} / ${item.totalQuestions}</span></td>
-                    <td><span class="badge ${pctBadgeClass}">${pct}%</span></td>
-                    <td>${statusBadge}</td>
-                    <td style="font-size: 12px; color: #64748B;">${timeStr}</td>
-                    <td>
-                        <div class="action-btns">
-                            ${waLink}
-                            <button class="btn-sm btn-del" onclick="deleteExamResult('${item.subjectName}', '${item.examId}', '${stCode}')" title="حذف النتيجة"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                    </td>
+                    </div>
+
+                    <div class="action-btns">
+                        <button class="btn-action" onclick="sendWhatsAppReport('${res.studentPhone}', '${res.studentName}', '${res.examTitle}', ${res.percentage})">
+                            <i class="fa-brands fa-whatsapp" style="color:#10B981;"></i>
+                            <span>إرسال النتيجة</span>
+                        </button>
+                        <button class="btn-action danger" onclick="resetStudentExamAttempt('${res.studentCode}', '${res.examId}', '${res.studentName}')">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>إعادة المحاولة</span>
+                        </button>
+                    </div>
                 `;
-                tbody.appendChild(tr);
+                container.appendChild(card);
             });
         }
 
-        function updateStats(total, passRate, avgPct, maxPct) {
-            document.getElementById('statTotalStudents').textContent = total;
-            document.getElementById('statPassRate').textContent = `${passRate}%`;
-            document.getElementById('statAvgScore').textContent = `${avgPct}%`;
-            document.getElementById('statTopScore').textContent = `${maxPct}%`;
+        function sendWhatsAppReport(phone, name, examTitle, score) {
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+            const waMsg = encodeURIComponent(`مرحباً بك يا ${name} 🎓
+تم رصد نتيجتك في اختبار (${examTitle}): ${score}%
+منصة الخطة - دفعة 2027`);
+            window.open(`https://wa.me/${waNumber}?text=${waMsg}`, '_blank');
         }
 
-        function deleteExamResult(subject, examId, studentCode) {
+        function resetStudentExamAttempt(code, examId, name) {
             Swal.fire({
-                title: 'هل أنت متأكد من حذف هذه النتيجة؟',
-                text: `سيتم حذف نتيجة الطالب (${studentCode}) في امتحان (${examId}).`,
-                icon: 'warning',
+                title: 'إعادة محاولة الاختبار؟',
+                text: `سيتم مسح النتيجة الحالية والسماح للطالب (${name}) بأداء الاختبار مرة أخرى.`,
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#EF4444',
+                confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#64748B',
-                confirmButtonText: 'نعم، حذف النتيجة',
+                confirmButtonText: 'نعم، إعادة المحاولة',
                 cancelButtonText: 'إلغاء'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const safeCode = studentCode.replace(/[.#$\[\]]/g, '_');
-                    database.ref(`ExamResults/${subject}/${examId}/${safeCode}`).remove().then(() => {
-                        Swal.fire('تم الحذف!', 'تم حذف نتيجة الطالب بنجاح.', 'success');
-                    }).catch(err => {
-                        Swal.fire('خطأ!', 'تعذر حذف النتيجة: ' + err.message, 'error');
-                    });
+                    await database.ref('Students/' + code + '/exams/' + examId).remove();
+                    Swal.fire('تمت الإعادة!', 'أصبح بإمكان الطالب الدخول للاختبار الآن مجدداً.', 'success');
                 }
             });
-        }
-
-        function exportCSV() {
-            if (currentFilteredList.length === 0) {
-                return Swal.fire('تنبيه', 'لا توجد نتائج لتصديرها حالياً', 'info');
-            }
-
-            let csvContent = "\uFEFF"; // UTF-8 BOM for Arabic
-            csvContent += "الترتيب,اسم الطالب,كود الطالب,رقم الهاتف,المادة,الامتحان,الدرجة,إجمالي الأسئلة,النسبة المئوية,الحالة,تاريخ التسليم\n";
-
-            currentFilteredList.forEach((item, idx) => {
-                const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString('ar-EG') : '';
-                const statusStr = item.passed ? 'ناجح' : 'راسب';
-                csvContent += `"${idx + 1}","${item.studentName}","${item.studentCode}","${item.phone}","${item.subjectName}","${item.examId}","${item.score}","${item.totalQuestions}","${item.percentage}%","${statusStr}","${dateStr}"\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `نتائج_الطلاب_${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
     </script>
 </body>

@@ -2,170 +2,529 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الطلاب - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>إدارة الطلاب والاشتراكات - ELKHETA PRO 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --gold: #F59E0B;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-glass: rgba(255, 255, 255, 0.9);
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
             --text-sub: #64748B;
-            --primary: #3B82F6;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
 
-        .page-header {
-            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-            padding: 50px 20px 70px;
-            position: relative; overflow: hidden;
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --surface-glass: rgba(15, 23, 42, 0.92);
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
         }
-        .page-header::after {
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
+        }
+
+        .exec-header::after {
             content: '';
             position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%);
-            bottom: -80px; left: -30px; border-radius: 50%;
+            bottom: -60px; left: -40px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
         }
-        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
-        .back-btn {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 18px; transition: background 0.2s;
-            color: #FFFFFF; text-decoration: none;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
-        .header-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
-        .header-sub { font-size: 12px; margin-top: 3px; color: rgba(255,255,255,0.85); }
 
-        /* Search */
-        .search-wrap {
-            margin: -30px 15px 0;
-            position: relative; z-index: 10;
+        .header-container {
+            max-width: 1060px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateX(4px);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(15deg); }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FDE68A;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-subtitle {
+            font-size: 13px;
+            color: #94A3B8;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .main-content {
+            max-width: 1060px;
+            margin: -45px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 640px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 18px 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 4px; height: 100%;
+        }
+        .kpi-card.blue::before { background: #2563EB; }
+        .kpi-card.green::before { background: #10B981; }
+        .kpi-card.purple::before { background: #8B5CF6; }
+
+        .kpi-info h4 { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+        .kpi-info .kpi-num { font-size: 26px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
+        .kpi-icon {
+            width: 48px; height: 48px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .kpi-card.blue .kpi-icon { background: rgba(37, 99, 235, 0.1); color: #2563EB; }
+        .kpi-card.green .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+
+        .controls-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 18px 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .search-bar-wrap {
+            position: relative;
+            width: 100%;
         }
         .search-input {
             width: 100%;
-            padding: 16px 18px 16px 48px;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 18px;
-            color: #1E293B;
+            padding: 14px 46px 14px 18px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-main);
             font-family: 'Cairo', sans-serif;
             font-size: 14px;
+            font-weight: 600;
             outline: none;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.25s;
         }
-        .search-input:focus { border-color: #38BDF8; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(56,189,248,0.15); }
-        .search-input::placeholder { color: rgba(0,0,0,0.35); }
-        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; }
-
-        /* Stats */
-        .stats-row {
-            display: flex; gap: 10px;
-            padding: 15px 15px 0;
+        .search-input:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
         }
-        .stat-pill {
-            flex: 1; background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.07);
-            border-radius: 14px; padding: 12px 10px; text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        .search-icon-pos {
+            position: absolute;
+            right: 18px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+            font-size: 16px;
         }
-        .stat-val { font-size: 20px; font-weight: 900; color: #2563EB; }
-        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; font-weight: 600; }
 
-        .list-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 15px 8px; }
-        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.6); }
-        .count-badge { background: #EEF2FF; color: #4338CA; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 800; }
+        .filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-        .student-card {
-            margin: 0 15px 10px;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.07);
-            border-radius: 18px;
-            padding: 16px 18px;
-            display: flex; align-items: center; gap: 14px;
+        .filter-chips-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 7px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-sub);
+            cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .student-card:hover { border-color: rgba(56,189,248,0.3); transform: translateY(-1px); }
+        .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-chip.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
 
-        .avatar {
-            width: 48px; height: 48px; min-width: 48px;
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: 900;
-            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
-            color: #4F46E5;
+        .sort-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
         }
-        .student-info { flex: 1; min-width: 0; }
-        .student-name { font-size: 15px; font-weight: 700; color: #1E293B; }
-        .student-code {
-            display: inline-block;
-            font-size: 12px; font-weight: 800;
+        .sort-btn:hover { background: var(--surface); border-color: var(--primary); }
+
+        .students-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .student-item-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .student-item-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -6px rgba(37, 99, 235, 0.12);
+        }
+        @media (max-width: 768px) {
+            .student-item-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+        }
+
+        .student-left-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .avatar-ring {
+            width: 52px; height: 52px; min-width: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+            color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .student-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .student-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .student-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .index-badge {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .status-pill-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-pill-badge.active { background: #DCFCE7; color: #15803D; }
+        .status-pill-badge.banned { background: #FEE2E2; color: #B91C1C; }
+        .status-pill-badge.warn { background: #FEF3C7; color: #B45309; }
+
+        .student-meta-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .code-pill {
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: 800;
             color: #C2410C;
             background: #FFF7ED;
             border: 1px solid #FFEDD5;
-            border-radius: 6px; padding: 2px 8px;
-            margin-top: 4px; font-family: monospace;
+            padding: 3px 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .student-phone { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+        .code-pill:hover { background: #FFEDD5; }
 
-        .student-actions { display: flex; flex-direction: column; gap: 6px; align-items: center; }
-        .btn-delete {
-            width: 36px; height: 36px;
-            background: #F1F5F9; border: 1px solid #E2E8F0;
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 15px; transition: all 0.2s;
-        }
-        .btn-delete:hover { transform: scale(1.08); }
-
-        .student-score {
-            font-size: 11px; color: #15803D; font-weight: 700;
-            background: #DCFCE7; border-radius: 6px; padding: 2px 7px;
+        .dept-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--bg-body);
+            color: var(--text-sub);
+            border: 1px solid var(--border-color);
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
-        .empty-state { text-align: center; padding: 60px 20px; color: rgba(0,0,0,0.4); }
-        .empty-state div { font-size: 45px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; font-weight: 600; }
-
-        .toast {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #0F172A; border: 1px solid rgba(255,255,255,0.1);
-            color: #FFFFFF; padding: 14px 24px; border-radius: 16px;
-            font-size: 14px; font-weight: 700; z-index: 99999;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4); max-width: 90vw; text-align: center;
+        .phone-link {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            direction: ltr;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* ─── Confirm Modal ─── */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(6px); z-index: 99998;
+        .actions-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .actions-group {
+                justify-content: flex-end;
+                border-top: 1px dashed var(--border-color);
+                padding-top: 10px;
+            }
+        }
+
+        .action-icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .modal-overlay.open { opacity: 1; pointer-events: all; }
-        .modal-box {
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 340px;
+        .action-icon-btn:hover { transform: translateY(-2px); }
+        .action-icon-btn.whatsapp { background: #DCFCE7; color: #166534; border-color: #BBF7D0; font-size: 16px; }
+        .action-icon-btn.whatsapp:hover { background: #BBF7D0; }
+        .action-icon-btn.ban { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+        .action-icon-btn.unban { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+        .action-icon-btn.reset { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+        .action-icon-btn.delete { background: #FFF1F2; color: #E11D48; border-color: #FFE4E6; }
+
+        .score-badge {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .empty-box {
             text-align: center;
-            transform: scale(0.85) translateY(20px);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            padding: 60px 20px;
+            color: var(--text-sub);
+            background: var(--surface);
+            border-radius: 24px;
+            border: 2px dashed var(--border-color);
         }
-        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-        .modal-icon { width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
-        .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
-        .modal-msg { font-size: 13px; color: #64748B; line-height: 1.7; margin-bottom: 24px; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer; border: none; transition: all 0.2s; }
-        .modal-btn.cancel { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
-        .modal-btn.cancel:hover { background: #E2E8F0; }
-        .modal-btn.confirm-del { background: linear-gradient(135deg, #DC2626, #EF4444); color: #FFFFFF; box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
-        .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
+        .empty-box i { font-size: 48px; color: var(--primary); opacity: 0.4; margin-bottom: 14px; }
+        .empty-box h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+        .empty-box p { font-size: 13px; }
+
+        .toast-bubble {
+            position: fixed;
+            bottom: 25px; left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-bubble.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <script>
@@ -189,98 +548,162 @@
                 }
             } catch(e) {}
         }
+
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <a href="admin-panel.html" class="back-btn" title="العودة">⬅️</a>
-            <div>
-                <div class="header-title">👥 إدارة الطلاب</div>
-                <div class="header-sub">عرض وإدارة جميع حسابات الطلاب المسجلين بالمنصة</div>
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
+                </a>
+                <div class="header-actions">
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>سجلات الدفعة 2027 • فرقة رابعة</span>
+                </div>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-user-graduate" style="color:#38BDF8;"></i>
+                    <span>إدارة الطلاب والاشتراكات</span>
+                </h1>
+                <p class="header-subtitle">التحكم الكامل في حسابات الطلاب، الأجهزة المقترنة، الحظر، والتواصل المباشر</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" id="searchInput" placeholder="ابحث باسم الطالب أو كوده..." oninput="filterStudents()">
-    </div>
-
-    <div class="stats-row">
-        <div class="stat-pill">
-            <div class="stat-val" id="totalStudents">—</div>
-            <div class="stat-lbl">إجمالي الطلاب</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-val" id="activeToday">—</div>
-            <div class="stat-lbl">نشط اليوم</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-val" id="avgScore">—</div>
-            <div class="stat-lbl">متوسط الدرجات</div>
-        </div>
-    </div>
-
-    <div class="list-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div>
-            <span class="list-title">قائمة الطلاب المسجلين</span>
-            <span class="count-badge" id="countBadge">جاري التحميل...</span>
-        </div>
-        <button id="sortToggleBtn" onclick="toggleSortOrder()" style="background:#EEF2FF; border:1px solid #C7D2FE; color:#4338CA; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Cairo', sans-serif;">
-            ⬇️ الترتيب: من الأحدث للأقدم
-        </button>
-    </div>
-
-    <div id="studentsList">
-        <div class="empty-state"><div>👥</div><p>جاري تحميل قائمة الطلاب...</p></div>
-    </div>
-
-    <!-- Confirm Modal -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-box">
-            <div class="modal-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
-            <div class="modal-title">تأكيد الحذف</div>
-            <div class="modal-msg" id="modalMsg">هل أنت متأكد؟</div>
-            <div class="modal-btns">
-                <button class="modal-btn cancel" onclick="closeModal()">إلغاء</button>
-                <button class="modal-btn confirm-del" id="modalConfirmBtn">حذف نهائياً </button>
+    <main class="main-content">
+        <div class="kpi-grid">
+            <div class="kpi-card blue">
+                <div class="kpi-info">
+                    <h4>إجمالي الطلاب المسجلين</h4>
+                    <div class="kpi-num" id="totalStudents">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-info">
+                    <h4>نشط اليوم بالمنصة</h4>
+                    <div class="kpi-num" id="activeToday">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-bolt"></i></div>
+            </div>
+            <div class="kpi-card purple">
+                <div class="kpi-info">
+                    <h4>متوسط الدرجات العام</h4>
+                    <div class="kpi-num" id="avgScore">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-chart-pie"></i></div>
             </div>
         </div>
-    </div>
 
-    <div class="toast" id="toast"></div>
+        <div class="controls-card">
+            <div class="search-bar-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon-pos"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="ابحث باسم الطالب، كود الدخول، أو رقم الهاتف..." oninput="filterStudents()">
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-chips-group">
+                    <button class="filter-chip active" id="chip-all" onclick="setStatusFilter('all')">
+                        <i class="fa-solid fa-list-ul"></i> الكل (<span id="countFilterAll">0</span>)
+                    </button>
+                    <button class="filter-chip" id="chip-active" onclick="setStatusFilter('active')">
+                        <i class="fa-solid fa-circle-check" style="color:#10B981;"></i> نشط
+                    </button>
+                    <button class="filter-chip" id="chip-banned" onclick="setStatusFilter('banned')">
+                        <i class="fa-solid fa-ban" style="color:#EF4444;"></i> محظور
+                    </button>
+                    <button class="filter-chip" id="chip-warnings" onclick="setStatusFilter('warnings')">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#F59E0B;"></i> إنذارات
+                    </button>
+                </div>
+
+                <button class="sort-btn" id="sortToggleBtn" onclick="toggleSortOrder()">
+                    <i class="fa-solid fa-arrow-down-wide-short"></i>
+                    <span id="sortLabel">الأحدث تسجيلاً</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="students-list" id="studentsList">
+            <div class="empty-box">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <h3>جاري تحميل سجلات الطلاب...</h3>
+                <p>يتم الاتصال بقاعدة البيانات اللحظية الآن</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-bubble" id="toastBubble"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <script>
         const API_BASE = "https://backendapi-pi.vercel.app/api";
         let allStudents = [];
-        let sortDesc = true; // Default newest first
+        let currentStatusFilter = 'all';
+        let sortDesc = true;
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        updateThemeIcon(savedTheme);
 
         function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.classList.add('show');
+            const t = document.getElementById('toastBubble');
+            t.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38BDF8;"></i> <span>${msg}</span>`;
+            t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3500);
         }
 
         function getInitial(name) {
-            return name ? name.trim().charAt(0) : '؟';
+            return name ? name.trim().charAt(0) : '🎓';
         }
 
         function copyCode(code) {
             if (!code) return;
             navigator.clipboard.writeText(code).then(() => {
-                showToast(`📋 تم نسخ كود الطالب: ${code}`);
+                showToast(`تم نسخ كود الطالب: ${code}`);
             }).catch(() => {
-                showToast(`الكود: ${code}`);
+                showToast(`كود الطالب: ${code}`);
             });
         }
 
         function toggleSortOrder() {
             sortDesc = !sortDesc;
-            const btn = document.getElementById('sortToggleBtn');
-            btn.innerHTML = sortDesc ? '⬇️ الترتيب: من الأحدث للأقدم' : '⬆️ الترتيب: من الأقدم للأحدث';
+            document.getElementById('sortLabel').textContent = sortDesc ? 'الأحدث تسجيلاً' : 'الأقدم تسجيلاً';
+            filterStudents();
+        }
+
+        function setStatusFilter(filter) {
+            currentStatusFilter = filter;
+            ['all', 'active', 'banned', 'warnings'].forEach(id => {
+                const el = document.getElementById(`chip-${id}`);
+                if (el) el.classList.toggle('active', id === filter);
+            });
             filterStudents();
         }
 
@@ -289,16 +712,16 @@
             let totalScore = 0, scoreCount = 0;
 
             if (snap.exists()) {
-                snap.forEach(child => { 
+                snap.forEach(child => {
                     const val = child.val();
                     if (val) {
                         val.firebaseKey = child.key;
                         val.studentCode = val.studentCode || val.code || child.key;
-                        val.fullName = val.fullName || val.name || 'طالب بدون اسم';
+                        val.fullName = val.fullName || val.name || 'طالب مسجل';
                         val.whatsapp = val.whatsapp || val.phone || val.parentWhatsapp || '';
-                        allStudents.push(val); 
+                        allStudents.push(val);
 
-                        if (val.stats && val.stats.averageScore) {
+                        if (val.stats && typeof val.stats.averageScore === 'number') {
                             totalScore += val.stats.averageScore;
                             scoreCount++;
                         }
@@ -307,23 +730,51 @@
             }
 
             document.getElementById('totalStudents').textContent = allStudents.length;
-            document.getElementById('activeToday').textContent = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length || '—';
+            document.getElementById('countFilterAll').textContent = allStudents.length;
+            document.getElementById('activeToday').textContent = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length || '0';
             document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) + '%' : '—';
-            document.getElementById('countBadge').textContent = allStudents.length + ' طالب';
 
             filterStudents();
         });
+
+        function filterStudents() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            let filtered = allStudents;
+
+            if (currentStatusFilter === 'active') {
+                filtered = filtered.filter(s => !s.isBanned && s.is_banned != 1 && (!s.warnings || s.warnings === 0));
+            } else if (currentStatusFilter === 'banned') {
+                filtered = filtered.filter(s => s.isBanned || s.is_banned == 1);
+            } else if (currentStatusFilter === 'warnings') {
+                filtered = filtered.filter(s => s.warnings > 0 && !s.isBanned && s.is_banned != 1);
+            }
+
+            if (q) {
+                filtered = filtered.filter(s =>
+                    (s.fullName || '').toLowerCase().includes(q) ||
+                    (s.studentCode || '').toLowerCase().includes(q) ||
+                    (s.whatsapp || '').includes(q)
+                );
+            }
+
+            renderStudents(filtered);
+        }
 
         function renderStudents(list) {
             const container = document.getElementById('studentsList');
             container.innerHTML = "";
 
             if (!list || list.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div>👥</div><p>لا يوجد طلاب مطابقون</p></div>`;
+                container.innerHTML = `
+                    <div class="empty-box">
+                        <i class="fa-solid fa-user-slash"></i>
+                        <h3>لا يوجد طلاب مطابقين للبحث</h3>
+                        <p>تأكد من كتابة الاسم أو الكود بشكل صحيح أو قم بتغيير الفلتر</p>
+                    </div>
+                `;
                 return;
             }
 
-            // Sort
             const sorted = [...list].sort((a, b) => {
                 const dateA = a.joinDate || a.createdAt || 0;
                 const dateB = b.joinDate || b.createdAt || 0;
@@ -331,44 +782,64 @@
             });
 
             sorted.forEach((st, idx) => {
-                const numBadge = `<span style="background: #E0E7FF; color: #3730A3; font-weight: 800; font-size: 11px; padding: 2px 7px; border-radius: 6px; margin-left: 6px;">#${idx + 1}</span>`;
-                const score = (st.stats && st.stats.averageScore) ? `<span class="student-score">${st.stats.averageScore}% متوسط</span>` : '';
+                const isBanned = Boolean(st.isBanned || st.is_banned == 1);
+                const hasWarnings = (st.warnings > 0);
                 
-                let statusBadge = `<span style="background:#DCFCE7; color:#166534; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">🟢 نشط</span>`;
-                if(st.isBanned || st.is_banned == 1) {
-                    statusBadge = `<span style="background:#FEE2E2; color:#B91C1C; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">🚫 محظور</span>`;
-                } else if(st.warnings > 0) {
-                    statusBadge = `<span style="background:#FEF3C7; color:#B45309; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">⚠️ إنذار (${st.warnings}/3)</span>`;
+                let statusBadge = `<span class="status-pill-badge active"><i class="fa-solid fa-circle-check"></i> نشط</span>`;
+                if (isBanned) {
+                    statusBadge = `<span class="status-pill-badge banned"><i class="fa-solid fa-ban"></i> محظور</span>`;
+                } else if (hasWarnings) {
+                    statusBadge = `<span class="status-pill-badge warn"><i class="fa-solid fa-triangle-exclamation"></i> إنذار (${st.warnings}/3)</span>`;
                 }
+
+                const scoreBadge = (st.stats && typeof st.stats.averageScore === 'number')
+                    ? `<span class="score-badge"><i class="fa-solid fa-chart-line"></i> ${st.stats.averageScore}%</span>`
+                    : '';
 
                 const escName = (st.fullName || 'طالب').replace(/'/g, "\\'");
                 const escCode = (st.studentCode || '').replace(/'/g, "\\'");
 
                 const card = document.createElement('div');
-                card.className = "student-card";
+                card.className = "student-item-card";
                 card.innerHTML = `
-                    <div class="avatar">${getInitial(st.fullName)}</div>
-                    <div class="student-info">
-                        <div class="student-name">
-                            ${numBadge}
-                            ${st.fullName || 'غير محدد'} 
-                            ${statusBadge}
+                    <div class="student-left-wrap">
+                        <div class="avatar-ring">${getInitial(st.fullName)}</div>
+                        <div class="student-details">
+                            <div class="student-name-row">
+                                <span class="index-badge">#${idx + 1}</span>
+                                <span class="student-name" title="${st.fullName}">${st.fullName}</span>
+                                ${statusBadge}
+                                ${scoreBadge}
+                            </div>
+                            <div class="student-meta-strip">
+                                <span class="code-pill" onclick="copyCode('${escCode}')" title="انقر لنسخ الكود">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>${st.studentCode || '—'}</span>
+                                </span>
+                                <span class="dept-tag">الفرقة الرابعة • 2027</span>
+                                ${st.whatsapp ? `
+                                    <a href="tel:${st.whatsapp}" class="phone-link">
+                                        <i class="fa-solid fa-phone"></i>
+                                        <span>${st.whatsapp}</span>
+                                    </a>
+                                ` : `<span style="font-size:11px; color:var(--text-sub);">بدون هاتف</span>`}
+                            </div>
                         </div>
-                        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:4px;">
-                            <span class="student-code" onclick="copyCode('${escCode}')" style="cursor:pointer;" title="انقر لنسخ الكود">${st.studentCode || '—'} 📋</span>
-                            <span style="font-size:11px; background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:6px; font-weight:600;">فرقة رابعة خدمة اجتماعية</span>
-                        </div>
-                        <div class="student-phone">📞 ${st.whatsapp ? `<a href="tel:${st.whatsapp}" style="color:#2563EB; text-decoration:none; font-weight:700;" dir="ltr">${st.whatsapp}</a>` : '<span style="color:#94A3B8;">غير محدد</span>'}</div>
-                        ${st.joinDate ? `<div style="font-size: 11px; color: #94A3B8; margin-top: 3px;">📅 انضم: ${new Date(st.joinDate).toLocaleDateString('ar-EG')}</div>` : ''}
                     </div>
-                    <div class="student-actions">
-                        ${score}
-                        <div style="display:flex; gap:6px;">
-                            <button class="btn-delete" style="background:#DCFCE7; color:#166534;" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}')" title="إرسال الكود في الواتساب">💬</button>
-                            <button class="btn-delete" style="background:${st.isBanned ? '#FEE2E2' : '#F0FDF4'}; color:${st.isBanned ? '#DC2626' : '#166534'};" onclick="toggleStudentBan('${escCode}', ${st.isBanned ? 'true' : 'false'})" title="${st.isBanned ? 'فك الحظر' : 'حظر الطالب'}">${st.isBanned ? '🔓' : '🚫'}</button>
-                            <button class="btn-delete" style="background:#EFF6FF; color:#1D4ED8;" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز المقترن">🔄</button>
-                            <button class="btn-delete" style="background:#FEF2F2; color:#DC2626;" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف الطالب">🗑️</button>
-                        </div>
+
+                    <div class="actions-group">
+                        <button class="action-icon-btn whatsapp" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}')" title="مراسلة في واتساب مع كود الدخول">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                        <button class="action-icon-btn ${isBanned ? 'unban' : 'ban'}" onclick="toggleStudentBan('${escCode}', ${isBanned})" title="${isBanned ? 'فك حظر الطالب' : 'حظر الطالب'}">
+                            <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                        </button>
+                        <button class="action-icon-btn reset" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز المقترن للطالب">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </button>
+                        <button class="action-icon-btn delete" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف حساب الطالب نهائياً">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -377,12 +848,12 @@
 
         async function toggleStudentBan(code, isCurrentlyBanned) {
             const newBanState = !isCurrentlyBanned;
-            const actionText = newBanState ? 'حظر الطالب' : 'فك حظر الطالب';
-            
+            const actionText = newBanState ? 'حظر حساب الطالب' : 'فك حظر حساب الطالب';
+
             Swal.fire({
                 title: `${actionText}؟`,
-                text: newBanState ? 'لن يتمكن الطالب من دخول المنصة حتى يقوم المسؤول بفك الحظر.' : 'سيتمكن الطالب من الدخول واستئناف الدراسة فوراً.',
-                icon: newBanState ? 'warning' : 'info',
+                text: newBanState ? 'لن يتمكن الطالب من دخول المنصة أو أداء الامتحانات حتى يتم فك الحظر.' : 'سيتمكن الطالب من الدخول فوراً واستئناف الدراسة.',
+                icon: newBanState ? 'warning' : 'question',
                 showCancelButton: true,
                 confirmButtonColor: newBanState ? '#DC2626' : '#10B981',
                 cancelButtonColor: '#64748B',
@@ -390,7 +861,6 @@
                 cancelButtonText: 'إلغاء'
             }).then(async (res) => {
                 if (res.isConfirmed) {
-                    // Update Firebase
                     await database.ref('Students/' + code).update({
                         isBanned: newBanState,
                         warnings: newBanState ? 3 : 0,
@@ -398,7 +868,6 @@
                         bannedAt: newBanState ? Date.now() : null
                     });
 
-                    // Sync MySQL API
                     try {
                         await fetch(`${API_BASE}/students/${code}/ban`, {
                             method: 'PATCH',
@@ -407,7 +876,7 @@
                         });
                     } catch(e) {}
 
-                    showToast(`✅ تم ${actionText} بنجاح!`);
+                    showToast(`تم ${actionText} بنجاح!`);
                 }
             });
         }
@@ -415,10 +884,10 @@
         async function resetStudentDevice(code) {
             Swal.fire({
                 title: 'تصفير جهاز الطالب؟',
-                text: 'سيتم مسح بصمة الجهاز الحالية والسماح للطالب بتسجيل الدخول من جهاز جديد.',
+                text: 'سيتم مسح بصمة الجهاز الحالية والسماح للطالب بتسجيل الدخول من أي هاتف أو كمبيوتر جديد.',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#3B82F6',
+                confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#64748B',
                 confirmButtonText: 'نعم، تصفير الجهاز',
                 cancelButtonText: 'إلغاء'
@@ -438,16 +907,16 @@
                         });
                     } catch(e) {}
 
-                    showToast("✅ تم تصفير جهاز الطالب بنجاح!");
+                    showToast("تم تصفير جهاز الطالب بنجاح!");
                 }
             });
         }
 
         function deleteStudentDirect(code, name) {
             Swal.fire({
-                title: 'حذف حساب الطالب؟',
-                html: `هل أنت متأكد تماماً من حذف حساب الطالب:<br><b style="color:#DC2626; font-size:16px;">${name}</b> (${code})؟<br>لا يمكن التراجع عن هذا الإجراء.`,
-                icon: 'error',
+                title: 'حذف حساب الطالب نهائياً؟',
+                html: `هل أنت متأكد تماماً من حذف حساب الطالب:<br><b style="color:#DC2626; font-size:16px;">${name}</b> (${code})؟<br>سيتم مسح كافة سجلات الطالب وامتحاناته نهائياً.`,
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#DC2626',
                 cancelButtonColor: '#64748B',
@@ -464,7 +933,7 @@
                         });
                     } catch(e) {}
 
-                    showToast("🗑️ تم حذف حساب الطالب بنجاح");
+                    showToast("تم حذف حساب الطالب بنجاح");
                 }
             });
         }
@@ -472,28 +941,9 @@
         function sendStudentWhatsApp(phone, name, code) {
             const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
             const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
-            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالب'} في منصة الخطة 🎓\nكود الدخول الخاص بحسابك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
+            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\\nكود الدخول الخاص بك هو: ${code}\\nرابط المنصة: https://elkheta2026.web.app`);
             window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
-        }
-
-        function filterStudents() {
-            const q = document.getElementById('searchInput').value.trim().toLowerCase();
-            if (!q) return renderStudents(allStudents);
-            renderStudents(allStudents.filter(s =>
-                (s.fullName || '').toLowerCase().includes(q) ||
-                (s.studentCode || '').toLowerCase().includes(q) ||
-                (s.whatsapp || '').includes(q)
-            ));
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

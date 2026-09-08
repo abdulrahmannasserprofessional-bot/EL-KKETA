@@ -1,823 +1,285 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="بوابة الإدارة - الخطة">
-    <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>بوابة الإدارة والأمان - ELKHETA PRO</title>
+    <title>بوابة الإدارة والأمان - ELKHETA PRO 2027</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #3B82F6;
-            --primary-glow: rgba(59, 130, 246, 0.4);
-            --accent: #818CF8;
-            --bg-dark: #0B0F19;
-            --card-glass: rgba(17, 24, 39, 0.85);
-            --border-glass: rgba(255, 255, 255, 0.1);
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --bg-dark: #070B14;
+            --card-glass: rgba(15, 23, 42, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.12);
             --text-main: #FFFFFF;
             --text-muted: #94A3B8;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Cairo', sans-serif;
             background: var(--bg-dark);
             min-height: 100vh;
-            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             position: relative;
-            padding: 20px 16px;
+            padding: 24px 16px;
             overflow-x: hidden;
             color: var(--text-main);
         }
 
-        /* Ambient Glowing Backdrop Blobs */
         .ambient-glow-1 {
             position: absolute;
-            top: -100px;
-            right: -80px;
-            width: 480px;
-            height: 480px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, rgba(30, 27, 75, 0) 70%);
-            z-index: 0;
-            pointer-events: none;
-            filter: blur(50px);
-            animation: pulseGlow 7s ease-in-out infinite alternate;
+            top: -100px; right: -80px;
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
         }
-
         .ambient-glow-2 {
             position: absolute;
-            bottom: -100px;
-            left: -80px;
-            width: 450px;
-            height: 450px;
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
-            z-index: 0;
-            pointer-events: none;
-            filter: blur(50px);
-            animation: pulseGlow 9s ease-in-out infinite alternate-reverse;
+            bottom: -100px; left: -80px;
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
         }
 
-        @keyframes pulseGlow {
-            0% { transform: scale(0.92) translate(0, 0); opacity: 0.65; }
-            100% { transform: scale(1.12) translate(25px, 20px); opacity: 0.95; }
-        }
-
-        /* Subtle grid background */
-        .bg-grid-pattern {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 26px 26px;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* Top Header Navbar */
         .gate-header {
             width: 100%;
-            max-width: 460px;
+            max-width: 450px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
             z-index: 10;
-            margin-bottom: 10px;
         }
-
         .brand-link {
             display: flex;
             align-items: center;
             gap: 10px;
             text-decoration: none;
             color: white;
-        }
-
-        .brand-icon {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
-        }
-
-        .brand-title {
-            font-size: 16px;
             font-weight: 900;
-            letter-spacing: 0.5px;
+            font-size: 16px;
         }
-
         .header-back-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: var(--text-muted);
             padding: 6px 14px;
             border-radius: 20px;
             text-decoration: none;
             font-size: 12px;
             font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(10px);
-            transition: all 0.25s ease;
-        }
-        .header-back-btn:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.25);
-            transform: translateX(2px);
-        }
-
-        /* Gate Container Card */
-        .gate-card-wrapper {
-            width: 100%;
-            max-width: 440px;
-            position: relative;
-            z-index: 10;
-            margin: auto 0;
+            transition: 0.2s;
         }
 
         .gate-card {
+            width: 100%;
+            max-width: 450px;
             background: var(--card-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 28px;
-            padding: 36px 26px 30px;
             border: 1px solid var(--border-glass);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.12);
+            border-radius: 28px;
+            padding: 32px 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(16px);
+            position: relative;
+            z-index: 10;
+            margin: auto 0;
             text-align: center;
-            position: relative;
-            animation: cardFadeIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
         }
 
-        @keyframes cardFadeIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.96); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* Animated Security Shield Icon */
-        .shield-badge-wrap {
-            position: relative;
-            width: 88px;
-            height: 88px;
-            margin: 0 auto 18px;
-        }
-
-        .shield-icon-container {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);
-            border-radius: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            color: white;
-            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.45);
-            border: 1.5px solid rgba(255, 255, 255, 0.25);
-            position: relative;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .shield-pulse-ring {
-            position: absolute;
-            inset: -6px;
-            border-radius: 30px;
-            border: 2px solid rgba(59, 130, 246, 0.4);
-            animation: ringPulse 2.5s infinite ease-out;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @keyframes ringPulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 0.3; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-
-        .gate-badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(59, 130, 246, 0.12);
-            border: 1px solid rgba(96, 165, 250, 0.3);
-            color: #93C5FD;
-            padding: 5px 14px;
+        .shield-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #1E3A8A, #2563EB);
+            border: 2px solid rgba(56, 189, 248, 0.4);
             border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 800;
-            margin-bottom: 12px;
+            margin: 0 auto 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: #FFFFFF;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
         }
 
-        .gate-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: #FFFFFF;
-            margin-bottom: 6px;
-            letter-spacing: -0.3px;
-        }
-
-        .gate-desc {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.6;
-            margin-bottom: 22px;
-        }
-
-        /* PIN Input Container */
-        .pin-input-box {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        .pin-field {
-            width: 100%;
-            padding: 16px 50px 16px 50px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1.5px solid rgba(255, 255, 255, 0.12);
-            border-radius: 18px;
-            color: #FFFFFF;
-            font-size: 24px;
-            font-weight: 800;
-            text-align: center;
-            letter-spacing: 8px;
-            font-family: 'Cairo', sans-serif;
-            outline: none;
-            transition: all 0.25s ease;
-        }
-
-        .pin-field:focus {
-            border-color: #3B82F6;
-            background: rgba(15, 23, 42, 0.95);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 25px rgba(59, 130, 246, 0.25);
-        }
-
-        .pin-field::placeholder {
-            letter-spacing: 0;
-            font-size: 14px;
-            color: #64748B;
-            font-weight: 600;
-        }
-
-        .pin-icon-right {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748B;
-            font-size: 17px;
-            pointer-events: none;
-        }
-
-        .pin-toggle-btn {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #94A3B8;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+        .role-tabs {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-        .pin-toggle-btn:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.18);
-        }
-
-        /* Quick Digital Keypad Grid */
-        .keypad-toggle-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 14px;
-        }
-
-        .btn-toggle-keypad {
-            background: transparent;
-            border: none;
-            color: #94A3B8;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: 'Cairo';
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
             gap: 6px;
-            transition: color 0.2s;
-        }
-        .btn-toggle-keypad:hover {
-            color: #60A5FA;
-        }
-
-        .digital-keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .keypad-btn {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #F8FAFC;
-            font-size: 18px;
+            margin: 20px 0;
+        }
+        .role-tab {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
             font-weight: 800;
-            font-family: 'Cairo', sans-serif;
-            padding: 12px 0;
-            border-radius: 14px;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.15s ease;
-            user-select: none;
+            font-family: inherit;
+            transition: 0.2s;
         }
-        .keypad-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        .keypad-btn:active {
-            transform: scale(0.95);
-            background: rgba(59, 130, 246, 0.3);
-        }
-        .keypad-btn.action-btn {
-            background: rgba(239, 68, 68, 0.12);
-            border-color: rgba(239, 68, 68, 0.25);
-            color: #FCA5A5;
-            font-size: 15px;
-        }
-        .keypad-btn.action-btn:hover {
-            background: rgba(239, 68, 68, 0.25);
-        }
-        .keypad-btn.backspace-btn {
-            background: rgba(255, 255, 255, 0.08);
-            font-size: 15px;
+        .role-tab.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        /* Error Notification Box */
-        .error-banner {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            color: #FCA5A5;
-            border-radius: 14px;
-            padding: 10px 14px;
-            font-size: 12.5px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: none;
-            text-align: right;
-            line-height: 1.5;
-            animation: errorShake 0.4s ease;
+        .passcode-input-wrap {
+            position: relative;
+            margin-bottom: 20px;
         }
-
-        @keyframes errorShake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-
-        /* Success State Glow */
-        .gate-card.access-granted {
-            border-color: #10B981 !important;
-            box-shadow: 0 0 50px rgba(16, 185, 129, 0.35) !important;
-        }
-        .gate-card.access-granted .shield-icon-container {
-            background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
-            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5) !important;
-        }
-
-        /* Submit Button */
-        .btn-gate-submit {
+        .passcode-input {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 18px;
+            text-align: center;
+            font-family: monospace;
+            letter-spacing: 4px;
+            outline: none;
+            transition: 0.25s;
+        }
+        .passcode-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+        }
+
+        .btn-enter {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
             color: #FFFFFF;
             border: none;
             border-radius: 16px;
-            font-weight: 800;
             font-size: 16px;
+            font-weight: 800;
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+            transition: 0.25s;
         }
+        .btn-enter:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5); }
 
-        .btn-gate-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.55);
-        }
-        .btn-gate-submit:active {
-            transform: translateY(0);
-        }
-
-        /* Card Footer links */
-        .gate-card-footer {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .btn-return-home {
+        .gate-footer {
+            font-size: 12px;
             color: var(--text-muted);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            transition: color 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .btn-return-home:hover {
-            color: #FFFFFF;
-        }
-
-        /* Bottom Security Info */
-        .gate-footer-bar {
-            width: 100%;
-            max-width: 440px;
             text-align: center;
             position: relative;
             z-index: 10;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: #64748B;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .sec-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #10B981;
-        }
-        .sec-status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #10B981;
-            box-shadow: 0 0 8px #10B981;
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 14px 12px; }
-            .gate-card {
-                padding: 30px 18px 24px;
-                border-radius: 24px;
-            }
-            .shield-badge-wrap {
-                width: 76px;
-                height: 76px;
-                margin-bottom: 14px;
-            }
-            .shield-icon-container {
-                font-size: 32px;
-                border-radius: 22px;
-            }
-            .gate-title { font-size: 21px; }
-            .gate-desc { font-size: 12px; margin-bottom: 18px; }
-            .pin-field {
-                font-size: 20px;
-                padding: 14px 44px;
-                letter-spacing: 6px;
-            }
-            .btn-gate-submit {
-                font-size: 15px;
-                padding: 14px;
-            }
         }
     </style>
 </head>
 <body>
-
-    <!-- Ambient Glowing Blobs & Grid Pattern -->
     <div class="ambient-glow-1"></div>
     <div class="ambient-glow-2"></div>
-    <div class="bg-grid-pattern"></div>
 
-    <!-- Top Gate Header -->
     <header class="gate-header">
         <a href="index.html" class="brand-link">
-            <div class="brand-icon">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <div class="brand-title">منصة الخطة</div>
+            <i class="fa-solid fa-graduation-cap" style="color:#38BDF8;"></i>
+            <span>الخطة 2027</span>
         </a>
-        <a href="index.html" class="header-back-btn">
-            <span>الرئيسية</span>
-            <i class="fas fa-arrow-left"></i>
-        </a>
+        <a href="index.html" class="header-back-btn">العودة للرئيسية</a>
     </header>
 
-    <!-- Main Gate Center Card -->
-    <div class="gate-card-wrapper">
-        <div class="gate-card" id="gateCard">
-            
-            <!-- Security Shield Icon -->
-            <div class="shield-badge-wrap">
-                <div class="shield-pulse-ring"></div>
-                <div class="shield-icon-container" id="shieldIcon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-            </div>
+    <div class="gate-card">
+        <div class="shield-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2 style="font-size:20px; font-weight:900;">بوابة الدخول والإدارة</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">الفرقة الرابعة • العام الأكاديمي 2027</p>
 
-            <!-- Header Text -->
-            <div class="gate-badge-pill">
-                <i class="fas fa-shield-alt"></i>
-                <span>بوابة الإدارة المشفرة • 256-bit</span>
-            </div>
-            <h1 class="gate-title">تسجيل دخول الإدارة</h1>
-            <p class="gate-desc">يرجى إدخال الرمز السري المخصص للمديرين والمشرفين للوصول إلى لوحة التحكم والعمليات.</p>
-
-            <!-- PIN Input Wrapper -->
-            <div class="pin-input-box">
-                <i class="fas fa-key pin-icon-right"></i>
-                <input type="password" id="adminPin" class="pin-field" placeholder="• • • •" maxlength="12"
-                       autocomplete="off" autofocus onkeydown="if(event.key==='Enter') verifyPin()">
-                <button type="button" class="pin-toggle-btn" onclick="toggleVisibility()" id="eyeBtn" title="إظهار / إخفاء الرمز">
-                    <i class="fas fa-eye" id="eyeIcon"></i>
-                </button>
-            </div>
-
-            <!-- Error Notification Banner -->
-            <div class="error-banner" id="errorMsg">
-                <i class="fas fa-exclamation-triangle" style="margin-left: 6px;"></i>
-                <span id="errorText">الرمز المدخل غير صحيح!</span>
-            </div>
-
-            <!-- Keypad Toggle Link -->
-            <div class="keypad-toggle-bar">
-                <button type="button" class="btn-toggle-keypad" onclick="toggleKeypad()" id="toggleKeypadBtn">
-                    <i class="fas fa-calculator"></i>
-                    <span id="keypadToggleText">إظهار لوحة الأرقام السريعة</span>
-                </button>
-            </div>
-
-            <!-- Quick Digital Touch Keypad (Hidden by default, easy to show) -->
-            <div class="digital-keypad" id="digitalKeypad" style="display: none;">
-                <button type="button" class="keypad-btn" onclick="appendPin('1')">1</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('2')">2</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('3')">3</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('4')">4</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('5')">5</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('6')">6</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('7')">7</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('8')">8</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('9')">9</button>
-                <button type="button" class="keypad-btn action-btn" onclick="clearPin()">مسح</button>
-                <button type="button" class="keypad-btn" onclick="appendPin('0')">0</button>
-                <button type="button" class="keypad-btn backspace-btn" onclick="backspacePin()">
-                    <i class="fas fa-backspace"></i>
-                </button>
-            </div>
-
-            <!-- Submit Button -->
-            <button class="btn-gate-submit" id="loginBtn" onclick="verifyPin()">
-                <span>الدخول للوحة التحكم</span>
-                <i class="fas fa-arrow-left"></i>
-            </button>
-
-            <!-- Card Footer Links -->
-            <div class="gate-card-footer">
-                <a href="index.html" class="btn-return-home">
-                    <i class="fas fa-chevron-right"></i>
-                    <span>العودة لصفحة تسجيل دخول الطلاب</span>
-                </a>
-            </div>
-
+        <div class="role-tabs">
+            <button class="role-tab active" id="tab-master" onclick="setRole('master')">👑 أدمن رئيسي</button>
+            <button class="role-tab" id="tab-supervisor" onclick="setRole('supervisor')">👥 مشرف منصة</button>
         </div>
+
+        <form onsubmit="handleAdminLogin(event)">
+            <div class="passcode-input-wrap">
+                <input type="password" id="adminPassInput" class="passcode-input" placeholder="••••••••" autofocus autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-enter" id="loginBtn">
+                <span>تسجيل الدخول للنظام</span>
+                <i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i>
+            </button>
+        </form>
     </div>
 
-    <!-- Bottom Status Bar -->
-    <footer class="gate-footer-bar">
-        <div>ELKHETA ADMIN SYSTEM PRO</div>
-        <div class="sec-status">
-            <div class="sec-status-dot"></div>
-            <span>الاتصال آمن ومشفر</span>
-        </div>
+    <footer class="gate-footer">
+        <p>نظام الحماية والأمان المشفر • ELKHETA PLATFORM 2027</p>
     </footer>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
-        let isVisible = false;
-        let isKeypadOpen = false;
+        let currentRole = 'master';
 
-        function toggleVisibility() {
-            const input = document.getElementById('adminPin');
-            const eyeIcon = document.getElementById('eyeIcon');
-            isVisible = !isVisible;
-            input.type = isVisible ? 'text' : 'password';
-            eyeIcon.className = isVisible ? 'fas fa-eye-slash' : 'fas fa-eye';
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('tab-master').classList.toggle('active', role === 'master');
+            document.getElementById('tab-supervisor').classList.toggle('active', role === 'supervisor');
+            document.getElementById('adminPassInput').focus();
         }
 
-        function toggleKeypad() {
-            const keypad = document.getElementById('digitalKeypad');
-            const text = document.getElementById('keypadToggleText');
-            isKeypadOpen = !isKeypadOpen;
-            if (isKeypadOpen) {
-                keypad.style.display = 'grid';
-                text.textContent = 'إخفاء لوحة الأرقام السريعة';
-            } else {
-                keypad.style.display = 'none';
-                text.textContent = 'إظهار لوحة الأرقام السريعة';
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPassInput').value.trim();
+            if (!pass) {
+                return Swal.fire('تنبيه', 'يرجى إدخال كود المرور', 'warning');
             }
-        }
 
-        function appendPin(digit) {
-            const input = document.getElementById('adminPin');
-            if (input.value.length < 12) {
-                input.value += digit;
-            }
-            hideError();
-        }
-
-        function clearPin() {
-            const input = document.getElementById('adminPin');
-            input.value = '';
-            hideError();
-        }
-
-        function backspacePin() {
-            const input = document.getElementById('adminPin');
-            input.value = input.value.slice(0, -1);
-            hideError();
-        }
-
-        function hideError() {
-            const err = document.getElementById('errorMsg');
-            err.style.display = 'none';
-        }
-
-        // Normalize English and Arabic / Persian numbers
-        function normalizeDigits(str) {
-            if (str === undefined || str === null) return '';
-            const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
-            const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
-            let result = str.toString().trim();
-            for (let i = 0; i < 10; i++) {
-                result = result.replace(arabicNumbers[i], i.toString()).replace(persianNumbers[i], i.toString());
-            }
-            return result;
-        }
-
-        async function verifyPin() {
-            const input = document.getElementById('adminPin');
-            const rawEntered = input.value;
-            const entered = normalizeDigits(rawEntered).trim();
             const btn = document.getElementById('loginBtn');
-            const err = document.getElementById('errorMsg');
-            const errText = document.getElementById('errorText');
-            const card = document.getElementById('gateCard');
-            const shieldIcon = document.getElementById('shieldIcon');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحقق...';
 
-            if (!entered) {
-                err.style.display = 'block';
-                errText.textContent = 'يرجى إدخال الرمز السري أولاً 🔑';
-                input.focus();
-                return;
-            }
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>جاري التحقق والأمان...</span>';
-            btn.disabled = true;
-            err.style.display = 'none';
-
-            try {
-                // 1. Check Master Admin PIN
-                let masterPin = "1234";
-                try {
-                    const snap = await database.ref('Settings/adminPin').once('value');
-                    if (snap.exists() && snap.val() !== undefined && snap.val() !== null) {
-                        masterPin = normalizeDigits(snap.val()).trim();
-                    }
-                } catch(eSnap) {
-                    console.warn("Using default master pin fallback");
-                }
-
-                if (entered === masterPin || entered === '1234') {
-                    // Success state
-                    card.classList.add('access-granted');
-                    shieldIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-                    btn.style.background = 'linear-gradient(135deg, #059669, #10B981)';
-                    btn.innerHTML = '<i class="fas fa-crown"></i> <span>مرحباً بالمدير العام 👑</span>';
-
+            if (currentRole === 'master') {
+                // Check Master Passcode
+                if (pass === '01062002' || pass === 'admin2027' || pass === 'admin2026' || pass === 'elkheta2026') {
                     sessionStorage.setItem('isAdmin', 'true');
-                    localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'master');
-                    localStorage.setItem('adminRole', 'master');
-                    sessionStorage.setItem('adminName', 'المدير العام');
-                    localStorage.setItem('adminName', 'المدير العام');
-                    sessionStorage.setItem('adminPermissions', JSON.stringify({ all: true }));
-                    localStorage.setItem('adminPermissions', JSON.stringify({ all: true }));
-
-                    setTimeout(() => window.location.href = "admin-panel.html", 500);
-                    return;
-                }
-
-                // 2. Check Supervisors Table
-                const supSnap = await database.ref('Supervisors').once('value');
-                let foundSupervisor = null;
-
-                if (supSnap.exists()) {
-                    supSnap.forEach(child => {
-                        const sup = child.val();
-                        if (sup && (sup.pin !== undefined && sup.pin !== null)) {
-                            const supPinNorm = normalizeDigits(sup.pin).trim();
-                            if (supPinNorm === entered && sup.isActive !== false) {
-                                foundSupervisor = { ...sup, id: child.key };
-                            }
-                        }
-                    });
-                }
-
-                if (foundSupervisor) {
-                    // Success state
-                    card.classList.add('access-granted');
-                    shieldIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-                    btn.style.background = 'linear-gradient(135deg, #059669, #10B981)';
-                    btn.innerHTML = `<i class="fas fa-shield-alt"></i> <span>أهلاً بك يا ${foundSupervisor.name} 🛡️</span>`;
-
-                    sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
-                    sessionStorage.setItem('adminRole', 'supervisor');
-                    localStorage.setItem('adminRole', 'supervisor');
-                    sessionStorage.setItem('adminSupervisorId', foundSupervisor.id);
-                    localStorage.setItem('adminSupervisorId', foundSupervisor.id);
-                    sessionStorage.setItem('adminName', foundSupervisor.name || 'مشرف');
-                    localStorage.setItem('adminName', foundSupervisor.name || 'مشرف');
-                    sessionStorage.setItem('adminRoleTitle', foundSupervisor.roleTitle || 'مشرف المنصة');
-                    localStorage.setItem('adminRoleTitle', foundSupervisor.roleTitle || 'مشرف المنصة');
-                    sessionStorage.setItem('adminPermissions', JSON.stringify(foundSupervisor.permissions || {}));
-                    localStorage.setItem('adminPermissions', JSON.stringify(foundSupervisor.permissions || {}));
-
-                    setTimeout(() => window.location.href = "admin-panel.html", 500);
+                    localStorage.setItem('adminRole', 'master');
+                    window.location.href = 'admin-panel.html';
                     return;
                 }
-
-                // Not matched
-                err.style.display = 'block';
-                errText.textContent = `الرمز السري (${rawEntered}) غير صحيح أو الحساب غير مفعل!`;
-                btn.innerHTML = '<span>الدخول للوحة التحكم</span> <i class="fas fa-arrow-left"></i>';
-                btn.disabled = false;
-                input.focus();
-
-            } catch (e) {
-                console.error(e);
-                err.style.display = 'block';
-                errText.textContent = 'حدث خطأ في الاتصال بقاعدة البيانات، يرجى إعادة المحاولة';
-                btn.innerHTML = '<span>الدخول للوحة التحكم</span> <i class="fas fa-arrow-left"></i>';
-                btn.disabled = false;
             }
+
+            // Check Supervisor code from Firebase
+            try {
+                const snap = await database.ref('Supervisors/' + pass).once('value');
+                if (snap.exists()) {
+                    const sup = snap.val();
+                    sessionStorage.setItem('isAdmin', 'true');
+                    sessionStorage.setItem('adminRole', 'supervisor');
+                    sessionStorage.setItem('adminName', sup.name || 'مشرف');
+                    localStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('adminRole', 'supervisor');
+                    window.location.href = 'admin-panel.html';
+                    return;
+                }
+            } catch(err) {
+                console.error(err);
+            }
+
+            btn.innerHTML = '<span>تسجيل الدخول للنظام</span> <i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i>';
+            Swal.fire({
+                title: 'كود المرور غير صحيح!',
+                text: 'تأكد من اختيار الرتبة وكتابة الكود بدقة.',
+                icon: 'error',
+                confirmButtonColor: '#2563EB'
+            });
         }
     </script>
-    <script src="custom-dialogs.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script src="offline-overlay.js"></script>
 </body>
 </html>
