@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تساؤلات واستفسارات الطلاب - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2.6">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #F8FAFC;
+            color: #1E293B;
+            margin: 0;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        body.dark-theme {
+            background: #0F172A;
+            color: #F8FAFC;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            padding: 30px 20px 55px;
+            color: white;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
+
+        body.dark-theme .header-gradient {
+            background: linear-gradient(135deg, #064E3B 0%, #047857 100%);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: #FFFFFF;
+            transition: all 0.2s;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+
+        .container {
+            max-width: 900px;
+            margin: -35px auto 0;
+            padding: 0 16px;
+        }
+
+        /* Ask Question Card */
+        .ask-card {
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+            border: 1.5px solid #E2E8F0;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 10;
+        }
+        body.dark-theme .ask-card {
+            background: #1E293B;
+            border-color: #334155;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            padding: 13px 16px;
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            color: #1E293B;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        body.dark-theme .form-select, 
+        body.dark-theme .form-input, 
+        body.dark-theme .form-textarea {
+            background: #0F172A;
+            border-color: #334155;
+            color: #F8FAFC;
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            border-color: #10B981;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+        }
+        body.dark-theme .form-select:focus,
+        body.dark-theme .form-input:focus,
+        body.dark-theme .form-textarea:focus {
+            background: #0F172A;
+            border-color: #34D399;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        /* Toolbar Actions */
+        .ask-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1.5px dashed #E2E8F0;
+        }
+        body.dark-theme .ask-actions-bar { border-color: #334155; }
+
+        .tools-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tool-btn {
+            background: #F1F5F9;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            color: #475569;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        body.dark-theme .tool-btn {
+            background: #0F172A;
+            border-color: #334155;
+            color: #CBD5E1;
+        }
+        .tool-btn:hover {
+            border-color: #10B981;
+            color: #059669;
+            background: #ECFDF5;
+            transform: translateY(-1px);
+        }
+        .tool-btn.recording {
+            background: #FEE2E2;
+            color: #DC2626;
+            border-color: #EF4444;
+            animation: pulseRecord 1s infinite alternate;
+        }
+        @keyframes pulseRecord {
+            from { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+            to { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+        }
+
+        .btn-submit-q {
+            background: linear-gradient(135deg, #059669, #10B981);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-submit-q:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
+
+        /* Media Preview Container */
+        .media-preview-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #F0FDF4;
+            border: 1.5px solid #BBF7D0;
+            padding: 10px 14px;
+            border-radius: 14px;
+            margin-top: 12px;
+        }
+        body.dark-theme .media-preview-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* Filter Tabs */
+        .filter-tabs-wrapper {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            scrollbar-width: none;
+        }
+        .filter-tabs-wrapper::-webkit-scrollbar { display: none; }
+
+        .tab-chip {
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748B;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        body.dark-theme .tab-chip {
+            background: #1E293B;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+        .tab-chip:hover { color: #10B981; border-color: #A7F3D0; }
+        .tab-chip.active {
+            background: #10B981;
+            color: #FFFFFF;
+            border-color: #10B981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Question Cards in Feed */
+        .questions-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .question-card {
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+        body.dark-theme .question-card {
+            background: #1E293B;
+            border-color: #334155;
+        }
+        .question-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+        }
+        .question-card.my-q {
+            border-color: #A7F3D0;
+            background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%);
+        }
+        body.dark-theme .question-card.my-q {
+            background: linear-gradient(180deg, rgba(16,185,129,0.08) 0%, #1E293B 100%);
+            border-color: rgba(16,185,129,0.3);
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .q-sender-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .q-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #EFF6FF;
+            color: #2563EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .q-sender-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1E293B;
+        }
+        body.dark-theme .q-sender-name { color: #F8FAFC; }
+        .q-meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .tag-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #F1F5F9;
+            color: #475569;
+            border: 1px solid #E2E8F0;
+        }
+        body.dark-theme .tag-pill {
+            background: #0F172A;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+        .tag-pill.subject { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+        .tag-pill.answered { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+        .tag-pill.pending { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
+
+        .q-body {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        body.dark-theme .q-body { color: #CBD5E1; }
+
+        .q-media-container img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid #E2E8F0;
+            margin-bottom: 10px;
+        }
+        .q-media-container audio {
+            width: 100%;
+            height: 38px;
+            margin-bottom: 10px;
+        }
+
+        /* Admin Reply Box */
+        .admin-reply-box {
+            background: #FFFDF5;
+            border: 1.5px solid #FCD34D;
+            border-right: 4px solid #F59E0B;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05);
+        }
+        body.dark-theme .admin-reply-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            border-right: 4px solid #F59E0B;
+        }
+
+        .admin-reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .admin-reply-badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .admin-reply-text {
+            font-size: 13.5px;
+            color: #78350F;
+            font-weight: 700;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        body.dark-theme .admin-reply-text { color: #FEF3C7; }
+
+        .btn-del-my-q {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .btn-del-my-q:hover { color: #DC2626; background: #FEE2E2; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #FFFFFF;
+            border-radius: 20px;
+            border: 1.5px dashed #CBD5E1;
+            color: #64748B;
+        }
+        body.dark-theme .empty-state {
+            background: #1E293B;
+            border-color: #334155;
+            color: #94A3B8;
+        }
+        .empty-state div { font-size: 45px; margin-bottom: 12px; }
+
+        /* Recording Live Bar */
+        .recording-live-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FEF2F2;
+            border: 1.5px solid #FECACA;
+            border-radius: 12px;
+            padding: 8px 14px;
+            margin-top: 10px;
+        }
+        body.dark-theme .recording-live-bar {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+
+    <div class="header-gradient">
+        <div class="header-top">
+            <a href="home.html" class="back-btn" title="العودة للرئيسية">⬅️</a>
+            <div style="text-align: center;">
+                <div style="font-size: 12px; font-weight: 700; opacity: 0.9; text-transform: uppercase;">مجتمع المنصة التفاعلي 🌟</div>
+                <div style="font-size: 20px; font-weight: 900; margin-top: 2px;">💬 تساؤلات واستفسارات الطلاب</div>
+            </div>
+            <div id="studentAvatarHeader" style="background: rgba(255,255,255,0.25); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;">🎓</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Ask Question Box -->
+        <div class="ask-card">
+            <div class="card-title-bar">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                    <span style="background: rgba(16,185,129,0.1); color: #10B981; padding: 6px; border-radius: 10px;">✍️</span> 
+                    طرح سؤال أو استفسار جديد
+                </h3>
+                <span id="userBadgeCode" style="font-size: 11px; background: #EEF2FF; color: #4F46E5; padding: 3px 8px; border-radius: 6px; font-weight: 800;">طالب</span>
+            </div>
+
+            <!-- Subject & Lecture Pickers -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 4px; display: block;">📚 المادة الدراسية</label>
+                    <select id="askSubjectSelect" class="form-select" onchange="onAskSubjectChange()">
+                        <option value="">اختر المادة...</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 4px; display: block;">📽️ المحاضرة أو الدرس (اختياري)</label>
+                    <select id="askLectureSelect" class="form-select">
+                        <option value="عام">تساؤل عام في المادة 📌</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Question Textarea -->
+            <textarea id="askQuestionText" class="form-textarea" placeholder="اكتب سؤالك أو استفسارك هنا بكل وضوح حتى يقوم المعلم بالرد عليك وتوضيحه... ✍️"></textarea>
+
+            <!-- Recording live bar -->
+            <div id="voiceRecordingLiveBar" class="recording-live-bar" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 8px; color: #DC2626; font-weight: 800; font-size: 13px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #DC2626; animation: pulseRecord 0.8s infinite;"></span>
+                    جاري تسجيل الصوت: <span id="recordingTimerDisplay" style="font-family: monospace; font-size: 15px;">00:00</span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" onclick="stopVoiceRecording(true)" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-family: inherit; font-size: 12px; cursor: pointer;">✔️ اعتماد</button>
+                    <button type="button" onclick="cancelVoiceRecording()" style="background: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-family: inherit; font-size: 12px; cursor: pointer;">❌ إلغاء</button>
+                </div>
+            </div>
+
+            <!-- Media Preview Attachment Box -->
+            <div id="mediaPreviewBox" class="media-preview-box" style="display: none;">
+                <div id="mediaPreviewContent" style="display: flex; align-items: center; gap: 10px;"></div>
+                <button type="button" onclick="clearMediaAttachment()" style="background: #FEE2E2; color: #DC2626; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">مسح 🗑️</button>
+            </div>
+
+            <!-- Actions Bar -->
+            <div class="ask-actions-bar">
+                <div class="tools-left">
+                    <input type="file" id="imageAttachmentInput" accept="image/*" style="display: none;" onchange="handleImageSelected(this)">
+                    <button type="button" class="tool-btn" onclick="document.getElementById('imageAttachmentInput').click()" title="إرفاق صورة">
+                        📷 <span>إرفاق صورة</span>
+                    </button>
+                    <button type="button" id="btnMicRecord" class="tool-btn" onclick="startVoiceRecording()" title="تسجيل صوتي">
+                        🎙️ <span>تسجيل صوتي</span>
+                    </button>
+                </div>
+                <button type="button" class="btn-submit-q" onclick="submitNewQuestion()">
+                    🚀 <span>نشر السؤال</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div>
+                <select id="filterSubjectSelect" class="form-select" onchange="filterQuestions()">
+                    <option value="">جميع المواد الدراسية 📚</option>
+                </select>
+            </div>
+            <div>
+                <select id="filterStatusSelect" class="form-select" onchange="filterQuestions()">
+                    <option value="all">جميع الحالات (الكل) 🌟</option>
+                    <option value="answered">تم الرد من المعلم ✅</option>
+                    <option value="pending">في انتظار الرد ⏳</option>
+                    <option value="my_questions">أسئلتي أنا فقط 🙋‍♂️</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Questions Feed -->
+        <div class="questions-feed" id="questionsFeedList">
+            <div class="empty-state">
+                <div>💬</div>
+                <h3>جاري تحميل تساؤلات الطلاب...</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
+        <a href="courses.html" class="nav-item">📖<br>المواد</a>
+        <a href="community.html" class="nav-item active">💬<br>الأسئلة</a>
+        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="toast.js"></script>
+
+    <script>
+        // Auth check
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user || (!user.studentCode && !user.code)) {
+            window.location.href = "index.html";
+        }
+
+        const studentCode = user.studentCode || user.code || 'student';
+        const studentName = user.fullName || user.name || 'طالب';
+
+        document.getElementById('userBadgeCode').textContent = `${studentName} (${studentCode})`;
+        const avatarEl = document.getElementById('studentAvatarHeader');
+        if (avatarEl) avatarEl.textContent = studentName.charAt(0) || '🎓';
+
+        let allLecturesMap = {}; // { subjectName: [ {id, title}, ... ] }
+        let allQuestionsList = []; // [ { key, subject, lectureId, ...data } ]
+
+        let pendingImageBase64 = null;
+        let pendingAudioBase64 = null;
+        let voiceRecorder = null;
+        let voiceChunks = [];
+        let voiceTimer = null;
+        let recordingSecs = 0;
+
+        // Load Subjects
+        database.ref('Subjects').on('value', snap => {
+            const askSelect = document.getElementById('askSubjectSelect');
+            const filterSelect = document.getElementById('filterSubjectSelect');
+            
+            askSelect.innerHTML = '<option value="">اختر المادة...</option>';
+            filterSelect.innerHTML = '<option value="">جميع المواد الدراسية 📚</option>';
+
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const sub = child.val();
+                    const name = sub.name || child.key;
+                    askSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                    filterSelect.innerHTML += `<option value="${name}">${name}</option>`;
+                });
+            }
+        });
+
+        // Load Lectures for Subject
+        database.ref('Lectures').on('value', snap => {
+            allLecturesMap = {};
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subName = subSnap.key;
+                    allLecturesMap[subName] = [];
+                    subSnap.forEach(lecSnap => {
+                        const lec = lecSnap.val();
+                        allLecturesMap[subName].push({
+                            id: lec.id || lecSnap.key,
+                            title: lec.title || 'محاضرة بدون عنوان'
+                        });
+                    });
+                });
+            }
+        });
+
+        function onAskSubjectChange() {
+            const sub = document.getElementById('askSubjectSelect').value;
+            const lecSelect = document.getElementById('askLectureSelect');
+            lecSelect.innerHTML = '<option value="عام">تساؤل عام في المادة 📌</option>';
+
+            if (sub && allLecturesMap[sub]) {
+                allLecturesMap[sub].forEach(lec => {
+                    lecSelect.innerHTML += `<option value="${lec.id}">${lec.title}</option>`;
+                });
+            }
+        }
+
+        // Image Attachment
+        function handleImageSelected(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                return showToast("يرجى اختيار صورة بحجم أقل من 5 ميجابايت 📷", "warning");
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                pendingImageBase64 = e.target.result;
+                showMediaPreview('image', pendingImageBase64);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Voice Recording
+        async function startVoiceRecording() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    return showToast("متصفحك لا يدعم تسجيل الصوت المباشر 🎙️", "warning");
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                voiceRecorder = new MediaRecorder(stream);
+                voiceChunks = [];
+
+                voiceRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) voiceChunks.push(e.data);
+                };
+
+                voiceRecorder.onstop = () => {
+                    const audioBlob = new Blob(voiceChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        pendingAudioBase64 = reader.result;
+                        showMediaPreview('audio', pendingAudioBase64);
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                voiceRecorder.start();
+                recordingSecs = 0;
+                document.getElementById('voiceRecordingLiveBar').style.display = 'flex';
+                document.getElementById('btnMicRecord').classList.add('recording');
+
+                clearInterval(voiceTimer);
+                voiceTimer = setInterval(() => {
+                    recordingSecs++;
+                    const m = Math.floor(recordingSecs / 60);
+                    const s = recordingSecs % 60;
+                    document.getElementById('recordingTimerDisplay').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                }, 1000);
+
+            } catch(err) {
+                console.error("Mic error:", err);
+                showToast("يرجى السماح بصلاحية الميكروفون لتسجيل سؤال صوتي 🎙️", "error");
+            }
+        }
+
+        function stopVoiceRecording() {
+            clearInterval(voiceTimer);
+            if (voiceRecorder && voiceRecorder.state !== 'inactive') {
+                voiceRecorder.stop();
+            }
+            document.getElementById('voiceRecordingLiveBar').style.display = 'none';
+            document.getElementById('btnMicRecord').classList.remove('recording');
+        }
+
+        function cancelVoiceRecording() {
+            clearInterval(voiceTimer);
+            if (voiceRecorder && voiceRecorder.state !== 'inactive') {
+                voiceRecorder.stop();
+            }
+            voiceChunks = [];
+            pendingAudioBase64 = null;
+            document.getElementById('voiceRecordingLiveBar').style.display = 'none';
+            document.getElementById('btnMicRecord').classList.remove('recording');
+        }
+
+        function showMediaPreview(type, dataUrl) {
+            const box = document.getElementById('mediaPreviewBox');
+            const content = document.getElementById('mediaPreviewContent');
+            if (!box || !content) return;
+
+            if (type === 'image') {
+                content.innerHTML = `
+                    <img src="${dataUrl}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1.5px solid #10B981;">
+                    <span style="font-size: 13px; color: #059669; font-weight: 800;">📷 تم إرفاق الصورة بنجاح</span>
+                `;
+            } else if (type === 'audio') {
+                content.innerHTML = `
+                    <span style="font-size: 20px;">🎙️</span>
+                    <audio controls src="${dataUrl}" style="height: 32px; max-width: 200px;"></audio>
+                    <span style="font-size: 12px; color: #059669; font-weight: 800;">تسجيل صوتي جاهز</span>
+                `;
+            }
+            box.style.display = 'flex';
+        }
+
+        function clearMediaAttachment() {
+            pendingImageBase64 = null;
+            pendingAudioBase64 = null;
+            const input = document.getElementById('imageAttachmentInput');
+            if (input) input.value = '';
+            const box = document.getElementById('mediaPreviewBox');
+            if (box) box.style.display = 'none';
+        }
+
+        // Submit Question
+        function submitNewQuestion() {
+            const subject = document.getElementById('askSubjectSelect').value;
+            const lectureId = document.getElementById('askLectureSelect').value || 'عام';
+            const text = document.getElementById('askQuestionText').value.trim();
+
+            if (!subject) {
+                return showToast("يرجى اختيار المادة الدراسية أولاً 📚", "warning");
+            }
+            if (!text && !pendingImageBase64 && !pendingAudioBase64) {
+                return showToast("يرجى كتابة نص السؤال أو تسجيل صوت أو إرفاق صورة ✍️", "warning");
+            }
+
+            let type = 'text';
+            let mediaUrl = '';
+            if (pendingAudioBase64) {
+                type = 'audio';
+                mediaUrl = pendingAudioBase64;
+            } else if (pendingImageBase64) {
+                type = 'image';
+                mediaUrl = pendingImageBase64;
+            }
+
+            // Find lecture title for display
+            let lectureTitle = 'تساؤل عام';
+            if (lectureId !== 'عام' && allLecturesMap[subject]) {
+                const found = allLecturesMap[subject].find(l => l.id === lectureId);
+                if (found) lectureTitle = found.title;
+            }
+
+            const payload = {
+                senderName: studentName,
+                senderCode: studentCode,
+                isAdmin: false,
+                text: text,
+                type: type,
+                mediaUrl: mediaUrl,
+                subject: subject,
+                lectureId: lectureId,
+                lectureTitle: lectureTitle,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref(`Community/${subject}/${lectureId}`).push(payload).then(() => {
+                showToast("تم نشر سؤالك بنجاح وسيتم إشعارك فور رد المعلم! 🎉", "success");
+                document.getElementById('askQuestionText').value = '';
+                clearMediaAttachment();
+            }).catch(err => {
+                console.error("Post error:", err);
+                showToast("حدث خطأ أثناء نشر السؤال", "error");
+            });
+        }
+
+        // Realtime Feed Listener
+        function loadAllQuestionsFeed() {
+            database.ref('Community').on('value', snap => {
+                allQuestionsList = [];
+                if (snap.exists()) {
+                    snap.forEach(subSnap => {
+                        const subName = subSnap.key;
+                        subSnap.forEach(lecSnap => {
+                            const lecId = lecSnap.key;
+                            lecSnap.forEach(msgSnap => {
+                                const msg = msgSnap.val();
+                                const msgKey = msgSnap.key;
+                                allQuestionsList.push({
+                                    key: msgKey,
+                                    subject: subName,
+                                    lectureId: lecId,
+                                    ...msg
+                                });
+                            });
+                        });
+                    });
+                }
+                allQuestionsList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                renderQuestionsFeed(allQuestionsList);
+            });
+        }
+
+        function filterQuestions() {
+            const subFilter = document.getElementById('filterSubjectSelect').value;
+            const statusFilter = document.getElementById('filterStatusSelect').value;
+
+            let filtered = allQuestionsList;
+
+            if (subFilter) {
+                filtered = filtered.filter(q => q.subject === subFilter);
+            }
+
+            if (statusFilter === 'my_questions') {
+                filtered = filtered.filter(q => q.senderCode === studentCode);
+            } else if (statusFilter === 'answered') {
+                filtered = filtered.filter(q => q.replies || q.isAdmin || (q.replies && Object.keys(q.replies).length > 0));
+            } else if (statusFilter === 'pending') {
+                filtered = filtered.filter(q => !q.replies && !q.isAdmin);
+            }
+
+            renderQuestionsFeed(filtered);
+        }
+
+        function renderQuestionsFeed(list) {
+            const feedContainer = document.getElementById('questionsFeedList');
+            feedContainer.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                feedContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div>💬</div>
+                        <h3 style="margin:0; font-size:16px;">لا توجد أسئلة مطابقة للبحث حالياً</h3>
+                        <p style="font-size:13px; margin-top:6px;">كن أول من يطرح سؤاله واستفساره بالأعلى!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach(q => {
+                const isMine = q.senderCode === studentCode;
+                const isAdminMsg = Boolean(q.isAdmin);
+                const hasReplies = q.replies && typeof q.replies === 'object' && Object.keys(q.replies).length > 0;
+
+                let dateStr = '';
+                if (q.timestamp) {
+                    const d = new Date(q.timestamp);
+                    dateStr = d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                }
+
+                let mediaHtml = '';
+                if (q.type === 'image' && q.mediaUrl) {
+                    mediaHtml = `
+                        <div class="q-media-container">
+                            <img src="${q.mediaUrl}" onclick="window.open('${q.mediaUrl}', '_blank')" alt="صورة توضيحية">
+                        </div>
+                    `;
+                } else if (q.type === 'audio' && q.mediaUrl) {
+                    mediaHtml = `
+                        <div class="q-media-container">
+                            <audio controls src="${q.mediaUrl}"></audio>
+                        </div>
+                    `;
+                }
+
+                let statusBadge = '';
+                if (hasReplies || isAdminMsg) {
+                    statusBadge = `<span class="tag-pill answered">✅ تم الرد من المعلم</span>`;
+                } else {
+                    statusBadge = `<span class="tag-pill pending">⏳ في انتظار رد الإدارة</span>`;
+                }
+
+                // Replies HTML
+                let repliesHtml = '';
+                if (hasReplies) {
+                    Object.values(q.replies).forEach(rep => {
+                        const repRoleTitle = rep.adminRoleTitle || 'رد الإدارة المعتمد';
+                        let repDate = rep.timestamp ? new Date(rep.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+                        
+                        let repMedia = '';
+                        if (rep.type === 'image' && rep.mediaUrl) {
+                            repMedia = `<img src="${rep.mediaUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 8px; cursor: pointer;" onclick="window.open('${rep.mediaUrl}')">`;
+                        } else if (rep.type === 'audio' && rep.mediaUrl) {
+                            repMedia = `<audio controls src="${rep.mediaUrl}" style="width: 100%; height: 34px; margin-top: 8px;"></audio>`;
+                        }
+
+                        repliesHtml += `
+                            <div class="admin-reply-box">
+                                <div class="admin-reply-header">
+                                    <span class="admin-reply-badge">👑 ${rep.senderName || 'الإدارة'} (${repRoleTitle})</span>
+                                    <span style="font-size: 11px; color: #94A3B8;">${repDate}</span>
+                                </div>
+                                ${rep.text ? `<div class="admin-reply-text">${rep.text}</div>` : ''}
+                                ${repMedia}
+                            </div>
+                        `;
+                    });
+                }
+
+                const deleteBtn = isMine ? `
+                    <button class="btn-del-my-q" onclick="deleteMyQuestion('${q.subject}', '${q.lectureId}', '${q.key}')" title="حذف سؤالي">
+                        🗑️
+                    </button>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = `question-card ${isMine ? 'my-q' : ''}`;
+                card.innerHTML = `
+                    <div class="q-header">
+                        <div class="q-sender-info">
+                            <div class="q-avatar">${(q.senderName || 'ط').charAt(0)}</div>
+                            <div>
+                                <div class="q-sender-name">${q.senderName || 'طالب'} ${isMine ? '<span style="font-size: 11px; color: #10B981; font-weight: bold;">(أنت)</span>' : ''}</div>
+                                <div class="q-meta-tags">
+                                    <span class="tag-pill subject">📚 ${q.subject}</span>
+                                    ${q.lectureTitle && q.lectureTitle !== 'تساؤل عام' ? `<span class="tag-pill">📽️ ${q.lectureTitle}</span>` : ''}
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">${dateStr}</span>
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                    ${q.text ? `<div class="q-body">${q.text}</div>` : ''}
+                    ${mediaHtml}
+                    ${repliesHtml}
+                `;
+                feedContainer.appendChild(card);
+            });
+        }
+
+        function deleteMyQuestion(subject, lectureId, key) {
+            Swal.fire({
+                title: "حذف السؤال؟",
+                text: "هل أنت متأكد من رغبتك في حذف سؤالك؟",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "نعم، احذف",
+                cancelButtonText: "إلغاء",
+                confirmButtonColor: "#EF4444"
+            }).then(r => {
+                if (r.isConfirmed) {
+                    database.ref(`Community/${subject}/${lectureId}/${key}`).remove().then(() => {
+                        showToast("تم حذف سؤالك بنجاح", "info");
+                    });
+                }
+            });
+        }
+
+        loadAllQuestionsFeed();
+    </script>
+</body>
+</html>

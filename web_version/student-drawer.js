@@ -275,19 +275,12 @@
                     <span class="elkheta-nav-badge">الدروس</span>
                 </a>
 
-                <a href="map.html" class="elkheta-nav-link ${isActive('map.html')}">
+                <a href="community.html" class="elkheta-nav-link ${isActive('community.html')}">
                     <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon">🗺️</span>
-                        <span>خريطة المنهج</span>
+                        <span class="elkheta-nav-icon">💬</span>
+                        <span>تساؤلات واستفسارات الطلاب</span>
                     </div>
-                </a>
-
-                <a href="planner.html" class="elkheta-nav-link ${isActive('planner.html')}">
-                    <div class="elkheta-nav-link-left">
-                        <span class="elkheta-nav-icon">📅</span>
-                        <span>منظم المذاكرة</span>
-                    </div>
-                    <span class="elkheta-nav-badge new">مهم ⚡</span>
+                    <span class="elkheta-nav-badge new">مباشر ✨</span>
                 </a>
 
                 <a href="mistakes.html" class="elkheta-nav-link ${isActive('mistakes.html')}">
