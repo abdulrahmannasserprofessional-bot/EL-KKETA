@@ -268,11 +268,14 @@
 
     window.installPWA = window.openInstallSheet;
 
-    // Render Floating Center Pill on Login Page
+    // Render Floating Center Pill on pages without inline install widget
     window.addEventListener('DOMContentLoaded', () => {
+        // If an inline .pwa-card-widget already exists on the page, don't create overlapping floating pill
+        if (document.querySelector('.pwa-card-widget')) return;
+
         if (!isStandalone && (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/'))) {
             // Remove any old buttons if present
-            document.querySelectorAll('.pwa-floating-btn').forEach(e => e.remove());
+            document.querySelectorAll('.pwa-floating-btn, .pwa-floating-center').forEach(e => e.remove());
             
             const pill = document.createElement('div');
             pill.className = 'pwa-floating-center';

@@ -1,185 +1,374 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="الخطة">
-    <link rel="apple-touch-icon" href="icons/icon.svg">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELKHETA - تسجيل الدخول</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#3B82F6">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192?text=🎓">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="mysql-api.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
+            --primary: #3B82F6;
+            --primary-dark: #1D4ED8;
+            --gradient: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #60A5FA 100%);
             --text-main: #FFFFFF;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: #F0F4FF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: #0F172A;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
             overflow-x: hidden;
+            position: relative;
         }
 
+        /* Top Background Gradient Effect */
         .gradient-top {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0; right: 0;
-            height: 45vh;
-            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
-            z-index: 0;
+            height: 380px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 50%, #3B82F6 100%);
             border-radius: 0 0 50px 50px;
+            z-index: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
+        /* Top Navbar */
+        .landing-navbar {
+            width: 100%;
+            max-width: 950px;
+            padding: 20px 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .brand-logo-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            backdrop-filter: blur(8px);
+        }
+
+        .brand-name-text {
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.1;
+        }
+        .brand-sub-text {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+
+        .nav-menu-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+        .nav-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Center Login Container */
         .login-container {
             width: 100%;
+            max-width: 430px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+            margin: auto 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
-            z-index: 10;
-            padding: 20px;
-        }
-
-        .brand-title {
-            font-size: 34px;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: 2px;
-            margin-bottom: 50px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.15);
         }
 
         .login-card {
-            background: white;
+            background: #FFFFFF;
             width: 100%;
-            max-width: 390px;
-            padding: 40px 30px 35px;
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(9, 132, 227, 0.15);
+            border-radius: 28px;
+            padding: 35px 28px 25px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
             text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: cardAppear 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
         }
 
-        .logo-circle {
-            width: 85px;
-            height: 85px;
-            background: linear-gradient(135deg, #74b9ff, #0984E3);
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(25px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .card-logo-badge {
+            width: 74px;
+            height: 74px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
             border-radius: 22px;
-            margin: -75px auto 20px;
+            margin: -65px auto 16px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 42px;
-            box-shadow: 0 10px 25px rgba(9, 132, 227, 0.3);
-            border: 4px solid white;
+            justify-content: center;
+            font-size: 34px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+            border: 4px solid #FFFFFF;
         }
 
         .login-card h2 {
             font-size: 22px;
-            font-weight: 800;
-            color: #2D3436;
-            margin-bottom: 6px;
+            font-weight: 900;
+            color: #1E293B;
+            margin-bottom: 4px;
         }
 
         .login-card p {
-            color: #636E72;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #EEF2FF;
-            border-radius: 16px;
-            background: #F8F9FF;
-            font-family: 'Cairo', sans-serif;
-            text-align: center;
-            font-size: 17px;
-            color: #2D3436;
-            outline: none;
-            transition: all 0.3s ease;
+            color: #64748B;
+            font-size: 13.5px;
+            font-weight: 600;
             margin-bottom: 20px;
         }
 
-        input:focus {
-            border-color: #0984E3;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(9, 132, 227, 0.1);
+        /* Recent Account Fast Login Chip */
+        .recent-account-chip {
+            background: #EEF2FF;
+            border: 1px dashed #818CF8;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: right;
+        }
+        .recent-account-chip:hover {
+            background: #E0E7FF;
+            transform: translateY(-1px);
         }
 
-        input::placeholder { color: #B2BEFF; }
+        .input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 18px;
+        }
 
-        button {
+        .student-code-input {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #74b9ff, #0984E3);
-            color: var(--text-main);
+            padding: 15px 46px 15px 16px;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            background: #F8FAFC;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 800;
+            color: #1E293B;
+            outline: none;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+        }
+        .student-code-input:focus {
+            border-color: #3B82F6;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+        .student-code-input::placeholder {
+            color: #94A3B8;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: none;
+        }
+
+        .btn-login-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            color: #FFFFFF;
             border: none;
             border-radius: 16px;
-            font-weight: 800;
-            font-size: 18px;
+            font-weight: 900;
+            font-size: 17px;
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(9, 132, 227, 0.35);
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+        .btn-login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.45);
+        }
+        .btn-login-submit:active { transform: translateY(0); }
 
-        button:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(9,132,227,0.45); }
-        button:active { transform: translateY(0); }
+        .links-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+        }
 
         .register-link {
-            color: #0984E3;
-            font-weight: 700;
+            color: #2563EB;
+            font-weight: 800;
             text-decoration: none;
-            margin-top: 22px;
-            display: block;
-            font-size: 15px;
+            font-size: 14px;
             transition: color 0.2s;
+            display: inline-block;
         }
-        .register-link:hover { color: #0652DD; }
+        .register-link:hover { color: #1D4ED8; text-decoration: underline; }
 
-        .version-text {
-            color: #B2BEC3;
-            margin-top: 30px;
-            font-size: 13px;
+        .admin-link-pill {
+            color: #64748B;
+            font-size: 12.5px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: #F1F5F9;
+            border-radius: 12px;
+            transition: all 0.2s;
+            margin: 0 auto;
+        }
+        .admin-link-pill:hover {
+            color: #1E293B;
+            background: #E2E8F0;
+        }
+
+        /* In-Card PWA Section */
+        .pwa-integrated-box {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            border-radius: 18px;
+            padding: 12px 14px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pwa-integrated-box:hover {
+            transform: translateY(-2px);
+            border-color: #818CF8;
+            box-shadow: 0 8px 20px rgba(49, 46, 129, 0.4);
+        }
+        .pwa-install-btn {
+            background: #FFFFFF;
+            color: #312E81;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 900;
+            font-family: 'Cairo';
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Footer Info */
+        .landing-footer {
+            width: 100%;
+            max-width: 950px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #64748B;
+            font-size: 12px;
+            font-weight: 700;
+            position: relative;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .support-float-btn {
+            background: rgba(37, 211, 102, 0.15);
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            color: #25D366;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .support-float-btn:hover {
+            background: #25D366;
+            color: white;
+            transform: translateY(-2px);
         }
 
         /* Toast */
         #toast {
             visibility: hidden;
             min-width: 260px;
-            background: white;
-            color: #2D3436;
+            background: #1E293B;
+            color: #FFFFFF;
             text-align: center;
             border-radius: 16px;
             padding: 14px 20px;
             position: fixed;
-            z-index: 999;
+            z-index: 99999;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             opacity: 0;
             transition: all 0.35s cubic-bezier(0.68,-0.55,0.265,1.55);
             font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-            border: 1.5px solid #EEF2FF;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border: 1px solid #475569;
         }
         #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+
         /* Drawer Styling */
         .drawer {
             position: fixed;
@@ -188,41 +377,39 @@
             width: 300px;
             height: 100%;
             background: white;
-            z-index: 5000;
+            z-index: 50000;
             transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
             border-left: 1px solid #EEF2FF;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            direction: rtl;
         }
         .drawer.active { right: 0; }
 
         .drawer-header {
-            background: linear-gradient(135deg, #74b9ff 0%, #0984E3 100%);
-            padding: 30px 20px 20px 20px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 100%);
+            padding: 30px 20px 20px;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             border-radius: 0 0 25px 25px;
             margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(9, 132, 227, 0.2);
-            flex-shrink: 0;
         }
 
         .drawer-item {
-            padding: 16px 25px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 15px;
+            font-size: 14px;
             color: #2D3436;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin: 4px 15px;
+            margin: 4px 12px;
             border-radius: 12px;
         }
         .drawer-item:hover {
@@ -232,55 +419,32 @@
         }
         .overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 4000;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 40000;
             display: none;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(4px);
         }
         .overlay.active { display: block; }
-        
-        .menu-btn {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            font-size: 20px;
-            cursor: pointer;
-            background: rgba(255,255,255,0.25);
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            color: var(--text-main);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
 
         /* Custom Notification Modal */
         .notif-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            z-index: 9000; display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            z-index: 90000; display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .notif-modal-overlay.active { opacity: 1; visibility: visible; }
         .notif-modal {
-            background: white; border-radius: 28px; padding: 35px 25px; width: 85%; max-width: 340px;
-            text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            background: white; border-radius: 28px; padding: 35px 25px; width: 88%; max-width: 340px;
+            text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
             transform: translateY(30px) scale(0.9); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .notif-modal-overlay.active .notif-modal { transform: translateY(0) scale(1); }
         .notif-icon {
-            width: 75px; height: 75px; background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+            width: 68px; height: 68px; background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 38px; margin: 0 auto 18px; box-shadow: 0 10px 25px rgba(255,154,158,0.4);
+            font-size: 32px; margin: 0 auto 16px; box-shadow: 0 10px 25px rgba(255,154,158,0.4);
             animation: ring 2s ease infinite;
         }
         @keyframes ring {
@@ -291,92 +455,139 @@
             40% { transform: rotate(-5deg); }
             50% { transform: rotate(0deg); }
         }
-        .notif-title { font-size: 19px; font-weight: 800; color: #1E293B; margin-bottom: 10px; }
-        .notif-desc { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 25px; }
+        .notif-title { font-size: 18px; font-weight: 800; color: #1E293B; margin-bottom: 8px; }
+        .notif-desc { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 22px; }
         .notif-btn-primary {
-            background: linear-gradient(135deg, #0984E3, #74B9FF); color: white; border: none;
-            padding: 14px 20px; border-radius: 14px; font-weight: 800; width: 100%; font-size: 15px;
-            margin-bottom: 12px; cursor: pointer; box-shadow: 0 8px 20px rgba(9,132,227,0.3); transition: all 0.2s;
+            background: linear-gradient(135deg, #1E3A8A, #3B82F6); color: white; border: none;
+            padding: 13px 20px; border-radius: 14px; font-weight: 800; width: 100%; font-size: 14px;
+            margin-bottom: 10px; cursor: pointer; box-shadow: 0 8px 20px rgba(59,130,246,0.3); transition: all 0.2s;
+            font-family: 'Cairo';
         }
-        .notif-btn-primary:active { transform: scale(0.95); }
         .notif-btn-secondary {
             background: transparent; color: #94A3B8; border: none; font-weight: 700;
-            padding: 10px; width: 100%; cursor: pointer; font-size: 14px; transition: color 0.2s;
+            padding: 8px; width: 100%; cursor: pointer; font-size: 13px; font-family: 'Cairo';
         }
-        .notif-btn-secondary:hover { color: #475569; }
 
-        /* Subscribed Badge */
         .subscribed-badge {
-            background: #F0FDF4; color: #166534; padding: 12px 15px; border-radius: 14px;
-            font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px;
-            margin-bottom: 20px; border: 1px solid #BBF7D0; text-align: right; line-height: 1.5;
+            background: #F0FDF4; color: #166534; padding: 10px 14px; border-radius: 12px;
+            font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+            margin-bottom: 16px; border: 1px solid #BBF7D0; text-align: right; line-height: 1.4;
         }
     </style>
 </head>
 <body>
-    <!-- Custom Notification Request Modal -->
+
+    <!-- Notification Request Modal -->
     <div class="notif-modal-overlay" id="notifModal">
         <div class="notif-modal">
             <div class="notif-icon">🔔</div>
-            <div class="notif-title">لا تفوت أي محاضرة!</div>
-            <div class="notif-desc">اشترك الآن في الإشعارات المجانية لتصلك رسالة فورية عند إضافة أي محاضرة أو امتحان جديد.</div>
-            <button class="notif-btn-primary" onclick="requestNativePermission()">نعم، أريد تفعيل الإشعارات</button>
+            <div class="notif-title">لا تفوت أي محاضرة جديدة!</div>
+            <div class="notif-desc">اشترك الآن في الإشعارات المجانية لتصلك رسالة فورية عند رفع أي محاضرة أو امتحان جديد.</div>
+            <button class="notif-btn-primary" onclick="requestNativePermission()">تفعيل الإشعارات فوراً ✔</button>
             <button class="notif-btn-secondary" onclick="closeNotifModal()">ليس الآن</button>
         </div>
     </div>
 
+    <!-- Top Gradient Arch -->
     <div class="gradient-top"></div>
     
-    <div id="openDrawer" class="menu-btn">☰</div>
-
-    <div class="login-container">
-        <div class="brand-title" style="margin-bottom: 20px;">
-            <!-- Logo placeholder -->
+    <!-- Navbar Header -->
+    <header class="landing-navbar">
+        <div class="brand-logo-wrap">
+            <div class="brand-logo-icon">🎓</div>
+            <div>
+                <div class="brand-name-text">ELKHETA</div>
+                <div class="brand-sub-text">منصة الخطة التعليمية الذكية</div>
+            </div>
         </div>
+        <button id="openDrawer" class="nav-menu-btn" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
 
+    <!-- Centered Card Container -->
+    <main class="login-container">
         <div class="login-card">
-            <div class="logo-circle">🎓</div>
+            <div class="card-logo-badge">🎓</div>
             <h2>تسجيل الدخول</h2>
-            <p>أدخل كود الطالب للمتابعة</p>
+            <p>أدخل كود حسابك للمتابعة والوصول لمحاضراتك</p>
 
-            <input type="text" id="studentCode" placeholder="كود الطالب (مثال: KH1234)"
-                   onkeypress="if(event.key==='Enter') login()">
+            <!-- Quick Auto-detect Account Chip -->
+            <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">👤</span>
+                    <div>
+                        <div style="font-size: 12px; font-weight: 800; color: #3730A3;" id="recentAccountName">مرحباً بعودتك!</div>
+                        <div style="font-size: 11px; color: #6366F1;" id="recentAccountCode">الكود: ---</div>
+                    </div>
+                </div>
+                <span style="font-size: 11px; font-weight: 900; color: #4F46E5;">دخول سريع ⬅️</span>
+            </div>
 
-            <button onclick="login()">دخول للمنصة 🚀</button>
-            <a href="register.html" class="register-link">لا تملك كود؟ اشترك الآن</a>
-            <div style="margin-top: 12px;">
-                <a href="admin-gate.html" style="color: #636E72; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #F4F7FE; border-radius: 10px; transition: all 0.2s;" onmouseover="this.style.color='#0984E3'; this.style.background='#EEF2FF';" onmouseout="this.style.color='#636E72'; this.style.background='#F4F7FE';">
-                    <span>🔐</span> دخول الإدارة والمشرفين
+            <div class="input-wrap">
+                <i class="fa-solid fa-key input-icon"></i>
+                <input type="text" id="studentCode" class="student-code-input" placeholder="كود الطالب (مثال: KH1234)"
+                       onkeypress="if(event.key==='Enter') login()">
+            </div>
+
+            <button class="btn-login-submit" id="btnLogin" onclick="login()">
+                <span>دخول للمنصة</span>
+                <i class="fa-solid fa-rocket"></i>
+            </button>
+            
+            <div class="links-row">
+                <a href="register.html" class="register-link">لا تملك كود؟ اشترك وسجل حساباً جديداً 📝</a>
+                <a href="admin-gate.html" class="admin-link-pill">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>بوابة دخول الإدارة والمشرفين</span>
                 </a>
             </div>
 
-            <!-- Sleek In-Card PWA Install Widget -->
-            <div class="pwa-card-widget" onclick="installPWA()">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:24px;">📲</span>
+            <!-- In-Card Integrated PWA Widget -->
+            <div class="pwa-integrated-box pwa-card-widget" onclick="installPWA()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📲</span>
                     <div>
-                        <div style="font-weight:900; font-size:13px;">تثبيت تطبيق الخطة</div>
-                        <div style="font-size:11px; opacity:0.85;">وصول أسرع وتجربة تطبيق متكاملة</div>
+                        <div style="font-weight: 900; font-size: 12px;">تثبيت تطبيق الخطة على جهازك</div>
+                        <div style="font-size: 10.5px; opacity: 0.85;">وصول أسرع وتجربة تطبيق متكاملة</div>
                     </div>
                 </div>
-                <button class="pwa-card-widget-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
+                <button class="pwa-install-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
             </div>
         </div>
-        <p class="version-text">Version 5.0.0</p>
-    </div>
+    </main>
+
+    <!-- Bottom Footer -->
+    <footer class="landing-footer">
+        <div>ELKHETA Educational Platform © 2026</div>
+        <a href="https://wa.me/201158210358" target="_blank" class="support-float-btn">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>تواصل مع الدعم الفني</span>
+        </a>
+    </footer>
 
     <!-- Drawer HTML -->
     <div id="drawer" class="drawer">
         <div class="drawer-header">
-            <div style="font-size: 45px; margin-bottom: 5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">🎓</div>
-            <div style="font-weight: 800; font-size: 20px;">ELKHETA</div>
-            <div style="font-size: 13px; opacity: 0.9;">منصة الخطة التعليمية</div>
+            <div style="font-size: 40px; margin-bottom: 4px;">🎓</div>
+            <div style="font-weight: 900; font-size: 18px;">منصة الخطة التعليمية</div>
+            <div style="font-size: 12px; opacity: 0.9;">بوابتك الذكية للتعلم والتفوق</div>
         </div>
-        <div class="drawer-item" onclick="location.href='admin-gate.html'" style="color:#0984E3; font-weight:800; background:#F0F4FF; border-radius:12px; margin-bottom:8px;"><span>🔐</span> لوحة الإدارة</div>
-        <div class="drawer-item" onclick="installPWA()" style="color:#4F46E5; font-weight:800; background:#EEF2FF; border-radius:12px; margin-bottom:8px;"><span>📲</span> تثبيت التطبيق على جهازك</div>
-        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')"><span>📞</span> تواصل مع الدعم</div>
-        <div class="drawer-item" onclick="window.open('https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn')"><span>💬</span> جروب الاستفسارات</div>
-        <div class="drawer-item" onclick="location.href='privacy.html'"><span>📜</span> سياسة الخصوصية</div>
+        <div class="drawer-item" onclick="location.href='admin-gate.html'" style="color:#2563EB; font-weight:800; background:#EFF6FF; border-radius:12px; margin-bottom:6px;">
+            <span>🔐</span> لوحة الإدارة والمشرفين
+        </div>
+        <div class="drawer-item" onclick="installPWA()" style="color:#7C3AED; font-weight:800; background:#F5F3FF; border-radius:12px; margin-bottom:6px;">
+            <span>📲</span> تثبيت التطبيق على جهازك
+        </div>
+        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')">
+            <span>📞</span> تواصل مع الدعم الفني
+        </div>
+        <div class="drawer-item" onclick="window.open('https://chat.whatsapp.com/DkMNxi1wDq3APscsSGBoFn')">
+            <span>💬</span> جروب الاستفسارات والأسئلة
+        </div>
+        <div class="drawer-item" onclick="location.href='privacy.html'">
+            <span>📜</span> سياسة الخصوصية
+        </div>
     </div>
     <div id="overlay" class="overlay"></div>
 
@@ -408,6 +619,35 @@
             else toast.style.borderBottomColor = '#0984E3';
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Auto-detect returning student
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedCode = localStorage.getItem('studentCode');
+            let savedUser = null;
+            try {
+                savedUser = JSON.parse(localStorage.getItem('user'));
+            } catch(e){}
+
+            if (savedCode) {
+                const chip = document.getElementById('recentAccountChip');
+                const nameEl = document.getElementById('recentAccountName');
+                const codeEl = document.getElementById('recentAccountCode');
+                if (chip && nameEl && codeEl) {
+                    const studentName = (savedUser && (savedUser.fullName || savedUser.full_name)) ? (savedUser.fullName || savedUser.full_name) : 'طالب الخطة';
+                    nameEl.textContent = `مرحباً بعودتك: ${studentName}`;
+                    codeEl.textContent = `الكود المحفوظ: ${savedCode}`;
+                    chip.style.display = 'flex';
+                }
+            }
+        });
+
+        function loginWithRecentCode() {
+            const savedCode = localStorage.getItem('studentCode');
+            if (savedCode) {
+                document.getElementById('studentCode').value = savedCode;
+                login();
+            }
         }
 
         // Push Notifications Logic
