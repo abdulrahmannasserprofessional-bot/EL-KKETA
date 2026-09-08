@@ -219,7 +219,8 @@
             <div class="item-label">الدروس والامتحانات</div>
             <div class="item-desc">رفع الدروس، الامتحانات، والملخصات</div>
         </div>
-        <div class="admin-item yellow" data-perm="lessons" onclick="location.href='admin-community.html'">
+        <div class="admin-item yellow" data-perm="lessons" onclick="location.href='admin-community.html'" style="position: relative;">
+            <div id="communityUnansweredBadge" style="display: none; position: absolute; top: 12px; left: 12px; background: #EF4444; color: white; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 900; box-shadow: 0 2px 8px rgba(239,68,68,0.5);">0 جديد 🔴</div>
             <div class="item-icon" style="background: #FFFBEB; color: #D97706;">💬</div>
             <div class="item-label">تساؤلات وأسئلة الطلاب</div>
             <div class="item-desc">الرد على استفسارات الطلاب (صوت، صورة، نص)</div>
@@ -341,6 +342,33 @@
                 });
             }
             document.getElementById('statResults').textContent = total;
+        });
+
+        // Listen to Community for unanswered questions badge
+        database.ref('Community').on('value', snap => {
+            let unanswered = 0;
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    subSnap.forEach(lecSnap => {
+                        lecSnap.forEach(msgSnap => {
+                            const msg = msgSnap.val();
+                            if (msg && !msg.isAdmin && msg.senderCode !== 'admin') {
+                                const hasReplies = msg.replies && typeof msg.replies === 'object' && Object.keys(msg.replies).length > 0;
+                                if (!hasReplies) unanswered++;
+                            }
+                        });
+                    });
+                });
+            }
+            const b = document.getElementById('communityUnansweredBadge');
+            if (b) {
+                if (unanswered > 0) {
+                    b.textContent = `${unanswered} جديد 🔴`;
+                    b.style.display = 'block';
+                } else {
+                    b.style.display = 'none';
+                }
+            }
         });
     </script>
     <script src="custom-dialogs.js"></script>
