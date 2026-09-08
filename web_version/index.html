@@ -15,14 +15,16 @@
         :root {
             --primary: #3B82F6;
             --primary-dark: #1D4ED8;
-            --gradient: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #60A5FA 100%);
+            --accent: #818CF8;
+            --bg-dark: #0B0F19;
+            --card-bg: #FFFFFF;
             --text-main: #FFFFFF;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: #0F172A;
+            background: #0B0F19;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -30,29 +32,61 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
+            color: #F8FAFC;
         }
 
-        /* Top Background Gradient Effect */
-        .gradient-top {
+        /* Ambient Glowing Backdrop Blobs */
+        .ambient-glow-1 {
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 380px;
-            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 50%, #3B82F6 100%);
-            border-radius: 0 0 50px 50px;
+            top: -120px;
+            right: -80px;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(30, 27, 75, 0) 70%);
             z-index: 0;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            filter: blur(40px);
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: -100px;
+            left: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(50px);
+            animation: pulseGlow 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.9) translate(0, 0); opacity: 0.7; }
+            100% { transform: scale(1.15) translate(30px, 20px); opacity: 1; }
+        }
+
+        /* Subtle grid lines */
+        .bg-grid-pattern {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 28px 28px;
+            z-index: 0;
+            pointer-events: none;
         }
 
         /* Top Navbar */
         .landing-navbar {
             width: 100%;
-            max-width: 950px;
-            padding: 20px 20px 0;
+            max-width: 1240px;
+            padding: 24px 24px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
-            z-index: 10;
+            z-index: 20;
         }
 
         .brand-logo-wrap {
@@ -64,38 +98,75 @@
         }
 
         .brand-logo-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.18);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            backdrop-filter: blur(8px);
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
         }
 
         .brand-name-text {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 900;
             color: #FFFFFF;
+            letter-spacing: 0.5px;
             line-height: 1.1;
         }
         .brand-sub-text {
-            font-size: 11.5px;
-            color: rgba(255, 255, 255, 0.85);
-            font-weight: 600;
+            font-size: 11px;
+            color: #94A3B8;
+            font-weight: 700;
+        }
+
+        .nav-actions-desktop {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-pill-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #F1F5F9;
+            padding: 8px 18px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+        }
+        .nav-pill-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .nav-pill-btn.primary {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            border: none;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+        }
+        .nav-pill-btn.primary:hover {
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
         }
 
         .nav-menu-btn {
-            background: rgba(255, 255, 255, 0.18);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 14px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -104,33 +175,158 @@
             transition: all 0.2s;
         }
         .nav-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Center Login Container */
-        .login-container {
+        /* Main Showcase 2-Column Grid */
+        .landing-main-grid {
             width: 100%;
-            max-width: 430px;
-            padding: 20px;
+            max-width: 1240px;
+            padding: 30px 24px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 50px;
+            align-items: center;
             position: relative;
             z-index: 10;
             margin: auto 0;
+        }
+
+        /* Hero Showcase Column */
+        .hero-showcase-col {
             display: flex;
             flex-direction: column;
+            gap: 24px;
+            text-align: right;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
             align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            color: #93C5FD;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12.5px;
+            font-weight: 800;
+            width: fit-content;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.35;
+            color: #FFFFFF;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #38BDF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero-description {
+            font-size: 16px;
+            color: #94A3B8;
+            line-height: 1.7;
+            font-weight: 600;
+            max-width: 580px;
+        }
+
+        /* Quick Stats 4-Grid */
+        .hero-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 5px;
+        }
+
+        .hero-stat-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 16px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.25s ease;
+        }
+        .hero-stat-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+            background: rgba(30, 41, 59, 0.75);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .stat-num {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFFFFF;
+        }
+        .stat-label {
+            font-size: 11.5px;
+            color: #94A3B8;
+            font-weight: 700;
+        }
+
+        /* Features Highlights List */
+        .hero-features-strip {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            color: #CBD5E1;
+            font-weight: 700;
+        }
+        .hero-feature-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #38BDF8;
+            box-shadow: 0 0 10px #38BDF8;
+        }
+
+        /* Login Card Column */
+        .login-card-col {
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
 
         .login-card {
             background: #FFFFFF;
             width: 100%;
-            border-radius: 28px;
-            padding: 35px 28px 25px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            max-width: 440px;
+            border-radius: 30px;
+            padding: 40px 32px 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
             text-align: center;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            animation: cardAppear 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            animation: cardAppear 0.6s cubic-bezier(0.34, 1.2, 0.64, 1);
+            color: #1E293B;
         }
 
         @keyframes cardAppear {
@@ -139,40 +335,41 @@
         }
 
         .card-logo-badge {
-            width: 74px;
-            height: 74px;
+            width: 78px;
+            height: 78px;
             background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            border-radius: 22px;
-            margin: -65px auto 16px;
+            border-radius: 24px;
+            margin: -74px auto 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+            font-size: 36px;
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
             border: 4px solid #FFFFFF;
         }
 
         .login-card h2 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 900;
-            color: #1E293B;
-            margin-bottom: 4px;
+            color: #0F172A;
+            margin-bottom: 6px;
         }
 
         .login-card p {
             color: #64748B;
             font-size: 13.5px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+            line-height: 1.5;
         }
 
         /* Recent Account Fast Login Chip */
         .recent-account-chip {
             background: #EEF2FF;
-            border: 1px dashed #818CF8;
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin-bottom: 16px;
+            border: 1.5px dashed #818CF8;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
             display: none;
             align-items: center;
             justify-content: space-between;
@@ -182,12 +379,13 @@
         }
         .recent-account-chip:hover {
             background: #E0E7FF;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            border-color: #6366F1;
         }
 
         .input-wrap {
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         .input-icon {
             position: absolute;
@@ -200,7 +398,7 @@
 
         .student-code-input {
             width: 100%;
-            padding: 15px 46px 15px 16px;
+            padding: 16px 48px 16px 16px;
             border: 2px solid #E2E8F0;
             border-radius: 16px;
             background: #F8FAFC;
@@ -217,12 +415,6 @@
             border-color: #3B82F6;
             background: #FFFFFF;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-        }
-        .student-code-input::placeholder {
-            color: #94A3B8;
-            font-size: 14px;
-            font-weight: 600;
-            text-transform: none;
         }
 
         .btn-login-submit {
@@ -252,8 +444,8 @@
         .links-row {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 18px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .register-link {
@@ -275,7 +467,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 7px 16px;
+            padding: 8px 16px;
             background: #F1F5F9;
             border-radius: 12px;
             transition: all 0.2s;
@@ -288,7 +480,7 @@
 
         /* In-Card PWA Section */
         .pwa-integrated-box {
-            margin-top: 20px;
+            margin-top: 22px;
             background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
             border: 1px solid rgba(129, 140, 248, 0.3);
             border-radius: 18px;
@@ -323,113 +515,139 @@
         /* Footer Info */
         .landing-footer {
             width: 100%;
-            max-width: 950px;
-            padding: 15px 20px;
+            max-width: 1240px;
+            padding: 20px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             color: #64748B;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
             position: relative;
             z-index: 10;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .support-float-btn {
             background: rgba(37, 211, 102, 0.15);
             border: 1px solid rgba(37, 211, 102, 0.3);
             color: #25D366;
-            padding: 6px 14px;
+            padding: 7px 16px;
             border-radius: 20px;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             transition: all 0.2s;
         }
+        .support-float-btn:hover {
+            background: #25D366;
+            color: white;
+            transform: translateY(-2px);
+        }
+
         /* Responsive Mobile Tuning */
+        @media (max-width: 991px) {
+            .nav-actions-desktop {
+                display: none;
+            }
+            .nav-menu-btn {
+                display: flex;
+            }
+            .landing-main-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                padding: 20px 16px 30px;
+                margin: 10px 0;
+            }
+            .login-card-col {
+                order: 1;
+            }
+            .hero-showcase-col {
+                order: 2;
+                text-align: center;
+                align-items: center;
+            }
+            .hero-title {
+                font-size: 28px;
+            }
+            .hero-description {
+                font-size: 14px;
+            }
+            .hero-stats-grid {
+                width: 100%;
+            }
+            .hero-features-strip {
+                align-items: center;
+            }
+        }
+
         @media (max-width: 520px) {
-            body {
-                padding: 0;
-            }
-            .gradient-top {
-                height: 280px;
-                border-radius: 0 0 35px 35px;
-            }
             .landing-navbar {
                 padding: 16px 16px 0;
             }
             .brand-logo-icon {
-                width: 38px;
-                height: 38px;
-                font-size: 18px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
                 border-radius: 12px;
             }
             .brand-name-text {
-                font-size: 17px;
+                font-size: 18px;
             }
             .brand-sub-text {
                 font-size: 10px;
             }
             .nav-menu-btn {
-                width: 38px;
-                height: 38px;
+                width: 40px;
+                height: 40px;
                 font-size: 16px;
                 border-radius: 12px;
             }
-            .login-container {
-                width: 100%;
-                max-width: 100%;
-                padding: 16px;
-                margin: 20px 0 10px;
-            }
             .login-card {
-                padding: 30px 18px 20px;
+                padding: 32px 18px 22px;
                 border-radius: 24px;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
             }
             .card-logo-badge {
-                width: 64px;
-                height: 64px;
-                font-size: 28px;
-                margin: -54px auto 12px;
-                border-radius: 18px;
+                width: 66px;
+                height: 66px;
+                font-size: 30px;
+                margin: -58px auto 14px;
+                border-radius: 20px;
                 border-width: 3px;
             }
             .login-card h2 {
-                font-size: 20px;
+                font-size: 21px;
             }
             .login-card p {
                 font-size: 12.5px;
-                margin-bottom: 16px;
+                margin-bottom: 18px;
             }
             .student-code-input {
                 font-size: 15px;
-                padding: 13px 42px 13px 12px;
+                padding: 14px 42px 14px 12px;
                 border-radius: 14px;
             }
             .btn-login-submit {
-                font-size: 15.5px;
-                padding: 13px;
+                font-size: 16px;
+                padding: 14px;
                 border-radius: 14px;
             }
+            .hero-stats-grid {
+                grid-template-columns: 1fr;
+            }
             .landing-footer {
-                padding: 12px 16px 20px;
+                padding: 14px 16px 20px;
                 flex-direction: column;
                 text-align: center;
-                gap: 8px;
+                gap: 10px;
                 font-size: 11px;
             }
-            .support-float-btn {
-                font-size: 11px;
-                padding: 6px 12px;
-            }
-        }
-
         /* Toast */
         #toast {
             visibility: hidden;
@@ -524,6 +742,7 @@
             background: white; border-radius: 28px; padding: 35px 25px; width: 88%; max-width: 340px;
             text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
             transform: translateY(30px) scale(0.9); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: #1E293B;
         }
         .notif-modal-overlay.active .notif-modal { transform: translateY(0) scale(1); }
         .notif-icon {
@@ -573,8 +792,10 @@
         </div>
     </div>
 
-    <!-- Top Gradient Arch -->
-    <div class="gradient-top"></div>
+    <!-- Ambient Glowing Blobs & Grid -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+    <div class="bg-grid-pattern"></div>
     
     <!-- Navbar Header -->
     <header class="landing-navbar">
@@ -585,66 +806,156 @@
                 <div class="brand-sub-text">منصة الخطة التعليمية الذكية</div>
             </div>
         </div>
+
+        <!-- Desktop Quick Navigation -->
+        <div class="nav-actions-desktop">
+            <a href="register.html" class="nav-pill-btn primary">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>إنشاء حساب جديد</span>
+            </a>
+            <a href="https://wa.me/201158210358" target="_blank" class="nav-pill-btn">
+                <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i>
+                <span>الدعم الفني</span>
+            </a>
+            <a href="admin-gate.html" class="nav-pill-btn">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>بوابة الإدارة</span>
+            </a>
+        </div>
+
+        <!-- Mobile Drawer Toggle -->
         <button id="openDrawer" class="nav-menu-btn" title="القائمة">
             <i class="fa-solid fa-bars"></i>
         </button>
     </header>
 
-    <!-- Centered Card Container -->
-    <main class="login-container">
-        <div class="login-card">
-            <div class="card-logo-badge">🎓</div>
-            <h2>تسجيل الدخول</h2>
-            <p>أدخل كود حسابك للمتابعة والوصول لمحاضراتك</p>
+    <!-- Main Split Showcase & Login Container -->
+    <main class="landing-main-grid">
+        
+        <!-- Left / Right Hero Showcase Column -->
+        <section class="hero-showcase-col">
+            <div class="hero-badge-pill">
+                <span>✨</span>
+                <span>المنصة التعليمية الأولى والذكية 2026</span>
+            </div>
 
-            <!-- Quick Auto-detect Account Chip -->
-            <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">👤</span>
+            <h1 class="hero-title">
+                طريقك للتفوق و<span class="gradient-text">الدرجة النهائية</span> يبدأ من هنا 🚀
+            </h1>
+
+            <p class="hero-description">
+                تعلم بذكاء مع أحدث تقنيات التعليم التفاعلي، شروحات شاملة، بنوك أسئلة ذكية، وتقارير فورية بالذكاء الاصطناعي لتحليل نقاط قوتك وتطوير مستواك.
+            </p>
+
+            <!-- 4 Quick Stats Grid -->
+            <div class="hero-stats-grid">
+                <div class="hero-stat-card">
+                    <div class="stat-icon-wrap" style="color:#60A5FA;">👨‍🎓</div>
                     <div>
-                        <div style="font-size: 12px; font-weight: 800; color: #3730A3;" id="recentAccountName">مرحباً بعودتك!</div>
-                        <div style="font-size: 11px; color: #6366F1;" id="recentAccountCode">الكود: ---</div>
+                        <div class="stat-num">+1,500</div>
+                        <div class="stat-label">طالب متميز مسجل</div>
                     </div>
                 </div>
-                <span style="font-size: 11px; font-weight: 900; color: #4F46E5;">دخول سريع ⬅️</span>
-            </div>
 
-            <div class="input-wrap">
-                <i class="fa-solid fa-key input-icon"></i>
-                <input type="text" id="studentCode" class="student-code-input" placeholder="كود الطالب (مثال: KH1234)"
-                       onkeypress="if(event.key==='Enter') login()">
-            </div>
-
-            <button class="btn-login-submit" id="btnLogin" onclick="login()">
-                <span>دخول للمنصة</span>
-                <i class="fa-solid fa-rocket"></i>
-            </button>
-            
-            <div class="links-row">
-                <a href="register.html" class="register-link">لا تملك كود؟ اشترك وسجل حساباً جديداً 📝</a>
-                <a href="admin-gate.html" class="admin-link-pill">
-                    <i class="fa-solid fa-lock"></i>
-                    <span>بوابة دخول الإدارة والمشرفين</span>
-                </a>
-            </div>
-
-            <!-- In-Card Integrated PWA Widget -->
-            <div class="pwa-integrated-box pwa-card-widget" onclick="installPWA()">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 20px;">📲</span>
+                <div class="hero-stat-card">
+                    <div class="stat-icon-wrap" style="color:#34D399;">📚</div>
                     <div>
-                        <div style="font-weight: 900; font-size: 12px;">تثبيت تطبيق الخطة على جهازك</div>
-                        <div style="font-size: 10.5px; opacity: 0.85;">وصول أسرع وتجربة تطبيق متكاملة</div>
+                        <div class="stat-num">محاضرات شاملة</div>
+                        <div class="stat-label">بنوك أسئلة وامتحانات</div>
                     </div>
                 </div>
-                <button class="pwa-install-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
+
+                <div class="hero-stat-card">
+                    <div class="stat-icon-wrap" style="color:#A78BFA;">🧠</div>
+                    <div>
+                        <div class="stat-num">تحليل ذكي (AI)</div>
+                        <div class="stat-label">تقرير نقاط القوة والضعف</div>
+                    </div>
+                </div>
+
+                <div class="hero-stat-card">
+                    <div class="stat-icon-wrap" style="color:#FBBF24;">⚡</div>
+                    <div>
+                        <div class="stat-num">تطبيق فوري (PWA)</div>
+                        <div class="stat-label">سرعة وتشغيل أوفلاين</div>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- Features Highlights List -->
+            <div class="hero-features-strip">
+                <div class="hero-feature-item">
+                    <span class="hero-feature-dot"></span>
+                    <span>🏆 <strong>لوحة شرف الأوائل</strong> وتحديات تحفيزية مستمرة للطلاب المتفوقين.</span>
+                </div>
+                <div class="hero-feature-item">
+                    <span class="hero-feature-dot"></span>
+                    <span>💬 <strong>مجتمع تفاعلي متكامل</strong> لطرح تساؤلاتك وتلقّي إجابات المعلمين فوراً.</span>
+                </div>
+                <div class="hero-feature-item">
+                    <span class="hero-feature-dot"></span>
+                    <span>📝 <strong>سجل ذكي للأخطاء</strong> لمراجعة الأسئلة الصعبة قبل الامتحانات.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right / Left Login Card Column -->
+        <section class="login-card-col">
+            <div class="login-card">
+                <div class="card-logo-badge">🎓</div>
+                <h2>تسجيل الدخول</h2>
+                <p>أدخل كود حسابك للمتابعة والوصول لمحاضراتك</p>
+
+                <!-- Quick Auto-detect Account Chip -->
+                <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">👤</span>
+                        <div>
+                            <div style="font-size: 12.5px; font-weight: 800; color: #3730A3;" id="recentAccountName">مرحباً بعودتك!</div>
+                            <div style="font-size: 11px; color: #6366F1;" id="recentAccountCode">الكود: ---</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 11.5px; font-weight: 900; color: #4F46E5;">دخول سريع ⬅️</span>
+                </div>
+
+                <div class="input-wrap">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input type="text" id="studentCode" class="student-code-input" placeholder="كود الطالب (مثال: KH1234)"
+                           onkeypress="if(event.key==='Enter') login()">
+                </div>
+
+                <button class="btn-login-submit" id="btnLogin" onclick="login()">
+                    <span>دخول للمنصة</span>
+                    <i class="fa-solid fa-rocket"></i>
+                </button>
+                
+                <div class="links-row">
+                    <a href="register.html" class="register-link">لا تملك كود؟ اشترك وسجل حساباً جديداً 📝</a>
+                    <a href="admin-gate.html" class="admin-link-pill">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>بوابة دخول الإدارة والمشرفين</span>
+                    </a>
+                </div>
+
+                <!-- In-Card Integrated PWA Widget -->
+                <div class="pwa-integrated-box pwa-card-widget" onclick="installPWA()">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📲</span>
+                        <div>
+                            <div style="font-weight: 900; font-size: 12px;">تثبيت تطبيق الخطة على جهازك</div>
+                            <div style="font-size: 10.5px; opacity: 0.85;">وصول أسرع وتجربة تطبيق متكاملة</div>
+                        </div>
+                    </div>
+                    <button class="pwa-install-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Bottom Footer -->
     <footer class="landing-footer">
-        <div>ELKHETA Educational Platform © 2026</div>
+        <div>ELKHETA Educational Platform © 2026 • جميع الحقوق محفوظة</div>
         <a href="https://wa.me/201158210358" target="_blank" class="support-float-btn">
             <i class="fa-brands fa-whatsapp"></i>
             <span>تواصل مع الدعم الفني</span>
@@ -657,6 +968,9 @@
             <div style="font-size: 40px; margin-bottom: 4px;">🎓</div>
             <div style="font-weight: 900; font-size: 18px;">منصة الخطة التعليمية</div>
             <div style="font-size: 12px; opacity: 0.9;">بوابتك الذكية للتعلم والتفوق</div>
+        </div>
+        <div class="drawer-item" onclick="location.href='register.html'" style="color:#059669; font-weight:800; background:#ECFDF5; border-radius:12px; margin-bottom:6px;">
+            <span>📝</span> إنشاء حساب جديد
         </div>
         <div class="drawer-item" onclick="location.href='admin-gate.html'" style="color:#2563EB; font-weight:800; background:#EFF6FF; border-radius:12px; margin-bottom:6px;">
             <span>🔐</span> لوحة الإدارة والمشرفين
