@@ -225,7 +225,7 @@
         input:checked + .slider:before { transform: translateX(22px); }
 
         .btn-config {
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: 14px;
             font-size: 13px;
             font-weight: 800;
@@ -241,6 +241,75 @@
         }
         .btn-config:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
         .btn-config.primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
+
+        .supervisor-card-item {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            transition: 0.2s;
+        }
+        .supervisor-card-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+
+        .sup-left-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .sup-avatar {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #1E3A8A, #2563EB);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: #FFFFFF; font-size: 18px; font-weight: 900;
+        }
+        .sup-details h4 { font-size: 15px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .sup-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; font-size: 12px; color: var(--text-sub); }
+        .pin-pill {
+            background: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: 800;
+            color: #1E293B;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .perm-tag {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563EB;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        .sup-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sup-btn-action {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-main);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sup-btn-action:hover { transform: translateY(-2px); }
+        .sup-btn-action.wa { background: #DCFCE7; color: #166534; border-color: #BBF7D0; }
+        .sup-btn-action.edit { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+        .sup-btn-action.del { background: #FFF1F2; color: #E11D48; border-color: #FFE4E6; }
     </style>
 </head>
 <body>
@@ -413,13 +482,16 @@
         }
 
         // Load Supervisors
+        let allSupervisors = [];
         database.ref('Supervisors').on('value', snap => {
             const container = document.getElementById('supervisorsList');
             container.innerHTML = "";
+            allSupervisors = [];
 
             if (!snap.exists()) {
                 container.innerHTML = `
                     <div style="text-align:center; padding:30px; color:var(--text-sub);">
+                        <i class="fa-solid fa-user-shield" style="font-size:36px; color:var(--primary); opacity:0.4; margin-bottom:8px;"></i>
                         <p>لا يوجد مشرفين إضافيين مسجلين (الأدمن الرئيسي فقط يعمل حالياً)</p>
                     </div>
                 `;
@@ -428,52 +500,321 @@
 
             snap.forEach(child => {
                 const sup = child.val();
-                const item = document.createElement('div');
-                item.className = "form-row";
-                item.innerHTML = `
-                    <div class="form-row-info">
-                        <h4>${sup.name || child.key}</h4>
-                        <p>كود الدخول: ${child.key} • الصلاحيات: ${sup.role || 'مشرف مساعد'}</p>
+                if (sup) {
+                    allSupervisors.push({ id: child.key, ...sup });
+                }
+            });
+
+            allSupervisors.forEach(sup => {
+                const isActive = sup.isActive !== false;
+                const pinVal = sup.pin || sup.id || '—';
+                const roleTitle = sup.roleTitle || sup.role || 'مشرف المنصة';
+                const name = sup.name || 'مشرف معتمد';
+
+                const perms = sup.permissions || {};
+                const permLabels = [];
+                if (perms.students) permLabels.push('الطلاب');
+                if (perms.lessons) permLabels.push('الدروس والامتحانات');
+                if (perms.courses) permLabels.push('المواد');
+                if (perms.codes) permLabels.push('الأكواد');
+                if (perms.notifications) permLabels.push('الإشعارات');
+                if (perms.reports) permLabels.push('التقارير');
+                if (perms.mistakes) permLabels.push('بنك الأخطاء');
+                if (perms.otps) permLabels.push('أكواد الطوارئ');
+
+                const permTagsHtml = permLabels.length > 0 
+                    ? permLabels.map(l => `<span class="perm-tag">${l}</span>`).join('') 
+                    : `<span class="perm-tag" style="background:#F1F5F9; color:#64748B;">صلاحيات محدودة</span>`;
+
+                const initial = name.trim().charAt(0) || '🛡️';
+                const escId = sup.id.replace(/'/g, "\\'");
+                const escName = name.replace(/'/g, "\\'");
+                const escPin = pinVal.replace(/'/g, "\\'");
+                const escRole = roleTitle.replace(/'/g, "\\'");
+
+                const card = document.createElement('div');
+                card.className = "supervisor-card-item";
+                card.innerHTML = `
+                    <div class="sup-left-info">
+                        <div class="sup-avatar">${initial}</div>
+                        <div class="sup-details">
+                            <h4>
+                                <span>${name}</span>
+                                <span style="font-size:11px; padding:2px 8px; border-radius:10px; font-weight:700; ${isActive ? 'background:#DCFCE7; color:#166534;' : 'background:#FEE2E2; color:#991B1B;'}">
+                                    ${isActive ? '● نشط' : '● معطل'}
+                                </span>
+                            </h4>
+                            <div class="sup-meta">
+                                <span>المسمى: <b>${roleTitle}</b></span>
+                                <span>• كود الدخول:</span>
+                                <span class="pin-pill" onclick="copySupervisorPin('${escPin}')" title="انقر لنسخ الرمز السري">${pinVal} 📋</span>
+                            </div>
+                            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:6px;">
+                                ${permTagsHtml}
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-config" style="color:#DC2626;" onclick="deleteSupervisor('${child.key}')"><i class="fa-solid fa-trash"></i></button>
+
+                    <div class="sup-actions">
+                        <button class="sup-btn-action wa" onclick="sendSupervisorWA('${escName}', '${escPin}', '${escRole}')" title="إرسال بيانات الدخول عبر واتساب">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                        <button class="sup-btn-action edit" onclick="editSupervisorModal('${escId}')" title="تعديل الصلاحيات والبيانات">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="sup-btn-action" style="${isActive ? 'color:#D97706;' : 'color:#16A34A;'}" onclick="toggleSupervisorActive('${escId}', ${isActive})" title="${isActive ? 'تعطيل الحساب' : 'تنشيط الحساب'}">
+                            <i class="fa-solid ${isActive ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                        </button>
+                        <button class="sup-btn-action del" onclick="deleteSupervisor('${escId}', '${escName}')" title="حذف المشرف نهائياً">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 `;
-                container.appendChild(item);
+                container.appendChild(card);
             });
         });
 
+        function generateRandomSupervisorPin() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        function copySupervisorPin(pin) {
+            navigator.clipboard.writeText(pin).then(() => {
+                Swal.fire({
+                    title: 'تم النسخ!',
+                    text: `تم نسخ رمز المرور الخاص بالمشرف: ${pin}`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        }
+
+        function sendSupervisorWA(name, pin, role) {
+            const msg = encodeURIComponent(`أهلاً بك يا أستاذ ${name} 🛡️\nتم اعتمادك كـ (${role}) في منصة الخطة التعليمية 2027 🎓\nرمز الدخول السري الخاص بك: ${pin}\nرابط الدخول: https://elkheta2026.web.app/admin-gate.html`);
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+        }
+
         function addSupervisorModal() {
+            const autoPin = generateRandomSupervisorPin();
             Swal.fire({
-                title: 'إضافة مشرف جديد',
+                title: 'إضافة مشرف جديد 🛡️',
                 html: `
-                    <input id="supName" class="swal2-input" placeholder="اسم المشرف">
-                    <input id="supCode" class="swal2-input" placeholder="كود المرور للمشرف">
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; color:var(--text-main);">
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">اسم المشرف الكامل:</label>
+                            <input id="swalSupName" class="swal2-input" placeholder="مثال: أ. محمد أحمد" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">المسمى الوظيفي / الدور:</label>
+                            <select id="swalSupRole" class="swal2-input" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                                <option value="مشرف المنصة">مشرف المنصة</option>
+                                <option value="مشرف إدارة الطلاب">مشرف إدارة الطلاب</option>
+                                <option value="مشرف المحتوى والدروس">مشرف المحتوى والدروس</option>
+                                <option value="مشرف الامتحانات والتقارير">مشرف الامتحانات والتقارير</option>
+                                <option value="مسؤول الدعم الفني">مسؤول الدعم الفني</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <label style="font-weight:800;">رمز المرور السري (PIN):</label>
+                                <button type="button" onclick="document.getElementById('swalSupPin').value = generateRandomSupervisorPin()" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز تلقائي</button>
+                            </div>
+                            <input id="swalSupPin" class="swal2-input" value="${autoPin}" placeholder="4 أرقام" maxlength="6" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:18px; letter-spacing:3px; text-align:center;">
+                        </div>
+                        
+                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px; margin-top:10px;">
+                            <label style="font-weight:800; display:block; margin-bottom:8px; color:#1E3A8A;">🔐 تحديد الصلاحيات الممنوحة:</label>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px;">
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_students" checked> إدارة الطلاب</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_lessons"> الدروس والامتحانات</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_courses"> إدارة المواد</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_codes"> إدارة الأكواد</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_notifications" checked> الإشعارات</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_reports" checked> التقارير</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_mistakes"> بنك الأخطاء</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_otps"> أكواد الطوارئ</label>
+                            </div>
+                        </div>
+                    </div>
                 `,
-                confirmButtonText: 'إضافة',
                 showCancelButton: true,
-                cancelButtonText: 'إلغاء'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    const name = document.getElementById('supName').value.trim();
-                    const code = document.getElementById('supCode').value.trim();
-                    if (name && code) {
-                        database.ref('Supervisors/' + code).set({
-                            name: name,
-                            role: 'مشرف إدارة',
-                            createdAt: Date.now()
-                        });
+                confirmButtonText: '<i class="fa-solid fa-plus"></i> إضافة المشرف الآن',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                preConfirm: () => {
+                    const name = document.getElementById('swalSupName').value.trim();
+                    const roleTitle = document.getElementById('swalSupRole').value;
+                    const pin = document.getElementById('swalSupPin').value.trim();
+
+                    if (!name) {
+                        Swal.showValidationMessage('يرجى كتابة اسم المشرف');
+                        return false;
                     }
+                    if (!pin || pin.length < 4) {
+                        Swal.showValidationMessage('يرجى تحديد رمز مرور من 4 أرقام على الأقل');
+                        return false;
+                    }
+
+                    const permissions = {
+                        students: document.getElementById('perm_students').checked,
+                        lessons: document.getElementById('perm_lessons').checked,
+                        courses: document.getElementById('perm_courses').checked,
+                        codes: document.getElementById('perm_codes').checked,
+                        notifications: document.getElementById('perm_notifications').checked,
+                        reports: document.getElementById('perm_reports').checked,
+                        mistakes: document.getElementById('perm_mistakes').checked,
+                        otps: document.getElementById('perm_otps').checked
+                    };
+
+                    return { name, roleTitle, pin, permissions };
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed && result.value) {
+                    const { name, roleTitle, pin, permissions } = result.value;
+                    const supId = database.ref('Supervisors').push().key;
+
+                    await database.ref('Supervisors/' + supId).set({
+                        name: name,
+                        roleTitle: roleTitle,
+                        pin: pin,
+                        permissions: permissions,
+                        isActive: true,
+                        createdAt: Date.now()
+                    });
+
+                    Swal.fire({
+                        title: 'تمت إضافة المشرف بنجاح 🎉',
+                        html: `
+                            <div style="text-align:center; font-family:'Cairo', sans-serif;">
+                                <p style="margin-bottom:10px;">تم تسجيل المشرف <b>${name}</b> بنجاح!</p>
+                                <div style="background:#F0FDF4; border:2px dashed #4ADE80; border-radius:12px; padding:10px; margin-bottom:12px;">
+                                    <div style="font-size:11px; color:#166534; font-weight:700;">رمز المرور السري (PIN):</div>
+                                    <div style="font-size:24px; font-weight:900; font-family:monospace; color:#15803D; letter-spacing:3px;">${pin}</div>
+                                </div>
+                                <div style="display:flex; gap:8px; justify-content:center;">
+                                    <button onclick="copySupervisorPin('${pin}')" class="btn-config" style="background:#2563EB; color:#FFFFFF; border:none;"><i class="fa-regular fa-copy"></i> نسخ الرمز</button>
+                                    <button onclick="sendSupervisorWA('${name.replace(/'/g, "\\'")}', '${pin}', '${roleTitle.replace(/'/g, "\\'")}')" class="btn-config" style="background:#16A34A; color:#FFFFFF; border:none;"><i class="fa-brands fa-whatsapp"></i> إرسال بالواتساب</button>
+                                </div>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonText: 'إغلاق',
+                        confirmButtonColor: '#2563EB'
+                    });
                 }
             });
         }
 
-        function deleteSupervisor(code) {
+        function editSupervisorModal(supId) {
+            const sup = allSupervisors.find(s => s.id === supId);
+            if (!sup) return;
+
+            const p = sup.permissions || {};
+
             Swal.fire({
-                title: 'حذف المشرف؟',
+                title: 'تعديل بيانات المشرف ✏️',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; color:var(--text-main);">
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">اسم المشرف:</label>
+                            <input id="swalEditSupName" class="swal2-input" value="${sup.name || ''}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">المسمى الوظيفي:</label>
+                            <input id="swalEditSupRole" class="swal2-input" value="${sup.roleTitle || sup.role || ''}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <label style="font-weight:800;">رمز المرور السري (PIN):</label>
+                                <button type="button" onclick="document.getElementById('swalEditSupPin').value = generateRandomSupervisorPin()" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز جديد</button>
+                            </div>
+                            <input id="swalEditSupPin" class="swal2-input" value="${sup.pin || ''}" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:18px; letter-spacing:3px; text-align:center;">
+                        </div>
+                        
+                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:12px; margin-top:10px;">
+                            <label style="font-weight:800; display:block; margin-bottom:8px; color:#1E3A8A;">🔐 تعديل الصلاحيات الممنوحة:</label>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px;">
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_students" ${p.students ? 'checked' : ''}> إدارة الطلاب</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_lessons" ${p.lessons ? 'checked' : ''}> الدروس والامتحانات</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_courses" ${p.courses ? 'checked' : ''}> إدارة المواد</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_codes" ${p.codes ? 'checked' : ''}> إدارة الأكواد</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_notifications" ${p.notifications ? 'checked' : ''}> الإشعارات</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_reports" ${p.reports ? 'checked' : ''}> التقارير</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_mistakes" ${p.mistakes ? 'checked' : ''}> بنك الأخطاء</label>
+                                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_otps" ${p.otps ? 'checked' : ''}> أكواد الطوارئ</label>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات ✔️',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                preConfirm: () => {
+                    const name = document.getElementById('swalEditSupName').value.trim();
+                    const roleTitle = document.getElementById('swalEditSupRole').value.trim();
+                    const pin = document.getElementById('swalEditSupPin').value.trim();
+
+                    if (!name) {
+                        Swal.showValidationMessage('يرجى إدخال اسم المشرف');
+                        return false;
+                    }
+                    if (!pin) {
+                        Swal.showValidationMessage('يرجى إدخال رمز المرور السري');
+                        return false;
+                    }
+
+                    const permissions = {
+                        students: document.getElementById('edit_perm_students').checked,
+                        lessons: document.getElementById('edit_perm_lessons').checked,
+                        courses: document.getElementById('edit_perm_courses').checked,
+                        codes: document.getElementById('edit_perm_codes').checked,
+                        notifications: document.getElementById('edit_perm_notifications').checked,
+                        reports: document.getElementById('edit_perm_reports').checked,
+                        mistakes: document.getElementById('edit_perm_mistakes').checked,
+                        otps: document.getElementById('edit_perm_otps').checked
+                    };
+
+                    return { name, roleTitle, pin, permissions };
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed && result.value) {
+                    await database.ref('Supervisors/' + supId).update(result.value);
+                    Swal.fire('تم التحديث!', 'تم تحديث بيانات وصلاحيات المشرف بنجاح.', 'success');
+                }
+            });
+        }
+
+        async function toggleSupervisorActive(supId, currentActive) {
+            const newState = !currentActive;
+            await database.ref('Supervisors/' + supId).update({ isActive: newState });
+            Swal.fire({
+                title: newState ? 'تم تنشيط الحساب' : 'تم تعطيل الحساب',
+                text: newState ? 'يمكن للمشرف الدخول الآن واستخدام المنصة.' : 'تم إيقاف صلاحية دخول المشرف مؤقتاً.',
+                icon: 'info',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function deleteSupervisor(supId, name) {
+            Swal.fire({
+                title: `حذف المشرف (${name || ''})؟`,
+                text: 'لن يتمكن هذا المشرف من الدخول إلى لوحة التحكم مجدداً.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'نعم، حذف'
-            }).then(r => {
-                if (r.isConfirmed) database.ref('Supervisors/' + code).remove();
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء'
+            }).then(async (r) => {
+                if (r.isConfirmed) {
+                    await database.ref('Supervisors/' + supId).remove();
+                    Swal.fire('تم الحذف!', 'تم حذف المشرف من النظام.', 'success');
+                }
             });
         }
 

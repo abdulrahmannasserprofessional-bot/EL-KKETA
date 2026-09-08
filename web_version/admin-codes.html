@@ -194,28 +194,48 @@
     </div>
 
     <div class="gen-card">
-        <h3>✨ توليد أكواد جديدة</h3>
-        <input type="number" id="codeCount" class="count-input" placeholder="أدخل العدد المطلوب" min="1" max="200">
+        <h3>✨ توليد أكواد تفعيل جديدة (دفعة 2027)</h3>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 140px;">
+                <label style="font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.6); display: block; margin-bottom: 4px;">بادئة الكود:</label>
+                <select id="codePrefix" class="count-input" style="font-size: 15px; height: 46px; padding: 0 10px; width: 100%;">
+                    <option value="KH27">KH27 (دفعة 2027)</option>
+                    <option value="STU">STU (طالب)</option>
+                    <option value="VIP">VIP (اشتراك مميز)</option>
+                    <option value="2027">2027</option>
+                    <option value="NONE">أرقام فقط</option>
+                </select>
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+                <label style="font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.6); display: block; margin-bottom: 4px;">عدد الأكواد:</label>
+                <input type="number" id="codeCount" class="count-input" style="font-size: 18px; height: 46px;" placeholder="العدد" min="1" max="200" value="10">
+            </div>
+        </div>
+
         <div class="quick-select">
+            <button class="quick-btn" onclick="setCount(1)">1 كود</button>
             <button class="quick-btn" onclick="setCount(5)">5</button>
             <button class="quick-btn" onclick="setCount(10)">10</button>
             <button class="quick-btn" onclick="setCount(25)">25</button>
             <button class="quick-btn" onclick="setCount(50)">50</button>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn-generate" style="flex: 2;" onclick="generateCodes()">🔑 توليد وحفظ الأكواد</button>
-            <button class="btn-generate" style="flex: 1; background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="resetAllCodes()">🗑️ تصفير الأكواد</button>
+
+        <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+            <button class="btn-generate" style="flex: 2; min-width: 160px;" onclick="generateCodes()">🔑 توليد وحفظ الأكواد</button>
+            <button class="btn-generate" style="flex: 1.5; min-width: 140px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #fff;" onclick="generateSingleInstantCode()">⚡ توليد كود فوري ونسخه</button>
+            <button class="btn-generate" style="flex: 1; min-width: 120px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;" onclick="resetAllCodes()">🗑️ تصفير الكل</button>
         </div>
     </div>
 
     <div class="stats-row">
         <div class="stat-pill">
             <div class="stat-val-green" id="availableCount">—</div>
-            <div class="stat-lbl">كود متاح</div>
+            <div class="stat-lbl">كود متاح للتفعيل</div>
         </div>
         <div class="stat-pill">
             <div class="stat-val-red" id="usedCount">—</div>
-            <div class="stat-lbl">كود مستخدم</div>
+            <div class="stat-lbl">كود مستخدم ومفعل</div>
         </div>
         <div class="stat-pill">
             <div class="stat-val-green" id="totalCount">—</div>
@@ -223,11 +243,16 @@
         </div>
     </div>
 
+    <div style="padding: 10px 15px 0;">
+        <input type="text" id="searchCodeInput" class="count-input" style="width: 100%; font-size: 14px; height: 44px; text-align: right; padding: 0 16px;" placeholder="🔍 ابحث برقم الكود أو اسم الطالب الذي فعّله..." oninput="filterCodes()">
+    </div>
+
     <div class="filter-tabs">
         <button class="filter-tab active" id="tab-all" onclick="switchTab('all')">الكل</button>
         <button class="filter-tab" id="tab-available" onclick="switchTab('available')">✅ المتاحة</button>
         <button class="filter-tab" id="tab-used" onclick="switchTab('used')">🔴 المستخدمة</button>
-        <button class="filter-tab" style="background: #2563EB; color: #fff; border:none;" onclick="exportPDF()">🖨️ طباعة كروت (PDF)</button>
+        <button class="filter-tab" style="background: #16A34A; color: #fff; border:none;" onclick="exportCodesCSV()">📊 تصدير Excel</button>
+        <button class="filter-tab" style="background: #2563EB; color: #fff; border:none;" onclick="exportPDF()">🖨️ كروت (PDF)</button>
     </div>
 
     <div class="codes-container" id="codesContainer">
@@ -252,6 +277,124 @@
 
         function setCount(n) { document.getElementById('codeCount').value = n; }
 
+        function generateCodeString(prefix) {
+            const randNum = Math.floor(1000 + Math.random() * 9000);
+            if (prefix === 'NONE') return randNum.toString();
+            return `${prefix}-${randNum}`;
+        }
+
+        async function generateSingleInstantCode() {
+            const prefix = document.getElementById('codePrefix').value;
+            const newCode = generateCodeString(prefix);
+
+            await database.ref('ActivationCodes/' + newCode).set({
+                code: newCode,
+                isUsed: false,
+                createdAt: Date.now()
+            });
+
+            navigator.clipboard.writeText(newCode).then(() => {
+                Swal.fire({
+                    title: 'تم توليد الكود ونسخه 🎉',
+                    html: `
+                        <div style="text-align:center; font-family:'Cairo', sans-serif;">
+                            <p style="margin-bottom:8px; font-size:13px;">تم حفظ الكود في قاعدة البيانات ونسخه للحافظة:</p>
+                            <div style="font-size:24px; font-weight:900; font-family:monospace; color:#16A34A; background:#F0FDF4; border:2px dashed #4ADE80; border-radius:12px; padding:12px; margin-bottom:12px; letter-spacing:2px;">
+                                ${newCode}
+                            </div>
+                            <button onclick="sendCodeWhatsApp('${newCode}')" class="btn-generate" style="background:#16A34A; color:#fff; border:none; margin:0; padding:10px;"><i class="fa-brands fa-whatsapp"></i> مشاركة الكود عبر واتساب</button>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#2563EB'
+                });
+            });
+        }
+
+        function generateCodes() {
+            const count = parseInt(document.getElementById('codeCount').value);
+            const prefix = document.getElementById('codePrefix').value;
+
+            if (!count || count < 1) return showToast("⚠️ أدخل عدداً صحيحاً");
+            if (count > 200) return showToast("⚠️ الحد الأقصى 200 كود في المرة");
+
+            const batch = {};
+            for (let i = 0; i < count; i++) {
+                const code = generateCodeString(prefix);
+                batch[code] = { code, isUsed: false, createdAt: Date.now() };
+            }
+
+            database.ref('ActivationCodes').update(batch).then(() => {
+                Swal.fire({
+                    title: 'تم التوليد بنجاح! 🔑',
+                    text: `تم توليد وحفظ ${count} كود تفعيل جديد في قاعدة البيانات.`,
+                    icon: 'success',
+                    confirmButtonColor: '#2563EB',
+                    confirmButtonText: 'ممتاز'
+                });
+                document.getElementById('codeCount').value = "10";
+            }).catch((err) => {
+                console.error(err);
+                showToast("فشل توليد الأكواد");
+            });
+        }
+
+        function deleteSingleCode(code) {
+            Swal.fire({
+                title: `حذف الكود (${code})؟`,
+                text: "لن يتمكن أي طالب من استخدام هذا الكود بعد الحذف.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    database.ref('ActivationCodes/' + code).remove().then(() => {
+                        showToast(`تم حذف الكود: ${code}`);
+                    });
+                }
+            });
+        }
+
+        function sendCodeWhatsApp(code) {
+            const msg = encodeURIComponent(`أهلاً بك في منصة الخطة التعليمية 🎓 (الدفعة 2027)\nكود تفعيل اشتراكك هو: ${code}\nقم بالدخول على الرابط وتفعيل كودك: https://elkheta2026.web.app/register.html?code=${code}`);
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+        }
+
+        function exportCodesCSV() {
+            if (!allCodes || allCodes.length === 0) return showToast("⚠️ لا توجد أكواد لتصديرها");
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += "م,الكود,الحالة,المستخدم,رقم الهاتف,تاريخ التوليد\n";
+
+            allCodes.forEach((item, i) => {
+                const status = item.isUsed ? "مستخدم" : "متاح";
+                const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG') : "—";
+                const row = [
+                    i + 1,
+                    `"${item.code || item.key}"`,
+                    `"${status}"`,
+                    `"${(item.usedBy || '').replace(/"/g, '""')}"`,
+                    `"${item.phone || ''}"`,
+                    `"${date}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `اكواد_تفعيل_الخطة_2027_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("تم تصدير ملف الإكسيل بنجاح 📊");
+        }
+
         function exportPDF() {
             let filtered = allCodes;
             if (currentTab === 'available') filtered = allCodes.filter(c => !c.isUsed);
@@ -262,7 +405,6 @@
             showToast("⏳ جاري تجهيز كروت الـ PDF...");
             
             const wrapper = document.createElement('div');
-            // We append to body but hide it from viewport using a wrapper that won't disrupt scroll
             wrapper.style.position = 'absolute';
             wrapper.style.left = '-9999px';
             wrapper.style.top = '0';
@@ -290,9 +432,9 @@
                 card.style.background = '#FFFFFF';
                 
                 card.innerHTML = `
-                    <div style="font-size:14px; font-weight:700; color:#166534; margin-bottom:10px;">منصة الخطة التعليمية</div>
-                    <div style="font-size:24px; font-weight:900; font-family:monospace; color:#1E293B; letter-spacing:2px; background:#F0FDF4; padding:10px; border-radius:8px; margin-bottom:10px;">${item.code}</div>
-                    <div style="font-size:10px; color:#64748B;">كود تفعيل رصيد الطالب</div>
+                    <div style="font-size:14px; font-weight:700; color:#166534; margin-bottom:10px;">منصة الخطة التعليمية 2027 🎓</div>
+                    <div style="font-size:24px; font-weight:900; font-family:monospace; color:#1E293B; letter-spacing:2px; background:#F0FDF4; padding:10px; border-radius:8px; margin-bottom:10px;">${item.code || item.key}</div>
+                    <div style="font-size:10px; color:#64748B;">كود تفعيل واشتراك الطالب</div>
                 `;
                 container.appendChild(card);
             });
@@ -300,11 +442,10 @@
             wrapper.appendChild(container);
             document.body.appendChild(wrapper);
             
-            // Wait a tick for DOM to render it
             setTimeout(() => {
                 html2pdf().set({
                     margin: 10,
-                    filename: 'كروت_أكواد_الخطة.pdf',
+                    filename: `كروت_أكواد_الخطة_2027_${Date.now()}.pdf`,
                     image: { type: 'jpeg', quality: 1.0 },
                     html2canvas: { scale: 2, useCORS: true, windowWidth: 800, scrollY: 0, x: 0, y: 0 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -317,25 +458,6 @@
                     showToast("❌ حدث خطأ أثناء التصدير", "error");
                 });
             }, 500);
-        }
-
-        function generateCodes() {
-            const count = parseInt(document.getElementById('codeCount').value);
-            if (!count || count < 1) return showToast("⚠️ أدخل عدداً صحيحاً");
-            if (count > 200) return showToast("⚠️ الحد الأقصى 200 كود في المرة");
-
-            const batch = {};
-            const generated = [];
-            for (let i = 0; i < count; i++) {
-                const code = "KH" + Math.floor(1000 + Math.random() * 9000);
-                batch[code] = { code, isUsed: false, createdAt: Date.now() };
-                generated.push(code);
-            }
-
-            database.ref('ActivationCodes').update(batch).then(() => {
-                showToast(`✅ تم توليد ${count} كود بنجاح`);
-                document.getElementById('codeCount').value = "";
-            }).catch(() => showToast(" فشل توليد الأكواد"));
         }
 
         function resetAllCodes() {
@@ -364,7 +486,7 @@
             currentTab = tab;
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            renderCodes(allCodes);
+            filterCodes();
         }
 
         database.ref('ActivationCodes').on('value', snap => {
@@ -377,7 +499,6 @@
                     if (typeof val === 'object' && val !== null) {
                         allCodes.push({ key: child.key, ...val });
                     } else {
-                        // Legacy support for boolean structure
                         allCodes.push({ key: child.key, code: child.key, isUsed: val === true });
                     }
                 });
@@ -388,17 +509,32 @@
             document.getElementById('availableCount').textContent = available;
             document.getElementById('usedCount').textContent = used;
             document.getElementById('totalCount').textContent = allCodes.length;
-            renderCodes(allCodes);
+            filterCodes();
         });
 
-        function renderCodes(codes) {
+        function filterCodes() {
+            const q = (document.getElementById('searchCodeInput').value || '').trim().toLowerCase();
+            let filtered = allCodes;
+
+            if (currentTab === 'available') filtered = filtered.filter(c => !c.isUsed);
+            if (currentTab === 'used') filtered = filtered.filter(c => c.isUsed);
+
+            if (q) {
+                filtered = filtered.filter(c => 
+                    (c.code || c.key || '').toLowerCase().includes(q) ||
+                    (c.usedBy || '').toLowerCase().includes(q) ||
+                    (c.phone || '').includes(q)
+                );
+            }
+
+            renderCodes(filtered);
+        }
+
+        function renderCodes(filtered) {
             const container = document.getElementById('codesContainer');
-            let filtered = codes;
-            if (currentTab === 'available') filtered = codes.filter(c => !c.isUsed);
-            if (currentTab === 'used') filtered = codes.filter(c => c.isUsed);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div>🔑</div><p>لا توجد أكواد في هذه الفئة</p></div>`;
+                container.innerHTML = `<div class="empty-state"><div>🔑</div><p>لا توجد أكواد مطابقة</p></div>`;
                 return;
             }
 
@@ -407,21 +543,28 @@
                 const codeVal = item.code || item.key;
                 if (!item.isUsed) {
                     return `
-                        <div class="code-item available" onclick="copyCode('${codeVal}')">
-                            <div>
+                        <div class="code-item available">
+                            <div onclick="copyCode('${codeVal}')" style="flex:1; cursor:pointer;">
                                 <div class="code-text">${codeVal}</div>
-                                <div class="copy-hint">اضغط لنسخ الكود 📋</div>
+                                <div class="copy-hint">اضغط لنسخ الكود 📋 • ${date}</div>
                             </div>
-                            <span class="badge-available">متاح ✅</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="badge-available">متاح ✅</span>
+                                <button onclick="sendCodeWhatsApp('${codeVal}')" style="background:#DCFCE7; border:1px solid #BBF7D0; color:#166534; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700;" title="إرسال عبر واتساب"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
+                                <button onclick="deleteSingleCode('${codeVal}')" style="background:#FEE2E2; border:1px solid #FECACA; color:#DC2626; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px;" title="حذف الكود"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>`;
                 } else {
                     return `
                         <div class="code-item">
-                            <div>
-                                <div class="code-text" style="color: rgba(0,0,0,0.3);">${codeVal}</div>
-                                <div class="code-date">${item.usedBy || ''}</div>
+                            <div style="flex:1;">
+                                <div class="code-text" style="color: rgba(0,0,0,0.35); text-decoration: line-through;">${codeVal}</div>
+                                <div class="code-date">تم التفعيل بواسطة: <b>${item.usedBy || 'طالب مسجل'}</b> ${item.phone ? `(${item.phone})` : ''}</div>
                             </div>
-                            <span class="badge-used">مستخدم 🔴</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="badge-used">مستخدم 🔴</span>
+                                <button onclick="deleteSingleCode('${codeVal}')" style="background:#FEE2E2; border:1px solid #FECACA; color:#DC2626; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px;" title="حذف الكود"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>`;
                 }
             }).join('');

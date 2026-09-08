@@ -111,7 +111,48 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
+
+        .btn-add-student {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #FFFFFF;
+            padding: 8px 18px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+        .btn-add-student:hover {
+            background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-export-hdr {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .btn-export-hdr:hover { background: rgba(255, 255, 255, 0.22); }
 
         .theme-toggle-btn {
             width: 40px; height: 40px;
@@ -468,6 +509,8 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .action-icon-btn:hover { transform: translateY(-2px); }
+        .action-icon-btn.edit { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+        .action-icon-btn.edit:hover { background: #C7D2FE; }
         .action-icon-btn.whatsapp { background: #DCFCE7; color: #166534; border-color: #BBF7D0; font-size: 16px; }
         .action-icon-btn.whatsapp:hover { background: #BBF7D0; }
         .action-icon-btn.ban { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
@@ -563,6 +606,14 @@
                     <span>لوحة الإدارة</span>
                 </a>
                 <div class="header-actions">
+                    <button class="btn-add-student" onclick="openAddStudentModal()">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إضافة طالب جديد</span>
+                    </button>
+                    <button class="btn-export-hdr" onclick="exportStudentsCSV()" title="تصدير بيانات الطلاب CSV / Excel">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>تصدير</span>
+                    </button>
                     <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
                         <i class="fa-solid fa-moon" id="themeIcon"></i>
                     </button>
@@ -828,6 +879,9 @@
                     </div>
 
                     <div class="actions-group">
+                        <button class="action-icon-btn edit" onclick="editStudentModal('${escCode}')" title="تعديل بيانات الطالب">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
                         <button class="action-icon-btn whatsapp" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}')" title="مراسلة في واتساب مع كود الدخول">
                             <i class="fa-brands fa-whatsapp"></i>
                         </button>
@@ -844,6 +898,218 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function generateRandomStudentCode() {
+            const prefix = "KH27";
+            const randNum = Math.floor(1000 + Math.random() * 9000);
+            return `${prefix}-${randNum}`;
+        }
+
+        function openAddStudentModal() {
+            const autoCode = generateRandomStudentCode();
+            Swal.fire({
+                title: 'إضافة طالب جديد 🎓',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; color:var(--text-main);">
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">اسم الطالب الكامل:</label>
+                            <input id="swalStudentName" class="swal2-input" placeholder="مثال: أحمد محمد علي" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">رقم الواتساب / الهاتف:</label>
+                            <input id="swalStudentPhone" class="swal2-input" placeholder="مثال: 01012345678" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <label style="font-weight:800;">كود الدخول والتفعيل:</label>
+                                <button type="button" onclick="document.getElementById('swalStudentCode').value = generateRandomStudentCode()" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد كود جديد</button>
+                            </div>
+                            <input id="swalStudentCode" class="swal2-input" value="${autoCode}" placeholder="كود الطالب" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:16px; letter-spacing:1px; text-align:center;">
+                        </div>
+                        <div>
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">البريد الإلكتروني (اختياري):</label>
+                            <input id="swalStudentEmail" class="swal2-input" placeholder="student@elkheta.com" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-plus"></i> إضافة الطالب الآن',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                preConfirm: () => {
+                    const name = document.getElementById('swalStudentName').value.trim();
+                    const phone = document.getElementById('swalStudentPhone').value.trim();
+                    const code = document.getElementById('swalStudentCode').value.trim().toUpperCase();
+                    const email = document.getElementById('swalStudentEmail').value.trim() || `${code.toLowerCase()}@elkheta.com`;
+
+                    if (!name) {
+                        Swal.showValidationMessage('يرجى إدخال اسم الطالب');
+                        return false;
+                    }
+                    if (!code) {
+                        Swal.showValidationMessage('يرجى تحديد أو توليد كود الطالب');
+                        return false;
+                    }
+                    return { fullName: name, whatsapp: phone, studentCode: code, email: email };
+                }
+            }).then(async (res) => {
+                if (res.isConfirmed && res.value) {
+                    const { fullName, whatsapp, studentCode, email } = res.value;
+                    const studentPayload = {
+                        fullName: fullName,
+                        whatsapp: whatsapp,
+                        phone: whatsapp,
+                        studentCode: studentCode,
+                        email: email,
+                        isBanned: false,
+                        warnings: 0,
+                        joinDate: Date.now(),
+                        createdAt: Date.now()
+                    };
+
+                    try {
+                        // 1. Save to Firebase
+                        await database.ref('Students/' + studentCode).set(studentPayload);
+                        // Also mark in ActivationCodes if applicable
+                        await database.ref('ActivationCodes/' + studentCode).set({
+                            code: studentCode,
+                            isUsed: true,
+                            usedBy: fullName,
+                            phone: whatsapp,
+                            activatedAt: Date.now(),
+                            createdAt: Date.now()
+                        });
+
+                        // 2. Sync to Backend API if available
+                        try {
+                            await fetch(`${API_BASE}/students`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(studentPayload)
+                            });
+                        } catch(e) {}
+
+                        Swal.fire({
+                            title: 'تمت إضافة الطالب بنجاح 🎉',
+                            html: `
+                                <div style="text-align:center; font-family:'Cairo', sans-serif;">
+                                    <p style="margin-bottom:12px; font-size:14px;">تم تسجيل الطالب <b>${fullName}</b> بنجاح!</p>
+                                    <div style="background:#F0FDF4; border:2px dashed #4ADE80; border-radius:14px; padding:12px; margin-bottom:14px;">
+                                        <div style="font-size:11px; color:#166534; font-weight:700;">كود الدخول الخاص بالطالب:</div>
+                                        <div style="font-size:22px; font-weight:900; font-family:monospace; color:#15803D; letter-spacing:2px; margin:4px 0;">${studentCode}</div>
+                                    </div>
+                                    <div style="display:flex; gap:8px; justify-content:center;">
+                                        <button onclick="copyCode('${studentCode}')" class="btn-config" style="background:#2563EB; color:#FFFFFF; border:none;"><i class="fa-regular fa-copy"></i> نسخ الكود</button>
+                                        ${whatsapp ? `<button onclick="sendStudentWhatsApp('${whatsapp}', '${fullName.replace(/'/g, "\\'")}', '${studentCode}')" class="btn-config" style="background:#16A34A; color:#FFFFFF; border:none;"><i class="fa-brands fa-whatsapp"></i> إرسال بالواتساب</button>` : ''}
+                                    </div>
+                                </div>
+                            `,
+                            icon: 'success',
+                            confirmButtonText: 'إغلاق',
+                            confirmButtonColor: '#2563EB'
+                        });
+
+                    } catch (err) {
+                        console.error(err);
+                        Swal.fire('خطأ', 'حدث خطأ أثناء حفظ بيانات الطالب: ' + err.message, 'error');
+                    }
+                }
+            });
+        }
+
+        function editStudentModal(code) {
+            const student = allStudents.find(s => (s.studentCode || s.firebaseKey) === code);
+            if (!student) return;
+
+            Swal.fire({
+                title: 'تعديل بيانات الطالب ✏️',
+                html: `
+                    <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; color:var(--text-main);">
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">اسم الطالب:</label>
+                            <input id="swalEditName" class="swal2-input" value="${student.fullName || ''}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">رقم الواتساب / الهاتف:</label>
+                            <input id="swalEditPhone" class="swal2-input" value="${student.whatsapp || ''}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">البريد الإلكتروني:</label>
+                            <input id="swalEditEmail" class="swal2-input" value="${student.email || ''}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                        </div>
+                        <div>
+                            <label style="font-weight:800; display:block; margin-bottom:4px;">عدد الإنذارات:</label>
+                            <input id="swalEditWarnings" type="number" min="0" max="3" class="swal2-input" value="${student.warnings || 0}" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:center;">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات ✔️',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                preConfirm: () => {
+                    const name = document.getElementById('swalEditName').value.trim();
+                    const phone = document.getElementById('swalEditPhone').value.trim();
+                    const email = document.getElementById('swalEditEmail').value.trim();
+                    const warnings = parseInt(document.getElementById('swalEditWarnings').value) || 0;
+
+                    if (!name) {
+                        Swal.showValidationMessage('يرجى إدخال اسم الطالب');
+                        return false;
+                    }
+                    return { fullName: name, whatsapp: phone, phone: phone, email: email, warnings: warnings };
+                }
+            }).then(async (res) => {
+                if (res.isConfirmed && res.value) {
+                    await database.ref('Students/' + code).update(res.value);
+                    try {
+                        await fetch(`${API_BASE}/students/${code}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(res.value)
+                        });
+                    } catch(e) {}
+                    showToast("تم تحديث بيانات الطالب بنجاح!");
+                }
+            });
+        }
+
+        function exportStudentsCSV() {
+            if (!allStudents || allStudents.length === 0) {
+                return showToast("⚠️ لا يوجد طلاب مسجلين لتصديرهم");
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Arabic Excel
+            csvContent += "م,اسم الطالب,كود الدخول,رقم الهاتف,البريد الإلكتروني,الحالة,الإنذارات,تاريخ التسجيل\n";
+
+            allStudents.forEach((st, i) => {
+                const isBanned = st.isBanned || st.is_banned == 1 ? "محظور" : "نشط";
+                const date = st.joinDate || st.createdAt ? new Date(st.joinDate || st.createdAt).toLocaleDateString('ar-EG') : "—";
+                const row = [
+                    i + 1,
+                    `"${(st.fullName || '').replace(/"/g, '""')}"`,
+                    `"${st.studentCode || ''}"`,
+                    `"${st.whatsapp || ''}"`,
+                    `"${st.email || ''}"`,
+                    `"${isBanned}"`,
+                    st.warnings || 0,
+                    `"${date}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `سجل_طلاب_الخطة_2027_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("تم تصدير ملف إكسيل / CSV بنجاح 📊");
         }
 
         async function toggleStudentBan(code, isCurrentlyBanned) {
@@ -941,7 +1207,7 @@
         function sendStudentWhatsApp(phone, name, code) {
             const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
             const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
-            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\\nكود الدخول الخاص بك هو: ${code}\\nرابط المنصة: https://elkheta2026.web.app`);
+            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\nكود الدخول الخاص بك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
             window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
         }
     </script>
