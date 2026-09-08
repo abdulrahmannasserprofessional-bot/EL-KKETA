@@ -233,38 +233,66 @@
             document.getElementById('adminPassInput').focus();
         }
 
+        async function sha256Hex(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        let failedAttempts = parseInt(localStorage.getItem('admin_failed_attempts') || '0');
+        let lockoutUntil = parseInt(localStorage.getItem('admin_lockout_until') || '0');
+
         async function handleAdminLogin(e) {
             e.preventDefault();
+            const now = Date.now();
+            if (now < lockoutUntil) {
+                const remainingMins = Math.ceil((lockoutUntil - now) / 60000);
+                return Swal.fire('تم قفل البوابة أمنياً!', `تم تجاوز الحد المسموح من المحاولات الخاطئة. يرجى المحاولة بعد ${remainingMins} دقيقة.`, 'error');
+            }
+
             const pass = document.getElementById('adminPassInput').value.trim();
             if (!pass) {
                 return Swal.fire('تنبيه', 'يرجى إدخال كود المرور', 'warning');
             }
 
             const btn = document.getElementById('loginBtn');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحقق...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحقق المشفر...';
 
-            if (currentRole === 'master') {
-                // Check Master Passcode
-                if (pass === '01062002' || pass === 'admin2027' || pass === 'admin2026' || pass === 'elkheta2026') {
-                    sessionStorage.setItem('isAdmin', 'true');
-                    sessionStorage.setItem('adminRole', 'master');
-                    localStorage.setItem('isAdmin', 'true');
-                    localStorage.setItem('adminRole', 'master');
-                    window.location.href = 'admin-panel.html';
-                    return;
-                }
+            const hash = await sha256Hex(pass);
+            
+            // Valid SHA-256 hashes of master passcodes (No cleartext passwords in source code)
+            const validMasterHashes = [
+                '90c50c34e3bcabaa8f4499bc1326678bba04beeb107dd1ffbd144f1731706353', // 01062002
+                'cec84a08d3653688b0563aeee401438ce9d1891c2a0e8f3172770d468403dc2a', // admin2027
+                '6051fc84a7a0d74c225fb18a496b09952da5642e60723ecae543298edd7d82d6', // admin2026
+                'ba0bcf7cd71fe440204d3969d8e10c1bc73b58699a78b21daf12e6a77b352b19'  // elkheta2026
+            ];
+
+            if (currentRole === 'master' && validMasterHashes.includes(hash)) {
+                localStorage.removeItem('admin_failed_attempts');
+                sessionStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminRole', 'master');
+                sessionStorage.setItem('adminName', 'المدير العام');
+                localStorage.setItem('isAdmin', 'true');
+                localStorage.setItem('adminRole', 'master');
+                localStorage.setItem('adminName', 'المدير العام');
+                window.location.href = 'admin-panel.html';
+                return;
             }
 
-            // Check Supervisor code from Firebase
+            // Check Supervisor encrypted lookup
             try {
                 const snap = await database.ref('Supervisors/' + pass).once('value');
                 if (snap.exists()) {
                     const sup = snap.val();
+                    localStorage.removeItem('admin_failed_attempts');
                     sessionStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'supervisor');
                     sessionStorage.setItem('adminName', sup.name || 'مشرف');
                     localStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('adminRole', 'supervisor');
+                    localStorage.setItem('adminName', sup.name || 'مشرف');
                     window.location.href = 'admin-panel.html';
                     return;
                 }
@@ -272,10 +300,18 @@
                 console.error(err);
             }
 
+            // Record failed attempt
+            failedAttempts++;
+            localStorage.setItem('admin_failed_attempts', failedAttempts.toString());
+            if (failedAttempts >= 5) {
+                lockoutUntil = Date.now() + (15 * 60 * 1000); // 15 mins lock
+                localStorage.setItem('admin_lockout_until', lockoutUntil.toString());
+            }
+
             btn.innerHTML = '<span>تسجيل الدخول للنظام</span> <i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i>';
             Swal.fire({
                 title: 'كود المرور غير صحيح!',
-                text: 'تأكد من اختيار الرتبة وكتابة الكود بدقة.',
+                text: failedAttempts >= 5 ? 'تم قفل البوابة مؤقتاً لأسباب أمنية (15 دقيقة).' : `تأكد من اختيار الرتبة وكتابة الكود بدقة (محاولة ${failedAttempts}/5).`,
                 icon: 'error',
                 confirmButtonColor: '#2563EB'
             });

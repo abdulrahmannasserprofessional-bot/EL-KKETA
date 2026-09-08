@@ -674,6 +674,18 @@
 </head>
 <body>
     <script>
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+    
         if (localStorage.getItem('theme') === 'dark') {
             document.body.classList.add('dark-theme');
         }
@@ -1179,7 +1191,7 @@
                                     <span class="admin-reply-badge">👑 ${rep.senderName || 'الإدارة'} (${repRoleTitle})</span>
                                     <span style="font-size: 11px; color: #94A3B8;">${repDate}</span>
                                 </div>
-                                ${rep.text ? `<div class="admin-reply-text">${rep.text}</div>` : ''}
+                                ${rep.text ? `<div class="admin-reply-text">${escapeHtml(rep.text)}</div>` : ''}
                                 ${repMedia}
                             </div>
                         `;
@@ -1212,7 +1224,7 @@
                             ${deleteBtn}
                         </div>
                     </div>
-                    ${q.text ? `<div class="q-body">${q.text}</div>` : ''}
+                    ${q.text ? `<div class="q-body">${escapeHtml(q.text)}</div>` : ''}
                     ${mediaHtml}
                     ${repliesHtml}
                 `;
