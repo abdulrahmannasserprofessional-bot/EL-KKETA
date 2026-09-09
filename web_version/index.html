@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="mysql-api.js"></script>
+    <script src="security-validator.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
@@ -1091,16 +1092,22 @@
             };
 
             try {
-                // 1. Check Master Admin PIN
-                let masterPin = "2862005";
+                // [SECURITY] فحص Brute Force
+                const bruteCheck = SecurityValidator.isLoginBlocked('index_login');
+                if (bruteCheck.blocked) {
+                    resetBtn();
+                    showToast(`🔒 تم قفل الحساب. حاول بعد ${bruteCheck.lockoutSeconds} ثانية.`, 'error');
+                    return;
+                }
+
+                // [SECURITY] جلب الـ PIN فقط من Firebase — لا hardcoded passwords
+                let masterPin = null;
                 try {
                     const snapM = await database.ref('Settings/adminPin').once('value');
                     if (snapM.exists() && snapM.val()) masterPin = normalizeDigits(snapM.val());
                 } catch(e){}
 
-                const validMasterPins = [masterPin, "2862005", "1234", "01062002", "admin2027", "admin2026", "elkheta2026"];
-
-                if (validMasterPins.includes(code) || code === masterPin) {
+                if (masterPin && code === masterPin) {
                     sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'master');
@@ -1226,7 +1233,8 @@
                     console.warn("ActivationCodes check error:", e);
                 }
 
-                // Not found
+                // Not found — [SECURITY] تسجيل محاولة فاشلة
+                SecurityValidator.recordFailedLogin('index_login');
                 resetBtn();
                 showToast("⚠️ الكود المدخل غير صحيح أو غير مسجل", "error");
 

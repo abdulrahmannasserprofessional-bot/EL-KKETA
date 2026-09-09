@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="security-validator.js"></script>
     <style>
         :root {
             --primary: #2563EB;
@@ -268,8 +269,20 @@
             };
 
             try {
-                // 1. Check Master Admin PIN from Firebase Settings & Fallbacks
-                let masterPin = "2862005";
+                // [SECURITY] فحص Brute Force
+                const bruteCheck = SecurityValidator.isLoginBlocked('admin_gate');
+                if (bruteCheck.blocked) {
+                    resetBtn();
+                    return Swal.fire({
+                        icon: 'error',
+                        title: '🔒 تم قفل الحساب مؤقتاً',
+                        text: `تجاوزت عدد المحاولات المسموح بها. يُرجى المحاولة بعد ${bruteCheck.lockoutSeconds} ثانية.`,
+                        confirmButtonColor: '#E74C3C'
+                    });
+                }
+
+                // [SECURITY] جلب الـ PIN فقط من Firebase — لا يوجد أي fallback مكشوف في الكود
+                let masterPin = null;
                 try {
                     const snapM = await database.ref('Settings/adminPin').once('value');
                     if (snapM.exists() && snapM.val()) {
@@ -279,9 +292,18 @@
                     console.warn("Could not read Settings/adminPin:", err);
                 }
 
-                const validMasterPins = [masterPin, "2862005", "1234", "01062002", "admin2027", "admin2026", "elkheta2026"];
+                if (!masterPin) {
+                    resetBtn();
+                    return Swal.fire({
+                        icon: 'warning',
+                        title: 'خطأ في الإعداد',
+                        text: 'لم يتم ضبط رمز PIN للمدير بعد. تواصل مع المطوّر.',
+                        confirmButtonColor: '#E74C3C'
+                    });
+                }
 
-                if (validMasterPins.includes(pass) || (currentRole === 'master' && pass === masterPin)) {
+                if (pass === masterPin && (currentRole === 'master' || !currentRole)) {
+                    SecurityValidator.clearLoginAttempts('admin_gate');
                     sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'master');
@@ -348,11 +370,15 @@
                     console.warn("Supervisor lookup error:", err);
                 }
 
-                // Not matched
+                // [SECURITY] تسجيل محاولة فاشلة لحماية Brute Force
+                const bruteResult = SecurityValidator.recordFailedLogin('admin_gate');
                 resetBtn();
+                const attemptsMsg = bruteResult.attemptsLeft > 0
+                    ? ` (متبقي ${bruteResult.attemptsLeft} محاولات قبل القفل)`
+                    : ' (تم قفل الحساب لمدة 15 دقيقة)';
                 Swal.fire({
                     title: 'رمز المرور غير صحيح!',
-                    text: 'تأكد من كتابة كود المرور بشكل صحيح والمحاولة مرة أخرى.',
+                    text: 'تأكد من كتابة كود المرور بشكل صحيح والمحاولة مرة أخرى.' + attemptsMsg,
                     icon: 'error',
                     confirmButtonColor: '#2563EB',
                     confirmButtonText: 'حسناً'

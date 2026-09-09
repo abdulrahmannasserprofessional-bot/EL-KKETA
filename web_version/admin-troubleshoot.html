@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>مركز حل المشاكل والدعم الفني السريع 🛠️ - ELKHETA PRO 2027</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1E3A8A;
+            --accent: #38BDF8;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --bg-body: #F8FAFC;
+            --surface: #FFFFFF;
+            --surface-glass: rgba(255, 255, 255, 0.9);
+            --border-color: #E2E8F0;
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #070B14;
+            --surface: #0F172A;
+            --surface-glass: rgba(15, 23, 42, 0.92);
+            --border-color: #1E293B;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            top: 0; right: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(50px);
+        }
+
+        .exec-header {
+            background: var(--exec-gradient);
+            padding: 30px 20px 75px;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            z-index: 2;
+        }
+
+        .header-container {
+            max-width: 1040px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.22); transform: translateX(3px); }
+
+        .theme-toggle-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+        }
+
+        .header-title-box { color: #FFFFFF; }
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #FCA5A5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-title {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
+
+        .main-content {
+            max-width: 1040px;
+            margin: -45px auto 0;
+            padding: 0 16px;
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tabs */
+        .trouble-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        .trouble-tab {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-sub);
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .trouble-tab.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .tab-content-panel { display: none; }
+        .tab-content-panel.active { display: flex; flex-direction: column; gap: 20px; }
+
+        .tool-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        .tool-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tool-card-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tool-card-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .search-box-input {
+            width: 100%;
+            height: 52px;
+            padding: 0 46px 0 18px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-box-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .search-box-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-sub);
+            font-size: 16px;
+        }
+
+        .student-result-card {
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .student-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .info-pill-item {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            padding: 12px 14px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-pill-lbl { font-size: 11px; font-weight: 800; color: var(--text-sub); }
+        .info-pill-val { font-size: 14px; font-weight: 900; color: var(--text-main); font-family: inherit; word-break: break-all; }
+
+        .btn-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-repair {
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: #FFFFFF;
+        }
+        .btn-repair:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+        .btn-repair:active { transform: scale(0.98); }
+
+        .btn-repair.primary { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+        .btn-repair.success { background: linear-gradient(135deg, #10B981, #059669); }
+        .btn-repair.warning { background: linear-gradient(135deg, #F59E0B, #D97706); }
+        .btn-repair.danger { background: linear-gradient(135deg, #EF4444, #DC2626); }
+        .btn-repair.purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+        .btn-repair.whatsapp { background: linear-gradient(135deg, #22C55E, #16A34A); }
+
+        .formula-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(56, 189, 248, 0.12) 100%);
+            border: 2px dashed #93C5FD;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+        .formula-preview-code {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: monospace;
+            color: #1D4ED8;
+            letter-spacing: 4px;
+            margin: 8px 0;
+            display: inline-block;
+            background: var(--surface);
+            padding: 6px 24px;
+            border-radius: 14px;
+            border: 1px solid #BFDBFE;
+        }
+
+        .toast-bubble {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-bubble.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .template-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .template-text {
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--text-main);
+            background: var(--surface);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+        const savedTheme = localStorage.getItem('admin_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+
+    <div class="ambient-glow"></div>
+
+    <header class="exec-header">
+        <div class="header-container">
+            <div class="header-top">
+                <a href="admin-panel.html" class="back-btn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>لوحة الإدارة</span>
+                </a>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+
+            <div class="header-title-box">
+                <div class="badge-academic">
+                    <i class="fa-solid fa-toolbox"></i>
+                    <span>أدوات الصيانة والطوارئ • دفعة 2027</span>
+                </div>
+                <h1 class="header-title">
+                    <i class="fa-solid fa-wrench" style="color:#38BDF8;"></i>
+                    <span>مركز حل المشاكل والدعم الفني السريع</span>
+                </h1>
+                <p class="header-subtitle">تشخيص فوري للطلاب، فك الحظر، تصفير الأجهزة، وتصحيح أكواد الدخول المعتادة (أول حرف + آخر 4 أرقام)</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="trouble-tabs">
+            <button class="trouble-tab active" onclick="switchTroubleTab('tab-diag')">
+                <i class="fa-solid fa-user-doctor"></i> تشخيص الطالب وإصلاحه
+            </button>
+            <button class="trouble-tab" onclick="switchTroubleTab('tab-code-calc')">
+                <i class="fa-solid fa-calculator"></i> حاسبة كود الدخول المعتاد
+            </button>
+            <button class="trouble-tab" onclick="switchTroubleTab('tab-otps')">
+                <i class="fa-solid fa-key"></i> رموز الطوارئ (OTP)
+            </button>
+            <button class="trouble-tab" onclick="switchTroubleTab('tab-codes-check')">
+                <i class="fa-solid fa-ticket"></i> فحص أكواد التفعيل
+            </button>
+            <button class="trouble-tab" onclick="switchTroubleTab('tab-templates')">
+                <i class="fa-brands fa-whatsapp"></i> رسائل الدعم الجاهزة
+            </button>
+            <button class="trouble-tab" onclick="switchTroubleTab('tab-system')">
+                <i class="fa-solid fa-server"></i> صحة الخادم والكاش
+            </button>
+        </div>
+
+        <!-- 1. Student Diagnosis -->
+        <div class="tab-content-panel active" id="tab-diag">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-solid fa-magnifying-glass-chart" style="color:#2563EB;"></i>
+                            <span>تشخيص حساب الطالب وفك القيود بنقرة واحدة</span>
+                        </h3>
+                        <p class="tool-card-desc">ابحث باسم الطالب أو كود الدخول أو رقم الهاتف لحل مشكلته فوراً</p>
+                    </div>
+                </div>
+
+                <div class="search-box-wrap">
+                    <i class="fa-solid fa-magnifying-glass search-box-icon"></i>
+                    <input type="text" id="diagSearchInput" class="search-box-input" placeholder="اكتب اسم الطالب، كود الدخول (مثل A5678)، أو رقم الهاتف..." oninput="onDiagSearchInput()">
+                </div>
+
+                <div id="diagSuggestions" style="display:none; margin-top:-10px; margin-bottom:18px; max-height:220px; overflow-y:auto; background:var(--bg-body); border:1px solid var(--border-color); border-radius:14px; padding:8px;"></div>
+
+                <div id="diagResultBox" style="display:none; margin-bottom:18px;"></div>
+
+                <!-- قائمة الطلاب التلقائية -->
+                <div id="studentsListWrap">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <span style="font-size:13px; font-weight:800; color:var(--text-sub);">
+                            <i class="fa-solid fa-users"></i> جميع الطلاب المسجلين
+                            <span id="studentsTotalBadge" style="background:#EFF6FF; color:#2563EB; font-family:monospace; padding:2px 10px; border-radius:8px; margin-right:6px; font-size:12px;">0</span>
+                        </span>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button onclick="filterStudents('all')" id="filterAll" class="btn-repair primary" style="padding:6px 14px; font-size:12px;">الكل</button>
+                            <button onclick="filterStudents('banned')" id="filterBanned" class="btn-repair danger" style="padding:6px 14px; font-size:12px;">المحظورون</button>
+                            <button onclick="filterStudents('device')" id="filterDevice" class="btn-repair warning" style="padding:6px 14px; font-size:12px;">مقترنون بجهاز</button>
+                        </div>
+                    </div>
+                    <div id="studentsAutoList" style="display:flex; flex-direction:column; gap:6px; max-height:400px; overflow-y:auto; border:1px solid var(--border-color); border-radius:14px; padding:8px; background:var(--bg-body);">
+                        <div style="text-align:center; padding:30px; color:var(--text-sub);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px;"></i>
+                            <p style="margin-top:8px; font-size:13px; font-weight:700;">جاري تحميل بيانات الطلاب...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Code Calculator -->
+        <div class="tab-content-panel" id="tab-code-calc">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:#10B981;"></i>
+                            <span>حاسبة كود الدخول المعتاد وإنشاء الحساب التلقائي</span>
+                        </h3>
+                        <p class="tool-card-desc">توليد الكود الرسمي: <b>أول حرف من الاسم بالإنجليزية + آخر 4 أرقام من الهاتف</b> (مثل A5678)</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 13px; font-weight: 800; display: block; margin-bottom: 6px;">اسم الطالب بالكامل:</label>
+                        <input type="text" id="calcNameInput" class="search-box-input" style="height:48px;" placeholder="مثال: أحمد محمد علي" oninput="liveCalculateCode()">
+                    </div>
+                    <div>
+                        <label style="font-size: 13px; font-weight: 800; display: block; margin-bottom: 6px;">رقم الهاتف / الواتساب:</label>
+                        <input type="text" id="calcPhoneInput" class="search-box-input" style="height:48px;" placeholder="مثال: 01012345678" oninput="liveCalculateCode()">
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <div style="font-size: 13px; font-weight: 800; color: #1E3A8A;">كود الدخول المعتاد المحسوب للطالب:</div>
+                    <div class="formula-preview-code" id="calcPreviewCode">A5678</div>
+                    <div style="font-size: 12px; color: #3B82F6; font-weight: 700; margin-top: 4px;" id="calcFormulaExplanation">حرف (A) لأحمد + آخر 4 أرقام (5678)</div>
+                </div>
+
+                <div class="btn-action-grid" style="margin-top: 20px;">
+                    <button class="btn-repair success" onclick="calcCreateStudentAccount()">
+                        <i class="fa-solid fa-user-plus"></i> إنشاء حساب الطالب فوراً بهذا الكود
+                    </button>
+                    <button class="btn-repair primary" onclick="calcCopyCode()">
+                        <i class="fa-regular fa-copy"></i> نسخ الكود للحافظة
+                    </button>
+                    <button class="btn-repair whatsapp" onclick="calcSendWhatsApp()">
+                        <i class="fa-brands fa-whatsapp"></i> إرسال الكود للطالب عبر واتساب
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Emergency OTPs -->
+        <div class="tab-content-panel" id="tab-otps">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-solid fa-shield-virus" style="color:#EF4444;"></i>
+                            <span>مولد أكواد الدخول والتجاوز الطارئ (Emergency OTP)</span>
+                        </h3>
+                        <p class="tool-card-desc">توليد رمز أمان فوري لتخطي مشاكل وصول كود التحقق لأي طالب</p>
+                    </div>
+                    <button class="btn-repair danger" onclick="generateEmergencyOTP()">
+                        <i class="fa-solid fa-plus"></i> توليد كود طوارئ جديد ⚡
+                    </button>
+                </div>
+
+                <div id="emergencyOtpsContainer" style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="text-align:center; padding:30px; color:var(--text-sub);">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> جاري تحميل أكواد الطوارئ...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Activation Codes Inspector -->
+        <div class="tab-content-panel" id="tab-codes-check">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-solid fa-ticket" style="color:#F59E0B;"></i>
+                            <span>فحص وتحرير أكواد التفعيل (Activation Codes)</span>
+                        </h3>
+                        <p class="tool-card-desc">فحص حالة كود التفعيل، تحرير الأكواد المستهلكة، وحذف الأكواد التالفة</p>
+                    </div>
+                </div>
+
+                <div class="search-box-wrap">
+                    <i class="fa-solid fa-magnifying-glass search-box-icon"></i>
+                    <input type="text" id="codeSearchInput" class="search-box-input" placeholder="ابحث برقم الكود المراد فحصه (مثال: KH27-1234 أو A5678)..." oninput="inspectActivationCode()">
+                </div>
+
+                <div id="codeInspectResult"></div>
+            </div>
+        </div>
+
+        <!-- 5. Templates -->
+        <div class="tab-content-panel" id="tab-templates">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-brands fa-whatsapp" style="color:#22C55E;"></i>
+                            <span>نماذج رسائل الدعم الفني السريعة للواتساب</span>
+                        </h3>
+                        <p class="tool-card-desc">رسائل جاهزة للنسخ أو الإرسال المباشر للطلاب بضغطة زر واحدة</p>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
+                    <div class="template-card">
+                        <h4 style="font-size:14px; font-weight:800; color:#15803D;"><i class="fa-solid fa-key"></i> كود الدخول وبيانات التسجيل</h4>
+                        <div class="template-text" id="tpl1">أهلاً بك يا طالبنا العزيز في منصة الخطة التعليمية 🎓 (دفعة 2027).
+كود الدخول الخاص بك هو: [كود_الطالب]
+رابط المنصة: https://elkheta2026.web.app
+قم بالدخول ووضع الكود للدخول المباشر للمحاضرات والامتحانات.</div>
+                        <button class="btn-repair whatsapp" onclick="copyTemplate('tpl1')"><i class="fa-regular fa-copy"></i> نسخ نص الرسالة</button>
+                    </div>
+
+                    <div class="template-card">
+                        <h4 style="font-size:14px; font-weight:800; color:#1D4ED8;"><i class="fa-solid fa-mobile-screen"></i> حل مشكلة قفل وتغيير الجهاز</h4>
+                        <div class="template-text" id="tpl2">تم تصفير بصمة جهازك بنجاح من قبل إدارة المنصة 📱.
+يمكنك الآن تسجيل الدخول من هاتفك أو جهازك الجديد بكود الدخول الخاص بك دون أي مشاكل.
+رابط المنصة: https://elkheta2026.web.app</div>
+                        <button class="btn-repair primary" onclick="copyTemplate('tpl2')"><i class="fa-regular fa-copy"></i> نسخ نص الرسالة</button>
+                    </div>
+
+                    <div class="template-card">
+                        <h4 style="font-size:14px; font-weight:800; color:#B45309;"><i class="fa-solid fa-lock-open"></i> فك الحظر واستئناف الدراسة</h4>
+                        <div class="template-text" id="tpl3">تم فك الحظر عن حسابك وتصفير عداد الإنذارات بنجاح ✅.
+نرجو الالتزام بتعليمات المنصة وعدم مشاركة حسابك مع الآخرين. بالتوفيق في دراستك! 🎓</div>
+                        <button class="btn-repair warning" onclick="copyTemplate('tpl3')"><i class="fa-regular fa-copy"></i> نسخ نص الرسالة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. System & Cache -->
+        <div class="tab-content-panel" id="tab-system">
+            <div class="tool-card">
+                <div class="tool-card-header">
+                    <div>
+                        <h3 class="tool-card-title">
+                            <i class="fa-solid fa-server" style="color:#4F46E5;"></i>
+                            <span>فحص الاتصال السحابي وتنظيف الكاش الشامل</span>
+                        </h3>
+                        <p class="tool-card-desc">إعادة مزامنة المنصة لدفعة 2027 وتفريغ التخزين المؤقت</p>
+                    </div>
+                </div>
+
+                <div class="btn-action-grid">
+                    <button class="btn-repair primary" onclick="testDatabaseConnection()">
+                        <i class="fa-solid fa-network-wired"></i> فحص سرعة واستجابة قاعدة البيانات
+                    </button>
+                    <button class="btn-repair danger" onclick="forceBustPlatformCache()">
+                        <i class="fa-solid fa-arrows-rotate"></i> فرض تحديث المنصة لجميع الطلاب (2027)
+                    </button>
+                    <button class="btn-repair purple" onclick="resetAdminMasterPinModal()">
+                        <i class="fa-solid fa-key"></i> تعديل باسوورد الأدمن الرئيسي (PIN)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast-bubble" id="toastBubble"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const API_BASE = "https://backendapi-pi.vercel.app/api";
+        let allStudents = [];
+        let allActivationCodes = {};
+        let currentSelectedStudent = null;
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        updateThemeIcon(savedTheme);
+
+        function showToast(msg) {
+            const t = document.getElementById('toastBubble');
+            t.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#38BDF8;"></i> <span>${msg}</span>`;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function switchTroubleTab(tabId) {
+            const btns = document.querySelectorAll('.trouble-tab');
+            btns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.remove('active'));
+            const matchBtn = Array.from(btns).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
+            if (matchBtn) matchBtn.classList.add('active');
+            const targetPanel = document.getElementById(tabId);
+            if (targetPanel) targetPanel.classList.add('active');
+        }
+
+        function generateStandardStudentCode(name, phone) {
+            const map = {
+                "أ":"A","إ":"E","آ":"A","ا":"A","ب":"B","ت":"T","ث":"T","ج":"J","ح":"H","خ":"K",
+                "د":"D","ذ":"D","ر":"R","ز":"Z","س":"S","ش":"S","ص":"S","ض":"D","ط":"T","ظ":"Z",
+                "ع":"A","غ":"G","ف":"F","ق":"Q","ك":"K","ل":"L","م":"M","ن":"N","ه":"H","و":"W",
+                "ي":"Y","ؤ":"O","ئ":"E","ة":"H","ى":"Y"
+            };
+            const cleanName = (name || '').trim();
+            let ch = "S";
+            if (cleanName.length > 0) {
+                const firstChar = cleanName.charAt(0);
+                ch = map[firstChar] || (/[A-Za-z]/.test(firstChar) ? firstChar.toUpperCase() : "S");
+            }
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const phoneSuffix = cleanPhone.length >= 4 
+                ? cleanPhone.slice(-4) 
+                : (cleanPhone.length > 0 ? cleanPhone.padEnd(4, '0') : '1234');
+            return (ch + phoneSuffix).toUpperCase();
+        }
+
+        let currentFilter = 'all';
+
+        database.ref('Students').on('value', snap => {
+            allStudents = [];
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const v = c.val();
+                    if (v) {
+                        v.firebaseKey = c.key;
+                        v.studentCode = v.studentCode || v.code || c.key;
+                        v.fullName = v.fullName || v.name || 'طالب';
+                        v.whatsapp = v.whatsapp || v.phone || '';
+                        allStudents.push(v);
+                    }
+                });
+            }
+            renderStudentsList(allStudents);
+            if (currentSelectedStudent) {
+                const refreshed = allStudents.find(s => s.firebaseKey === currentSelectedStudent.firebaseKey || s.studentCode === currentSelectedStudent.studentCode);
+                if (refreshed) displayStudentDiagnostic(refreshed);
+            }
+        });
+
+        function renderStudentsList(list) {
+            const badge = document.getElementById('studentsTotalBadge');
+            const container = document.getElementById('studentsAutoList');
+            if (!container) return;
+            if (badge) badge.textContent = list.length;
+
+            if (list.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-sub);"><i class="fa-solid fa-users-slash" style="font-size:32px; color:#CBD5E1; margin-bottom:8px;"></i><p style="font-size:13px; font-weight:700;">لا يوجد طلاب في هذا التصنيف</p></div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(s => {
+                const isBanned = Boolean(s.isBanned || s.is_banned == 1);
+                const hasDevice = !!(s.deviceId || s.registeredDevice);
+                const warnings = s.warnings || 0;
+                return `
+                <div onclick="selectStudentForDiag('${s.studentCode || s.firebaseKey}')"
+                     style="padding:10px 14px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid var(--border-color); background:var(--surface); transition:0.2s;"
+                     onmouseover="this.style.background='var(--bg-body)'" onmouseout="this.style.background='var(--surface)'">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:38px; height:38px; border-radius:10px; background:${isBanned ? '#FEE2E2' : '#EFF6FF'}; color:${isBanned ? '#DC2626' : '#2563EB'}; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                            <i class="fa-solid ${isBanned ? 'fa-ban' : 'fa-user-graduate'}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:800; font-size:13px; color:var(--text-main);">${s.fullName}</div>
+                            <div style="display:flex; align-items:center; gap:6px; margin-top:2px; flex-wrap:wrap;">
+                                <span style="font-family:monospace; font-size:11px; font-weight:800; color:#2563EB; background:#EFF6FF; padding:1px 7px; border-radius:6px;">${s.studentCode}</span>
+                                ${isBanned ? '<span style="font-size:10px; font-weight:800; color:#DC2626; background:#FEE2E2; padding:1px 6px; border-radius:5px;"><i class="fa-solid fa-ban"></i> محظور</span>' : ''}
+                                ${warnings > 0 ? `<span style="font-size:10px; font-weight:800; color:#B45309; background:#FEF3C7; padding:1px 6px; border-radius:5px;">⚠️ ${warnings} إنذار</span>` : ''}
+                                ${hasDevice ? '<span style="font-size:10px; font-weight:800; color:#6D28D9; background:#F5F3FF; padding:1px 6px; border-radius:5px;"><i class="fa-solid fa-mobile-screen"></i> مقترن</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                        <span style="font-size:11px; color:var(--text-sub); font-weight:700;">${s.whatsapp || '—'}</span>
+                        <i class="fa-solid fa-chevron-left" style="font-size:11px; color:var(--text-sub);"></i>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filterStudents(type) {
+            currentFilter = type;
+            // تحديث شكل الأزرار
+            ['filterAll','filterBanned','filterDevice'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.style.opacity = '0.5';
+            });
+            const activeId = type === 'all' ? 'filterAll' : type === 'banned' ? 'filterBanned' : 'filterDevice';
+            const activeBtn = document.getElementById(activeId);
+            if (activeBtn) activeBtn.style.opacity = '1';
+
+            let filtered = allStudents;
+            if (type === 'banned') filtered = allStudents.filter(s => s.isBanned || s.is_banned == 1);
+            else if (type === 'device') filtered = allStudents.filter(s => s.deviceId || s.registeredDevice);
+            renderStudentsList(filtered);
+        }
+
+
+
+        database.ref('ActivationCodes').on('value', snap => {
+            allActivationCodes = snap.val() || {};
+        });
+
+        database.ref('EmergencyCodes').on('value', snap => {
+            const listEl = document.getElementById('emergencyOtpsContainer');
+            if (!listEl) return;
+            listEl.innerHTML = "";
+
+            if (!snap.exists()) {
+                listEl.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:var(--text-sub);">
+                        <i class="fa-solid fa-key" style="font-size:32px; color:#CBD5E1; margin-bottom:8px;"></i>
+                        <p style="font-size:13px; font-weight:700;">لا توجد أكواد طوارئ نشطة حالياً. يمكنك توليد كود جديد في أي وقت.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            snap.forEach(child => {
+                const data = child.val();
+                const codeKey = child.key;
+                const createdAt = data.createdAt ? new Date(data.createdAt).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : 'الآن';
+
+                const card = document.createElement('div');
+                card.style = "background:var(--bg-body); border:1px solid var(--border-color); border-radius:16px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;";
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <div style="width:44px; height:44px; background:#FEE2E2; color:#DC2626; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:monospace; font-size:22px; font-weight:900; color:#DC2626; letter-spacing:3px;">${codeKey}</div>
+                            <div style="font-size:11px; color:var(--text-sub); font-weight:700;">تم التوليد: ${createdAt} • صالح لجميع الطلاب</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-repair primary" style="padding:8px 14px; font-size:12px;" onclick="copyCode('${codeKey}')" title="نسخ"><i class="fa-regular fa-copy"></i> نسخ</button>
+                        <button class="btn-repair danger" style="padding:8px 14px; font-size:12px;" onclick="deleteEmergencyOTP('${codeKey}')" title="حذف"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+        });
+
+        function onDiagSearchInput() {
+            const q = document.getElementById('diagSearchInput').value.trim().toLowerCase();
+            document.getElementById('diagSuggestions').style.display = 'none';
+
+            if (!q || q.length < 1) {
+                // إرجاع الفلتر الحالي
+                filterStudents(currentFilter);
+                return;
+            }
+
+            const matches = allStudents.filter(s =>
+                (s.fullName || '').toLowerCase().includes(q) ||
+                (s.studentCode || '').toLowerCase().includes(q) ||
+                (s.whatsapp || '').includes(q)
+            );
+            renderStudentsList(matches);
+        }
+
+        function selectStudentForDiag(code) {
+            document.getElementById('diagSuggestions').style.display = 'none';
+            const student = allStudents.find(s => (s.studentCode || s.firebaseKey) === code);
+            if (student) {
+                document.getElementById('studentsListWrap').style.display = 'none';
+                displayStudentDiagnostic(student);
+            }
+        }
+
+
+        function backToStudentsList() {
+            currentSelectedStudent = null;
+            document.getElementById('diagResultBox').style.display = 'none';
+            document.getElementById('studentsListWrap').style.display = 'block';
+            document.getElementById('diagSearchInput').value = '';
+            filterStudents(currentFilter);
+        }
+
+        function displayStudentDiagnostic(s) {
+            currentSelectedStudent = s;
+            document.getElementById('studentsListWrap').style.display = 'none';
+            const resultBox = document.getElementById('diagResultBox');
+            resultBox.style.display = 'block';
+
+            const isBanned = Boolean(s.isBanned || s.is_banned == 1);
+            const warnings = s.warnings || 0;
+            const deviceId = s.deviceId || s.registeredDevice || 'لا يوجد جهاز مقترن (حر)';
+            const stdFormulaCode = generateStandardStudentCode(s.fullName, s.whatsapp);
+            const isCustomaryMatch = (s.studentCode === stdFormulaCode);
+
+            resultBox.innerHTML = `
+                <div class="student-result-card">
+                    <div style="margin-bottom:14px;">
+                        <button onclick="backToStudentsList()" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-body); border:1px solid var(--border-color); color:var(--text-sub); padding:7px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">
+                            <i class="fa-solid fa-arrow-right"></i> رجوع لقائمة الطلاب
+                        </button>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border-color); padding-bottom:14px;">
+                        <div>
+                            <h2 style="font-size:19px; font-weight:900; color:var(--text-main);">${s.fullName}</h2>
+                            <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                                <span style="font-family:monospace; font-size:16px; font-weight:900; color:#1D4ED8; background:#EFF6FF; border:1px solid #BFDBFE; padding:2px 10px; border-radius:8px;">${s.studentCode}</span>
+                                ${isBanned ? '<span style="background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;"><i class="fa-solid fa-ban"></i> محظور</span>' : '<span style="background:#DCFCE7; color:#15803D; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;"><i class="fa-solid fa-circle-check"></i> نشط</span>'}
+                                <span style="background:#FEF3C7; color:#B45309; font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;">الإنذارات: ${warnings}/3</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span style="font-size:12px; font-weight:800; color:var(--text-sub);">الفرقة الرابعة • دفعة 2027 🎓</span>
+                        </div>
+                    </div>
+
+                    <div class="student-info-grid">
+                        <div class="info-pill-item">
+                            <span class="info-pill-lbl">رقم الهاتف / الواتساب</span>
+                            <span class="info-pill-val">${s.whatsapp || 'غير مسجل'}</span>
+                        </div>
+                        <div class="info-pill-item">
+                            <span class="info-pill-lbl">بصمة الجهاز المقترن</span>
+                            <span class="info-pill-val" style="font-size:11.5px; font-family:monospace; color:${deviceId.includes('حر') ? '#10B981' : '#E11D48'};"><i class="fa-solid fa-mobile-screen"></i> ${deviceId}</span>
+                        </div>
+                        <div class="info-pill-item">
+                            <span class="info-pill-lbl">الكود المعتاد القياسي (المفترض)</span>
+                            <span class="info-pill-val" style="font-family:monospace; color:#2563EB;">${stdFormulaCode} ${isCustomaryMatch ? '✔️' : '⚠️ مختلف'}</span>
+                        </div>
+                        <div class="info-pill-item">
+                            <span class="info-pill-lbl">البريد الإلكتروني</span>
+                            <span class="info-pill-val" style="font-size:12px;">${s.email || '—'}</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:8px;">
+                        <h4 style="font-size:13px; font-weight:900; color:var(--text-main); margin-bottom:8px;">إجراءات الصيانة والإصلاح الفوري بنقرة واحدة:</h4>
+                        <div class="btn-action-grid">
+                            <button class="btn-repair success" onclick="quickUnbanStudent('${s.studentCode}')">
+                                <i class="fa-solid fa-lock-open"></i> فك حظر الطالب فوراً
+                            </button>
+                            <button class="btn-repair primary" onclick="quickResetDevice('${s.studentCode}')">
+                                <i class="fa-solid fa-mobile-screen-button"></i> تصفير بصمة الجهاز المقترن
+                            </button>
+                            <button class="btn-repair warning" onclick="quickClearWarnings('${s.studentCode}')">
+                                <i class="fa-solid fa-triangle-exclamation"></i> تصفير عداد الإنذارات
+                            </button>
+                            ${!isCustomaryMatch ? `
+                                <button class="btn-repair purple" onclick="quickMigrateToStandardCode('${s.studentCode}', '${stdFormulaCode}', '${s.fullName.replace(/'/g, "\\'")}', '${s.whatsapp || ''}')">
+                                    <i class="fa-solid fa-arrows-rotate"></i> تصحيح الكود إلى (${stdFormulaCode})
+                                </button>
+                            ` : ''}
+                            <button class="btn-repair whatsapp" onclick="quickSendWhatsAppStudent('${s.whatsapp || ''}', '${s.fullName.replace(/'/g, "\\'")}', '${s.studentCode}')">
+                                <i class="fa-brands fa-whatsapp"></i> مراسلة الطالب بالواتساب
+                            </button>
+                            <button class="btn-repair danger" onclick="quickDeleteStudent('${s.studentCode}', '${s.fullName.replace(/'/g, "\\'")}')">
+                                <i class="fa-solid fa-trash-can"></i> حذف سجل الطالب نهائياً
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function quickUnbanStudent(code) {
+            await database.ref('Students/' + code).update({
+                isBanned: false,
+                warnings: 0,
+                bannedReason: null
+            });
+            showToast("تم فك حظر الطالب بنجاح!");
+        }
+
+        async function quickResetDevice(code) {
+            await database.ref('Students/' + code).update({
+                registeredDevice: null,
+                deviceId: null,
+                warnings: 0,
+                forgivenMessage: true
+            });
+            showToast("تم تصفير جهاز الطالب بنجاح! يمكنه الآن الدخول من أي هاتف جديد.");
+        }
+
+        async function quickClearWarnings(code) {
+            await database.ref('Students/' + code).update({
+                warnings: 0
+            });
+            showToast("تم تصفير عدد الإنذارات إلى 0!");
+        }
+
+        async function quickMigrateToStandardCode(oldCode, newCode, name, phone) {
+            Swal.fire({
+                title: 'تصحيح كود الطالب للصيغة المعتادة؟',
+                html: `سيتم تغيير كود الطالب من <b style="color:#DC2626; font-family:monospace;">${oldCode}</b> إلى <b style="color:#16A34A; font-family:monospace;">${newCode}</b> ونقل كافة بياناته وامتحاناته.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، تصحيح الكود ونقله',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    const snap = await database.ref('Students/' + oldCode).once('value');
+                    if (snap.exists()) {
+                        const data = snap.val();
+                        data.studentCode = newCode;
+                        await database.ref('Students/' + newCode).set(data);
+                        await database.ref('Students/' + oldCode).remove();
+
+                        await database.ref('ActivationCodes/' + newCode).set({
+                            code: newCode,
+                            isUsed: true,
+                            usedBy: name,
+                            phone: phone,
+                            activatedAt: Date.now()
+                        });
+
+                        showToast(`تم تغيير كود الطالب إلى ${newCode} بنجاح!`);
+                        selectStudentForDiag(newCode);
+                    }
+                }
+            });
+        }
+
+        function quickSendWhatsAppStudent(phone, name, code) {
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\nكود الدخول الخاص بك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
+            window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
+        }
+
+        async function quickDeleteStudent(code, name) {
+            Swal.fire({
+                title: 'حذف سجل الطالب نهائياً؟',
+                html: `هل أنت متأكد من حذف حساب <b style="color:#DC2626;">${name}</b> (${code})؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، حذف نهائياً',
+                cancelButtonText: 'إلغاء'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    await database.ref('Students/' + code).remove();
+                    backToStudentsList();
+                    showToast("تم حذف سجل الطالب نهائياً");
+                }
+            });
+        }
+
+        function liveCalculateCode() {
+            const name = document.getElementById('calcNameInput').value;
+            const phone = document.getElementById('calcPhoneInput').value;
+            const code = generateStandardStudentCode(name, phone);
+            document.getElementById('calcPreviewCode').textContent = code;
+
+            const firstChar = (name || '').trim().charAt(0) || 'طالب';
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const phoneSuffix = cleanPhone.length >= 4 ? cleanPhone.slice(-4) : '—';
+            document.getElementById('calcFormulaExplanation').textContent = `حرف (${code.charAt(0)}) للاسم (${firstChar}) + آخر 4 أرقام (${phoneSuffix})`;
+        }
+
+        function calcCopyCode() {
+            const code = document.getElementById('calcPreviewCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`تم نسخ الكود: ${code}`);
+            });
+        }
+
+        async function calcCreateStudentAccount() {
+            const name = document.getElementById('calcNameInput').value.trim();
+            const phone = document.getElementById('calcPhoneInput').value.trim();
+            const code = document.getElementById('calcPreviewCode').textContent.trim();
+
+            if (!name) return showToast("⚠️ أدخل اسم الطالب أولاً");
+
+            const studentPayload = {
+                fullName: name,
+                whatsapp: phone,
+                phone: phone,
+                studentCode: code,
+                email: `${code.toLowerCase()}@elkheta.com`,
+                isBanned: false,
+                warnings: 0,
+                joinDate: Date.now(),
+                createdAt: Date.now()
+            };
+
+            await database.ref('Students/' + code).set(studentPayload);
+            await database.ref('ActivationCodes/' + code).set({
+                code: code,
+                isUsed: true,
+                usedBy: name,
+                phone: phone,
+                activatedAt: Date.now()
+            });
+
+            Swal.fire({
+                title: 'تم إنشاء الحساب بنجاح 🎉',
+                html: `
+                    <div style="text-align:center; font-family:'Cairo', sans-serif;">
+                        <p style="font-size:14px; margin-bottom:8px;">تم تسجيل الطالب <b>${name}</b> بنجاح بالكود المعتاد:</p>
+                        <div style="font-size:24px; font-weight:900; font-family:monospace; color:#16A34A; background:#F0FDF4; border:2px dashed #4ADE80; border-radius:12px; padding:12px; margin-bottom:12px; letter-spacing:3px;">
+                            ${code}
+                        </div>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#2563EB'
+            });
+        }
+
+        function calcSendWhatsApp() {
+            const name = document.getElementById('calcNameInput').value.trim();
+            const phone = document.getElementById('calcPhoneInput').value.trim();
+            const code = document.getElementById('calcPreviewCode').textContent.trim();
+            quickSendWhatsAppStudent(phone, name, code);
+        }
+
+        async function generateEmergencyOTP() {
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            await database.ref('EmergencyCodes/' + otpCode).set({
+                code: otpCode,
+                createdAt: Date.now(),
+                expiresAt: Date.now() + 3600000
+            });
+            showToast(`تم توليد كود الطوارئ: ${otpCode}`);
+        }
+
+        async function deleteEmergencyOTP(code) {
+            await database.ref('EmergencyCodes/' + code).remove();
+            showToast("تم حذف كود الطوارئ");
+        }
+
+        function copyCode(c) {
+            navigator.clipboard.writeText(c).then(() => showToast(`تم النسخ: ${c}`));
+        }
+
+        function inspectActivationCode() {
+            const q = document.getElementById('codeSearchInput').value.trim();
+            const resBox = document.getElementById('codeInspectResult');
+            if (!q) {
+                resBox.innerHTML = "";
+                return;
+            }
+
+            const codeData = allActivationCodes[q] || Object.values(allActivationCodes).find(c => c.code === q);
+            if (!codeData) {
+                resBox.innerHTML = `
+                    <div style="background:var(--bg-body); border:1px solid var(--border-color); border-radius:14px; padding:16px; text-align:center; color:var(--text-sub); font-size:13px; font-weight:700;">
+                        ⚠️ الكود <b>${q}</b> غير موجود في جدول أكواد التفعيل
+                    </div>
+                `;
+                return;
+            }
+
+            const isUsed = Boolean(codeData.isUsed);
+            resBox.innerHTML = `
+                <div style="background:var(--bg-body); border:1.5px solid var(--border-color); border-radius:18px; padding:18px; display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-family:monospace; font-size:22px; font-weight:900; color:#2563EB;">${codeData.code || q}</span>
+                        <span style="padding:3px 10px; border-radius:8px; font-size:12px; font-weight:800; background:${isUsed ? '#FEE2E2; color:#DC2626;' : '#DCFCE7; color:#15803D;'}">
+                            ${isUsed ? '🔴 مستخدم' : '🟢 متاح'}
+                        </span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-sub);">
+                        ${codeData.usedBy ? `مستخدم بواسطة: <b>${codeData.usedBy}</b> (${codeData.phone || 'بدون هاتف'})` : 'لم يتم ربطه بأي طالب بعد'}
+                    </div>
+                    <div style="display:flex; gap:8px; margin-top:6px;">
+                        ${isUsed ? `
+                            <button class="btn-repair success" style="padding:8px 14px; font-size:12px;" onclick="freeActivationCode('${codeData.code || q}')">
+                                <i class="fa-solid fa-arrows-rotate"></i> تحرير الكود
+                            </button>
+                        ` : ''}
+                        <button class="btn-repair danger" style="padding:8px 14px; font-size:12px;" onclick="deleteActivationCodeDirect('${codeData.code || q}')">
+                            <i class="fa-solid fa-trash-can"></i> حذف الكود
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function freeActivationCode(code) {
+            await database.ref('ActivationCodes/' + code).update({
+                isUsed: false,
+                usedBy: null,
+                phone: null
+            });
+            showToast("تم تحرير كود التفعيل وأصبح متاحاً للاستخدام الآن!");
+            inspectActivationCode();
+        }
+
+        async function deleteActivationCodeDirect(code) {
+            await database.ref('ActivationCodes/' + code).remove();
+            showToast("تم حذف كود التفعيل بنجاح");
+            inspectActivationCode();
+        }
+
+        function copyTemplate(id) {
+            const text = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("تم نسخ نص الرسالة للحافظة بنجاح!");
+            });
+        }
+
+        async function testDatabaseConnection() {
+            const start = Date.now();
+            try {
+                await database.ref('.info/connected').once('value');
+                const latency = Date.now() - start;
+                Swal.fire({
+                    title: 'الاتصال السحابي ممتاز ⚡',
+                    html: `قاعدة بيانات Firebase Realtime متصلة ومستقرة.<br>سرعة الاستجابة: <b>${latency}ms</b>`,
+                    icon: 'success',
+                    confirmButtonColor: '#2563EB'
+                });
+            } catch(e) {
+                Swal.fire('خطأ في الاتصال', e.message, 'error');
+            }
+        }
+
+        async function forceBustPlatformCache() {
+            const versionStamp = '2027.' + Date.now();
+            await database.ref('Settings/appVersion').set(versionStamp);
+            await database.ref('Settings/cacheBuster').set(Date.now());
+            Swal.fire({
+                title: 'تم تحديث المنصة لدفعة 2027 🚀',
+                text: 'تم إرسال إشارة إعادة تحميل وتفريغ الكاش لجميع أجهزة الطلاب والمتصفحات.',
+                icon: 'success',
+                confirmButtonColor: '#2563EB'
+            });
+        }
+
+        function resetAdminMasterPinModal() {
+            Swal.fire({
+                title: 'أدخل رمز PIN الجديد',
+                input: 'text',
+                inputLabel: 'اكتب الرمز الجديد (4_7 أرقام)',
+                inputValue: '',
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB'
+            }).then(async (res) => {
+                if (res.isConfirmed && res.value) {
+                    await database.ref('Settings/adminPin').set(res.value);
+                    showToast(`تم تحديث باسوورد الأدمن إلى: ${res.value}`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

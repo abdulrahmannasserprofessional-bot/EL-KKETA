@@ -48,19 +48,15 @@ const ElkhetaAPI = {
         const u = (username || '').trim();
         const p = (password || '').trim();
 
-        // 1. فحص فوري للمسؤول العام (Master Admin)
-        if (p === '2862005' && (u === 'admin' || u === 'مسؤول' || u === '2862005' || u === 'المدير')) {
-            return {
-                success: true,
-                message: 'مرحباً بالمسؤول العام (صلاحيات كاملة) 👑',
-                token: 'local_master_token_' + Date.now(),
-                admin: {
-                    id: 1,
-                    username: 'المسؤول العام',
-                    role: 'super_admin',
-                    is_super_admin: true
-                }
-            };
+        // [SECURITY] تم إزالة أي كلمة مرور مكشوفة (hardcoded) من الكود.
+        // المصادقة تعتمد فقط على:
+        // أ) Firebase Settings/adminPin (مخزّنة في قاعدة البيانات)
+        // ب) جدول Supervisors في Firebase
+        // ج) الـ Backend API
+        // لا يوجد أي bypass على مستوى الكود الأمامي (frontend).
+
+        if (!u || !p) {
+            return { success: false, error: 'يرجى إدخال اسم المستخدم وكلمة المرور' };
         }
 
         try {
@@ -70,26 +66,8 @@ const ElkhetaAPI = {
                 body: JSON.stringify({ username: u, password: p })
             }, 6000);
 
-            if (!data || !data.success) {
-                if (p === '2862005') {
-                    return {
-                        success: true,
-                        message: 'مرحباً بالمسؤول العام (وضع الطوارئ) 👑',
-                        token: 'local_master_token_' + Date.now(),
-                        admin: { id: 1, username: u || 'المسؤول العام', role: 'super_admin', is_super_admin: true }
-                    };
-                }
-            }
-            return data;
+            return data || { success: false, error: 'لا توجد استجابة من الخادم' };
         } catch (err) {
-            if (p === '2862005') {
-                return {
-                    success: true,
-                    message: 'مرحباً بالمسؤول العام (وضع الطوارئ) 👑',
-                    token: 'local_master_token_' + Date.now(),
-                    admin: { id: 1, username: u || 'المسؤول العام', role: 'super_admin', is_super_admin: true }
-                };
-            }
             return { success: false, error: 'تعذر الاتصال بقاعدة البيانات: ' + err.message };
         }
     },
