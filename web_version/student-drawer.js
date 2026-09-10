@@ -686,14 +686,17 @@
         }
     };
 
-    // Auto attach click triggers to all hamburger buttons
+    // Auto attach click triggers to all hamburger buttons including #openDrawer
     function attachDrawerTriggers() {
         buildDrawer();
-        document.querySelectorAll('.menu-btn, .header-menu-btn, [data-action="open-drawer"], .drawer-toggle-btn').forEach(btn => {
+        document.querySelectorAll('#openDrawer, .menu-btn, .header-menu-btn, [data-action="open-drawer"], .drawer-toggle-btn').forEach(btn => {
             btn.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.toggleStudentDrawer();
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                if (window.openStudentDrawer) {
+                    window.openStudentDrawer();
+                } else if (window.toggleStudentDrawer) {
+                    window.toggleStudentDrawer();
+                }
             };
         });
     }
