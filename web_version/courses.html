@@ -753,12 +753,35 @@
             } catch(e) {}
         }
 
-        // Real-Time Live Sync
+        // Real-Time Live Sync — Promise.all بدلاً من listeners متداخلة
         function initRealtimeSubjects() {
-            database.ref('Subjects').on('value', snap => {
+            const loadTimeout = setTimeout(() => {
+                // إذا لم تظهر البيانات خلال 10 ثواني — اعرض زر إعادة المحاولة
+                const container = document.getElementById('subjectsContainer');
+                if (container && container.innerHTML.includes('⏳')) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:40px 20px; grid-column:1/-1;">
+                            <div style="font-size:40px; margin-bottom:12px;">📡</div>
+                            <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0 0 6px;">تعذّر تحميل المواد</h3>
+                            <p style="font-size:13px; color:#64748B; font-weight:600; margin:0 0 16px;">تحقق من اتصالك بالإنترنت وأعد المحاولة</p>
+                            <button onclick="location.reload()" style="background:#2563EB; color:#fff; border:none; padding:10px 24px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">
+                                🔄 إعادة المحاولة
+                            </button>
+                        </div>
+                    `;
+                }
+            }, 10000);
+
+            Promise.all([
+                database.ref('Subjects').once('value'),
+                database.ref('Lectures').once('value'),
+                database.ref('Content').once('value')
+            ]).then(([subSnap, lecSnap, contentSnap]) => {
+                clearTimeout(loadTimeout);
+
                 const rawSubjects = [];
-                if (snap.exists()) {
-                    snap.forEach(child => {
+                if (subSnap.exists()) {
+                    subSnap.forEach(child => {
                         const sub = child.val();
                         if (sub && sub.name) {
                             rawSubjects.push({ id: child.key, name: sub.name });
@@ -766,46 +789,52 @@
                     });
                 }
 
-                // Query BOTH Lectures and Content
-                database.ref('Lectures').on('value', lecSnap => {
-                    database.ref('Content').on('value', contentSnap => {
-                        lectureCounts = {};
-                        const allLecData = {};
-
-                        if (lecSnap.exists()) {
-                            lecSnap.forEach(s => {
-                                allLecData[s.key] = s.numChildren();
-                            });
-                        }
-                        if (contentSnap.exists()) {
-                            contentSnap.forEach(s => {
-                                allLecData[s.key] = (allLecData[s.key] || 0) + s.numChildren();
-                            });
-                        }
-
-                        // Map counts to subjects with smart matching
-                        rawSubjects.forEach(sub => {
-                            let totalCount = 0;
-                            Object.keys(allLecData).forEach(lecKey => {
-                                if (matchSubjectName(sub.name, lecKey)) {
-                                    totalCount += allLecData[lecKey];
-                                }
-                            });
-                            lectureCounts[sub.name] = totalCount;
-                        });
-
-                        allSubjects = rawSubjects;
-                        sessionStorage.setItem('elkheta_cached_subjects', JSON.stringify(allSubjects));
-                        renderSubjects(allSubjects);
-
-                        const totalBadge = document.getElementById('totalSubjectsBadge');
-                        if (totalBadge) totalBadge.innerHTML = `📚 ${allSubjects.length} مواد دراسية متاحة`;
+                const allLecData = {};
+                if (lecSnap.exists()) {
+                    lecSnap.forEach(s => { allLecData[s.key] = s.numChildren(); });
+                }
+                if (contentSnap.exists()) {
+                    contentSnap.forEach(s => {
+                        allLecData[s.key] = (allLecData[s.key] || 0) + s.numChildren();
                     });
+                }
+
+                rawSubjects.forEach(sub => {
+                    let totalCount = 0;
+                    Object.keys(allLecData).forEach(lecKey => {
+                        if (matchSubjectName(sub.name, lecKey)) totalCount += allLecData[lecKey];
+                    });
+                    lectureCounts[sub.name] = totalCount;
                 });
+
+                allSubjects = rawSubjects;
+                sessionStorage.setItem('elkheta_cached_subjects', JSON.stringify(allSubjects));
+                renderSubjects(allSubjects);
+
+                const totalBadge = document.getElementById('totalSubjectsBadge');
+                if (totalBadge) totalBadge.innerHTML = `📚 ${allSubjects.length} مواد دراسية متاحة`;
+
+            }).catch(err => {
+                clearTimeout(loadTimeout);
+                console.error('Subjects load error:', err);
+                const container = document.getElementById('subjectsContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:40px 20px; grid-column:1/-1;">
+                            <div style="font-size:40px; margin-bottom:12px;">⚠️</div>
+                            <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0 0 6px;">خطأ في تحميل البيانات</h3>
+                            <p style="font-size:13px; color:#64748B; font-weight:600; margin:0 0 16px;">${err.message || 'حدث خطأ غير متوقع'}</p>
+                            <button onclick="location.reload()" style="background:#2563EB; color:#fff; border:none; padding:10px 24px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">
+                                🔄 إعادة المحاولة
+                            </button>
+                        </div>
+                    `;
+                }
             });
         }
 
         initRealtimeSubjects();
+
 
         function renderSubjects(subjects) {
             const container = document.getElementById('subjectsContainer');
