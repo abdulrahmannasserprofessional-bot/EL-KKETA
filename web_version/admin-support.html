@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة تذاكر الدعم الفني - لوحة الأدمن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="mysql-api.js"></script>
+    <script src="security-validator.js"></script>
+    <style>
+        :root {
+            --primary: #2563EB;
+            --bg-body: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .topbar {
+            background: #FFF;
+            border-radius: 20px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+
+        .back-btn {
+            background: #F1F5F9;
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 13.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card {
+            background: #FFF;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-color);
+            background: #FFF;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #2563EB;
+            color: white;
+            border-color: #2563EB;
+        }
+
+        .ticket-item {
+            background: #F8FAFC;
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .ticket-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px;
+        }
+
+        .user-name { font-size: 14.5px; font-weight: 900; color: var(--text-main); }
+        .user-code { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+
+        .badge-open { background: #FEF3C7; color: #D97706; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 800; }
+        .badge-resolved { background: #DCFCE7; color: #15803D; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 800; }
+
+        .ticket-text {
+            background: #FFF;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .reply-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .reply-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-color);
+            font-size: 13.5px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .reply-input:focus { border-color: var(--primary); }
+
+        .btn-reply {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            background: #10B981;
+            color: white;
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            background: #FEE2E2;
+            color: #DC2626;
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Topbar -->
+        <header class="topbar">
+            <a href="admin-panel.html" class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+                <span>لوحة التحكم الرئيسية</span>
+            </a>
+            <h2 style="font-size: 18px; font-weight: 900;">💬 إدارة تذاكر الدعم الفني للطلاب</h2>
+            <div></div>
+        </header>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="setFilter('', this)">الجميع</button>
+                <button class="filter-btn" onclick="setFilter('open', this)">🟡 المعلقة (Open)</button>
+                <button class="filter-btn" onclick="setFilter('resolved', this)">🟢 التماثل والردود (Resolved)</button>
+            </div>
+
+            <div id="ticketsContainer">
+                <div style="text-align: center; padding: 30px; color: var(--text-muted); font-weight: 700;">⏳ جاري تحميل تذاكر الدعم الفني...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = '';
+
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            location.href = 'admin-gate.html';
+        }
+
+        async function loadTickets() {
+            const container = document.getElementById('ticketsContainer');
+            try {
+                const res = await ElkhetaAPI.getSupportTickets('', currentFilter, 100);
+                if (res && res.success && res.tickets && res.tickets.length > 0) {
+                    container.innerHTML = res.tickets.map(t => {
+                        const statusBadge = t.status === 'resolved' 
+                            ? `<span class="badge-resolved">🟢 تم الرد</span>`
+                            : `<span class="badge-open">🟡 معلقة</span>`;
+
+                        const initial = (t.student_name || 'ط').charAt(0);
+
+                        return `
+                            <div class="ticket-item" id="ticket-${t.id}">
+                                <div class="ticket-meta">
+                                    <div class="user-info">
+                                        <div class="user-avatar">${initial}</div>
+                                        <div>
+                                            <div class="user-name">${t.student_name || 'طالب'}</div>
+                                            <div class="user-code">الكود: ${t.student_code} • ${t.category || 'عام'} ${t.subject_title ? '• ' + t.subject_title : ''}</div>
+                                        </div>
+                                    </div>
+                                    ${statusBadge}
+                                </div>
+                                <div class="ticket-text">${SecurityValidator.sanitizeText(t.message)}</div>
+                                
+                                ${t.admin_reply ? `
+                                    <div style="background:#ECFDF5; border:1px solid #A7F3D0; padding:10px 14px; border-radius:12px; margin-bottom:10px; font-size:13px; font-weight:700; color:#065F46;">
+                                        <strong>رد الإدارة الحالي:</strong> ${SecurityValidator.sanitizeText(t.admin_reply)}
+                                    </div>
+                                ` : ''}
+
+                                <div class="reply-box">
+                                    <input type="text" class="reply-input" id="replyInput-${t.id}" placeholder="اكتب ردك للطالب هنا..." value="${t.admin_reply || ''}">
+                                    <button class="btn-reply" onclick="sendReply(${t.id})">💬 إرسال الرد</button>
+                                    <button class="btn-delete" onclick="deleteTicket(${t.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: 700;">📭 لا توجد تذاكر دعم فني حالياً.</div>`;
+                }
+            } catch(err) {
+                console.error(err);
+                container.innerHTML = `<div style="text-align: center; padding: 40px; color: #EF4444; font-weight: 700;">خطأ في تحميل البيانات من الخادم</div>`;
+            }
+        }
+
+        function setFilter(status, btn) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadTickets();
+        }
+
+        async function sendReply(id) {
+            const input = document.getElementById(`replyInput-${id}`);
+            const reply = input.value.trim();
+            if (!reply) return Swal.fire('تنبيه', 'يرجى كتابة الرد أولاً', 'warning');
+
+            try {
+                const res = await ElkhetaAPI.replySupportTicket(id, reply, 'resolved');
+                if (res && res.success) {
+                    Swal.fire({
+                        title: 'تم إرسال الرد بنجاح 🎉',
+                        icon: 'success',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    loadTickets();
+                } else {
+                    Swal.fire('خطأ', res.error || 'تعذر حفظ الرد', 'error');
+                }
+            } catch(e) {
+                Swal.fire('خطأ', e.message, 'error');
+            }
+        }
+
+        async function deleteTicket(id) {
+            const confirm = await Swal.fire({
+                title: 'هل أنت متأكد من حذف التذكرة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (confirm.isConfirmed) {
+                const res = await ElkhetaAPI.deleteSupportTicket(id);
+                if (res && res.success) {
+                    loadTickets();
+                }
+            }
+        }
+
+        loadTickets();
+    </script>
+</body>
+</html>
