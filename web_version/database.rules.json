@@ -6,7 +6,10 @@
     "Students": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["email", "phone", "isBanned", "deviceId", "lastActive", "joinDate"]
+      ".indexOn": ["email", "phone", "isBanned", "deviceId", "lastActive", "joinDate"],
+      "$studentCode": {
+        ".validate": "newData.hasChildren(['fullName']) && newData.child('fullName').isString()"
+      }
     },
 
     "ActivationCodes": {
@@ -24,73 +27,79 @@
     "Supervisors": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["isActive", "pin"]
+      ".indexOn": ["isActive"]
     },
 
     "Lectures": {
       ".read": true,
-      ".write": true,
-      "$subject": {
-        ".indexOn": ["chapter", "unlockTime"]
-      }
+      ".write": false
+    },
+
+    "Content": {
+      ".read": true,
+      ".write": false
     },
 
     "Subjects": {
       ".read": true,
-      ".write": true,
+      ".write": false,
       ".indexOn": ["name", "order"]
+    },
+
+    "Exams": {
+      ".read": true,
+      ".write": false
     },
 
     "Announcements": {
       ".read": true,
-      ".write": true,
+      ".write": false,
       ".indexOn": ["createdAt", "batch"]
     },
 
     "Mistakes": {
       ".read": true,
       ".write": true,
-      ".indexOn": ["studentCode", "subjectId"]
+      ".indexOn": ["studentCode", "subjectId"],
+      "$mistakeId": {
+        ".validate": "newData.hasChildren(['studentCode'])"
+      }
     },
 
     "Leaderboard": {
       ".read": true,
-      ".write": true,
+      ".write": false,
       ".indexOn": ["score"]
     },
 
     "PushTokens": {
-      ".read": true,
+      ".read": false,
       ".write": true
     },
 
     "Settings": {
       ".read": true,
-      ".write": true
+      ".write": false
     },
 
     "Community": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      "$postId": {
+        ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length <= 2000"
+      }
     },
 
     "Chat": {
       ".read": true,
-      ".write": true
-    },
-
-    "Content": {
-      ".read": true,
-      ".write": true
-    },
-
-    "Exams": {
-      ".read": true,
-      ".write": true
+      ".write": true,
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length <= 1000"
+      }
     },
 
     "ActivityLogs": {
-      ".read": true,
+      ".read": false,
       ".write": true
     }
   }
