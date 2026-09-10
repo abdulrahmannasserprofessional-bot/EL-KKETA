@@ -266,6 +266,41 @@ const ElkhetaAPI = {
 
     async clearActivityLogs() {
         return await safeFetchJson(`${API_BASE_URL}/activity/logs`, { method: 'DELETE' }, 6000);
+    },
+
+    // 10. تذاكر الدعم الفني
+    async createSupportTicket(studentCode, studentName, subjectTitle, category, message) {
+        return await safeFetchJson(`${API_BASE_URL}/support/tickets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_code: studentCode,
+                student_name: studentName,
+                subject_title: subjectTitle,
+                category: category,
+                message: message
+            })
+        }, 8000);
+    },
+
+    async getSupportTickets(studentCode = '', status = '', limit = 50) {
+        const params = new URLSearchParams();
+        if (studentCode) params.append('student_code', studentCode);
+        if (status) params.append('status', status);
+        params.append('limit', limit);
+        return await safeFetchJson(`${API_BASE_URL}/support/tickets?${params.toString()}`, {}, 6000);
+    },
+
+    async replySupportTicket(ticketId, reply, status = 'resolved') {
+        return await safeFetchJson(`${API_BASE_URL}/support/tickets/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_id: ticketId, reply, status })
+        }, 8000);
+    },
+
+    async deleteSupportTicket(id) {
+        return await safeFetchJson(`${API_BASE_URL}/support/tickets/${id}`, { method: 'DELETE' }, 6000);
     }
 };
 
