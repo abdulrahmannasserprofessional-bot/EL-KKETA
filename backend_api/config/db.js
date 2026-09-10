@@ -38,14 +38,5 @@ if (dbUrl) {
 
 const pool = mysql.createPool(poolConfig);
 
-// فحص الاتصال الأولي
-pool.getConnection()
-    .then(conn => {
-        console.log('✅ تم الاتصال بقاعدة بيانات MySQL بنجاح!');
-        conn.release();
-    })
-    .catch(err => {
-        console.warn('⚠️ تحذير: لم يتم الاتصال بـ MySQL بعد (يرجى ضبط بيانات .env):', err.message);
-    });
-
+// التصدير المباشر لـ Pool
 module.exports = pool;
