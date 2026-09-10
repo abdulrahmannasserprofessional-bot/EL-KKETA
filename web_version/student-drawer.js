@@ -450,10 +450,10 @@
                         <div class="elkheta-online-indicator" title="متصل الآن"></div>
                     </div>
                     <div class="elkheta-user-meta">
-                        <div class="elkheta-user-name">${user.fullName || 'طالب منصة الخطة'}</div>
+                        <div class="elkheta-user-name" id="_drawer_name"></div>
                         <div class="elkheta-user-code-pill" onclick="copyDrawerStudentCode()" title="اضغط لنسخ الكود الخاص بك">
                             <span>🔑</span>
-                            <span id="drawerUserCode">${user.code || '---'}</span>
+                            <span id="drawerUserCode"></span>
                             <span style="font-size: 9px; opacity: 0.7;">📋</span>
                         </div>
                         <div class="elkheta-stage-pill">الفرقة الرابعة • خدمة اجتماعية 2027 🎓</div>
@@ -605,6 +605,12 @@
                 </div>
             </div>
         `;
+
+        // [SECURITY] إدخال بيانات المستخدم عبر textContent — حماية من XSS
+        const nameEl = drawerEl.querySelector('#_drawer_name');
+        if (nameEl) nameEl.textContent = user.fullName || 'طالب منصة الخطة';
+        const codeEl = drawerEl.querySelector('#drawerUserCode');
+        if (codeEl) codeEl.textContent = user.code || '---';
 
         document.body.appendChild(drawerEl);
     }

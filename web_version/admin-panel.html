@@ -668,15 +668,10 @@
 <body>
 
     <script>
+        // [SECURITY] التحقق من المصادقة — sessionStorage فقط (لا localStorage)
+        // localStorage قابل للتلاعب بسهولة من DevTools
         if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            if (localStorage.getItem('isAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
-                if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
-                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
-            } else {
-                window.location.href = "admin-gate.html";
-            }
+            window.location.href = "admin-gate.html";
         }
 
         if (localStorage.getItem('theme') === 'dark') {
@@ -925,13 +920,47 @@
                         <div class="card-title-row">
                             <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
                         </div>
-                        <div class="card-desc">توليد الأكواد، فحص أجهزة الدخول، وتعديل بيانات الطلاب</div>
+                        <div class="card-desc">توليد الأكواد المعتادة، فحص أجهزة الدخول، وتعديل وتصدير البيانات</div>
                     </div>
                 </div>
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
             </div>
 
-            <!-- 4. System Settings & Supervisors -->
+            <!-- 4. Activation Codes Generator -->
+            <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #16A34A, #15803D);">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">توليد وإدارة أكواد التفعيل</span>
+                            <span class="card-badge badge-vip">تفعيل 🔑</span>
+                        </div>
+                        <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 5. Troubleshooting & Diagnostic Tools -->
+            <div class="action-card" data-perm="config" onclick="location.href='admin-troubleshoot.html'">
+                <div class="card-left-content">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">
+                        <i class="fa-solid fa-toolbox"></i>
+                    </div>
+                    <div class="card-texts">
+                        <div class="card-title-row">
+                            <span class="card-title">مركز حل المشاكل والدعم الفني</span>
+                            <span class="card-badge badge-live-red">طوارئ 🛠️</span>
+                        </div>
+                        <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
+                    </div>
+                </div>
+                <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+            </div>
+
+            <!-- 6. System Settings & Supervisors -->
             <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
                 <div class="card-left-content">
                     <div class="card-icon-box" style="background: linear-gradient(135deg, #475569, #334155);">
@@ -941,7 +970,7 @@
                         <div class="card-title-row">
                             <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
                         </div>
-                        <div class="card-desc">إدارة صلاحيات المشرفين، فك الحظر، وحلول مشاكل الدخول</div>
+                        <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة</div>
                     </div>
                 </div>
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>

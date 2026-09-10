@@ -1151,17 +1151,27 @@
 
                 let mediaHtml = '';
                 if (q.type === 'image' && q.mediaUrl) {
-                    mediaHtml = `
-                        <div class="q-media-container">
-                            <img src="${q.mediaUrl}" onclick="window.open('${q.mediaUrl}', '_blank')" alt="صورة توضيحية">
-                        </div>
-                    `;
+                    // [SECURITY] التحقق أن الـ URL يبدأ بـ https:// فقط
+                    const safeImgUrl = String(q.mediaUrl).startsWith('https://') ? q.mediaUrl : '';
+                    if (safeImgUrl) {
+                        const escapedUrl = safeImgUrl.replace(/"/g, '&quot;');
+                        mediaHtml = `
+                            <div class="q-media-container">
+                                <img src="${escapedUrl}" onclick="window.open('${escapedUrl}', '_blank')" alt="صورة توضيحية">
+                            </div>
+                        `;
+                    }
                 } else if (q.type === 'audio' && q.mediaUrl) {
-                    mediaHtml = `
-                        <div class="q-media-container">
-                            <audio controls src="${q.mediaUrl}"></audio>
-                        </div>
-                    `;
+                    // [SECURITY] التحقق أن الـ URL يبدأ بـ https:// فقط
+                    const safeAudioUrl = String(q.mediaUrl).startsWith('https://') ? q.mediaUrl : '';
+                    if (safeAudioUrl) {
+                        const escapedUrl = safeAudioUrl.replace(/"/g, '&quot;');
+                        mediaHtml = `
+                            <div class="q-media-container">
+                                <audio controls src="${escapedUrl}"></audio>
+                            </div>
+                        `;
+                    }
                 }
 
                 let statusBadge = '';

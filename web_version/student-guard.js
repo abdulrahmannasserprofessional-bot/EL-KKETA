@@ -57,7 +57,7 @@
 
                 <h2 style="font-size: 22px; font-weight: 900; color: #1E293B; margin-bottom: 8px;">حسابك موقوف ومعطل</h2>
                 <p style="font-size: 14px; font-weight: 700; color: #64748B; margin-bottom: 20px; line-height: 1.6;">
-                    عزيزي الطالب <strong style="color:#0F172A;">${studentName || ''}</strong>،<br>
+                    عزيزي الطالب <strong id="_ban_name" style="color:#0F172A;"></strong>،<br>
                     تم إيقاف وتعطيل حسابك من قبل إدارة المنصة.<br>
                     يرجى التواصل مع الدعم الفني لحل المشكلة.
                 </p>
@@ -87,6 +87,10 @@
                 }
             </style>
         `;
+
+        // [SECURITY] textContent بدلاً من template literal — حماية من XSS
+        const nameEl = overlay.querySelector('#_ban_name');
+        if (nameEl) nameEl.textContent = studentName || '';
 
         document.body.appendChild(overlay);
     }

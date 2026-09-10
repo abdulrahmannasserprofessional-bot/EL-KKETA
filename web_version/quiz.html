@@ -733,7 +733,11 @@
             // Show explanation if answered and instant feedback is on
             if(isAnswered && isInstantFeedback && q.explanation) {
                 expBox.style.display = "block";
-                document.getElementById('explanationText').innerHTML = q.explanation.replace(/\*\*(.*?)\*\*/g, '<b style="color:var(--primary);">$1</b>');
+                // [SECURITY] تنقية explanation من Firebase قبل وضعها في innerHTML
+                const rawExp = (typeof SecurityValidator !== 'undefined')
+                    ? SecurityValidator.sanitizeHTML(q.explanation)
+                    : q.explanation.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                document.getElementById('explanationText').innerHTML = rawExp.replace(/\*\*(.*?)\*\*/g, '<b style="color:var(--primary);">$1</b>');
             }
 
             // Update Nav Buttons
