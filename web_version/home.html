@@ -728,7 +728,7 @@
                     <div class="user-avatar-circle" id="userInitial">🎓</div>
                     <span class="user-name-short" id="userHeaderName">طالب</span>
                 </a>
-                <button type="button" class="btn-top-icon" id="openDrawer" title="القائمة">
+                <button type="button" class="btn-top-icon" id="openDrawer" onclick="if(window.toggleStudentDrawer) window.toggleStudentDrawer();" title="القائمة">
                     <i class="fas fa-bars"></i>
                 </button>
                 <button type="button" class="btn-top-icon logout" onclick="logout()" title="تسجيل الخروج">
@@ -1047,16 +1047,14 @@
         }
 
         // Drawer Logic
-        const drawer = document.getElementById('drawer');
-        const overlay = document.getElementById('overlay');
-        document.getElementById('openDrawer').onclick = () => {
-            drawer.classList.add('active');
-            overlay.classList.add('active');
-        };
-        overlay.onclick = () => {
-            drawer.classList.remove('active');
-            overlay.classList.remove('active');
-        };
+        const drawerBtn = document.getElementById('openDrawer');
+        if (drawerBtn) {
+            drawerBtn.onclick = () => {
+                if (window.toggleStudentDrawer) {
+                    window.toggleStudentDrawer();
+                }
+            };
+        }
 
         function logout() {
             if (window.logoutStudent) {
