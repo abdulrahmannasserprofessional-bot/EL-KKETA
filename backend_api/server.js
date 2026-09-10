@@ -36,8 +36,8 @@ app.use((req, res) => {
     res.status(404).json({ success: false, error: 'المسار غير موجود (Endpoint Not Found)' });
 });
 
-// تشغيل السيرفر في البيئة المحلية
-if (process.env.NODE_ENV !== 'production') {
+// تشغيل السيرفر في البيئة المحلية فقط عند التشغيل المباشر
+if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`🚀 السيرفر يعمل الآن على: http://localhost:${PORT}`);
     });
