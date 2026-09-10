@@ -47,42 +47,42 @@
             box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
         }
 
-        /* VIP Profile Header */
+        /* VIP Profile Header — Compact & Responsive */
         .elkheta-drawer-header {
             background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E3A8A 75%, #2563EB 100%);
             color: white;
-            padding: 26px 18px 18px;
+            padding: 16px 14px 12px;
             position: relative;
-            box-shadow: 0 12px 30px rgba(30, 58, 138, 0.35);
+            box-shadow: 0 8px 24px rgba(30, 58, 138, 0.3);
             overflow: hidden;
             flex-shrink: 0;
         }
         .elkheta-drawer-header::before {
             content: '';
             position: absolute;
-            width: 220px; height: 220px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
-            top: -70px; left: -50px;
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            top: -60px; left: -40px;
             border-radius: 50%;
             pointer-events: none;
         }
         .elkheta-drawer-header::after {
             content: '';
             position: absolute;
-            width: 140px; height: 140px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
-            bottom: -40px; right: -20px;
+            width: 120px; height: 120px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+            bottom: -30px; right: -15px;
             border-radius: 50%;
             pointer-events: none;
         }
 
         .elkheta-drawer-close {
-            position: absolute; top: 14px; left: 14px;
-            background: rgba(255, 255, 255, 0.12);
+            position: absolute; top: 12px; left: 12px;
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
-            color: #E2E8F0; border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 32px; height: 32px;
-            border-radius: 50%; font-size: 13px; cursor: pointer;
+            color: #E2E8F0; border: 1px solid rgba(255, 255, 255, 0.25);
+            width: 30px; height: 30px;
+            border-radius: 50%; font-size: 12px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 5;
@@ -95,68 +95,64 @@
         }
 
         .elkheta-drawer-user {
-            display: flex; align-items: center; gap: 14px; position: relative; z-index: 2;
+            display: flex; align-items: center; gap: 10px; position: relative; z-index: 2;
         }
         .elkheta-avatar-wrap {
             position: relative;
             flex-shrink: 0;
         }
         .elkheta-drawer-avatar {
-            width: 60px; height: 60px;
-            border-radius: 20px;
+            width: 44px; height: 44px;
+            border-radius: 14px;
             background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E1B4B 100%);
-            border: 2.5px solid #F59E0B;
+            border: 2px solid #F59E0B;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; font-weight: 900; color: white;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 0 8px 20px rgba(0,0,0,0.3);
+            font-size: 18px; font-weight: 900; color: white;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
         }
         .elkheta-avatar-badge {
             position: absolute;
-            bottom: -3px; right: -3px;
+            bottom: -2px; right: -2px;
             background: #10B981;
-            width: 16px; height: 16px;
+            width: 12px; height: 12px;
             border-radius: 50%;
-            border: 2.5px solid #0F172A;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+            border: 2px solid #0F172A;
         }
 
         .elkheta-drawer-info {
             flex: 1; min-width: 0;
         }
         .elkheta-drawer-name {
-            font-size: 16px; font-weight: 900; color: #FFFFFF;
+            font-size: 14px; font-weight: 900; color: #FFFFFF;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            line-height: 1.3;
-            letter-spacing: -0.2px;
+            line-height: 1.2;
         }
         .elkheta-drawer-stage {
             display: inline-flex;
-            align-items: center; gap: 5px;
+            align-items: center; gap: 4px;
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(6px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 2px 8px; border-radius: 8px;
-            font-size: 10.5px; font-weight: 800; color: #BFDBFE; margin-top: 4px;
+            padding: 2px 7px; border-radius: 6px;
+            font-size: 10px; font-weight: 800; color: #BFDBFE; margin-top: 2px;
         }
         .elkheta-drawer-code-pill {
-            display: inline-flex; align-items: center; gap: 6px;
+            display: inline-flex; align-items: center; gap: 4px;
             background: rgba(245, 158, 11, 0.15);
             backdrop-filter: blur(6px);
             border: 1px solid rgba(245, 158, 11, 0.4);
-            padding: 3px 10px; border-radius: 10px; font-size: 11px;
-            font-weight: 900; color: #FEF3C7; margin-top: 6px;
+            padding: 2px 8px; border-radius: 8px; font-size: 10.5px;
+            font-weight: 900; color: #FEF3C7; margin-top: 4px;
             cursor: pointer; transition: all 0.2s;
         }
         .elkheta-drawer-code-pill:hover { 
             background: rgba(245, 158, 11, 0.35); 
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
         }
 
         /* Triple Stats Bar */
         .elkheta-drawer-stats {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-            margin-top: 14px; padding-top: 12px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+            margin-top: 10px; padding-top: 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.12);
             position: relative; z-index: 2;
         }
@@ -164,21 +160,22 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(6px);
-            border-radius: 12px; padding: 6px 4px; text-align: center;
+            border-radius: 10px; padding: 4px 2px; text-align: center;
         }
         .elkheta-stat-label {
-            font-size: 9.5px; font-weight: 800; color: #93C5FD; display: block;
+            font-size: 9px; font-weight: 800; color: #93C5FD; display: block;
         }
         .elkheta-drawer-stat-val {
-            font-size: 13px; font-weight: 900; color: #FFFFFF; display: block; margin-top: 1px;
+            font-size: 11.5px; font-weight: 900; color: #FFFFFF; display: block; margin-top: 1px;
         }
 
         /* Quick Utility Strip */
         .elkheta-quick-strip {
-            display: flex; gap: 8px;
-            padding: 10px 14px;
+            display: flex; gap: 6px;
+            padding: 6px 10px;
             background: #F1F5F9;
             border-bottom: 1px solid #E2E8F0;
+            flex-shrink: 0;
         }
         body.dark-theme .elkheta-quick-strip {
             background: #1E293B;
@@ -186,12 +183,12 @@
         }
         .elkheta-quick-btn {
             flex: 1;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
             background: #FFFFFF;
             border: 1px solid #CBD5E1;
-            border-radius: 10px;
-            padding: 6px 10px;
-            font-size: 11.5px; font-weight: 800;
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-size: 11px; font-weight: 800;
             color: #334155;
             cursor: pointer;
             transition: all 0.2s;
@@ -205,28 +202,33 @@
         .elkheta-quick-btn:hover {
             border-color: #2563EB;
             color: #2563EB;
-            transform: translateY(-1px);
         }
 
-        /* Menu Body */
+        /* Menu Body with Smooth Scrollbar */
         .elkheta-drawer-body {
-            padding: 14px 12px 20px;
+            padding: 10px 10px 30px;
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            overscroll-behavior: contain;
             background: #F8FAFC;
         }
         body.dark-theme .elkheta-drawer-body {
             background: #0F172A;
         }
         .elkheta-drawer-body::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
+        }
+        .elkheta-drawer-body::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.03);
         }
         .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 4px;
+            background: #94A3B8;
+            border-radius: 6px;
         }
         body.dark-theme .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #475569;
         }
 
         .elkheta-menu-section-title {
