@@ -1121,7 +1121,26 @@
                     return;
                 }
 
-                // 2. Check Supervisors Table
+                // 2. Check Supervisors Table via Backend API
+                try {
+                    const supRes = await ElkhetaAPI.verifySupervisorPin(code);
+                    if (supRes && supRes.success && supRes.supervisor) {
+                        const foundSup = supRes.supervisor;
+                        sessionStorage.setItem('isAdmin', 'true');
+                        sessionStorage.setItem('adminRole', 'supervisor');
+                        sessionStorage.setItem('adminSupervisorId', foundSup.id);
+                        sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
+                        sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
+                        sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
+                        showToast(`أهلاً بك يا ${foundSup.name} 🛡️`, "success");
+                        setTimeout(() => location.href = "admin-panel.html", 800);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Backend supervisor check error:", e);
+                }
+
+                // Fallback to Firebase for Supervisors if API is unavailable
                 try {
                     const snapSup = await database.ref('Supervisors').once('value');
                     let foundSup = null;
@@ -1139,17 +1158,11 @@
 
                     if (foundSup) {
                         sessionStorage.setItem('isAdmin', 'true');
-                        localStorage.setItem('isAdmin', 'true');
                         sessionStorage.setItem('adminRole', 'supervisor');
-                        localStorage.setItem('adminRole', 'supervisor');
                         sessionStorage.setItem('adminSupervisorId', foundSup.id);
-                        localStorage.setItem('adminSupervisorId', foundSup.id);
                         sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
-                        localStorage.setItem('adminName', foundSup.name || 'مشرف');
                         sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
-                        localStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
                         sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
-                        localStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
                         showToast(`أهلاً بك يا ${foundSup.name} 🛡️`, "success");
                         setTimeout(() => location.href = "admin-panel.html", 800);
                         return;
@@ -1220,7 +1233,20 @@
                     console.warn("Firebase student check error:", e);
                 }
 
-                // 4. Check Activation Codes
+                // 4. Check Activation Codes via Backend API first
+                try {
+                    const actRes = await ElkhetaAPI.checkActivationCode(upperCode);
+                    if (actRes && actRes.success && actRes.exists) {
+                        resetBtn();
+                        showToast("الكود متاح! أكمل بياناتك 📝", "info");
+                        setTimeout(() => location.href = "register.html?code=" + upperCode, 1000);
+                        return;
+                    }
+                } catch(e) {
+                    console.warn("Backend activation code check error:", e);
+                }
+
+                // Fallback to Firebase for ActivationCodes
                 try {
                     const snapCode = await database.ref('ActivationCodes/' + upperCode).once('value');
                     if (snapCode && snapCode.exists()) {

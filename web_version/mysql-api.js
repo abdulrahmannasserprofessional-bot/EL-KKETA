@@ -207,6 +207,22 @@ const ElkhetaAPI = {
         return await safeFetchJson(`${API_BASE_URL}/supervisors/${id}`, { method: 'DELETE' }, 6000);
     },
 
+    async verifySupervisorPin(pin) {
+        return await safeFetchJson(`${API_BASE_URL}/auth/verify-supervisor-pin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin })
+        }, 6000);
+    },
+
+    async checkActivationCode(code) {
+        return await safeFetchJson(`${API_BASE_URL}/auth/check-activation-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+        }, 6000);
+    },
+
     // 8. إعدادات المنصة والصيانة
     async getSettings() {
         return await safeFetchJson(`${API_BASE_URL}/settings`, {}, 6000);

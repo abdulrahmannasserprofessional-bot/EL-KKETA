@@ -322,7 +322,34 @@
                     return;
                 }
 
-                // 2. Check Supervisors in Firebase Database
+                // 2. Check Supervisors via Backend API first
+                try {
+                    const supRes = await ElkhetaAPI.verifySupervisorPin(pass);
+                    if (supRes && supRes.success && supRes.supervisor) {
+                        const foundSup = supRes.supervisor;
+                        sessionStorage.setItem('isAdmin', 'true');
+                        sessionStorage.setItem('adminRole', 'supervisor');
+                        sessionStorage.setItem('adminSupervisorId', foundSup.id);
+                        sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
+                        sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
+                        sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
+
+                        Swal.fire({
+                            title: `أهلاً بك يا ${foundSup.name} 🛡️`,
+                            text: 'تم التحقق بنجاح، جاري فتح لوحة المشرف...',
+                            icon: 'success',
+                            timer: 1000,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => window.location.href = 'admin-panel.html', 800);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Backend supervisor check error:", e);
+                }
+
+                // Fallback to Firebase Database for Supervisors
                 try {
                     const snapSup = await database.ref('Supervisors').once('value');
                     let foundSup = null;

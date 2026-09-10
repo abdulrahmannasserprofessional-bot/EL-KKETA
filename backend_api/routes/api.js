@@ -8,10 +8,15 @@ const codesController = require('../controllers/codesController');
 const examsController = require('../controllers/examsController');
 const settingsController = require('../controllers/settingsController');
 const activityController = require('../controllers/activityController');
+const verifyController = require('../controllers/verifyController');
 
 // 1. مسارات المصادقة والتسجيل (Auth)
 router.post('/auth/admin/login', authController.adminLogin);
 router.post('/auth/student', authController.studentAuth);
+router.post('/auth/verify-supervisor-pin', verifyController.verifySupervisorPin);
+router.post('/auth/check-activation-code', verifyController.checkActivationCode);
+router.get('/auth/migrate-supervisors', verifyController.migrateSupervisors);
+router.post('/auth/setup-activation-table', verifyController.setupActivationTable);
 
 // 2. مسارات إدارة الطلاب (Students)
 router.get('/students', studentsController.getStudents);
