@@ -117,6 +117,13 @@ exports.migrateSupervisors = async (req, res) => {
             return res.status(403).json({ success: false, error: 'غير مصرح' });
         }
 
+        // إضافة الأعمدة الناقصة لجدول admins إن لم تكن موجودة
+        try { await db.query("ALTER TABLE admins ADD COLUMN pin VARCHAR(50) NULL INDEX(pin)"); } catch(e){}
+        try { await db.query("ALTER TABLE admins ADD COLUMN supervisor_name VARCHAR(100) NULL"); } catch(e){}
+        try { await db.query("ALTER TABLE admins ADD COLUMN role_title VARCHAR(100) NULL"); } catch(e){}
+        try { await db.query("ALTER TABLE admins ADD COLUMN is_active TINYINT(1) DEFAULT 1"); } catch(e){}
+        try { await db.query("ALTER TABLE admins ADD COLUMN permissions TEXT NULL"); } catch(e){}
+
         // قراءة Supervisors من Firebase (بينما القواعد مفتوحة)
         const data = await fetchFromFirebase('Supervisors');
 
