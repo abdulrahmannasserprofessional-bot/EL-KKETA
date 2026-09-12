@@ -10,35 +10,32 @@
     <meta name="apple-mobile-web-app-title" content="الخطة">
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة القيادة العليا - ELKHETA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة التحكم العليا - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #3730A3;
-            --primary-glow: rgba(79, 70, 229, 0.4);
-            --accent-gold: #F59E0B;
-            --bg-body: #0F172A;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
+            --bg-dark: #090D16;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366F1;
+            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
         }
 
         body.light-theme {
-            --bg-body: #F1F5F9;
-            --card-bg: rgba(255, 255, 255, 0.85);
+            --bg-dark: #F8FAFC;
+            --card-bg: rgba(255, 255, 255, 0.95);
             --card-border: #E2E8F0;
             --text-main: #0F172A;
             --text-muted: #64748B;
         }
 
         * {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             font-family: 'Cairo', sans-serif;
@@ -46,12 +43,11 @@
 
         html, body {
             overflow-x: hidden !important;
-            width: 100%;
-            max-width: 100vw;
+            width: 100%; max-width: 100vw;
         }
 
         body {
-            background-color: var(--bg-body);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             min-height: 100vh;
             padding-bottom: 50px;
@@ -64,35 +60,34 @@
         .admin-bg-blob {
             position: fixed;
             border-radius: 50%;
-            filter: blur(100px);
+            filter: blur(110px);
             z-index: 0;
             pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.35;
         }
-        .blob-1 { width: 500px; height: 500px; background: #312E81; top: -150px; right: -150px; }
-        .blob-2 { width: 450px; height: 450px; background: #581C87; bottom: -150px; left: -150px; }
-        .blob-3 { width: 300px; height: 300px; background: #0284C7; top: 40%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; }
+        .blob-1 { width: 550px; height: 550px; background: #312E81; top: -180px; right: -180px; }
+        .blob-2 { width: 450px; height: 450px; background: #581C87; bottom: -180px; left: -180px; }
 
         .admin-app-container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1120px;
             margin: 0 auto;
             padding: 20px 24px;
             display: flex;
             flex-direction: column;
-            gap: 22px;
+            gap: 20px;
             position: relative;
             z-index: 10;
         }
 
-        /* ─── Top Navbar ─── */
+        /* ─── Sleek Compact Topbar ─── */
         .admin-topbar {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 22px;
-            padding: 12px 22px;
+            border-radius: 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -111,25 +106,18 @@
         }
 
         .brand-logo-badge {
-            width: 46px;
-            height: 46px;
+            width: 42px; height: 42px;
             background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 50%, #1E1B4B 100%);
             border: 1.5px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 19px;
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+            flex-shrink: 0;
         }
 
-        .brand-texts {
-            display: flex;
-            flex-direction: column;
-        }
         .brand-title-main {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             line-height: 1.2;
             background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
@@ -137,9 +125,7 @@
             -webkit-text-fill-color: transparent;
         }
         body.light-theme .brand-title-main {
-            background: none;
-            -webkit-text-fill-color: initial;
-            color: #0F172A;
+            background: none; -webkit-text-fill-color: initial; color: #0F172A;
         }
         .brand-text-sub {
             font-size: 11px;
@@ -150,32 +136,29 @@
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .status-live-pill {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(16, 185, 129, 0.15);
             color: #34D399;
             border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
         }
         body.light-theme .status-live-pill {
-            color: #059669;
-            background: rgba(16, 185, 129, 0.1);
+            color: #059669; background: rgba(16, 185, 129, 0.1);
         }
 
         .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10B981;
-            box-shadow: 0 0 12px #10B981;
+            width: 7px; height: 7px;
+            border-radius: 50%; background: #10B981;
+            box-shadow: 0 0 10px #10B981;
             animation: liveBlink 1.8s infinite ease-in-out;
         }
         @keyframes liveBlink {
@@ -184,207 +167,154 @@
         }
 
         .btn-top-action {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
+            width: 40px; height: 40px;
+            border-radius: 13px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.25s;
-            text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; cursor: pointer;
+            transition: all 0.25s; text-decoration: none;
         }
+        body.light-theme .btn-top-action { background: #FFF; }
         .btn-top-action:hover {
             border-color: var(--primary);
-            color: #818CF8;
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .btn-top-action.logout-top:hover {
-            border-color: #EF4444;
-            color: #F87171;
-            background: rgba(239, 68, 68, 0.15);
+            color: #818CF8; transform: translateY(-2px);
         }
 
-        /* ─── Executive Master Hero Card ─── */
-        .admin-hero-card {
-            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E1B4B 75%, #312E81 100%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 28px;
-            padding: 30px 28px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 35px rgba(79, 70, 229, 0.2);
+        /* ─── Integrated Unified Control Header ─── */
+        .dashboard-unified-header {
+            background: linear-gradient(135deg, #0D1322 0%, #111827 40%, #1E1B4B 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 26px;
+            padding: 24px 26px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.15);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        body.light-theme .dashboard-unified-header {
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         }
 
-        .admin-hero-card::before {
-            content: '';
-            position: absolute;
-            width: 320px;
-            height: 320px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
-            top: -120px;
-            left: -80px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .admin-hero-card::after {
-            content: '';
-            position: absolute;
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
-            bottom: -80px;
-            right: -50px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .hero-top-row {
+        .header-top-info {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 16px;
-            position: relative;
+            gap: 14px;
             z-index: 2;
         }
 
-        .admin-user-profile {
+        .user-identity-box {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
         }
 
-        .admin-avatar-box {
-            width: 68px;
-            height: 68px;
-            border-radius: 22px;
-            background: linear-gradient(135deg, #3730A3 0%, #4F46E5 50%, #6366F1 100%);
-            border: 2.5px solid #F59E0B;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.4), 0 10px 30px rgba(0, 0, 0, 0.4);
+        .user-avatar-badge {
+            width: 56px; height: 56px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
+            border: 2px solid #F59E0B;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
             flex-shrink: 0;
         }
 
-        .admin-identity h1 {
-            font-size: 22px;
+        .user-titles h1 {
+            font-size: 20px;
             font-weight: 900;
-            color: #FFFFFF;
-            line-height: 1.3;
-            letter-spacing: 0.3px;
+            color: #FFF;
+            line-height: 1.2;
         }
 
-        .admin-role-badge {
+        .user-subtitle-pill {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 4px 14px;
-            border-radius: 20px;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             color: #FEF3C7;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
-        .hero-date-badge {
+        .header-date-box {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 6px;
+            gap: 4px;
         }
-        .date-pill {
-            background: rgba(255, 255, 255, 0.12);
+        .header-date-pill {
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 6px 16px;
-            border-radius: 14px;
-            font-size: 12.5px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 5px 14px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 800;
-            color: #F1F5F9;
+            color: #E2E8F0;
         }
-        .batch-pill {
-            font-size: 11.5px;
+        .header-batch-pill {
+            font-size: 11px;
             color: #A5B4FC;
             font-weight: 700;
         }
 
-        /* ─── 4 Luxury KPI Stat Cards ─── */
-        .kpi-stats-grid {
+        /* ─── Integrated KPI Stat Row ─── */
+        .kpi-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            gap: 12px;
+            z-index: 2;
         }
 
-        .kpi-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 20px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .kpi-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            border-color: #818CF8;
-        }
-
-        .kpi-icon-wrap {
-            width: 54px;
-            height: 54px;
+        .kpi-tile {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-            color: white;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+            gap: 12px;
+            transition: all 0.25s;
+        }
+        .kpi-tile:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
-        .kpi-blue .kpi-icon-wrap { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
-        .kpi-purple .kpi-icon-wrap { background: linear-gradient(135deg, #7C3AED, #9333EA); }
-        .kpi-emerald .kpi-icon-wrap { background: linear-gradient(135deg, #059669, #10B981); }
-        .kpi-amber .kpi-icon-wrap { background: linear-gradient(135deg, #D97706, #F59E0B); }
+        .kpi-tile-icon {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white; flex-shrink: 0;
+        }
+        .kpi-tile-icon.blue { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+        .kpi-tile-icon.purple { background: linear-gradient(135deg, #7C3AED, #9333EA); }
+        .kpi-tile-icon.emerald { background: linear-gradient(135deg, #059669, #10B981); }
+        .kpi-tile-icon.amber { background: linear-gradient(135deg, #D97706, #F59E0B); }
 
-        .kpi-info {
+        .kpi-tile-data {
             display: flex;
             flex-direction: column;
             min-width: 0;
         }
-        .kpi-val {
-            font-size: 26px;
+        .kpi-tile-num {
+            font-size: 22px;
             font-weight: 900;
-            color: var(--text-main);
-            line-height: 1.2;
+            color: #FFF;
+            line-height: 1.1;
         }
-        .kpi-lbl {
-            font-size: 12px;
+        .kpi-tile-label {
+            font-size: 11px;
             font-weight: 700;
-            color: var(--text-muted);
-            margin-top: 3px;
+            color: #94A3B8;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -395,38 +325,38 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 12px 0 6px;
+            margin: 10px 0 4px;
             padding: 0 4px;
         }
         .section-title-wrap {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         .section-title-wrap h2 {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
             color: var(--text-main);
         }
         .section-title-wrap i {
             color: #818CF8;
-            font-size: 18px;
+            font-size: 16px;
         }
         .section-badge-tag {
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 800;
             color: #A5B4FC;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            padding: 4px 12px;
-            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            padding: 3px 10px;
+            border-radius: 10px;
         }
 
         /* ─── Action Cards Grid ─── */
         .admin-cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 14px;
         }
 
         .action-card {
@@ -434,54 +364,49 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 22px 20px;
+            border-radius: 20px;
+            padding: 18px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
             color: var(--text-main);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
         }
         .action-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: #818CF8;
-            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
         }
 
         /* Featured VIP Card */
         .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(147, 51, 234, 0.25) 100%);
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(147, 51, 234, 0.2) 100%);
             border: 1.5px solid #818CF8;
-            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
         }
 
         .card-left-content {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             min-width: 0;
         }
 
         .card-icon-box {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
+            width: 48px; height: 48px;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            transition: transform 0.25s;
         }
         .action-card:hover .card-icon-box {
-            transform: scale(1.1) rotate(-4deg);
+            transform: scale(1.08) rotate(-3deg);
         }
 
         .card-texts {
@@ -497,63 +422,54 @@
             flex-wrap: wrap;
         }
         .card-title {
-            font-size: 15.5px;
+            font-size: 15px;
             font-weight: 900;
             color: var(--text-main);
             line-height: 1.3;
         }
         .card-badge {
-            font-size: 10.5px;
+            font-size: 10px;
             font-weight: 900;
-            padding: 3px 10px;
-            border-radius: 10px;
+            padding: 2px 8px;
+            border-radius: 8px;
         }
         .badge-live-red {
-            background: #EF4444;
-            color: white;
+            background: #EF4444; color: white;
             animation: pulseGlowBadge 1.5s infinite alternate;
         }
         .badge-vip {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
+            background: linear-gradient(135deg, #F59E0B, #D97706); color: white;
         }
         .badge-ai {
-            background: linear-gradient(135deg, #7C3AED, #9333EA);
-            color: white;
+            background: linear-gradient(135deg, #7C3AED, #9333EA); color: white;
         }
 
         @keyframes pulseGlowBadge {
             from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            to { box-shadow: 0 0 14px rgba(239, 68, 68, 0.9); }
+            to { box-shadow: 0 0 12px rgba(239, 68, 68, 0.9); }
         }
 
         .card-desc {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-top: 4px;
-            line-height: 1.5;
+            margin-top: 3px;
+            line-height: 1.4;
         }
 
         .card-arrow-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
+            width: 34px; height: 34px;
+            border-radius: 11px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: var(--text-muted);
-            flex-shrink: 0;
-            margin-right: 10px;
-            transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: var(--text-muted);
+            flex-shrink: 0; margin-right: 8px;
+            transition: all 0.25s;
         }
         .action-card:hover .card-arrow-icon {
             background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            color: white; border-color: var(--primary);
             transform: translateX(-4px);
         }
 
@@ -562,17 +478,17 @@
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 22px;
-            padding: 16px 22px;
+            border-radius: 20px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 12px;
+            margin-top: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
         .footer-watermark-text {
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 800;
             color: var(--text-muted);
             display: flex;
@@ -584,9 +500,9 @@
             background: rgba(239, 68, 68, 0.15);
             color: #F87171;
             border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 10px 22px;
-            border-radius: 14px;
-            font-size: 13.5px;
+            padding: 9px 20px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 900;
             cursor: pointer;
             display: inline-flex;
@@ -595,50 +511,30 @@
             transition: all 0.25s;
         }
         .btn-logout-full:hover {
-            background: #EF4444;
-            color: white;
-            border-color: #EF4444;
-            transform: translateY(-2px);
+            background: #EF4444; color: white;
+            border-color: #EF4444; transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
         /* ─── Mobile Responsiveness ─── */
         @media (max-width: 900px) {
-            .kpi-stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .admin-cards-grid {
-                grid-template-columns: 1fr;
-            }
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .admin-cards-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 640px) {
-            .admin-app-container {
-                padding: 12px 14px;
-                gap: 16px;
-            }
-            .admin-topbar {
-                padding: 10px 16px;
-                border-radius: 18px;
-            }
-            .brand-text-sub {
-                display: none;
-            }
-            .status-live-pill span:not(.status-dot) {
-                display: none;
-            }
-            .admin-hero-card {
-                padding: 22px 18px;
-                border-radius: 22px;
-            }
-            .admin-avatar-box {
-                width: 56px;
-                height: 56px;
-                font-size: 26px;
-            }
-            .admin-identity h1 {
-                font-size: 18px;
-            }
+            .admin-app-container { padding: 12px 14px; gap: 14px; }
+            .admin-topbar { padding: 10px 14px; border-radius: 16px; }
+            .brand-text-sub { display: none; }
+            .status-live-pill span:not(.status-dot) { display: none; }
+            .dashboard-unified-header { padding: 18px 16px; border-radius: 20px; gap: 16px; }
+            .user-avatar-badge { width: 48px; height: 48px; font-size: 22px; }
+            .user-titles h1 { font-size: 17px; }
+            .kpi-tile { padding: 10px 12px; }
+            .kpi-tile-num { font-size: 18px; }
+            .action-card { padding: 16px 14px; border-radius: 18px; }
+            .card-icon-box { width: 42px; height: 42px; font-size: 18px; border-radius: 12px; }
+            .card-title { font-size: 14px; }
         }
     </style>
 </head>
@@ -647,19 +543,18 @@
     <!-- Ambient Glowing Background Orbs -->
     <div class="admin-bg-blob blob-1"></div>
     <div class="admin-bg-blob blob-2"></div>
-    <div class="admin-bg-blob blob-3"></div>
 
     <div class="admin-app-container">
 
-        <!-- Top Navbar -->
+        <!-- Sleek Top Navbar -->
         <header class="admin-topbar">
             <a href="admin-panel.html" class="brand-section">
                 <div class="brand-logo-badge">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <div class="brand-texts">
+                <div>
                     <span class="brand-title-main">لوحة القيادة العليا</span>
-                    <span class="brand-text-sub">منصة الخطة التعليمية • 2027</span>
+                    <div class="brand-text-sub">منصة الخطة التعليمية • 2027</div>
                 </div>
             </a>
 
@@ -683,66 +578,66 @@
             </div>
         </header>
 
-        <!-- Master Executive Hero Card -->
-        <div class="admin-hero-card">
-            <div class="hero-top-row">
-                <div class="admin-user-profile">
-                    <div class="admin-avatar-box" id="adminHeaderIcon">👑</div>
-                    <div class="admin-identity">
+        <!-- Integrated Unified Master Header & Stat Tiles -->
+        <div class="dashboard-unified-header">
+            <div class="header-top-info">
+                <div class="user-identity-box">
+                    <div class="user-avatar-badge" id="adminHeaderIcon">👑</div>
+                    <div class="user-titles">
                         <h1 id="adminHeaderTitle">لوحة تحكم المدير العام</h1>
-                        <div class="admin-role-badge" id="adminHeaderSub">
+                        <div class="user-subtitle-pill" id="adminHeaderSub">
                             <i class="fa-solid fa-crown" style="color: #F59E0B;"></i>
                             <span>مرحباً بك يا المدير العام — صلاحيات كاملة</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="hero-date-badge">
-                    <div class="date-pill" id="liveDateClock">📅 السبت، 12 سبتمبر 2026</div>
-                    <div class="batch-pill">الفرقة الرابعة • كلية الخدمة الاجتماعية 2027 🎓</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4 Luxury KPI Stat Cards -->
-        <div class="kpi-stats-grid">
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-icon-wrap">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <div class="kpi-info">
-                    <div class="kpi-val" id="statStudents">0</div>
-                    <div class="kpi-lbl">طالب مسجل بالمنصة</div>
+                <div class="header-date-box">
+                    <div class="header-date-pill" id="liveDateClock">📅 السبت، 12 سبتمبر 2026</div>
+                    <div class="header-batch-pill">الفرقة الرابعة • كلية الخدمة الاجتماعية 2027 🎓</div>
                 </div>
             </div>
 
-            <div class="kpi-card kpi-purple">
-                <div class="kpi-icon-wrap">
-                    <i class="fa-solid fa-book-open"></i>
+            <!-- Integrated KPI Stat Tiles -->
+            <div class="kpi-row">
+                <div class="kpi-tile">
+                    <div class="kpi-tile-icon blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="kpi-tile-data">
+                        <div class="kpi-tile-num" id="statStudents">0</div>
+                        <div class="kpi-tile-label">طالب مسجل</div>
+                    </div>
                 </div>
-                <div class="kpi-info">
-                    <div class="kpi-val" id="statLectures">0</div>
-                    <div class="kpi-lbl">محاضرة ودرس مرفوع</div>
-                </div>
-            </div>
 
-            <div class="kpi-card kpi-emerald">
-                <div class="kpi-icon-wrap">
-                    <i class="fa-solid fa-circle-check"></i>
+                <div class="kpi-tile">
+                    <div class="kpi-tile-icon purple">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div class="kpi-tile-data">
+                        <div class="kpi-tile-num" id="statLectures">0</div>
+                        <div class="kpi-tile-label">محاضرة مرفوعة</div>
+                    </div>
                 </div>
-                <div class="kpi-info">
-                    <div class="kpi-val" id="statResults">0</div>
-                    <div class="kpi-lbl">امتحان تم تسليمه</div>
-                </div>
-            </div>
 
-            <div class="kpi-card kpi-amber">
-                <div class="kpi-icon-wrap">
-                    <i class="fa-solid fa-comments"></i>
+                <div class="kpi-tile">
+                    <div class="kpi-tile-icon emerald">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="kpi-tile-data">
+                        <div class="kpi-tile-num" id="statResults">0</div>
+                        <div class="kpi-tile-label">امتحان تم تسليمه</div>
+                    </div>
                 </div>
-                <div class="kpi-info">
-                    <div class="kpi-val" id="statUnanswered">0</div>
-                    <div class="kpi-lbl">سؤال معلق للطلاب</div>
+
+                <div class="kpi-tile">
+                    <div class="kpi-tile-icon amber">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div class="kpi-tile-data">
+                        <div class="kpi-tile-num" id="statUnanswered">0</div>
+                        <div class="kpi-tile-label">سؤال معلق</div>
+                    </div>
                 </div>
             </div>
         </div>
