@@ -604,12 +604,24 @@
 </head>
 <body>
     <script>
+        const role = sessionStorage.getItem('adminRole') || 'master';
+        let permissions = {};
+        try {
+            permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+        } catch(e) {}
+
         if (sessionStorage.getItem('isAdmin') !== 'true') {
             if (localStorage.getItem('isAdmin') === 'true') {
                 sessionStorage.setItem('isAdmin', 'true');
             } else {
                 window.location.href = "admin-gate.html";
             }
+        }
+
+        // Supervisor permission check - only master or supervisors with config perm
+        if (role !== 'master' && role !== 'super_admin' && !permissions.all && !permissions.config) {
+            alert('🚫 غير مسموح لك بالدخول إلى إدارة المشرفين والأمان! هذه الصفحة خاصة بالمدير العام فقط.');
+            window.location.href = "admin-panel.html";
         }
         window.savedTheme = localStorage.getItem('admin_theme') || 'dark';
         if (window.savedTheme === 'light') {

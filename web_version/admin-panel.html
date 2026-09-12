@@ -938,7 +938,7 @@
 
                     <div class="sidebar-nav-heading" style="margin-top: 10px;">إدارات الربط والخدمات</div>
 
-                    <a href="admin-config.html" class="sidebar-nav-btn">
+                    <a href="admin-config.html" id="sidebarNav_config" class="sidebar-nav-btn">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-sliders sidebar-btn-icon" style="color: #A5B4FC;"></i>
                             <span>إعدادات المشرفين والأمان</span>
@@ -946,7 +946,7 @@
                         <i class="fa-solid fa-angle-left" style="font-size: 11px; opacity: 0.6;"></i>
                     </a>
 
-                    <a href="admin-mysql.html" class="sidebar-nav-btn">
+                    <a href="admin-mysql.html" id="sidebarNav_mysql" class="sidebar-nav-btn">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
                             <span>لوحة MySQL السحابية VIP</span>
@@ -1796,7 +1796,7 @@
                     </div>
 
                     <!-- 5. Troubleshooting & Diagnostic Tools -->
-                    <div class="action-card" data-perm="config" onclick="location.href='admin-troubleshoot.html'">
+                    <div class="action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
                         <div class="card-left-content">
                             <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">
                                 <i class="fa-solid fa-toolbox"></i>
@@ -1892,8 +1892,42 @@
             permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
         } catch(e) { permissions = {}; }
 
+        const permNamesArabic = {
+            'students': '👥 إدارة الطلاب والتصفير',
+            'courses': '📚 المواد والمقررات الدراسية',
+            'exams': '📝 بنك الأسئلة والامتحانات',
+            'codes': '🔑 توليد الأكواد والتفعيل',
+            'notifications': '📣 مركز وبث الإشعارات',
+            'reports': '📊 النتائج والدرجات والتقارير',
+            'mistakes': '🧠 بنك الأخطاء والذكاء الاصطناعي',
+            'community': '💬 مجتمع وأسئلة الطلاب',
+            'troubleshoot': '🛠️ الدعم الفني وتخطي OTP',
+            'config': '⚙️ إعدادات المنظومة وصلاحيات المشرفين'
+        };
+
+        window.denySupervisorAccessModal = function(permTitle, customMsg) {
+            const title = permTitle || 'قسم إداري محمي';
+            const msg = customMsg || `عذراً، هذا القسم غير مصرح به لحسابك ويتطلب امتلاك صلاحية <b>(${title})</b>.<br>الصلاحيات تُمنح وتُعدل حصراً بواسطة <b>المدير العام</b> عبر لوحة تحكم المشرفين.`;
+            Swal.fire({
+                icon: 'error',
+                title: '🚫 غير مسموح لك بالدخول هنا!',
+                html: `
+                    <div style="text-align: center; font-family: 'Cairo', sans-serif; padding: 4px;">
+                        <div style="font-size: 44px; margin-bottom: 12px;">🔒</div>
+                        <h4 style="color: #EF4444; font-weight: 900; font-size: 16px; margin-bottom: 8px;">هذا القسم غير مصرح به لحسابك</h4>
+                        <p style="color: #64748B; font-size: 13.5px; line-height: 1.6; font-weight: 700;">
+                            ${msg}
+                        </p>
+                    </div>
+                `,
+                confirmButtonText: 'حسناً، فهمت 🫡',
+                confirmButtonColor: '#4F46E5',
+                backdrop: 'rgba(15, 23, 42, 0.75)'
+            });
+        };
+
         // Update Header Info
-        if (role === 'master' || role === 'super_admin') {
+        if (role === 'master' || role === 'super_admin' || permissions.all === true) {
             document.getElementById('adminHeaderIcon').textContent = '👑';
             document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
             document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-crown" style="color: #F59E0B;"></i><span>مرحباً بك يا ${adminName} — صلاحيات كاملة</span>`;
@@ -1902,39 +1936,69 @@
             document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
             document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-user-shield" style="color: #60A5FA;"></i><span>${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط</span>`;
 
-            // Filter Items according to permissions
+            // Intercept Protected Cards while keeping all of them visible!
             document.querySelectorAll('.action-card[data-perm]').forEach(item => {
                 const permKey = item.getAttribute('data-perm');
                 let hasAccess = false;
                 if (permKey === 'config') {
-                    hasAccess = permissions.config || permissions.troubleshoot || permissions.students;
+                    hasAccess = permissions.config === true;
                 } else {
                     hasAccess = permissions[permKey] === true;
                 }
 
+                // Ensure the card is 100% visible
+                item.style.display = 'flex';
+
                 if (!hasAccess) {
-                    item.style.display = 'none';
+                    // Mark as locked visually
+                    const badgeContainer = item.querySelector('.card-title-row');
+                    if (badgeContainer && !badgeContainer.querySelector('.badge-locked')) {
+                        const lockBadge = document.createElement('span');
+                        lockBadge.className = 'card-badge badge-locked';
+                        lockBadge.style.cssText = 'background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; font-weight: 900; margin-right: 4px;';
+                        lockBadge.innerHTML = '<i class="fa-solid fa-lock"></i> مقفل';
+                        badgeContainer.appendChild(lockBadge);
+                    }
+
+                    const arrowIcon = item.querySelector('.card-arrow-icon');
+                    if (arrowIcon) {
+                        arrowIcon.innerHTML = '<i class="fa-solid fa-lock" style="color: #F87171; font-size: 13px;"></i>';
+                        arrowIcon.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                        arrowIcon.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }
+
+                    item.style.opacity = '0.88';
+                    item.style.cursor = 'pointer';
+
+                    // Replace inline onclick with access denied modal!
+                    item.onclick = function(e) {
+                        if (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                        const pName = permNamesArabic[permKey] || permKey;
+                        denySupervisorAccessModal(pName);
+                        return false;
+                    };
                 }
             });
 
-            // Check if section grids are empty and hide headers
-            ['gridContent', 'gridUsers'].forEach(gridId => {
-                const grid = document.getElementById(gridId);
-                if (grid) {
-                    const visibleChildren = Array.from(grid.children).filter(c => c.style.display !== 'none');
-                    if (visibleChildren.length === 0) {
-                        grid.style.display = 'none';
-                        if (gridId === 'gridContent') {
-                            const t = document.getElementById('secContentTitle');
-                            if (t) t.style.display = 'none';
-                        }
-                        if (gridId === 'gridUsers') {
-                            const t = document.getElementById('secUsersTitle');
-                            if (t) t.style.display = 'none';
-                        }
-                    }
-                }
-            });
+            // Guard sidebar sensitive links for supervisors
+            const sidebarConfig = document.getElementById('sidebarNav_config');
+            if (sidebarConfig && !permissions.config) {
+                sidebarConfig.onclick = function(e) {
+                    e.preventDefault();
+                    denySupervisorAccessModal('⚙️ إعدادات المشرفين والأمان', 'صفحة إدارة المشرفين وتعديل الصلاحيات مخصصة حصراً للمدير العام.');
+                };
+            }
+
+            const sidebarMysql = document.getElementById('sidebarNav_mysql');
+            if (sidebarMysql && !permissions.config) {
+                sidebarMysql.onclick = function(e) {
+                    e.preventDefault();
+                    denySupervisorAccessModal('⚡ لوحة MySQL السحابية VIP', 'لوحة قواعد البيانات السحابية تتطلب صلاحيات الإدارة العليا.');
+                };
+            }
         }
 
         function adminLogout() {
@@ -2432,6 +2496,10 @@
 
         // 🧪 Synthetic Diagnostic Engine Implementation
         async function runFullSyntheticDiagnostic() {
+            if (role !== 'master' && role !== 'super_admin' && !permissions.all && !permissions.config && !permissions.troubleshoot) {
+                denySupervisorAccessModal('🧪 محرك الفحص الشامل Synthetic Engine', 'تشغيل الفحص الشامل يتطلب صلاحية الصيانة أو الدعم الفني.');
+                return;
+            }
             const badge = document.getElementById('diagnosticResultBadge');
             const logBox = document.getElementById('diagnosticLogBox');
             if (badge) badge.textContent = '⏳ جاري تشغيل الفحص...';
@@ -2701,6 +2769,10 @@
         }
 
         function toggleKillSwitch(key) {
+            if (role !== 'master' && role !== 'super_admin' && !permissions.all && !permissions.config) {
+                denySupervisorAccessModal('🛠️ مفاتيح الطوارئ والتعطيل الفوري', 'التحكم في مفاتيح الطوارئ مخصص للمدير العام فقط لحماية استقرار المنظومة.');
+                return;
+            }
             const newStatus = !currentKillSwitches[key];
             database.ref('Settings/killSwitches/' + key).set(newStatus).then(() => {
                 database.ref('ActivityLogs').push({
@@ -2895,6 +2967,22 @@
                 'maintenance': '🛠️ الصيانة ومفاتيح الطوارئ',
                 'database': '📚 المقررات وقواعد البيانات'
             };
+
+            // Enforce Tab Permissions for Supervisors
+            if (role !== 'master' && role !== 'super_admin' && !permissions.all) {
+                if (tabName === 'maintenance' && !permissions.config) {
+                    denySupervisorAccessModal('🛠️ الصيانة ومفاتيح الطوارئ', 'غرفة الصيانة ومفاتيح الطوارئ مخصصة للمدير العام فقط.');
+                    return;
+                }
+                if (tabName === 'students' && !permissions.students) {
+                    denySupervisorAccessModal('👥 إدارة الطلاب والتشخيص', 'غرفة إدارة الطلاب والأجهزة تتطلب صلاحية إدارة الطلاب.');
+                    return;
+                }
+                if (tabName === 'helpdesk' && !permissions.troubleshoot && !permissions.community) {
+                    denySupervisorAccessModal('🎧 تذاكر الدعم والذكاء الاصطناعي', 'غرفة تذاكر الدعم تتطلب صلاحية الدعم الفني أو مجتمع الطلاب.');
+                    return;
+                }
+            }
             const breadcrumbEl = document.getElementById('activeHubBreadcrumb');
             if (breadcrumbEl && tabTitles[tabName]) {
                 breadcrumbEl.textContent = tabTitles[tabName];
@@ -2920,7 +3008,12 @@
         }
 
         (function() {
-            const savedTab = localStorage.getItem('elkheta_admin_active_tab') || 'noc';
+            let savedTab = localStorage.getItem('elkheta_admin_active_tab') || 'noc';
+            if (role !== 'master' && role !== 'super_admin' && !permissions.all) {
+                if (savedTab === 'maintenance' && !permissions.config) savedTab = 'database';
+                if (savedTab === 'students' && !permissions.students) savedTab = 'database';
+                if (savedTab === 'helpdesk' && !permissions.troubleshoot && !permissions.community) savedTab = 'database';
+            }
             switchAdminHubTab(savedTab);
         })();
     </script>
