@@ -1060,7 +1060,12 @@
                 <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B;"></i>
                 <h2>حراسة الجلسات وطلبات اعتماد الأجهزة الجديدة</h2>
             </div>
-            <span id="deviceReqCountBadge" class="section-badge-tag" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #F59E0B;">0 طلب معلق</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                    🧪 تجربة جهاز جديد (طلب اختبار)
+                </button>
+                <span id="deviceReqCountBadge" class="section-badge-tag" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #F59E0B;">0 طلب معلق</span>
+            </div>
         </div>
 
         <div id="deviceApprovalsContainer" style="
@@ -1693,6 +1698,25 @@
                 localStorage.removeItem('elkheta_temp_cache');
                 if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم تنظيف الملفات المؤقتة 🧹', icon: 'success' });
             }
+        }
+
+        function createTestDeviceRequest() {
+            const testCode = 'ST101';
+            const testDevId = 'dev_test_' + Math.random().toString(36).substring(2, 7);
+            const testDevName = 'هاتف أندرويد تجريبي (Galaxy S24)';
+
+            database.ref('DeviceRequests/' + testCode + '_' + testDevId).set({
+                requestId: testCode + '_' + testDevId,
+                studentCode: testCode,
+                studentName: 'طالب تجريبي للاختبار',
+                deviceId: testDevId,
+                deviceName: testDevName,
+                userAgent: navigator.userAgent,
+                timestamp: Date.now(),
+                status: 'pending'
+            }).then(() => {
+                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم توليد طلب اختبار جهاز جديد 📱', text: 'ظهر الطلب في القائمة أعلاه ويمكنك تجربة زري الموافقة والرفض فوراً', icon: 'success', timer: 2000, showConfirmButton: false });
+            });
         }
 
         listenToAuditLogs();

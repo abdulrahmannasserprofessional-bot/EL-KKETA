@@ -499,16 +499,16 @@
     // ==========================================
     // 3. Multi-Device Security & Approval System
     // ==========================================
-    function getOrCreateDeviceId() {
+    window.getOrCreateDeviceId = function() {
         let devId = localStorage.getItem('elkheta_device_fingerprint');
         if (!devId) {
             devId = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
             localStorage.setItem('elkheta_device_fingerprint', devId);
         }
         return devId;
-    }
+    };
 
-    function getDeviceName() {
+    window.getDeviceName = function() {
         const ua = navigator.userAgent;
         let os = 'جهاز غير معروف';
         if (ua.includes('Win')) os = 'كمبيوتر ويندوز (Windows PC)';
@@ -517,22 +517,23 @@
         else if (ua.includes('Mac')) os = 'جهاز ماك (Mac OS)';
         else if (ua.includes('Linux')) os = 'نظام لينكس (Linux)';
         return os;
-    }
+    };
 
     function checkStudentDeviceAuth(db) {
         const page = window.location.pathname.split('/').pop();
-        if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html' || page === 'index.html' || page === 'register.html') return;
+        if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html' || page === 'register.html') return;
 
         const storedUser = localStorage.getItem('user');
         if (!storedUser) return;
         let uObj = {};
         try { uObj = JSON.parse(storedUser); } catch(e){}
-        const studentCode = uObj.studentCode || uObj.code || localStorage.getItem('studentCode');
+        const rawCode = uObj.studentCode || uObj.code || uObj.student_code || localStorage.getItem('studentCode');
         const studentName = uObj.fullName || uObj.name || uObj.full_name || 'طالب';
-        if (!studentCode) return;
+        if (!rawCode) return;
 
-        const deviceId = getOrCreateDeviceId();
-        const deviceName = getDeviceName();
+        const studentCode = rawCode.toString().trim().toUpperCase();
+        const deviceId = window.getOrCreateDeviceId();
+        const deviceName = window.getDeviceName();
 
         const studentRef = db.ref('Students/' + studentCode);
         studentRef.child('authorizedDevices').on('value', snap => {
@@ -554,7 +555,7 @@
                 removeDeviceLockOverlay();
             } else {
                 // Device not authorized! Show lock screen & send approval request to Admin
-                showDeviceLockScreen(db, studentCode, studentName, deviceId, deviceName);
+                window.showDeviceLockScreen(db, studentCode, studentName, deviceId, deviceName);
             }
         });
     }
@@ -569,7 +570,7 @@
         isDeviceLockShown = false;
     }
 
-    function showDeviceLockScreen(db, studentCode, studentName, deviceId, deviceName) {
+    window.showDeviceLockScreen = function(db, studentCode, studentName, deviceId, deviceName) {
         if (isDeviceLockShown) return;
         isDeviceLockShown = true;
 

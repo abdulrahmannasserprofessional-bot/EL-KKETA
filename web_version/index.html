@@ -1228,6 +1228,21 @@
                             return;
                         }
 
+                        // [DEVICE GUARD] فحص تفويض الجهاز قبل الدخول
+                        const deviceId = (typeof window.getOrCreateDeviceId === 'function') ? window.getOrCreateDeviceId() : (localStorage.getItem('elkheta_device_fingerprint') || 'dev_test');
+                        const deviceName = (typeof window.getDeviceName === 'function') ? window.getDeviceName() : 'جهاز الطالب';
+                        const devices = studentData.authorizedDevices;
+
+                        if (devices && !devices[deviceId]) {
+                            resetBtn();
+                            if (typeof window.showDeviceLockScreen === 'function') {
+                                window.showDeviceLockScreen(database, upperCode, studentData.fullName || 'طالب', deviceId, deviceName);
+                            } else {
+                                showToast("🔒 محاولة دخول من جهاز جديد غير مصرح به. تم إرسال طلب اعتماد للأدمن.", "error");
+                            }
+                            return;
+                        }
+
                         localStorage.setItem('user', JSON.stringify(studentData));
                         logActivity(upperCode, studentData.fullName || 'طالب', 'تسجيل الدخول للمنصة');
                         studentData.code = upperCode;
