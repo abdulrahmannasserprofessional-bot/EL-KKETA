@@ -5,29 +5,30 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إدارة المواد والمقررات - ELKHETA Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --accent: #8B5CF6;
-            --bg-body: #F8FAFC;
-            --card-bg: #FFFFFF;
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --accent-gold: #F59E0B;
+            --bg-body: #0F172A;
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        body.light-theme {
+            --bg-body: #F1F5F9;
+            --card-bg: rgba(255, 255, 255, 0.9);
             --card-border: #E2E8F0;
             --text-main: #0F172A;
             --text-muted: #64748B;
-        }
-
-        body.dark-theme {
-            --bg-body: #0B0F19;
-            --card-bg: #131B2E;
-            --card-border: #1E293B;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
         }
 
         * {
@@ -35,6 +36,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Cairo', sans-serif;
         }
 
         html, body {
@@ -44,39 +46,54 @@
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
             padding-bottom: 50px;
             direction: rtl;
             transition: background-color 0.3s, color 0.3s;
+            position: relative;
         }
+
+        /* Ambient Glowing Background Orbs */
+        .admin-bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        .blob-1 { width: 450px; height: 450px; background: #312E81; top: -150px; right: -150px; }
+        .blob-2 { width: 400px; height: 400px; background: #581C87; bottom: -150px; left: -150px; }
 
         .admin-app-container {
             width: 100%;
-            max-width: 1060px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 16px 20px;
+            padding: 20px 24px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            position: relative;
+            z-index: 10;
         }
 
         /* ─── Top Navbar ─── */
         .admin-topbar {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 20px;
-            padding: 12px 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 12px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: sticky;
             top: 12px;
             z-index: 100;
-            backdrop-filter: blur(16px);
         }
 
         .brand-section {
@@ -85,32 +102,56 @@
             gap: 12px;
             text-decoration: none;
             color: var(--text-main);
+            min-width: 0;
         }
 
         .brand-logo-badge {
             width: 44px;
             height: 44px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 50%, #1E1B4B 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 20px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+            flex-shrink: 0;
+        }
+
+        .brand-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .brand-title-text {
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .brand-sub-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .btn-top-action {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--bg-body);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             display: flex;
@@ -118,24 +159,25 @@
             justify-content: center;
             font-size: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s;
             text-decoration: none;
         }
         .btn-top-action:hover {
             border-color: var(--primary);
-            color: var(--primary);
+            color: #818CF8;
             transform: translateY(-2px);
         }
 
         /* ─── Executive Hero Card ─── */
         .admin-hero-card {
-            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E3A8A 75%, #2563EB 100%);
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E1B4B 75%, #312E81 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 26px;
             padding: 26px 24px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 16px 40px rgba(30, 58, 138, 0.28);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -145,8 +187,8 @@
         .admin-hero-card::before {
             content: '';
             position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
+            width: 260px; height: 260px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
             top: -80px; left: -50px;
             border-radius: 50%;
             pointer-events: none;
@@ -158,15 +200,16 @@
             gap: 16px;
             position: relative;
             z-index: 2;
+            min-width: 0;
         }
         .hero-icon-box {
             width: 60px; height: 60px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-            border: 2px solid #93C5FD;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #3730A3 0%, #4F46E5 100%);
+            border: 2px solid #818CF8;
             display: flex; align-items: center; justify-content: center;
             font-size: 26px; color: white;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
             flex-shrink: 0;
         }
         .hero-titles h1 {
@@ -177,31 +220,34 @@
         }
         .hero-titles p {
             font-size: 12px;
-            color: #93C5FD;
+            color: #A5B4FC;
             font-weight: 700;
             margin-top: 4px;
         }
 
         .hero-badge-pill {
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 16px;
             font-size: 13px;
             font-weight: 900;
             color: #FEF3C7;
             position: relative;
             z-index: 2;
+            white-space: nowrap;
         }
 
         /* ─── Add Subject Card ─── */
         .add-subject-card {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 22px;
-            padding: 22px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 22px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -216,53 +262,61 @@
             color: var(--text-main);
         }
         .card-header-label i {
-            color: var(--primary);
+            color: #818CF8;
         }
 
         .input-action-row {
             display: flex;
             gap: 12px;
+            align-items: center;
         }
 
         .admin-input {
             flex: 1;
-            background: var(--bg-body);
+            background: rgba(255, 255, 255, 0.05);
             border: 1.5px solid var(--card-border);
-            border-radius: 14px;
-            padding: 12px 18px;
+            border-radius: 16px;
+            padding: 14px 18px;
             font-size: 14px;
-            font-family: 'Cairo', sans-serif;
             font-weight: 700;
             color: var(--text-main);
             outline: none;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        body.light-theme .admin-input {
+            background: #FFF;
         }
         .admin-input:focus {
             border-color: var(--primary);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.25);
+        }
+        .admin-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .btn-add-subject {
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
             color: white;
             border: none;
-            border-radius: 14px;
-            padding: 12px 24px;
+            border-radius: 16px;
+            padding: 14px 24px;
             font-size: 14px;
             font-weight: 900;
-            font-family: 'Cairo', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
-            transition: all 0.2s;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
+            transition: all 0.25s;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .btn-add-subject:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
+            box-shadow: 0 12px 30px rgba(79, 70, 229, 0.5);
         }
 
         /* ─── Subjects List Section ─── */
@@ -274,7 +328,7 @@
             padding: 0 4px;
         }
         .section-header h2 {
-            font-size: 16px;
+            font-size: 16.5px;
             font-weight: 900;
             color: var(--text-main);
             display: flex;
@@ -282,37 +336,43 @@
             gap: 8px;
         }
         .count-pill {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 14px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 800;
-            color: var(--primary);
+            color: #A5B4FC;
+        }
+        body.light-theme .count-pill {
+            color: #4F46E5;
         }
 
         .subjects-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            gap: 16px;
         }
 
         .course-item-card {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 20px;
-            padding: 18px 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
         }
         .course-item-card:hover {
             transform: translateY(-3px);
-            border-color: #93C5FD;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.08);
+            border-color: #818CF8;
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
         }
 
         .course-item-left {
@@ -320,45 +380,41 @@
             align-items: center;
             gap: 14px;
             min-width: 0;
+            flex: 1;
         }
 
         .course-item-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #EEF2FF 0%, #DBEAFE 100%);
-            color: #2563EB;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.25));
+            border: 1.5px solid rgba(165, 180, 252, 0.3);
+            color: #A5B4FC;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             flex-shrink: 0;
-            border: 1.5px solid #BFDBFE;
-        }
-        body.dark-theme .course-item-icon {
-            background: #1E293B;
-            border-color: #334155;
-            color: #60A5FA;
         }
 
         .course-item-info {
             display: flex;
             flex-direction: column;
             min-width: 0;
+            flex: 1;
         }
         .course-item-title {
-            font-size: 15px;
+            font-size: 15.5px;
             font-weight: 900;
             color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.4;
+            word-break: break-word;
         }
         .course-item-sub {
             font-size: 11.5px;
             font-weight: 700;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .course-item-actions {
@@ -369,30 +425,33 @@
         }
 
         .btn-course-action {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
             border: 1px solid var(--card-border);
-            background: var(--bg-body);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s;
             text-decoration: none;
         }
+        body.light-theme .btn-course-action {
+            background: #FFF;
+        }
         .btn-course-action.view-btn:hover {
-            background: #EFF6FF;
-            color: #2563EB;
-            border-color: #93C5FD;
+            background: rgba(79, 70, 229, 0.15);
+            color: #818CF8;
+            border-color: #818CF8;
             transform: translateY(-2px);
         }
         .btn-course-action.delete-btn:hover {
-            background: #FEF2F2;
-            color: #DC2626;
-            border-color: #FECACA;
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border-color: #F87171;
             transform: translateY(-2px);
         }
 
@@ -406,46 +465,79 @@
             color: var(--text-muted);
         }
         .empty-state-box i {
-            font-size: 40px;
-            color: #93C5FD;
+            font-size: 42px;
+            color: #818CF8;
             margin-bottom: 12px;
             display: block;
         }
 
+        /* ─── Mobile Responsiveness Adjustments ─── */
+        @media (max-width: 840px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 640px) {
             .admin-app-container {
-                padding: 10px 12px;
+                padding: 12px 14px;
                 gap: 14px;
+            }
+            .admin-topbar {
+                padding: 10px 14px;
+                border-radius: 18px;
+            }
+            .brand-sub-text {
+                display: none;
             }
             .input-action-row {
                 flex-direction: column;
+                gap: 10px;
             }
             .btn-add-subject {
                 width: 100%;
-                justify-content: center;
+                padding: 14px;
             }
-            .subjects-grid {
-                grid-template-columns: 1fr;
+            .admin-hero-card {
+                padding: 20px 16px;
+                border-radius: 20px;
+            }
+            .hero-icon-box {
+                width: 50px;
+                height: 50px;
+                font-size: 22px;
+            }
+            .hero-titles h1 {
+                font-size: 17px;
+            }
+            .course-item-card {
+                padding: 16px 14px;
+                border-radius: 18px;
+                gap: 10px;
+            }
+            .course-item-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+                border-radius: 14px;
+            }
+            .course-item-title {
+                font-size: 14px;
+            }
+            .btn-course-action {
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+                border-radius: 12px;
             }
         }
     </style>
 </head>
 <body>
 
-    <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            if (localStorage.getItem('isAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
-                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
-            } else {
-                window.location.href = "admin-gate.html";
-            }
-        }
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
+    <!-- Ambient Glowing Background Orbs -->
+    <div class="admin-bg-blob blob-1"></div>
+    <div class="admin-bg-blob blob-2"></div>
 
     <div class="admin-app-container">
 
@@ -455,14 +547,14 @@
                 <div class="brand-logo-badge">
                     <i class="fa-solid fa-book-bookmark"></i>
                 </div>
-                <div>
-                    <div style="font-weight: 900; font-size: 15px; line-height: 1.2;">المواد والمقررات الدراسية</div>
-                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">لوحة الإدارة العليا • دفعة 2027</div>
+                <div class="brand-info">
+                    <span class="brand-title-text">المواد والمقررات الدراسية</span>
+                    <span class="brand-sub-text">لوحة الإدارة العليا • دفعة 2027</span>
                 </div>
             </a>
 
             <div class="topbar-actions">
-                <button type="button" class="btn-top-action" onclick="toggleLocalTheme()" title="تبديل المظهر">
+                <button type="button" class="btn-top-action" onclick="toggleLocalTheme()" title="تبديل المظهر (فاتح / داكن)">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
                 <a href="admin-panel.html" class="btn-top-action" title="الرجوع للوحة التحكم">
@@ -478,7 +570,7 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div class="hero-titles">
-                    <h1>هيكلة المواد والمناهج</h1>
+                    <h1>هيكلة المواد والمناهج الدراسية</h1>
                     <p>إضافة وتعديل وحذف المقررات الأكاديمية لدفعة الفرقة الرابعة 2027 🎓</p>
                 </div>
             </div>
@@ -505,7 +597,7 @@
         <!-- Section Header -->
         <div class="section-header">
             <h2>
-                <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i>
+                <i class="fa-solid fa-layer-group" style="color: #818CF8;"></i>
                 <span>قائمة المواد المعتمدة</span>
             </h2>
             <span class="count-pill" id="subjectCountPill">0 مادة</span>
@@ -525,16 +617,31 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
+        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+            if (localStorage.getItem('isAdmin') === 'true') {
+                sessionStorage.setItem('isAdmin', 'true');
+                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+            } else {
+                window.location.href = "admin-gate.html";
+            }
+        }
+
         function toggleLocalTheme() {
-            const isDark = document.body.classList.toggle('dark-theme');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon(isDark);
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon(!isLight);
         }
         function updateThemeIcon(isDark) {
             const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            if (icon) icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
         }
-        if (localStorage.getItem('theme') === 'dark') updateThemeIcon(true);
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+            updateThemeIcon(false);
+        } else {
+            updateThemeIcon(true);
+        }
 
         const icons = ['📚','🔬','🧮','🌍','📝','⚗️','🎨','📐','💻','🏫','📖','⚖️'];
 
@@ -644,13 +751,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
