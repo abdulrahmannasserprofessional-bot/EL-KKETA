@@ -342,7 +342,12 @@
                                 </div>
                                 <div class="ticket-msg">${SecurityValidator.sanitizeText(t.message)}</div>
                                 ${replyHtml}
-                                <div style="font-size: 10.5px; color: #94A3B8; margin-top: 8px; text-align: left;">${dateStr}</div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+                                    <button onclick="deleteStudentTicket(${t.id})" style="background: rgba(239, 68, 68, 0.1); border: none; color: #EF4444; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-trash-alt"></i> حذف التذكرة
+                                    </button>
+                                    <div style="font-size: 10.5px; color: #94A3B8;">${dateStr}</div>
+                                </div>
                             </div>
                         `;
                     }).join('');
@@ -352,6 +357,36 @@
             } catch (err) {
                 console.error(err);
                 listEl.innerHTML = `<div class="empty-tickets">تعذر تحميل التذاكر السابقة</div>`;
+            }
+        }
+
+        async function deleteStudentTicket(id) {
+            const confirm = await Swal.fire({
+                title: 'هل أنت متأكد من حذف التذكرة؟',
+                text: 'سيتم حذف التذكرة نهائياً ولن يمكنك استرجاعها.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذفها',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const res = await ElkhetaAPI.deleteSupportTicket(id);
+                    if (res && res.success) {
+                        Swal.fire({
+                            title: 'تم الحذف بنجاح 🗑️',
+                            icon: 'success',
+                            timer: 1000,
+                            showConfirmButton: false
+                        });
+                        loadStudentTickets();
+                    } else {
+                        Swal.fire('خطأ', res.error || 'تعذر حذف التذكرة', 'error');
+                    }
+                } catch(e) {
+                    Swal.fire('خطأ', e.message, 'error');
+                }
             }
         }
 
