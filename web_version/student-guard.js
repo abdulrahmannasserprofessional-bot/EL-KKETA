@@ -325,6 +325,9 @@
     }
 
     window.showEmergencyReportModal = function() {
+        const existing = document.getElementById('elkhetaEmergencyModal');
+        if (existing) existing.remove();
+
         const storedUser = localStorage.getItem('user');
         let uObj = {};
         try { if (storedUser) uObj = JSON.parse(storedUser); } catch(e){}
@@ -332,143 +335,182 @@
         const defaultName = uObj.fullName || uObj.name || '';
         const defaultPhone = uObj.phone || '';
 
-        if (typeof Swal === 'undefined') {
-            showFallbackEmergencyModal(defaultCode, defaultName, defaultPhone);
-            return;
-        }
-
-        Swal.fire({
-            title: 'الإبلاغ عن مشكلة عاجلة 🚨',
-            html: `
-                <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px;">
-                    <div style="margin-bottom:10px;">
-                        <label style="font-weight:800; display:block; margin-bottom:4px; color:#F8FAFC;">كود الطالب:</label>
-                        <input id="emgCode" class="swal2-input" value="${defaultCode}" placeholder="كود الطالب" style="width:100%; margin:0; text-align:right; font-family:monospace; font-weight:800; font-size:15px; color:#38BDF8;">
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <label style="font-weight:800; display:block; margin-bottom:4px; color:#F8FAFC;">اسم الطالب الكامل:</label>
-                        <input id="emgName" class="swal2-input" value="${defaultName}" placeholder="اسم الطالب" style="width:100%; margin:0; text-align:right;">
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <label style="font-weight:800; display:block; margin-bottom:4px; color:#F8FAFC;">رقم الواتساب للتواصل:</label>
-                        <input id="emgPhone" class="swal2-input" value="${defaultPhone}" placeholder="01xxxxxxxxx" style="width:100%; margin:0; text-align:right;">
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <label style="font-weight:800; display:block; margin-bottom:4px; color:#F8FAFC;">نوع المشكلة:</label>
-                        <select id="emgType" class="swal2-input" style="width:100%; margin:0; text-align:right;">
-                            <option value="تسجيل الدخول والأكواد">مشكلة في كود الدخول أو الحساب</option>
-                            <option value="بطء أو توقف المحاضرة">مشكلة في فتح المحاضرة</option>
-                            <option value="الامتحانات والتقارير">مشكلة في الامتحان والنتيجة</option>
-                            <option value="أخرى">مشكلة أخرى عاجلة</option>
-                        </select>
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <label style="font-weight:800; display:block; margin-bottom:4px; color:#F8FAFC;">تفاصيل المشكلة:</label>
-                        <textarea id="emgMsg" class="swal2-input" placeholder="اشرح المشكلة بالتفصيل..." style="width:100%; margin:0; height:80px; text-align:right; font-family:inherit; font-size:13px; padding:10px;"></textarea>
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'إرسال البلاغ فوراً 🚀',
-            cancelButtonText: 'إلغاء',
-            confirmButtonColor: '#6366F1',
-            cancelButtonColor: '#64748B',
-            preConfirm: () => {
-                const code = document.getElementById('emgCode').value.trim();
-                const name = document.getElementById('emgName').value.trim();
-                const phone = document.getElementById('emgPhone').value.trim();
-                const issueType = document.getElementById('emgType').value;
-                const message = document.getElementById('emgMsg').value.trim();
-
-                if (!message) {
-                    Swal.showValidationMessage('يرجى كتابة تفاصيل المشكلة');
-                    return false;
-                }
-
-                return { studentCode: code, studentName: name, phone: phone, issueType: issueType, message: message };
-            }
-        }).then(result => {
-            if (result.isConfirmed && result.value) {
-                saveEmergencyIssueDirect(result.value);
-            }
-        });
-    };
-
-    function showFallbackEmergencyModal(defaultCode, defaultName, defaultPhone) {
-        const existing = document.getElementById('elkhetaFallbackEmgModal');
-        if (existing) existing.remove();
-
         const modal = document.createElement('div');
-        modal.id = 'elkhetaFallbackEmgModal';
+        modal.id = 'elkhetaEmergencyModal';
         modal.style.cssText = `
             position: fixed; inset: 0;
-            background: rgba(9, 13, 22, 0.94);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            z-index: 9999999;
+            background: rgba(5, 8, 17, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000000000;
             display: flex; align-items: center; justify-content: center;
             padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl;
         `;
 
         modal.innerHTML = `
             <div style="
-                background: #111827;
-                border: 1px solid rgba(99, 102, 241, 0.35);
+                background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+                border: 1.5px solid rgba(99, 102, 241, 0.4);
                 border-radius: 26px;
                 padding: 28px 24px;
-                max-width: 440px; width: 100%;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+                max-width: 460px; width: 100%;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(99, 102, 241, 0.25);
                 color: #F8FAFC;
+                position: relative;
+                animation: emgFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             ">
-                <h3 style="font-size: 19px; font-weight: 900; color: #F8FAFC; margin-bottom: 14px; text-align: center;">الإبلاغ عن مشكلة عاجلة 🚨</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
-                    <div>
-                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">كود الطالب:</label>
-                        <input id="fbCode" value="${defaultCode}" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #38BDF8; font-family: monospace; font-size: 15px; font-weight: 800; padding: 10px; border-radius: 12px; box-sizing: border-box;">
+                <style>
+                    @keyframes emgFadeIn {
+                        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                        to { opacity: 1; transform: scale(1) translateY(0); }
+                    }
+                    .emg-input-field {
+                        width: 100%;
+                        background: rgba(0, 0, 0, 0.35);
+                        border: 1px solid rgba(255, 255, 255, 0.15);
+                        border-radius: 12px;
+                        padding: 10px 14px;
+                        color: #FFFFFF;
+                        font-family: 'Cairo', sans-serif;
+                        font-size: 13.5px;
+                        font-weight: 700;
+                        outline: none;
+                        transition: all 0.2s;
+                        box-sizing: border-box;
+                    }
+                    .emg-input-field:focus {
+                        border-color: #6366F1;
+                        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+                        background: rgba(0, 0, 0, 0.5);
+                    }
+                </style>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 20px;">🚨</div>
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 900; color: #FFFFFF; margin: 0;">الإبلاغ عن مشكلة عاجلة</h3>
+                            <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">يصل بلاغك فوراً لغرفة عمليات الأدمن للمتابعة</span>
+                        </div>
                     </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">اسم الطالب الكامل:</label>
-                        <input id="fbName" value="${defaultName}" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">رقم الواتساب للتواصل:</label>
-                        <input id="fbPhone" value="${defaultPhone}" placeholder="01xxxxxxxxx" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; box-sizing: border-box;">
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">تفاصيل المشكلة:</label>
-                        <textarea id="fbMsg" placeholder="اشرح المشكلة بالتفصيل..." style="width: 100%; height: 75px; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; font-family: inherit; box-sizing: border-box;"></textarea>
-                    </div>
+                    <button type="button" onclick="document.getElementById('elkhetaEmergencyModal').remove()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94A3B8; width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
                 </div>
 
-                <div style="display: flex; gap: 8px;">
-                    <button id="fbSubmitBtn" style="flex: 1; background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13.5px; cursor: pointer; font-family: inherit;">إرسال البلاغ فوراً 🚀</button>
-                    <button onclick="document.getElementById('elkhetaFallbackEmgModal').remove()" style="background: rgba(255,255,255,0.06); color: #94A3B8; border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit;">إلغاء</button>
+                <div id="emgFormBody" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 800; color: #CBD5E1; display: block; margin-bottom: 4px;">كود الطالب (إن وجد):</label>
+                        <input id="emgCode" class="emg-input-field" value="${defaultCode}" placeholder="كود الطالب (مثال: ST101)" style="color: #38BDF8; font-family: monospace; font-size: 14px; font-weight: 800;">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 800; color: #CBD5E1; display: block; margin-bottom: 4px;">اسم الطالب الكامل:</label>
+                        <input id="emgName" class="emg-input-field" value="${defaultName}" placeholder="اكتب اسمك الثلاثي أو الرباعي">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 800; color: #CBD5E1; display: block; margin-bottom: 4px;">رقم الهاتف / الواتساب:</label>
+                        <input id="emgPhone" class="emg-input-field" value="${defaultPhone}" placeholder="01xxxxxxxxx">
+                    </div>
+
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 800; color: #CBD5E1; display: block; margin-bottom: 4px;">نوع المشكلة:</label>
+                        <select id="emgType" class="emg-input-field" style="color: #FFF; background: #0F172A;">
+                            <option value="تسجيل الدخول والأكواد">مشكلة في كود الدخول أو الحساب</option>
+                            <option value="فتح المحاضرات">مشكلة في تشغيل أو فتح المحاضرات</option>
+                            <option value="الامتحانات والنتائج">مشكلة في الامتحان أو النتيجة</option>
+                            <option value="أخرى عاجلة">مشكلة أخرى عاجلة</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 11.5px; font-weight: 800; color: #CBD5E1; display: block; margin-bottom: 4px;">تفاصيل المشكلة:</label>
+                        <textarea id="emgMsg" class="emg-input-field" placeholder="اشرح المشكلة بالتفصيل لمساعدتك فوراً..." style="height: 80px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div id="emgErrorNotice" style="display: none; color: #F87171; font-size: 12px; font-weight: 800; text-align: center;"></div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button id="emgSubmitBtn" type="button" style="
+                            flex: 1; background: linear-gradient(135deg, #6366F1, #4F46E5);
+                            color: white; border: none; padding: 12px; border-radius: 12px;
+                            font-weight: 900; font-size: 14px; font-family: inherit; cursor: pointer;
+                            display: flex; align-items: center; justify-content: center; gap: 8px;
+                            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                        ">
+                            <span>إرسال البلاغ فوراً 🚀</span>
+                        </button>
+                        <button type="button" onclick="document.getElementById('elkhetaEmergencyModal').remove()" style="
+                            background: rgba(255, 255, 255, 0.08); color: #94A3B8;
+                            border: 1px solid rgba(255, 255, 255, 0.15); padding: 12px 18px;
+                            border-radius: 12px; font-weight: 800; font-size: 13px;
+                            cursor: pointer; font-family: inherit;
+                        ">
+                            إلغاء
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
 
         document.body.appendChild(modal);
 
-        document.getElementById('fbSubmitBtn').onclick = function() {
-            const code = document.getElementById('fbCode').value.trim();
-            const name = document.getElementById('fbName').value.trim();
-            const phone = document.getElementById('fbPhone').value.trim();
-            const msg = document.getElementById('fbMsg').value.trim();
+        document.getElementById('emgSubmitBtn').onclick = function() {
+            const code = document.getElementById('emgCode').value.trim();
+            const name = document.getElementById('emgName').value.trim();
+            const phone = document.getElementById('emgPhone').value.trim();
+            const issueType = document.getElementById('emgType').value;
+            const message = document.getElementById('emgMsg').value.trim();
+            const errEl = document.getElementById('emgErrorNotice');
 
-            if (!msg) {
-                alert('يرجى كتابة تفاصيل المشكلة');
+            if (!message) {
+                if (errEl) {
+                    errEl.style.display = 'block';
+                    errEl.textContent = '⚠️ يرجى كتابة تفاصيل المشكلة أولاً';
+                }
                 return;
             }
+
+            const btn = document.getElementById('emgSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>جاري الإرسال... ⏳</span>';
 
             saveEmergencyIssueDirect({
                 studentCode: code,
                 studentName: name,
                 phone: phone,
-                issueType: 'أخرى',
-                message: msg
+                issueType: issueType,
+                message: message
             });
-            modal.remove();
+
+            const body = document.getElementById('emgFormBody');
+            if (body) {
+                body.innerHTML = `
+                    <div style="text-align: center; padding: 20px 10px;">
+                        <div style="font-size: 44px; margin-bottom: 12px;">✅</div>
+                        <h4 style="font-size: 17px; font-weight: 900; color: #34D399; margin-bottom: 8px;">تم إرسال بلاغك بنجاح!</h4>
+                        <p style="font-size: 13px; color: #E2E8F0; line-height: 1.6; font-weight: 600;">
+                            تم تسجيل البلاغ ووصل مباشرةً إلى لوحة الأدمن وغرفة العمليات، وسيتواصل معك الدعم الفني فوراً.
+                        </p>
+                        <button onclick="document.getElementById('elkhetaEmergencyModal').remove()" style="
+                            margin-top: 18px; background: linear-gradient(135deg, #10B981, #059669);
+                            color: white; border: none; padding: 10px 24px; border-radius: 12px;
+                            font-weight: 900; font-size: 13.5px; cursor: pointer; font-family: inherit;
+                        ">
+                            إغلاق ✔️
+                        </button>
+                    </div>
+                `;
+            }
+
+            setTimeout(() => {
+                const m = document.getElementById('elkhetaEmergencyModal');
+                if (m) m.remove();
+            }, 3500);
         };
+    };
+
+    function showFallbackEmergencyModal(defaultCode, defaultName, defaultPhone) {
+        window.showEmergencyReportModal();
     }
 
     function saveEmergencyIssueDirect(data) {

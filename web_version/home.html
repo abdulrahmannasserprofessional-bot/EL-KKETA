@@ -1058,45 +1058,98 @@
     <script src="toast.js"></script>
 
     <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        
+        let user = null;
+        try {
+            const raw = localStorage.getItem('user');
+            if (raw) user = JSON.parse(raw);
+        } catch(e) {}
+
+        const isAdmin = localStorage.getItem('isAdmin') === 'true' || Boolean(localStorage.getItem('adminRole'));
+
+        if (!user && isAdmin) {
+            user = {
+                fullName: 'معاينة الإدارة (المدير العام)',
+                studentCode: 'ADMIN_PREVIEW',
+                phone: '01000000000',
+                stage: 'الفرقة الرابعة',
+                points: 1250,
+                streak: 5,
+                level: 6
+            };
+            try { localStorage.setItem('user', JSON.stringify(user)); } catch(e){}
+        }
+
         if (user) {
             const studentFullName = user.fullName || user.full_name || 'طالب';
             const studentCode = user.studentCode || user.student_code || user.code || '';
 
-            document.getElementById('userName').innerText = "أهلاً بك يا " + studentFullName + " 👋";
-            document.getElementById('userHeaderName').innerText = studentFullName.split(' ')[0] || 'طالب';
-            document.getElementById('drawerUserName').innerText = studentFullName;
-            document.getElementById('drawerUserCode').innerText = "كود: " + studentCode;
-            
-            // Set initial letter
-            const firstLetter = studentFullName.trim().charAt(0) || 'ط';
-            document.getElementById('userInitial').innerText = firstLetter;
+            const userNameEl = document.getElementById('userName');
+            if (userNameEl) userNameEl.innerText = "أهلاً بك يا " + studentFullName + " 👋";
 
-            ElkhetaAPI.logActivity(studentCode, studentFullName, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
-            
+            const userHeaderNameEl = document.getElementById('userHeaderName');
+            if (userHeaderNameEl) userHeaderNameEl.innerText = studentFullName.split(' ')[0] || 'طالب';
+
+            const drawerUserNameEl = document.getElementById('drawerUserName') || document.getElementById('_drawer_name');
+            if (drawerUserNameEl) drawerUserNameEl.innerText = studentFullName;
+
+            const drawerUserCodeEl = document.getElementById('drawerUserCode');
+            if (drawerUserCodeEl) drawerUserCodeEl.innerText = "كود: " + studentCode;
+
+            // Set initial letter
+            const firstLetter = studentFullName.trim().charAt(0) || '🎓';
+            const userInitialEl = document.getElementById('userInitial');
+            if (userInitialEl) userInitialEl.innerText = firstLetter;
+
+            if (typeof ElkhetaAPI !== 'undefined' && ElkhetaAPI.logActivity) {
+                ElkhetaAPI.logActivity(studentCode, studentFullName, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
+            }
+
+            // Show Admin Preview Banner if in admin mode
+            if (isAdmin) {
+                const prevBanner = document.createElement('div');
+                prevBanner.style.cssText = `
+                    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+                    color: #E2E8F0; border: 1px solid rgba(99, 102, 241, 0.45);
+                    padding: 8px 16px; border-radius: 16px; font-size: 12px; font-weight: 800;
+                    display: flex; align-items: center; justify-content: space-between;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                `;
+                prevBanner.innerHTML = `
+                    <span>👁️ أنت الآن في وضع معاينة الطالب (حساب المسؤول)</span>
+                    <a href="admin-panel.html" style="color: #38BDF8; font-weight: 900; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>العودة للوحة القيادة ⬅️</span>
+                    </a>
+                `;
+                const wrapper = document.querySelector('.home-app-wrapper');
+                if (wrapper) wrapper.insertBefore(prevBanner, wrapper.firstChild);
+            }
+
             // Dynamic Time Greeting
             const hour = new Date().getHours();
+            const gTextEl = document.getElementById('greetingText');
+            const gIconEl = document.getElementById('greetingIcon');
             if (hour >= 5 && hour < 12) {
-                document.getElementById('greetingText').innerText = "صباح الخير والنشاط!";
-                document.getElementById('greetingIcon').innerText = "☀️";
+                if (gTextEl) gTextEl.innerText = "صباح الخير والنشاط!";
+                if (gIconEl) gIconEl.innerText = "☀️";
             } else if (hour >= 12 && hour < 18) {
-                document.getElementById('greetingText').innerText = "مساء الخير والهمة العالية!";
-                document.getElementById('greetingIcon').innerText = "🌤️";
+                if (gTextEl) gTextEl.innerText = "مساء الخير والهمة العالية!";
+                if (gIconEl) gIconEl.innerText = "🌤️";
             } else {
-                document.getElementById('greetingText').innerText = "مساء الخير والهدوء!";
-                document.getElementById('greetingIcon').innerText = "🌙";
+                if (gTextEl) gTextEl.innerText = "مساء الخير والهدوء!";
+                if (gIconEl) gIconEl.innerText = "🌙";
             }
 
             // Listen for personal message from admin
-            if (studentCode) {
+            if (studentCode && studentCode !== 'ADMIN_PREVIEW') {
                 database.ref('Students/' + studentCode + '/personalMessage').on('value', (snap) => {
                     const msg = snap.val();
+                    const pBar = document.getElementById('personalNoticeBar');
+                    const pText = document.getElementById('personalNoticeText');
                     if (msg) {
-                        document.getElementById('personalNoticeBar').style.display = 'flex';
-                        document.getElementById('personalNoticeText').innerText = msg;
+                        if (pBar) pBar.style.display = 'flex';
+                        if (pText) pText.innerText = msg;
                     } else {
-                        document.getElementById('personalNoticeBar').style.display = 'none';
+                        if (pBar) pBar.style.display = 'none';
                     }
                 });
 
@@ -1112,11 +1165,13 @@
                 database.ref('Students/' + studentCode + '/stats').on('value', (snap) => {
                     const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
                     const points = stats.totalScore || 0;
-                    document.getElementById('userPoints').innerText = points;
+                    const pEl = document.getElementById('userPoints');
+                    if (pEl) pEl.innerText = points;
 
                     // Level calculation
                     const level = Math.floor(points / 200) + 1;
-                    document.getElementById('userLevel').innerText = `مستوى ${level}`;
+                    const lEl = document.getElementById('userLevel');
+                    if (lEl) lEl.innerText = `مستوى ${level}`;
                 });
             }
         } else {

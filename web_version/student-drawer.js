@@ -9,11 +9,11 @@
     style.innerHTML = `
         /* Drawer Overlay */
         .elkheta-drawer-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed; inset: 0;
             background: rgba(11, 17, 32, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 99999;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 999998;
             opacity: 0; pointer-events: none;
             transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -27,10 +27,10 @@
             width: 325px; max-width: 86vw;
             height: 100vh; height: 100dvh; max-height: 100vh;
             background: #FFFFFF;
-            z-index: 100000;
+            z-index: 999999;
             display: flex; flex-direction: column;
             box-shadow: -20px 0 60px rgba(11, 17, 32, 0.35);
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: right 0.38s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: 'Cairo', sans-serif;
             direction: rtl;
             border-left: 1px solid rgba(226, 232, 240, 0.8);
@@ -52,7 +52,7 @@
         .elkheta-drawer-header {
             background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E3A8A 75%, #2563EB 100%);
             color: white;
-            padding: 16px 14px 12px;
+            padding: 18px 16px 14px;
             position: relative;
             box-shadow: 0 8px 24px rgba(30, 58, 138, 0.3);
             overflow: hidden;
@@ -78,12 +78,12 @@
         }
 
         .elkheta-drawer-close {
-            position: absolute; top: 12px; left: 12px;
+            position: absolute; top: 14px; left: 14px;
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(8px);
             color: #E2E8F0; border: 1px solid rgba(255, 255, 255, 0.25);
-            width: 30px; height: 30px;
-            border-radius: 50%; font-size: 12px; cursor: pointer;
+            width: 32px; height: 32px;
+            border-radius: 50%; font-size: 13px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 5;
@@ -96,35 +96,36 @@
         }
 
         .elkheta-drawer-user {
-            display: flex; align-items: center; gap: 10px; position: relative; z-index: 2;
+            display: flex; align-items: center; gap: 12px; position: relative; z-index: 2;
         }
         .elkheta-avatar-wrap {
             position: relative;
             flex-shrink: 0;
         }
         .elkheta-drawer-avatar {
-            width: 44px; height: 44px;
-            border-radius: 14px;
+            width: 48px; height: 48px;
+            border-radius: 16px;
             background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E1B4B 100%);
             border: 2px solid #F59E0B;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; font-weight: 900; color: white;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            font-size: 20px; font-weight: 900; color: white;
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.35);
         }
         .elkheta-avatar-badge {
             position: absolute;
             bottom: -2px; right: -2px;
             background: #10B981;
-            width: 12px; height: 12px;
+            width: 13px; height: 13px;
             border-radius: 50%;
             border: 2px solid #0F172A;
+            box-shadow: 0 0 8px #10B981;
         }
 
         .elkheta-drawer-info {
             flex: 1; min-width: 0;
         }
         .elkheta-drawer-name {
-            font-size: 14px; font-weight: 900; color: #FFFFFF;
+            font-size: 15px; font-weight: 900; color: #FFFFFF;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             line-height: 1.2;
         }
@@ -134,26 +135,27 @@
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(6px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 2px 7px; border-radius: 6px;
-            font-size: 10px; font-weight: 800; color: #BFDBFE; margin-top: 2px;
+            padding: 2px 8px; border-radius: 8px;
+            font-size: 10px; font-weight: 800; color: #BFDBFE; margin-top: 3px;
         }
         .elkheta-drawer-code-pill {
             display: inline-flex; align-items: center; gap: 4px;
             background: rgba(245, 158, 11, 0.15);
             backdrop-filter: blur(6px);
             border: 1px solid rgba(245, 158, 11, 0.4);
-            padding: 2px 8px; border-radius: 8px; font-size: 10.5px;
+            padding: 2px 8px; border-radius: 8px; font-size: 11px;
             font-weight: 900; color: #FEF3C7; margin-top: 4px;
             cursor: pointer; transition: all 0.2s;
         }
         .elkheta-drawer-code-pill:hover { 
             background: rgba(245, 158, 11, 0.35); 
+            transform: translateY(-1px);
         }
 
         /* Triple Stats Bar */
         .elkheta-drawer-stats {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
-            margin-top: 10px; padding-top: 8px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            margin-top: 12px; padding-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.12);
             position: relative; z-index: 2;
         }
@@ -161,19 +163,19 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(6px);
-            border-radius: 10px; padding: 4px 2px; text-align: center;
+            border-radius: 12px; padding: 6px 4px; text-align: center;
         }
         .elkheta-stat-label {
-            font-size: 9px; font-weight: 800; color: #93C5FD; display: block;
+            font-size: 9.5px; font-weight: 800; color: #93C5FD; display: block;
         }
         .elkheta-drawer-stat-val {
-            font-size: 11.5px; font-weight: 900; color: #FFFFFF; display: block; margin-top: 1px;
+            font-size: 12px; font-weight: 900; color: #FFFFFF; display: block; margin-top: 2px;
         }
 
         /* Quick Utility Strip */
         .elkheta-quick-strip {
             display: flex; gap: 6px;
-            padding: 6px 10px;
+            padding: 8px 12px;
             background: #F1F5F9;
             border-bottom: 1px solid #E2E8F0;
             flex-shrink: 0;
@@ -187,13 +189,14 @@
             display: flex; align-items: center; justify-content: center; gap: 4px;
             background: #FFFFFF;
             border: 1px solid #CBD5E1;
-            border-radius: 8px;
-            padding: 5px 8px;
+            border-radius: 10px;
+            padding: 6px 8px;
             font-size: 11px; font-weight: 800;
             color: #334155;
             cursor: pointer;
             transition: all 0.2s;
             font-family: inherit;
+            text-decoration: none;
         }
         body.dark-theme .elkheta-quick-btn {
             background: #0F172A;
@@ -203,11 +206,12 @@
         .elkheta-quick-btn:hover {
             border-color: #2563EB;
             color: #2563EB;
+            transform: translateY(-1px);
         }
 
         /* Menu Body with Smooth Scrollbar */
         .elkheta-drawer-body {
-            padding: 10px 10px 30px;
+            padding: 12px 12px 30px;
             flex: 1 1 0px !important;
             min-height: 0 !important;
             max-height: 100% !important;
@@ -222,26 +226,23 @@
             background: #0F172A;
         }
         .elkheta-drawer-body::-webkit-scrollbar {
-            width: 7px !important;
+            width: 6px !important;
             display: block !important;
         }
         .elkheta-drawer-body::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.04);
+            background: rgba(0,0,0,0.03);
         }
         .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.4);
+            background: rgba(99, 102, 241, 0.35);
             border-radius: 10px;
         }
         .elkheta-drawer-body::-webkit-scrollbar-thumb:hover {
-            background: rgba(99, 102, 241, 0.8);
-        }
-        body.dark-theme .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.5);
+            background: rgba(99, 102, 241, 0.7);
         }
 
         .elkheta-menu-section-title {
-            font-size: 10.5px; font-weight: 900; color: #64748B;
-            padding: 8px 8px 4px; text-transform: uppercase;
+            font-size: 11px; font-weight: 900; color: #64748B;
+            padding: 10px 8px 4px; text-transform: uppercase;
             letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;
         }
         body.dark-theme .elkheta-menu-section-title {
@@ -257,7 +258,7 @@
         /* Luxury Nav Cards */
         .elkheta-nav-card {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 9px 12px; margin-bottom: 6px;
+            padding: 10px 12px; margin-bottom: 6px;
             border-radius: 14px; text-decoration: none;
             background: #FFFFFF;
             border: 1.5px solid #E2E8F0;
@@ -297,9 +298,9 @@
             min-width: 0;
         }
         .elkheta-nav-icon-box {
-            width: 36px; height: 36px; border-radius: 12px;
+            width: 38px; height: 38px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 16px; transition: all 0.2s;
+            font-size: 17px; transition: all 0.2s;
             flex-shrink: 0;
             color: white;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
@@ -309,7 +310,7 @@
             min-width: 0;
         }
         .elkheta-nav-title {
-            font-size: 13px; font-weight: 900;
+            font-size: 13.5px; font-weight: 900;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .elkheta-nav-subtitle {
@@ -369,7 +370,7 @@
         }
 
         .elkheta-footer-watermark {
-            font-size: 10px;
+            font-size: 10.5px;
             color: #94A3B8;
             text-align: center;
             font-weight: 700;
@@ -454,35 +455,35 @@
             <!-- VIP Header -->
             <div class="elkheta-drawer-header">
                 <button type="button" class="elkheta-drawer-close" onclick="closeStudentDrawer()" title="إغلاق القائمة">✕</button>
-                <div class="elkheta-user-row">
+                <div class="elkheta-drawer-user">
                     <div class="elkheta-avatar-wrap">
-                        <div class="elkheta-avatar">${initial}</div>
-                        <div class="elkheta-online-indicator" title="متصل الآن"></div>
+                        <div class="elkheta-drawer-avatar">${initial}</div>
+                        <div class="elkheta-avatar-badge" title="متصل الآن"></div>
                     </div>
-                    <div class="elkheta-user-meta">
-                        <div class="elkheta-user-name" id="_drawer_name"></div>
-                        <div class="elkheta-user-code-pill" onclick="copyDrawerStudentCode()" title="اضغط لنسخ الكود الخاص بك">
+                    <div class="elkheta-drawer-info">
+                        <div class="elkheta-drawer-name" id="_drawer_name"></div>
+                        <div class="elkheta-drawer-code-pill" onclick="copyDrawerStudentCode()" title="اضغط لنسخ الكود الخاص بك">
                             <span>🔑</span>
                             <span id="drawerUserCode"></span>
                             <span style="font-size: 9px; opacity: 0.7;">📋</span>
                         </div>
-                        <div class="elkheta-stage-pill">الفرقة الرابعة • خدمة اجتماعية 2027 🎓</div>
+                        <div class="elkheta-drawer-stage">الفرقة الرابعة • خدمة اجتماعية 2027 🎓</div>
                     </div>
                 </div>
 
                 <!-- Triple KPIs -->
-                <div class="elkheta-drawer-kpis">
-                    <div class="elkheta-kpi-pill">
-                        <div class="val">⭐ ${user.points || 0}</div>
-                        <div class="lbl">النقاط</div>
+                <div class="elkheta-drawer-stats">
+                    <div class="elkheta-drawer-stat-col">
+                        <span class="elkheta-stat-label">⭐ النقاط</span>
+                        <span class="elkheta-drawer-stat-val">${user.points || 0}</span>
                     </div>
-                    <div class="elkheta-kpi-pill">
-                        <div class="val">🔥 ${user.streak || 1} أيام</div>
-                        <div class="lbl">الاستمرار</div>
+                    <div class="elkheta-drawer-stat-col">
+                        <span class="elkheta-stat-label">🔥 الالتزام</span>
+                        <span class="elkheta-drawer-stat-val">${user.streak || 1} أيام</span>
                     </div>
-                    <div class="elkheta-kpi-pill">
-                        <div class="val">🏆 لفل ${user.level || 1}</div>
-                        <div class="lbl">المستوى</div>
+                    <div class="elkheta-drawer-stat-col">
+                        <span class="elkheta-stat-label">🏆 المستوى</span>
+                        <span class="elkheta-drawer-stat-val">لفل ${user.level || 1}</span>
                     </div>
                 </div>
             </div>
@@ -592,7 +593,7 @@
                 </a>
 
                 <!-- Section 3: الحساب الشخصي -->
-                <div class="elkheta-menu-section-title" style="margin-top: 10px;">إعدادات الحساب</div>
+                <div class="elkheta-menu-section-title" style="margin-top: 10px;">إعدادات الحساب والدعم</div>
 
                 <a href="profile.html" class="elkheta-nav-card ${isActive('profile.html')}">
                     <div class="elkheta-nav-card-left">
@@ -627,7 +628,7 @@
             </div>
         `;
 
-        // [SECURITY] إدخال بيانات المستخدم عبر textContent — حماية من XSS
+        // Safe DOM insertion
         const nameEl = drawerEl.querySelector('#_drawer_name');
         if (nameEl) nameEl.textContent = user.fullName || 'طالب منصة الخطة';
         const codeEl = drawerEl.querySelector('#drawerUserCode');
@@ -705,10 +706,10 @@
         }
     };
 
-    // Auto attach click triggers to all hamburger buttons including #openDrawer
+    // Auto attach click triggers to all hamburger buttons
     function attachDrawerTriggers() {
         buildDrawer();
-        document.querySelectorAll('#openDrawer, .menu-btn, .header-menu-btn, [data-action="open-drawer"], .drawer-toggle-btn').forEach(btn => {
+        document.querySelectorAll('#openDrawer, .menu-btn, .header-menu-btn, [data-action="open-drawer"], .drawer-toggle-btn, .btn-top-icon#openDrawer').forEach(btn => {
             btn.onclick = (e) => {
                 if (e) { e.preventDefault(); e.stopPropagation(); }
                 if (window.openStudentDrawer) {
@@ -719,6 +720,71 @@
             };
         });
     }
+
+    // Support Ticket Modal
+    window.openStudentSupportTicketModal = function() {
+        if (typeof closeStudentDrawer === 'function') closeStudentDrawer();
+        if (typeof window.showEmergencyReportModal === 'function') {
+            window.showEmergencyReportModal();
+            return;
+        }
+
+        const user = getStoredUser();
+        const studentCode = user.code || localStorage.getItem('studentCode') || 'GUEST';
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '💬 تقديم تذكرة دعم فني أو بلاغ',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; font-size: 13px;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">نوع المشكلة:</label>
+                        <select id="ticketCategory" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid #CBD5E1; margin-bottom:12px; font-family:inherit; font-weight:700;">
+                            <option value="تسجيل الدخول والأجهزة">🔐 مشكلة في الدخول أو اعتماد الجهاز</option>
+                            <option value="المحاضرات والفيديوهات">📚 مشكلة في المحاضرات أو التشغيل</option>
+                            <option value="الامتحانات والنتائج">📝 مشكلة في الامتحانات أو حفظ النتيجة</option>
+                            <option value="النقاط والمتصدرين">🏆 تصفير أو عدم احتساب النقاط</option>
+                            <option value="بلاغ أو مقترح آخر">💡 بلاغ آخر أو استفسار عملاء</option>
+                        </select>
+
+                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">تفاصيل وتوصيف المشكلة:</label>
+                        <textarea id="ticketMsg" rows="4" placeholder="اكتب تفاصيل مشكلتك هنا بوضوح ليتولى فريق الدعم حلها فوراً..." style="width:100%; padding:10px; border-radius:12px; border:1px solid #CBD5E1; font-family:inherit; resize:vertical; font-weight:600;"></textarea>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '🚀 إرسال التذكرة',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2563EB',
+                preConfirm: () => {
+                    const category = document.getElementById('ticketCategory').value;
+                    const msg = document.getElementById('ticketMsg').value.trim();
+                    if (!msg) {
+                        Swal.showValidationMessage('يرجى كتابة وصف وتفاصيل المشكلة أولاً');
+                        return false;
+                    }
+                    return { category, msg };
+                }
+            }).then((res) => {
+                if (res.isConfirmed && res.value) {
+                    const ticketId = 'TCK_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+                    const ticketData = {
+                        ticketId: ticketId,
+                        studentCode: studentCode,
+                        studentName: user.fullName || 'طالب المنصة',
+                        category: res.value.category,
+                        message: res.value.msg,
+                        timestamp: Date.now(),
+                        status: 'pending',
+                        priority: 'high'
+                    };
+                    if (typeof firebase !== 'undefined' && firebase.database) {
+                        firebase.database().ref('SupportTickets/' + ticketId).set(ticketData).then(() => {
+                            Swal.fire('تم إرسال تذكرتك بنجاح 🎫', 'تم تسليمها لمركز دعم العمليات وسيتم التواصل معك مباشرةً!', 'success');
+                        });
+                    }
+                }
+            });
+        }
+    };
 
     // ==========================================
     // Real-Time Personal Notice & Push Activation
@@ -810,7 +876,7 @@
     };
 
     // ==========================================
-    // Real-Time Detailed Content Addition Listener (Zero-Refresh Alert)
+    // Real-Time Detailed Content Addition Listener
     // ==========================================
     const pageLoadTime = Date.now();
 
@@ -863,67 +929,6 @@
             }
         }, 8000);
     }
-
-    window.openStudentSupportTicketModal = function() {
-        if (typeof closeStudentDrawer === 'function') closeStudentDrawer();
-        const user = getStoredUser();
-        const studentCode = user.code || localStorage.getItem('studentCode') || 'GUEST';
-
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: '💬 تقديم تذكرة دعم فني أو بلاغ',
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; font-size: 13px;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">نوع المشكلة:</label>
-                        <select id="ticketCategory" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid #CBD5E1; margin-bottom:12px; font-family:inherit; font-weight:700;">
-                            <option value="تسجيل الدخول والأجهزة">🔐 مشكلة في الدخول أو اعتماد الجهاز</option>
-                            <option value="المحاضرات والفيديوهات">📚 مشكلة في المحاضرات أو التشغيل</option>
-                            <option value="الامتحانات والنتائج">📝 مشكلة في الامتحانات أو حفظ النتيجة</option>
-                            <option value="النقاط والمتصدرين">🏆 تصفير أو عدم احتساب النقاط</option>
-                            <option value="بلاغ أو مقترح آخر">💡 بلاغ آخر أو استفسار عملاء</option>
-                        </select>
-
-                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">تفاصيل وتوصيف المشكلة:</label>
-                        <textarea id="ticketMsg" rows="4" placeholder="اكتب تفاصيل مشكلتك هنا بوضوح ليتولى فريق الدعم حلها فوراً..." style="width:100%; padding:10px; border-radius:12px; border:1px solid #CBD5E1; font-family:inherit; resize:vertical; font-weight:600;"></textarea>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '🚀 إرسال التذكرة',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#2563EB',
-                preConfirm: () => {
-                    const category = document.getElementById('ticketCategory').value;
-                    const msg = document.getElementById('ticketMsg').value.trim();
-                    if (!msg) {
-                        Swal.showValidationMessage('يرجى كتابة وصف وتفاصيل المشكلة أولاً');
-                        return false;
-                    }
-                    return { category, msg };
-                }
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    const ticketId = 'TCK_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-                    const ticketData = {
-                        ticketId: ticketId,
-                        studentCode: studentCode,
-                        studentName: user.fullName || 'طالب المنصة',
-                        category: res.value.category,
-                        message: res.value.msg,
-                        timestamp: Date.now(),
-                        status: 'pending',
-                        priority: 'high'
-                    };
-                    if (typeof firebase !== 'undefined' && firebase.database) {
-                        firebase.database().ref('SupportTickets/' + ticketId).set(ticketData).then(() => {
-                            Swal.fire('تم إرسال تذكرتك بنجاح 🎫', 'تم تسليمها لمركز دعم العمليات وسيتم التواصل معك مباشرةً!', 'success');
-                        });
-                    } else {
-                        Swal.fire('تم استلام التذكرة 🎫', 'جاري التواصل مع فريق الدعم', 'info');
-                    }
-                }
-            });
-        }
-    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
