@@ -1,24 +1,21 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api');
+const { getAdminHtml } = require('./views/adminHtml');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const path = require('path');
-
 // تفعيل CORS و معالجة JSON
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-const { getAdminHtml } = require('./views/adminHtml');
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.get('/api/health', (req, res) => {
-    res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ success: true, status: 'ok', time: new Date().toISOString() });
 });
 
 // مسار لوحة التحكم الرئيسية
@@ -49,3 +46,4 @@ if (require.main === module) {
 
 // تصدير التطبيق لدعم Vercel Serverless
 module.exports = app;
+
