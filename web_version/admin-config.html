@@ -370,6 +370,15 @@
             box-shadow: 0 8px 22px rgba(99, 102, 241, 0.5);
             transform: translateY(-2px);
         }
+        .btn-config.danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #F87171;
+        }
+        .btn-config.danger:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
 
         /* Rows Layout */
         .form-row {
@@ -424,8 +433,8 @@
         }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        /* Supervisors List Items */
-        .supervisor-card-item {
+        /* Supervisors & Emergency Cards */
+        .supervisor-card-item, .issue-card-item {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--card-border);
             border-radius: 20px;
@@ -438,14 +447,14 @@
             gap: 16px;
             transition: all 0.25s ease;
         }
-        .supervisor-card-item:hover {
+        .supervisor-card-item:hover, .issue-card-item:hover {
             background: rgba(255, 255, 255, 0.04);
             border-color: rgba(99, 102, 241, 0.4);
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
-        .sup-left-info {
+        .sup-left-info, .issue-left-info {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -453,7 +462,7 @@
             min-width: 260px;
         }
 
-        .sup-avatar {
+        .sup-avatar, .issue-avatar {
             width: 50px; height: 50px;
             background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
             border: 1px solid rgba(99, 102, 241, 0.4);
@@ -464,7 +473,7 @@
             flex-shrink: 0;
         }
 
-        .sup-details h4 {
+        .sup-details h4, .issue-details h4 {
             font-size: 16px;
             font-weight: 800;
             color: var(--text-main);
@@ -491,7 +500,7 @@
             color: #F87171;
         }
 
-        .sup-meta {
+        .sup-meta, .issue-meta {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -529,7 +538,7 @@
             font-weight: 700;
         }
 
-        .sup-actions {
+        .sup-actions, .issue-actions {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -587,8 +596,8 @@
             .hero-title-group h1 { font-size: 19px; }
             .tabs-nav { gap: 6px; padding: 6px; }
             .tab-btn { min-width: 110px; padding: 10px 12px; font-size: 12px; }
-            .supervisor-card-item { flex-direction: column; align-items: stretch; }
-            .sup-actions { justify-content: flex-end; width: 100%; margin-top: 6px; border-top: 1px solid var(--card-border); padding-top: 10px; }
+            .supervisor-card-item, .issue-card-item { flex-direction: column; align-items: stretch; }
+            .sup-actions, .issue-actions { justify-content: flex-end; width: 100%; margin-top: 6px; border-top: 1px solid var(--card-border); padding-top: 10px; }
         }
     </style>
 </head>
@@ -641,7 +650,7 @@
                     </div>
                     <div>
                         <h1>إدارة المشرفين وإعدادات المنصة</h1>
-                        <p>تخصيص صلاحيات المشرفين، مفاتيح التشغيل الفورية، وأدوات الصيانة</p>
+                        <p>تخصيص صلاحيات المشرفين، مفاتيح التشغيل الفورية، وأدوات الصيانة بالتايمر والأعطال</p>
                     </div>
                 </div>
             </div>
@@ -656,8 +665,8 @@
                     <span class="val" id="statMaintBadge" style="color:#34D399;">معطل (يعمل)</span>
                 </div>
                 <div class="hero-stat-pill">
-                    <span class="label"><i class="fa-solid fa-user-plus" style="color:#34D399;"></i> تسجيل الطلاب</span>
-                    <span class="val" id="statRegBadge" style="color:#34D399;">مفعل</span>
+                    <span class="label"><i class="fa-solid fa-triangle-exclamation" style="color:#F87171;"></i> بلاغات الأعطال الحية</span>
+                    <span class="val" id="statIssuesCount" style="color:#F87171;">0</span>
                 </div>
             </div>
         </section>
@@ -674,7 +683,7 @@
             </button>
             <button class="tab-btn" onclick="switchConfigTab(this, 'maintenance')">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
-                <span>الصيانة والفحص</span>
+                <span>الصيانة والعد التنازلي والحلول</span>
             </button>
         </nav>
 
@@ -705,7 +714,7 @@
                 <div class="form-row">
                     <div class="form-row-info">
                         <h4>وضع الصيانة المؤقت</h4>
-                        <p>قفل وصول الطلاب للمنصة وعرض شاشة الصيانة المؤقتة</p>
+                        <p>قفل وصول الطلاب للمنصة وعرض شاشة الصيانة المؤقتة بالتايمر</p>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="toggleMaintenance" onchange="updateSetting('maintenance', this.checked)">
@@ -735,16 +744,70 @@
             </div>
         </div>
 
-        <!-- Tab 3: Maintenance -->
+        <!-- Tab 3: Maintenance & Emergency Repairs -->
         <div class="tab-pane" id="pane-maintenance">
+            <!-- Section A: Emergency Maintenance Controller with Timer -->
             <div class="config-card">
                 <div class="card-header-flex">
-                    <h3><i class="fa-solid fa-toolbox"></i> الفحص والإصلاح السريع</h3>
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> التحكم الفوري بـ تايمر الصيانة والرسائل</h3>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:16px;">
+                    <div>
+                        <label style="font-weight:800; font-size:13px; color:var(--text-main); display:block; margin-bottom:6px;">مدة الصيانة للعد التنازلي:</label>
+                        <select id="maintTimerMinutes" class="swal2-select" style="width:100%; margin:0; padding:10px; font-family:inherit; font-weight:800;">
+                            <option value="15">⏱️ 15 دقيقة</option>
+                            <option value="30" selected>⏱️ 30 دقيقة (مستحسن)</option>
+                            <option value="45">⏱️ 45 دقيقة</option>
+                            <option value="60">⏱️ ساعة واحدة</option>
+                            <option value="120">⏱️ ساعتان</option>
+                            <option value="180">⏱️ 3 ساعات</option>
+                            <option value="360">⏱️ 6 ساعات</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-weight:800; font-size:13px; color:var(--text-main); display:block; margin-bottom:6px;">سبب / تنبيه الصيانة للطلاب:</label>
+                        <input id="maintReasonInput" class="swal2-input" placeholder="مثال: تحديث سيرفرات المحاضرات والامتحانات..." value="نقوم حالياً بتحسين وتحديث سيرفرات المنصة لتقديم أفضل تجربة تعلم 🎓" style="width:100%; margin:0; font-family:inherit; font-size:13px;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn-config primary" onclick="activateMaintenanceWithTimer()">
+                        <i class="fa-solid fa-play"></i> تفعيل حظر الصيانة مع التايمر الآن
+                    </button>
+                    <button class="btn-config danger" onclick="stopMaintenanceMode()">
+                        <i class="fa-solid fa-power-off"></i> إيقاف الصيانة فوراً وفتح المنصة
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section B: Real-Time Emergency Issues Database Panel -->
+            <div class="config-card">
+                <div class="card-header-flex">
+                    <h3><i class="fa-solid fa-triangle-exclamation" style="color:#F87171;"></i> مركز بلاغات وأعطال الطلاب الحية (Realtime Issues Database)</h3>
+                    <button class="btn-config" onclick="loadEmergencyIssues()">
+                        <i class="fa-solid fa-rotate-right"></i> تحديث القائمة
+                    </button>
+                </div>
+
+                <div id="emergencyIssuesList">
+                    <div style="text-align:center; padding:35px; color:var(--text-muted);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:var(--primary); margin-bottom:8px;"></i>
+                        <p>جاري تحميل بلاغات الأعطال في الوقت الفعلي...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section C: Fast Repair Utilities -->
+            <div class="config-card">
+                <div class="card-header-flex">
+                    <h3><i class="fa-solid fa-toolbox"></i> أدوات الفحص والتحديث الشامل</h3>
                 </div>
                 <div class="form-row">
                     <div class="form-row-info">
                         <h4>مسح الكاش وتحديث النسخة</h4>
-                        <p>إجبار هواتف الطلاب على تحميل أحدث ملفات المنصة 2027</p>
+                        <p>إجبار كافة هواتف متصفحات الطلاب على تنظيف الكاش والتحميل الفوري للنسخة الحديثة 2027</p>
                     </div>
                     <button class="btn-config" onclick="purgeCache()">
                         <i class="fa-solid fa-arrows-rotate"></i> مسح الكاش فوراً
@@ -752,11 +815,11 @@
                 </div>
                 <div class="form-row">
                     <div class="form-row-info">
-                        <h4>تصدير نسخة احتياطية (JSON)</h4>
-                        <p>تحميل نسخة كاملة من كافة بيانات الطلاب والدروس والإعدادات</p>
+                        <h4>تصدير نسخة احتياطية من البيانات (JSON)</h4>
+                        <p>تحميل نسخة احتياطية كاملة وشاملة لكافة جداول البيانات والبلاغات</p>
                     </div>
                     <button class="btn-config primary" onclick="exportBackup()">
-                        <i class="fa-solid fa-download"></i> تصدير البيانات
+                        <i class="fa-solid fa-download"></i> تصدير النسخة الاحتياطية
                     </button>
                 </div>
             </div>
@@ -802,14 +865,15 @@
                 }
                 if (s.registration !== undefined) {
                     document.getElementById('toggleRegistration').checked = s.registration;
-                    const regBadge = document.getElementById('statRegBadge');
-                    if (regBadge) {
-                        regBadge.textContent = s.registration ? 'مفعل' : 'معطل';
-                        regBadge.style.color = s.registration ? '#34D399' : '#F87171';
-                    }
                 }
                 if (s.community !== undefined) {
                     document.getElementById('toggleCommunity').checked = s.community;
+                }
+                if (s.maintenanceDetails) {
+                    if (s.maintenanceDetails.reason) {
+                        const reasonIn = document.getElementById('maintReasonInput');
+                        if (reasonIn && !reasonIn.value) reasonIn.value = s.maintenanceDetails.reason;
+                    }
                 }
             }
         });
@@ -824,6 +888,170 @@
                     showConfirmButton: false
                 });
             });
+        }
+
+        function activateMaintenanceWithTimer() {
+            const mins = parseInt(document.getElementById('maintTimerMinutes').value) || 30;
+            const reason = document.getElementById('maintReasonInput').value.trim() || 'صيانة دورية للمنصة';
+
+            const timerEnd = Date.now() + (mins * 60 * 1000);
+
+            const details = {
+                active: true,
+                reason: reason,
+                timerEnd: timerEnd,
+                minutes: mins,
+                activatedAt: Date.now()
+            };
+
+            database.ref('Settings').update({
+                maintenance: true,
+                maintenanceDetails: details
+            }).then(() => {
+                Swal.fire({
+                    title: 'تم تفعيل وضع الصيانة 🛠️',
+                    text: `تم قفل وصول الطلاب وعرض العد التنازلي لمدة ${mins} دقيقة بنجاح.`,
+                    icon: 'success',
+                    confirmButtonColor: '#6366F1'
+                });
+            });
+        }
+
+        function stopMaintenanceMode() {
+            database.ref('Settings').update({
+                maintenance: false,
+                'maintenanceDetails/active': false
+            }).then(() => {
+                Swal.fire({
+                    title: 'تم فتح المنصة بنجاح 🎉',
+                    text: 'يمكن لجميع الطلاب الدخول وتصفح المنصة بشكل طبيعي.',
+                    icon: 'success',
+                    confirmButtonColor: '#10B981'
+                });
+            });
+        }
+
+        // Realtime Emergency Issues Feed
+        function loadEmergencyIssues() {
+            database.ref('EmergencyIssues').on('value', snap => {
+                const container = document.getElementById('emergencyIssuesList');
+                container.innerHTML = "";
+                const issues = [];
+
+                if (!snap.exists()) {
+                    document.getElementById('statIssuesCount').textContent = '0';
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:35px; color:var(--text-muted);">
+                            <i class="fa-solid fa-circle-check" style="font-size:36px; color:#34D399; margin-bottom:8px;"></i>
+                            <p style="font-weight:700;">لا توجد أي بلاغات أو أعطال مسجلة من الطلاب حالياً</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snap.forEach(child => {
+                    const issue = child.val();
+                    if (issue) issues.push({ id: child.key, ...issue });
+                });
+
+                issues.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                const pendingCount = issues.filter(i => i.status !== 'resolved').length;
+                document.getElementById('statIssuesCount').textContent = pendingCount;
+
+                issues.forEach(iss => {
+                    const isResolved = iss.status === 'resolved';
+                    const timeStr = iss.timestamp ? new Date(iss.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : 'الآن';
+                    const dateStr = iss.timestamp ? new Date(iss.timestamp).toLocaleDateString('ar-EG') : '';
+
+                    const escId = iss.id.replace(/'/g, "\\'");
+                    const escName = (iss.studentName || 'طالب').replace(/'/g, "\\'");
+                    const escPhone = (iss.phone || '').replace(/'/g, "\\'");
+                    const escCode = (iss.studentCode || '').replace(/'/g, "\\'");
+
+                    const card = document.createElement('div');
+                    card.className = "issue-card-item";
+                    card.innerHTML = `
+                        <div class="issue-left-info">
+                            <div class="issue-avatar" style="${isResolved ? 'background:linear-gradient(135deg, #065F46, #047857); border-color:#34D399;' : 'background:linear-gradient(135deg, #7F1D1D, #991B1B); border-color:#F87171;'}">
+                                ${isResolved ? '✔️' : '🚨'}
+                            </div>
+                            <div class="issue-details">
+                                <h4>
+                                    <span>${iss.studentName || 'طالب بدون اسم'}</span>
+                                    <span class="sup-status-badge ${isResolved ? 'active' : 'inactive'}">
+                                        ${isResolved ? '● تم الحل' : '● قيد المعالجة'}
+                                    </span>
+                                </h4>
+                                <div class="issue-meta">
+                                    <span>الكود: <b style="color:var(--accent); font-family:monospace;">${iss.studentCode || '---'}</b></span>
+                                    <span>• النوع: <b style="color:var(--accent-gold);">${iss.issueType || 'عام'}</b></span>
+                                    <span>• ${dateStr} ${timeStr}</span>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.04); border:1px solid var(--card-border); border-radius:10px; padding:8px 12px; margin-top:8px; font-size:12.5px; color:var(--text-main);">
+                                    💬 <b>التفاصيل:</b> ${iss.message || 'لا توجد تفاصيل'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="issue-actions">
+                            ${!isResolved ? `
+                                <button class="sup-btn-action" style="background:rgba(16, 185, 129, 0.15); color:#34D399; border-color:rgba(16, 185, 129, 0.3);" onclick="markIssueResolved('${escId}')" title="تأكيد حل المشكلة">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                            ` : ''}
+                            <button class="sup-btn-action" style="background:rgba(99, 102, 241, 0.15); color:#38BDF8; border-color:rgba(99, 102, 241, 0.3);" onclick="generateEmergencyCodeForIssue('${escCode}', '${escName}')" title="توليد كود طوارئ سريع">
+                                <i class="fa-solid fa-key"></i>
+                            </button>
+                            ${iss.phone ? `
+                                <button class="sup-btn-action wa" onclick="window.open('https://wa.me/2${escPhone}', '_blank')" title="تواصل واتساب مباشر">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </button>
+                            ` : ''}
+                            <button class="sup-btn-action del" onclick="deleteEmergencyIssue('${escId}')" title="حذف البلاغ">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            });
+        }
+        loadEmergencyIssues();
+
+        function markIssueResolved(issueId) {
+            database.ref('EmergencyIssues/' + issueId).update({ status: 'resolved' }).then(() => {
+                Swal.fire({
+                    title: 'تم الإغلاق بنجاح!',
+                    text: 'تمت إضافة العلامة تم الحل للبلاغ.',
+                    icon: 'success',
+                    timer: 1200,
+                    showConfirmButton: false
+                });
+            });
+        }
+
+        function generateEmergencyCodeForIssue(studentCode, name) {
+            const emgPin = Math.floor(1000 + Math.random() * 9000).toString();
+            Swal.fire({
+                title: 'توليد كود طوارئ سريع 🔑',
+                html: `
+                    <div style="text-align:center; font-family:'Cairo', sans-serif;">
+                        <p style="margin-bottom:10px;">كود طوارئ مؤقت للطالب: <b>${name}</b></p>
+                        <div style="background:rgba(99, 102, 241, 0.15); border:2px dashed #6366F1; border-radius:14px; padding:12px; margin-bottom:14px;">
+                            <div style="font-size:28px; font-weight:900; font-family:monospace; color:#38BDF8; letter-spacing:4px;">${emgPin}</div>
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${emgPin}'); Swal.fire('تم النسخ', '${emgPin}', 'success');" class="btn-config primary"><i class="fa-regular fa-copy"></i> نسخ كود الطوارئ</button>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#6366F1'
+            });
+        }
+
+        function deleteEmergencyIssue(issueId) {
+            database.ref('EmergencyIssues/' + issueId).remove();
         }
 
         // Load Realtime Supervisors

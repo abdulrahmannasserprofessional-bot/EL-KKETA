@@ -24,7 +24,8 @@
         /* Drawer Main Panel */
         .elkheta-drawer {
             position: fixed; top: 0; right: -380px;
-            width: 325px; max-width: 86vw; height: 100%;
+            width: 325px; max-width: 86vw;
+            height: 100vh; height: 100dvh; max-height: 100vh;
             background: #FFFFFF;
             z-index: 100000;
             display: flex; flex-direction: column;
@@ -207,8 +208,11 @@
         /* Menu Body with Smooth Scrollbar */
         .elkheta-drawer-body {
             padding: 10px 10px 30px;
-            flex: 1;
-            overflow-y: auto;
+            flex: 1 1 0px !important;
+            min-height: 0 !important;
+            max-height: 100% !important;
+            overflow-y: auto !important;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
             overscroll-behavior: contain;
@@ -218,17 +222,21 @@
             background: #0F172A;
         }
         .elkheta-drawer-body::-webkit-scrollbar {
-            width: 6px;
+            width: 7px !important;
+            display: block !important;
         }
         .elkheta-drawer-body::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.03);
+            background: rgba(0,0,0,0.04);
         }
         .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: #94A3B8;
-            border-radius: 6px;
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 10px;
+        }
+        .elkheta-drawer-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.8);
         }
         body.dark-theme .elkheta-drawer-body::-webkit-scrollbar-thumb {
-            background: #475569;
+            background: rgba(99, 102, 241, 0.5);
         }
 
         .elkheta-menu-section-title {
