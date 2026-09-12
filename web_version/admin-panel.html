@@ -82,7 +82,6 @@
             min-height: 100vh;
             width: 100%;
             position: relative;
-            z-index: 10;
         }
 
         /* ─── Executive Sidebar (RTL Right) ─── */
@@ -316,9 +315,11 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(5px);
-            z-index: 998;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
         }
         .sidebar-backdrop.active { display: block; }
 
@@ -702,7 +703,7 @@
             display: flex; align-items: center; gap: 8px;
         }
 
-        /* ─── Responsive Breakpoints ─── */
+        /* ─── Responsive Breakpoints & Mobile Excellence ─── */
         @media (max-width: 1200px) {
             .bento-split-grid { grid-template-columns: 1fr; }
             .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); }
@@ -711,26 +712,151 @@
         @media (max-width: 1024px) {
             .executive-sidebar {
                 position: fixed;
-                right: 0; top: 0;
-                transform: translateX(100%);
-                box-shadow: -15px 0 40px rgba(0,0,0,0.5);
+                right: 0; top: 0; bottom: 0;
+                height: 100vh;
+                height: 100dvh;
+                width: min(320px, 86vw);
+                max-width: 320px;
+                background: #090D18 !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                transform: translateX(105%);
+                z-index: 10001;
+                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.7);
+                padding: 20px 16px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                border-left: 1px solid rgba(129, 140, 248, 0.3);
+            }
+            body.light-theme .executive-sidebar {
+                background: #FFFFFF !important;
+                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.15);
+                border-left: 1px solid #CBD5E1;
             }
             .executive-sidebar.sidebar-open {
-                transform: translateX(0);
+                transform: translateX(0) !important;
             }
-            .sidebar-close-btn { display: flex; }
-            .btn-hamburger-mobile { display: flex; }
-            .executive-main { padding: 14px 16px; }
-            .topbar-search-box { display: none; }
+            .sidebar-backdrop {
+                z-index: 9999;
+            }
+            .sidebar-close-btn {
+                display: flex !important;
+            }
+            .btn-hamburger-mobile {
+                display: flex !important;
+            }
+            .executive-main {
+                padding: 14px 14px;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+            .topbar-search-box {
+                display: none;
+            }
+        }
+
+        /* Mobile Grid Adaptations */
+        .responsive-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .responsive-grid-health {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+        .responsive-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .responsive-search-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .responsive-grid-5 {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            .responsive-grid-health {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            #healthCheckGrid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
         }
 
         @media (max-width: 640px) {
             .admin-cards-grid { grid-template-columns: 1fr; }
-            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); }
-            .workspace-topbar { padding: 10px 14px; border-radius: 16px; }
+            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .kpi-bento-card { padding: 12px 14px; border-radius: 16px; }
+            .kpi-card-num { font-size: 22px; }
+            .kpi-card-icon { width: 40px; height: 40px; font-size: 17px; }
+            .workspace-topbar { padding: 10px 12px; border-radius: 16px; }
             .topbar-breadcrumbs span:first-child { display: none; }
+            .topbar-breadcrumbs i { display: none; }
+            .breadcrumb-active {
+                max-width: 140px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 12.5px;
+            }
             .status-live-pill span:not(.status-dot) { display: none; }
+            .status-live-pill { padding: 6px 8px; }
             .workspace-footer { flex-direction: column; gap: 10px; text-align: center; }
+            .action-card { padding: 14px 14px; border-radius: 16px; }
+            .card-icon-box { width: 42px; height: 42px; font-size: 18px; border-radius: 12px; }
+            .card-title { font-size: 14px; }
+            .card-desc { font-size: 11px; }
+            .responsive-grid-3 { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 480px) {
+            .responsive-grid-5 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .responsive-grid-health {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .responsive-search-row {
+                flex-direction: column !important;
+            }
+            .responsive-search-row button {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            #healthCheckGrid {
+                grid-template-columns: 1fr !important;
+            }
+            .executive-main {
+                padding: 10px 10px;
+                gap: 14px;
+            }
+            .kpi-bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .kpi-bento-card {
+                padding: 10px 10px;
+            }
+            .kpi-card-num {
+                font-size: 19px;
+            }
+            .kpi-card-label {
+                font-size: 10.5px;
+            }
+            .kpi-card-icon {
+                width: 34px; height: 34px;
+                font-size: 15px; border-radius: 10px;
+            }
         }
     </style>
 </head>
@@ -1068,7 +1194,7 @@
                                 </div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                            <div class="responsive-grid-health" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
                                 <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
                                     <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">الأمان</div>
                                     <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;">98% 🟢</div>
@@ -1187,7 +1313,7 @@
                         </span>
                     </div>
 
-                    <div style="display: flex; gap: 8px;">
+                    <div class="responsive-search-row" style="display: flex; gap: 8px;">
                         <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 11px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
                         <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; border: none; padding: 11px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-magnifying-glass"></i>
@@ -1381,7 +1507,7 @@
                         </span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                    <div class="responsive-grid-5" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                         <button onclick="toggleKillSwitch('exams')" id="btnKS_exams" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
                             📝 الامتحانات 🟢
                         </button>
@@ -2702,13 +2828,18 @@
 
         // ─── Luxury Operational Hub Tabs Switcher ───
         
-        // Mobile Sidebar Controls
+        // Mobile Sidebar Controls with Body Lock & High Performance
         function toggleMobileSidebar() {
             const sidebar = document.querySelector('.executive-sidebar');
             const backdrop = document.querySelector('.sidebar-backdrop');
             if (sidebar && backdrop) {
-                sidebar.classList.toggle('sidebar-open');
-                backdrop.classList.toggle('active');
+                const isOpen = sidebar.classList.toggle('sidebar-open');
+                backdrop.classList.toggle('active', isOpen);
+                if (isOpen) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             }
         }
 
@@ -2718,8 +2849,28 @@
             if (sidebar && backdrop) {
                 sidebar.classList.remove('sidebar-open');
                 backdrop.classList.remove('active');
+                document.body.style.overflow = '';
             }
         }
+
+        // Swipe right to close mobile drawer
+        (function() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            if (!sidebar) return;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            sidebar.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            sidebar.addEventListener('touchend', function(e) {
+                const diffX = e.changedTouches[0].clientX - touchStartX;
+                const diffY = e.changedTouches[0].clientY - touchStartY;
+                if (diffX > 60 && Math.abs(diffX) > Math.abs(diffY)) {
+                    closeMobileSidebar();
+                }
+            }, { passive: true });
+        })();
 
         // Quick Global Search Bar Handler
         function handleGlobalSearch(event, val) {
