@@ -605,16 +605,7 @@
                     </div>
                 </a>
 
-                <div onclick="openStudentSupportTicketModal()" class="elkheta-nav-card">
-                    <div class="elkheta-nav-card-left">
-                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">🎧</div>
-                        <div class="elkheta-nav-card-texts">
-                            <span class="elkheta-nav-title">تقديم تذكرة دعم فني / بلاغ</span>
-                            <span class="elkheta-nav-subtitle">مساعدة فورية ومتابعة مع الأدمن</span>
-                        </div>
-                    </div>
-                    <span class="elkheta-nav-badge-pill badge-blue">دعم 24/7</span>
-                </div>
+
             </div>
 
             <!-- Footer -->
@@ -720,71 +711,6 @@
             };
         });
     }
-
-    // Support Ticket Modal
-    window.openStudentSupportTicketModal = function() {
-        if (typeof closeStudentDrawer === 'function') closeStudentDrawer();
-        if (typeof window.showEmergencyReportModal === 'function') {
-            window.showEmergencyReportModal();
-            return;
-        }
-
-        const user = getStoredUser();
-        const studentCode = user.code || localStorage.getItem('studentCode') || 'GUEST';
-
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: '💬 تقديم تذكرة دعم فني أو بلاغ',
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; font-size: 13px;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">نوع المشكلة:</label>
-                        <select id="ticketCategory" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid #CBD5E1; margin-bottom:12px; font-family:inherit; font-weight:700;">
-                            <option value="تسجيل الدخول والأجهزة">🔐 مشكلة في الدخول أو اعتماد الجهاز</option>
-                            <option value="المحاضرات والفيديوهات">📚 مشكلة في المحاضرات أو التشغيل</option>
-                            <option value="الامتحانات والنتائج">📝 مشكلة في الامتحانات أو حفظ النتيجة</option>
-                            <option value="النقاط والمتصدرين">🏆 تصفير أو عدم احتساب النقاط</option>
-                            <option value="بلاغ أو مقترح آخر">💡 بلاغ آخر أو استفسار عملاء</option>
-                        </select>
-
-                        <label style="display: block; font-weight: 700; margin-bottom: 4px; color: #1E293B;">تفاصيل وتوصيف المشكلة:</label>
-                        <textarea id="ticketMsg" rows="4" placeholder="اكتب تفاصيل مشكلتك هنا بوضوح ليتولى فريق الدعم حلها فوراً..." style="width:100%; padding:10px; border-radius:12px; border:1px solid #CBD5E1; font-family:inherit; resize:vertical; font-weight:600;"></textarea>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '🚀 إرسال التذكرة',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#2563EB',
-                preConfirm: () => {
-                    const category = document.getElementById('ticketCategory').value;
-                    const msg = document.getElementById('ticketMsg').value.trim();
-                    if (!msg) {
-                        Swal.showValidationMessage('يرجى كتابة وصف وتفاصيل المشكلة أولاً');
-                        return false;
-                    }
-                    return { category, msg };
-                }
-            }).then((res) => {
-                if (res.isConfirmed && res.value) {
-                    const ticketId = 'TCK_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-                    const ticketData = {
-                        ticketId: ticketId,
-                        studentCode: studentCode,
-                        studentName: user.fullName || 'طالب المنصة',
-                        category: res.value.category,
-                        message: res.value.msg,
-                        timestamp: Date.now(),
-                        status: 'pending',
-                        priority: 'high'
-                    };
-                    if (typeof firebase !== 'undefined' && firebase.database) {
-                        firebase.database().ref('SupportTickets/' + ticketId).set(ticketData).then(() => {
-                            Swal.fire('تم إرسال تذكرتك بنجاح 🎫', 'تم تسليمها لمركز دعم العمليات وسيتم التواصل معك مباشرةً!', 'success');
-                        });
-                    }
-                }
-            });
-        }
-    };
 
     // ==========================================
     // Real-Time Personal Notice & Push Activation
