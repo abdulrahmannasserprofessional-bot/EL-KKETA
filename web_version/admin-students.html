@@ -900,32 +900,55 @@
             });
         }
 
-        function generateRandomStudentCode() {
-            const prefix = "KH27";
-            const randNum = Math.floor(1000 + Math.random() * 9000);
-            return `${prefix}-${randNum}`;
+        function generateStudentCodeFromProfile(name, phone) {
+            const map = {
+                "أ":"A","إ":"E","آ":"A","ا":"A","ب":"B","ت":"T","ث":"T","ج":"J","ح":"H","خ":"K",
+                "د":"D","ذ":"D","ر":"R","ز":"Z","س":"S","ش":"S","ص":"S","ض":"D","ط":"T","ظ":"Z",
+                "ع":"A","غ":"G","ف":"F","ق":"Q","ك":"K","ل":"L","م":"M","ن":"N","ه":"H","و":"W",
+                "ي":"Y","ؤ":"O","ئ":"E","ة":"H","ى":"Y"
+            };
+            const cleanName = (name || '').trim();
+            let ch = "S";
+            if (cleanName.length > 0) {
+                const firstChar = cleanName.charAt(0);
+                ch = map[firstChar] || (/[A-Za-z]/.test(firstChar) ? firstChar.toUpperCase() : "S");
+            }
+            const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+            const phoneSuffix = cleanPhone.length >= 4 
+                ? cleanPhone.slice(-4) 
+                : Math.floor(1000 + Math.random() * 9000).toString();
+            return (ch + phoneSuffix).toUpperCase();
+        }
+
+        function updateModalStudentCode() {
+            const nameEl = document.getElementById('swalStudentName');
+            const phoneEl = document.getElementById('swalStudentPhone');
+            const codeEl = document.getElementById('swalStudentCode');
+            if (nameEl && phoneEl && codeEl) {
+                codeEl.value = generateStudentCodeFromProfile(nameEl.value, phoneEl.value);
+            }
         }
 
         function openAddStudentModal() {
-            const autoCode = generateRandomStudentCode();
+            const initialCode = generateStudentCodeFromProfile("طالب", "01000001234");
             Swal.fire({
                 title: 'إضافة طالب جديد 🎓',
                 html: `
                     <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; color:var(--text-main);">
                         <div style="margin-bottom:12px;">
                             <label style="font-weight:800; display:block; margin-bottom:4px;">اسم الطالب الكامل:</label>
-                            <input id="swalStudentName" class="swal2-input" placeholder="مثال: أحمد محمد علي" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                            <input id="swalStudentName" class="swal2-input" placeholder="مثال: أحمد محمد علي" oninput="updateModalStudentCode()" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
                         </div>
                         <div style="margin-bottom:12px;">
                             <label style="font-weight:800; display:block; margin-bottom:4px;">رقم الواتساب / الهاتف:</label>
-                            <input id="swalStudentPhone" class="swal2-input" placeholder="مثال: 01012345678" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
+                            <input id="swalStudentPhone" class="swal2-input" placeholder="مثال: 01012345678" oninput="updateModalStudentCode()" style="width:100%; margin:0; font-family:inherit; font-size:14px; text-align:right;">
                         </div>
                         <div style="margin-bottom:12px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                                <label style="font-weight:800;">كود الدخول والتفعيل:</label>
-                                <button type="button" onclick="document.getElementById('swalStudentCode').value = generateRandomStudentCode()" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد كود جديد</button>
+                                <label style="font-weight:800;">كود الدخول (أول حرف + آخر 4 أرقام):</label>
+                                <button type="button" onclick="updateModalStudentCode()" style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1D4ED8; border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ تحديث الكود</button>
                             </div>
-                            <input id="swalStudentCode" class="swal2-input" value="${autoCode}" placeholder="كود الطالب" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:16px; letter-spacing:1px; text-align:center;">
+                            <input id="swalStudentCode" class="swal2-input" value="${initialCode}" placeholder="مثال: A5678" style="width:100%; margin:0; font-family:monospace; font-weight:900; font-size:18px; letter-spacing:2px; text-align:center; color:#1D4ED8;">
                         </div>
                         <div>
                             <label style="font-weight:800; display:block; margin-bottom:4px;">البريد الإلكتروني (اختياري):</label>

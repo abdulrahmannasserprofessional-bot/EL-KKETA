@@ -23,11 +23,10 @@ async function ensureTicketsTable() {
         console.error('ensureTicketsTable error:', e.message);
     }
 }
-ensureTicketsTable();
-
 // 1. إنشاء تذكرة دعم فني جديدة (من قبل الطالب)
 exports.createTicket = async (req, res) => {
     try {
+        await ensureTicketsTable();
         const { student_code, student_name, subject_title = '', category = 'عام', message } = req.body;
 
         if (!student_code || !message) {
@@ -54,6 +53,7 @@ exports.createTicket = async (req, res) => {
 // 2. جلب تذاكر الدعم الفني (للطالب أو للمشرفين)
 exports.getTickets = async (req, res) => {
     try {
+        await ensureTicketsTable();
         const { student_code, status, limit = 50 } = req.query;
         let query = 'SELECT * FROM support_tickets WHERE 1=1';
         const params = [];
