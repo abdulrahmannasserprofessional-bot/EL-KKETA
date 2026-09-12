@@ -17,6 +17,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const { getAdminHtml } = require('./views/adminHtml');
 
+app.get('/api/health', (req, res) => {
+    res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // مسار لوحة التحكم الرئيسية
 app.get('/admin', (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
