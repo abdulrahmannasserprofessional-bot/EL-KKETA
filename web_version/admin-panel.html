@@ -11,30 +11,29 @@
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>لوحة القيادة العليا - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --primary-glow: rgba(37, 99, 235, 0.35);
-            --accent: #8B5CF6;
-            --bg-body: #F8FAFC;
-            --card-bg: #FFFFFF;
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --accent-gold: #F59E0B;
+            --bg-body: #0F172A;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        body.light-theme {
+            --bg-body: #F1F5F9;
+            --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: #E2E8F0;
             --text-main: #0F172A;
             --text-muted: #64748B;
-        }
-
-        body.dark-theme {
-            --bg-body: #0B0F19;
-            --card-bg: #131B2E;
-            --card-border: #1E293B;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
         }
 
         * {
@@ -42,6 +41,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Cairo', sans-serif;
         }
 
         html, body {
@@ -51,39 +51,55 @@
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
             padding-bottom: 50px;
             direction: rtl;
             transition: background-color 0.3s, color 0.3s;
+            position: relative;
         }
+
+        /* Ambient Glowing Background Blobs */
+        .admin-bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        .blob-1 { width: 500px; height: 500px; background: #312E81; top: -150px; right: -150px; }
+        .blob-2 { width: 450px; height: 450px; background: #581C87; bottom: -150px; left: -150px; }
+        .blob-3 { width: 300px; height: 300px; background: #0284C7; top: 40%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; }
 
         .admin-app-container {
             width: 100%;
-            max-width: 1060px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 16px 20px;
+            padding: 20px 24px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
+            position: relative;
+            z-index: 10;
         }
 
         /* ─── Top Navbar ─── */
         .admin-topbar {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 20px;
-            padding: 12px 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 12px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: sticky;
             top: 12px;
             z-index: 100;
-            backdrop-filter: blur(16px);
         }
 
         .brand-section {
@@ -95,39 +111,63 @@
         }
 
         .brand-logo-badge {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 50%, #1E1B4B 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            font-size: 22px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .brand-texts {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-title-main {
+            font-size: 16px;
+            font-weight: 900;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        body.light-theme .brand-title-main {
+            background: none;
+            -webkit-text-fill-color: initial;
+            color: #0F172A;
+        }
+        .brand-text-sub {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .status-live-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.12);
-            color: #059669;
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            padding: 6px 12px;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
         }
-        body.dark-theme .status-live-pill {
-            color: #34D399;
-            background: rgba(16, 185, 129, 0.2);
+        body.light-theme .status-live-pill {
+            color: #059669;
+            background: rgba(16, 185, 129, 0.1);
         }
 
         .status-dot {
@@ -135,7 +175,7 @@
             height: 8px;
             border-radius: 50%;
             background: #10B981;
-            box-shadow: 0 0 10px #10B981;
+            box-shadow: 0 0 12px #10B981;
             animation: liveBlink 1.8s infinite ease-in-out;
         }
         @keyframes liveBlink {
@@ -144,64 +184,66 @@
         }
 
         .btn-top-action {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: var(--bg-body);
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s;
             text-decoration: none;
         }
         .btn-top-action:hover {
             border-color: var(--primary);
-            color: var(--primary);
+            color: #818CF8;
             transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.1);
         }
         .btn-top-action.logout-top:hover {
             border-color: #EF4444;
-            color: #EF4444;
-            background: #FEF2F2;
+            color: #F87171;
+            background: rgba(239, 68, 68, 0.15);
         }
 
         /* ─── Executive Master Hero Card ─── */
         .admin-hero-card {
-            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E3A8A 75%, #2563EB 100%);
-            border-radius: 26px;
-            padding: 30px 26px;
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 30%, #1E1B4B 75%, #312E81 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 30px 28px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 16px 40px rgba(30, 58, 138, 0.28);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 35px rgba(79, 70, 229, 0.2);
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
         }
 
         .admin-hero-card::before {
             content: '';
             position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
-            top: -100px;
-            left: -60px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            top: -120px;
+            left: -80px;
             border-radius: 50%;
             pointer-events: none;
         }
         .admin-hero-card::after {
             content: '';
             position: absolute;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, transparent 70%);
-            bottom: -60px;
-            right: -30px;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 70%);
+            bottom: -80px;
+            right: -50px;
             border-radius: 50%;
             pointer-events: none;
         }
@@ -211,7 +253,7 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 14px;
+            gap: 16px;
             position: relative;
             z-index: 2;
         }
@@ -219,20 +261,20 @@
         .admin-user-profile {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 18px;
         }
 
         .admin-avatar-box {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E1B4B 100%);
+            width: 68px;
+            height: 68px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #3730A3 0%, #4F46E5 50%, #6366F1 100%);
             border: 2.5px solid #F59E0B;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 0 8px 25px rgba(0, 0, 0, 0.3);
+            font-size: 30px;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.4), 0 10px 30px rgba(0, 0, 0, 0.4);
             flex-shrink: 0;
         }
 
@@ -241,42 +283,43 @@
             font-weight: 900;
             color: #FFFFFF;
             line-height: 1.3;
+            letter-spacing: 0.3px;
         }
 
         .admin-role-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 3px 12px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 14px;
             border-radius: 20px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
             color: #FEF3C7;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
         .hero-date-badge {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 4px;
+            gap: 6px;
         }
         .date-pill {
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 5px 14px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 6px 16px;
+            border-radius: 14px;
+            font-size: 12.5px;
             font-weight: 800;
-            color: #E2E8F0;
+            color: #F1F5F9;
         }
         .batch-pill {
-            font-size: 11px;
-            color: #93C5FD;
+            font-size: 11.5px;
+            color: #A5B4FC;
             font-weight: 700;
         }
 
@@ -284,39 +327,41 @@
         .kpi-stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 16px;
         }
 
         .kpi-card {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 22px;
-            padding: 18px 16px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 20px 18px;
             display: flex;
             align-items: center;
             gap: 14px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.03);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
         .kpi-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-            border-color: #93C5FD;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            border-color: #818CF8;
         }
 
         .kpi-icon-wrap {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 22px;
             flex-shrink: 0;
             color: white;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
         }
 
         .kpi-blue .kpi-icon-wrap { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
@@ -330,16 +375,16 @@
             min-width: 0;
         }
         .kpi-val {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
             color: var(--text-main);
             line-height: 1.2;
         }
         .kpi-lbl {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -350,99 +395,93 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 10px 0 4px;
+            margin: 12px 0 6px;
             padding: 0 4px;
         }
         .section-title-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .section-title-wrap h2 {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 900;
             color: var(--text-main);
         }
         .section-title-wrap i {
-            color: var(--primary);
-            font-size: 16px;
+            color: #818CF8;
+            font-size: 18px;
         }
         .section-badge-tag {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
-            color: var(--text-muted);
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 2px 10px;
-            border-radius: 10px;
+            color: #A5B4FC;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 12px;
+            border-radius: 12px;
         }
 
         /* ─── Action Cards Grid ─── */
         .admin-cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            gap: 16px;
         }
 
         .action-card {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 22px;
-            padding: 20px 18px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 22px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
             color: var(--text-main);
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
             position: relative;
             overflow: hidden;
         }
         .action-card:hover {
-            transform: translateY(-3px);
-            border-color: #93C5FD;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
-        }
-        body.dark-theme .action-card:hover {
-            border-color: #3B82F6;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+            border-color: #818CF8;
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
         }
 
         /* Featured VIP Card */
         .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(99, 102, 241, 0.12) 100%);
-            border: 2px solid #818CF8;
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
-        }
-        body.dark-theme .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.35) 0%, rgba(67, 56, 202, 0.25) 100%);
-            border-color: #6366F1;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(147, 51, 234, 0.25) 100%);
+            border: 1.5px solid #818CF8;
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.25);
         }
 
         .card-left-content {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             min-width: 0;
         }
 
         .card-icon-box {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
         }
         .action-card:hover .card-icon-box {
-            transform: scale(1.08) rotate(-3deg);
+            transform: scale(1.1) rotate(-4deg);
         }
 
         .card-texts {
@@ -458,16 +497,16 @@
             flex-wrap: wrap;
         }
         .card-title {
-            font-size: 15px;
+            font-size: 15.5px;
             font-weight: 900;
             color: var(--text-main);
             line-height: 1.3;
         }
         .card-badge {
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 8px;
+            padding: 3px 10px;
+            border-radius: 10px;
         }
         .badge-live-red {
             background: #EF4444;
@@ -485,31 +524,31 @@
 
         @keyframes pulseGlowBadge {
             from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            to { box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+            to { box-shadow: 0 0 14px rgba(239, 68, 68, 0.9); }
         }
 
         .card-desc {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
-            margin-top: 3px;
+            margin-top: 4px;
             line-height: 1.5;
         }
 
         .card-arrow-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: var(--bg-body);
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-muted);
             flex-shrink: 0;
             margin-right: 10px;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
         .action-card:hover .card-arrow-icon {
             background: var(--primary);
@@ -521,50 +560,46 @@
         /* ─── Footer Controls ─── */
         .admin-footer-bar {
             background: var(--card-bg);
-            border: 1.5px solid var(--card-border);
-            border-radius: 20px;
-            padding: 14px 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 16px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            margin-top: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
         .footer-watermark-text {
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             color: var(--text-muted);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .btn-logout-full {
-            background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
-            color: #DC2626;
-            border: 1.5px solid #FECACA;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-size: 13px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 10px 22px;
+            border-radius: 14px;
+            font-size: 13.5px;
             font-weight: 900;
-            font-family: 'Cairo', sans-serif;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
-        }
-        body.dark-theme .btn-logout-full {
-            background: rgba(220, 38, 38, 0.15);
-            border-color: rgba(220, 38, 38, 0.35);
-            color: #F87171;
+            transition: all 0.25s;
         }
         .btn-logout-full:hover {
-            background: #FEE2E2;
-            border-color: #F87171;
+            background: #EF4444;
+            color: white;
+            border-color: #EF4444;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
         /* ─── Mobile Responsiveness ─── */
@@ -572,17 +607,19 @@
             .kpi-stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            .admin-cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 640px) {
             .admin-app-container {
-                padding: 10px 12px;
-                gap: 14px;
+                padding: 12px 14px;
+                gap: 16px;
             }
             .admin-topbar {
-                padding: 10px 14px;
-                border-radius: 16px;
-                top: 6px;
+                padding: 10px 16px;
+                border-radius: 18px;
             }
             .brand-text-sub {
                 display: none;
@@ -591,155 +628,91 @@
                 display: none;
             }
             .admin-hero-card {
-                padding: 20px 16px;
-                border-radius: 20px;
-                gap: 12px;
+                padding: 22px 18px;
+                border-radius: 22px;
             }
             .admin-avatar-box {
-                width: 52px;
-                height: 52px;
-                font-size: 24px;
-                border-radius: 16px;
+                width: 56px;
+                height: 56px;
+                font-size: 26px;
             }
             .admin-identity h1 {
                 font-size: 18px;
-            }
-            .hero-date-badge {
-                align-items: flex-start;
-                width: 100%;
-                margin-top: 6px;
-                border-top: 1px solid rgba(255, 255, 255, 0.12);
-                padding-top: 8px;
-            }
-            .kpi-stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            .kpi-card {
-                padding: 12px 10px;
-                border-radius: 16px;
-                gap: 10px;
-            }
-            .kpi-icon-wrap {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-                border-radius: 12px;
-            }
-            .kpi-val {
-                font-size: 19px;
-            }
-            .kpi-lbl {
-                font-size: 10.5px;
-            }
-            .admin-cards-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .action-card {
-                padding: 14px 12px;
-                border-radius: 18px;
-            }
-            .card-icon-box {
-                width: 44px;
-                height: 44px;
-                font-size: 18px;
-                border-radius: 14px;
-            }
-            .card-title {
-                font-size: 14px;
-            }
-            .card-desc {
-                font-size: 11px;
-            }
-            .admin-footer-bar {
-                flex-direction: column;
-                gap: 12px;
-                padding: 14px;
-                text-align: center;
-            }
-            .btn-logout-full {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
 
-    <script>
-        // [SECURITY] التحقق من المصادقة — sessionStorage فقط (لا localStorage)
-        // localStorage قابل للتلاعب بسهولة من DevTools
-        if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
-            window.location.href = "admin-gate.html";
-        }
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
+    <!-- Ambient Glowing Background Orbs -->
+    <div class="admin-bg-blob blob-1"></div>
+    <div class="admin-bg-blob blob-2"></div>
+    <div class="admin-bg-blob blob-3"></div>
 
     <div class="admin-app-container">
 
-        <!-- Top Navigation Bar -->
+        <!-- Top Navbar -->
         <header class="admin-topbar">
             <a href="admin-panel.html" class="brand-section">
                 <div class="brand-logo-badge">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <div>
-                    <div style="font-weight: 900; font-size: 15px; line-height: 1.2;">لوحة القيادة العليا</div>
-                    <div class="brand-text-sub" style="font-size: 11px; color: var(--text-muted); font-weight: 700;">منصة الخطة التعليمية</div>
+                <div class="brand-texts">
+                    <span class="brand-title-main">لوحة القيادة العليا</span>
+                    <span class="brand-text-sub">منصة الخطة التعليمية • 2027</span>
                 </div>
             </a>
 
             <div class="topbar-actions">
-                <div class="status-live-pill" title="حالة الاتصال المباشر بقاعدة البيانات">
-                    <div class="status-dot"></div>
+                <div class="status-live-pill">
+                    <span class="status-dot"></span>
                     <span>النظام نشط ومباشر</span>
                 </div>
-                <button type="button" class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (ليلي / نهاري)">
+
+                <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
-                <a href="home.html" class="btn-top-action" title="معاينة بوابة الطلاب">
+
+                <a href="home.html" class="btn-top-action" title="معاينة المنصة كطالب">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </a>
-                <button type="button" class="btn-top-action logout-top" onclick="adminLogout()" title="تسجيل الخروج">
+
+                <button class="btn-top-action logout-top" onclick="adminLogout()" title="تسجيل الخروج">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Executive Hero Banner -->
-        <section class="admin-hero-card">
+        <!-- Master Executive Hero Card -->
+        <div class="admin-hero-card">
             <div class="hero-top-row">
                 <div class="admin-user-profile">
                     <div class="admin-avatar-box" id="adminHeaderIcon">👑</div>
                     <div class="admin-identity">
                         <h1 id="adminHeaderTitle">لوحة تحكم المدير العام</h1>
                         <div class="admin-role-badge" id="adminHeaderSub">
-                            <i class="fa-solid fa-certificate"></i>
-                            <span>صلاحيات كاملة — المدير التنفيذي</span>
+                            <i class="fa-solid fa-crown" style="color: #F59E0B;"></i>
+                            <span>مرحباً بك يا المدير العام — صلاحيات كاملة</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="hero-date-badge">
-                    <div class="date-pill" id="liveDateClock">📅 جاري التحديث...</div>
+                    <div class="date-pill" id="liveDateClock">📅 السبت، 12 سبتمبر 2026</div>
                     <div class="batch-pill">الفرقة الرابعة • كلية الخدمة الاجتماعية 2027 🎓</div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- 4 Luxury KPI Stat Cards -->
-        <section class="kpi-stats-grid">
+        <div class="kpi-stats-grid">
             <div class="kpi-card kpi-blue">
                 <div class="kpi-icon-wrap">
                     <i class="fa-solid fa-users"></i>
                 </div>
                 <div class="kpi-info">
-                    <div class="kpi-val" id="statStudents">—</div>
-                    <div class="kpi-lbl">طالب مسجل</div>
+                    <div class="kpi-val" id="statStudents">0</div>
+                    <div class="kpi-lbl">طالب مسجل بالمنصة</div>
                 </div>
             </div>
 
@@ -749,7 +722,7 @@
                 </div>
                 <div class="kpi-info">
                     <div class="kpi-val" id="statLectures">0</div>
-                    <div class="kpi-lbl">محاضرة مرفوعة</div>
+                    <div class="kpi-lbl">محاضرة ودرس مرفوع</div>
                 </div>
             </div>
 
@@ -772,20 +745,20 @@
                     <div class="kpi-lbl">سؤال معلق للطلاب</div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Section 1: المحتوى وقواعد البيانات -->
+        <!-- Section 1: إدارة المحتوى والمناهج السحابية -->
         <div class="admin-section-heading" id="secContentTitle">
             <div class="section-title-wrap">
-                <i class="fa-solid fa-layer-group"></i>
+                <i class="fa-solid fa-database"></i>
                 <h2>إدارة المحتوى وقاعدة البيانات السحابية</h2>
             </div>
             <span class="section-badge-tag">مسار المقررات والمناهج</span>
         </div>
 
         <div class="admin-cards-grid" id="gridContent">
-            <!-- 1. MySQL Cloud Panel (VIP Featured) -->
-            <div class="action-card featured-mysql" onclick="location.href='admin-mysql.html'" title="فتح لوحة التحكم السحابية المباشرة">
+            <!-- 1. Featured MySQL Card -->
+            <div class="action-card featured-mysql" data-perm="config" onclick="location.href='admin-mysql.html'">
                 <div class="card-left-content">
                     <div class="card-icon-box" style="background: linear-gradient(135deg, #4F46E5, #3730A3);">
                         <i class="fa-solid fa-bolt"></i>
@@ -801,11 +774,11 @@
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
             </div>
 
-            <!-- 2. Subjects & Courses -->
+            <!-- 2. Courses & Lectures -->
             <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
                 <div class="card-left-content">
                     <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
-                        <i class="fa-solid fa-book-bookmark"></i>
+                        <i class="fa-solid fa-folder-open"></i>
                     </div>
                     <div class="card-texts">
                         <div class="card-title-row">
@@ -817,34 +790,34 @@
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
             </div>
 
-            <!-- 3. Lessons & Exams -->
-            <div class="action-card" data-perm="lessons" onclick="location.href='admin-lessons.html'">
+            <!-- 3. Question Bank & Exams -->
+            <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
                 <div class="card-left-content">
-                    <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #10B981);">
-                        <i class="fa-solid fa-video"></i>
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class="fa-solid fa-file-pen"></i>
                     </div>
                     <div class="card-texts">
                         <div class="card-title-row">
-                            <span class="card-title">الدروس والامتحانات والملخصات</span>
+                            <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
                         </div>
-                        <div class="card-desc">رفع وتحديث فيديوهات الشرح، بنوك الأسئلة، وملفات الـ PDF</div>
+                        <div class="card-desc">إنهاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
                     </div>
                 </div>
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
             </div>
 
-            <!-- 4. Community Q&A -->
-            <div class="action-card" data-perm="lessons" onclick="location.href='admin-community.html'">
+            <!-- 4. Student Community Chat -->
+            <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
                 <div class="card-left-content">
-                    <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #F59E0B);">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                         <i class="fa-solid fa-comments"></i>
                     </div>
                     <div class="card-texts">
                         <div class="card-title-row">
-                            <span class="card-title">تساؤلات واستفسارات الطلاب</span>
-                            <span id="communityUnansweredBadge" class="card-badge badge-live-red" style="display: none;">0 جديد 🔴</span>
+                            <span class="card-title">إدارة أسئلة المجتمع الطلابي</span>
+                            <span class="card-badge badge-live-red" id="communityUnansweredBadge" style="display:none;">جديد 🔴</span>
                         </div>
-                        <div class="card-desc">الرد المباشر على استفسارات الطلاب (تسجيل صوتي، صور، نص)</div>
+                        <div class="card-desc">الرد المباشر على استفسارات وتساؤلات الطلاب المرفوعة كصوت أو صورة</div>
                     </div>
                 </div>
                 <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
@@ -997,20 +970,23 @@
     <script>
         // Theme Toggle Logic
         function toggleAdminTheme() {
-            const isDark = document.body.classList.toggle('dark-theme');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateThemeIcon(isDark);
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon(!isLight);
         }
 
         function updateThemeIcon(isDark) {
             const icon = document.getElementById('themeIcon');
             if (icon) {
-                icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
             }
         }
 
         // Initialize Theme Icon
-        if (localStorage.getItem('theme') === 'dark') {
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+            updateThemeIcon(false);
+        } else {
             updateThemeIcon(true);
         }
 
@@ -1038,11 +1014,11 @@
         if (role === 'master' || role === 'super_admin') {
             document.getElementById('adminHeaderIcon').textContent = '👑';
             document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
-            document.getElementById('adminHeaderSub').textContent = `مرحباً بك يا ${adminName} — صلاحيات كاملة`;
+            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-crown" style="color: #F59E0B;"></i><span>مرحباً بك يا ${adminName} — صلاحيات كاملة</span>`;
         } else {
             document.getElementById('adminHeaderIcon').textContent = '🛡️';
             document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
-            document.getElementById('adminHeaderSub').textContent = `${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط`;
+            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-user-shield" style="color: #60A5FA;"></i><span>${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط</span>`;
 
             // Filter Items according to permissions
             document.querySelectorAll('.action-card[data-perm]').forEach(item => {
