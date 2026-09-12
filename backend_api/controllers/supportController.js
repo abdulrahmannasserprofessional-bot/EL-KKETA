@@ -27,16 +27,19 @@ async function ensureTicketsTable() {
 exports.createTicket = async (req, res) => {
     try {
         await ensureTicketsTable();
-        const { student_code, student_name, subject_title = '', category = 'عام', message } = req.body;
+        const { student_code, student_name, subject_title, category = 'عام', message } = req.body;
+        const code = (student_code || req.body.studentId || req.body.student_id || '').trim();
+        const name = (student_name || req.body.studentName || req.body.student_name || 'طالب').trim();
+        const subject = (subject_title || req.body.subject || '').trim();
 
-        if (!student_code || !message) {
+        if (!code || !message) {
             return res.status(400).json({ success: false, error: 'كود الطالب ونص الرسالة مطلوبان' });
         }
 
         const [result] = await db.query(
             `INSERT INTO support_tickets (student_code, student_name, subject_title, category, message, status)
              VALUES (?, ?, ?, ?, ?, 'open')`,
-            [student_code.trim(), student_name || 'طالب', subject_title, category, message.trim()]
+            [code, name, subject, category, message.trim()]
         );
 
         res.json({
