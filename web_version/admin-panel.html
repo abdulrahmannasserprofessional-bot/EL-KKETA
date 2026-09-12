@@ -11,27 +11,40 @@
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم العليا - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>غرفة القيادة والعمليات التنفيذية - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-dark: #050811;
-            --card-bg: linear-gradient(145deg, rgba(15, 23, 42, 0.92) 0%, rgba(26, 36, 56, 0.85) 100%);
-            --card-border: rgba(129, 140, 248, 0.18);
+            --bg-canvas: #040711;
+            --sidebar-bg: rgba(9, 13, 24, 0.96);
+            --header-bg: rgba(10, 16, 31, 0.88);
+            --card-bg: linear-gradient(145deg, rgba(13, 20, 38, 0.92) 0%, rgba(20, 29, 54, 0.85) 100%);
+            --card-border: rgba(129, 140, 248, 0.16);
+            --card-hover-border: rgba(129, 140, 248, 0.45);
             --primary: #6366F1;
             --primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
             --text-main: #FFFFFF;
             --text-muted: #94A3B8;
+            --surface-hover: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #38BDF8;
+            --accent-emerald: #34D399;
+            --accent-amber: #FBBF24;
+            --accent-rose: #F43F5E;
+            --sidebar-w: 280px;
         }
 
         body.light-theme {
-            --bg-dark: #F1F5F9;
-            --card-bg: rgba(255, 255, 255, 0.96);
+            --bg-canvas: #F1F5F9;
+            --sidebar-bg: rgba(255, 255, 255, 0.98);
+            --header-bg: rgba(255, 255, 255, 0.94);
+            --card-bg: #FFFFFF;
             --card-border: #CBD5E1;
+            --card-hover-border: #6366F1;
             --text-main: #0F172A;
             --text-muted: #64748B;
+            --surface-hover: #F8FAFC;
         }
 
         * {
@@ -44,45 +57,287 @@
         html, body {
             overflow-x: hidden !important;
             width: 100%; max-width: 100vw;
-        }
-
-        body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-canvas);
             color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 50px;
             direction: rtl;
             transition: background-color 0.3s, color 0.3s;
-            position: relative;
         }
 
         /* Ambient Glowing Background Blobs */
         .admin-bg-blob {
             position: fixed;
             border-radius: 50%;
-            filter: blur(120px);
+            filter: blur(140px);
             z-index: 0;
             pointer-events: none;
-            opacity: 0.45;
+            opacity: 0.4;
         }
-        .blob-1 { width: 650px; height: 650px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.15) 70%, transparent 100%); top: -220px; right: -220px; }
-        .blob-2 { width: 550px; height: 550px; background: radial-gradient(circle, rgba(14,165,233,0.3) 0%, rgba(236,72,153,0.15) 70%, transparent 100%); bottom: -220px; left: -220px; }
+        .blob-1 { width: 650px; height: 650px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(139,92,246,0.15) 70%, transparent 100%); top: -200px; right: -200px; }
+        .blob-2 { width: 550px; height: 550px; background: radial-gradient(circle, rgba(14,165,233,0.3) 0%, rgba(236,72,153,0.15) 70%, transparent 100%); bottom: -200px; left: -200px; }
+        .blob-3 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%); top: 40%; left: 30%; }
 
-        .admin-app-container {
-            width: 100%;
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 20px 24px;
+        /* ─── Executive Dashboard Layout ─── */
+        .executive-layout {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            min-height: 100vh;
+            width: 100%;
             position: relative;
             z-index: 10;
         }
 
-        /* ─── Sleek Compact Topbar ─── */
-        .admin-topbar {
-            background: var(--card-bg);
+        /* ─── Executive Sidebar (RTL Right) ─── */
+        .executive-sidebar {
+            width: var(--sidebar-w);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 22px 16px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            z-index: 1000;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+        }
+        .executive-sidebar::-webkit-scrollbar { display: none; }
+
+        .sidebar-brand-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-brand-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .sidebar-brand-badge {
+            width: 44px; height: 44px;
+            background: var(--primary-gradient);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 20px;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand-title-main {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .sidebar-brand-sub {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            cursor: pointer;
+            align-items: center; justify-content: center;
+            font-size: 15px;
+        }
+
+        /* Nav Items */
+        .sidebar-nav-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .sidebar-nav-heading {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px 4px;
+        }
+
+        .sidebar-nav-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: right;
+            font-family: inherit;
+        }
+
+        .sidebar-nav-btn:hover {
+            background: var(--surface-hover);
+            color: var(--text-main);
+            transform: translateX(-3px);
+        }
+
+        .sidebar-nav-btn.active {
+            background: var(--primary-gradient);
+            color: #FFFFFF !important;
+            box-shadow: 0 6px 22px rgba(99, 102, 241, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-btn-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-btn-icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+
+        .sidebar-badge-pill {
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            color: inherit;
+        }
+
+        /* Sidebar Bottom Profile & Uptime */
+        .sidebar-footer-box {
+            padding-top: 14px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .sidebar-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--card-border);
+            padding: 10px 12px;
+            border-radius: 14px;
+        }
+
+        .sidebar-avatar {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
+            border: 1.5px solid #F59E0B;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .sidebar-user-title {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-role {
+            font-size: 11px;
+            font-weight: 700;
+            color: #FEF3C7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-logout-btn {
+            background: rgba(239, 68, 68, 0.12);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            padding: 9px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+            transition: all 0.22s;
+            font-family: inherit;
+        }
+        .sidebar-logout-btn:hover {
+            background: #EF4444; color: white;
+            border-color: #EF4444;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ─── Mobile Sidebar Overlay Backdrop ─── */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 998;
+        }
+        .sidebar-backdrop.active { display: block; }
+
+        /* ─── Executive Main Content Viewport ─── */
+        .executive-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 28px;
+            gap: 20px;
+            max-width: 1560px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ─── Topbar ─── */
+        .workspace-topbar {
+            background: var(--header-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
@@ -91,52 +346,83 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: sticky;
             top: 12px;
             z-index: 100;
         }
 
-        .brand-section {
+        .topbar-right-area {
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            gap: 14px;
+        }
+
+        .btn-hamburger-mobile {
+            display: none;
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--card-border);
             color: var(--text-main);
+            font-size: 16px;
+            cursor: pointer;
+            align-items: center; justify-content: center;
         }
 
-        .brand-logo-badge {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 50%, #1E1B4B 100%);
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
-            border-radius: 13px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 19px;
-            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
-            flex-shrink: 0;
-        }
-
-        .brand-title-main {
-            font-size: 15px;
-            font-weight: 900;
-            line-height: 1.2;
-            background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        body.light-theme .brand-title-main {
-            background: none; -webkit-text-fill-color: initial; color: #0F172A;
-        }
-        .brand-text-sub {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
-        .topbar-actions {
+        .topbar-breadcrumbs {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb-active {
+            color: var(--text-main);
+            font-weight: 900;
+        }
+
+        /* Global Search Bar */
+        .topbar-search-box {
+            flex: 1;
+            max-width: 420px;
+            position: relative;
+        }
+        .topbar-search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 9px 38px 9px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 12.5px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.22s;
+        }
+        .topbar-search-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+        .topbar-search-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        .topbar-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .status-live-pill {
@@ -150,9 +436,7 @@
             border-radius: 30px;
             font-size: 11.5px;
             font-weight: 800;
-        }
-        body.light-theme .status-live-pill {
-            color: #059669; background: rgba(16, 185, 129, 0.1);
+            white-space: nowrap;
         }
 
         .status-dot {
@@ -168,209 +452,97 @@
 
         .btn-top-action {
             width: 40px; height: 40px;
-            border-radius: 13px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             display: flex; align-items: center; justify-content: center;
             font-size: 15px; cursor: pointer;
-            transition: all 0.25s; text-decoration: none;
+            transition: all 0.22s; text-decoration: none;
         }
-        body.light-theme .btn-top-action { background: #FFF; }
         .btn-top-action:hover {
             border-color: var(--primary);
             color: #818CF8; transform: translateY(-2px);
         }
 
-        /* ─── Integrated Unified Control Header ─── */
-        .dashboard-unified-header {
-            background: linear-gradient(135deg, #0D1322 0%, #111827 40%, #1E1B4B 100%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 26px;
-            padding: 24px 26px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        body.light-theme .dashboard-unified-header {
-            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-        }
-
-        .header-top-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-            z-index: 2;
-        }
-
-        .user-identity-box {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .user-avatar-badge {
-            width: 56px; height: 56px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
-            border: 2px solid #F59E0B;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
-            flex-shrink: 0;
-        }
-
-        .user-titles h1 {
-            font-size: 20px;
-            font-weight: 900;
-            color: #FFF;
-            line-height: 1.2;
-        }
-
-        .user-subtitle-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            color: #FEF3C7;
-            margin-top: 4px;
-        }
-
-        .header-date-box {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-        .header-date-pill {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 5px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 800;
-            color: #E2E8F0;
-        }
-        .header-batch-pill {
-            font-size: 11px;
-            color: #A5B4FC;
-            font-weight: 700;
-        }
-
-        /* ─── Integrated KPI Stat Row ─── */
-        .kpi-row {
+        /* ─── Bento KPI Ribbon ─── */
+        .kpi-bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            z-index: 2;
+            gap: 14px;
         }
 
-        .kpi-tile {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.25s;
-        }
-        .kpi-tile:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .kpi-tile-icon {
-            width: 42px; height: 42px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: white; flex-shrink: 0;
-        }
-        .kpi-tile-icon.blue { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
-        .kpi-tile-icon.purple { background: linear-gradient(135deg, #7C3AED, #9333EA); }
-        .kpi-tile-icon.emerald { background: linear-gradient(135deg, #059669, #10B981); }
-        .kpi-tile-icon.amber { background: linear-gradient(135deg, #D97706, #F59E0B); }
-
-        .kpi-tile-data {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-        .kpi-tile-num {
-            font-size: 22px;
-            font-weight: 900;
-            color: #FFF;
-            line-height: 1.1;
-        }
-        .kpi-tile-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #94A3B8;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* ─── Luxury Operational Hub Tabs Bar ─── */
-        .admin-hub-tab-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 8px 12px;
+        .kpi-bento-card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            margin-top: 6px;
-            margin-bottom: 6px;
-            scrollbar-width: none;
-            z-index: 50;
-        }
-        .admin-hub-tab-bar::-webkit-scrollbar { display: none; }
-
-        .admin-hub-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            border: 1px solid transparent;
-            padding: 11px 20px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-bento-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .kpi-card-data {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .kpi-card-num {
+            font-size: 26px;
+            font-weight: 900;
+            color: #FFF;
+            line-height: 1.1;
+        }
+        body.light-theme .kpi-card-num { color: #0F172A; }
+
+        .kpi-card-label {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .kpi-card-tag {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            margin-top: 6px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            width: fit-content;
         }
-        body.light-theme .admin-hub-btn {
-            background: rgba(0, 0, 0, 0.04);
-        }
-        .admin-hub-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            transform: translateY(-2px);
-        }
-        .admin-hub-btn.active {
-            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-            color: white !important;
-            border-color: #818CF8;
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-        }
+        .tag-blue { background: rgba(37, 99, 235, 0.15); color: #60A5FA; }
+        .tag-purple { background: rgba(147, 51, 234, 0.15); color: #C084FC; }
+        .tag-emerald { background: rgba(16, 185, 129, 0.15); color: #34D399; }
+        .tag-amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
 
+        .kpi-card-icon {
+            width: 48px; height: 48px;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white; flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .icon-blue { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
+        .icon-purple { background: linear-gradient(135deg, #7C3AED, #9333EA); }
+        .icon-emerald { background: linear-gradient(135deg, #059669, #10B981); }
+        .icon-amber { background: linear-gradient(135deg, #D97706, #F59E0B); }
+
+        /* ─── Hub Views Container & Animations ─── */
         .hub-view-container {
             display: flex;
             flex-direction: column;
@@ -382,39 +554,14 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ─── Section Dividers ─── */
-        .admin-section-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 10px 0 4px;
-            padding: 0 4px;
-        }
-        .section-title-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .section-title-wrap h2 {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--text-main);
-        }
-        .section-title-wrap i {
-            color: #818CF8;
-            font-size: 16px;
-        }
-        .section-badge-tag {
-            font-size: 11px;
-            font-weight: 800;
-            color: #A5B4FC;
-            background: rgba(99, 102, 241, 0.12);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            padding: 3px 10px;
-            border-radius: 10px;
+        /* Bento 2-Column Responsive Grid */
+        .bento-split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
-        /* ─── Action Cards Grid ─── */
+        /* ─── Action Cards Grid (Services) ─── */
         .admin-cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -442,14 +589,13 @@
         .action-card:hover {
             transform: translateY(-3px);
             border-color: #818CF8;
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.25);
         }
 
-        /* Featured VIP Card */
         .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(147, 51, 234, 0.2) 100%);
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.18) 0%, rgba(147, 51, 234, 0.22) 100%);
             border: 1.5px solid #818CF8;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25);
         }
 
         .card-left-content {
@@ -536,12 +682,12 @@
         }
 
         /* ─── Footer Controls ─── */
-        .admin-footer-bar {
+        .workspace-footer {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            padding: 14px 20px;
+            padding: 14px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -549,1002 +695,1032 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .footer-watermark-text {
+        .footer-watermark {
             font-size: 12px;
             font-weight: 800;
             color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .btn-logout-full {
-            background: rgba(239, 68, 68, 0.15);
-            color: #F87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 9px 20px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 900;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s;
-        }
-        .btn-logout-full:hover {
-            background: #EF4444; color: white;
-            border-color: #EF4444; transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        /* ─── Responsive Breakpoints ─── */
+        @media (max-width: 1200px) {
+            .bento-split-grid { grid-template-columns: 1fr; }
+            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        /* ─── Mobile Responsiveness ─── */
-        @media (max-width: 900px) {
-            .kpi-row { grid-template-columns: repeat(2, 1fr); }
-            .admin-cards-grid { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) {
+            .executive-sidebar {
+                position: fixed;
+                right: 0; top: 0;
+                transform: translateX(100%);
+                box-shadow: -15px 0 40px rgba(0,0,0,0.5);
+            }
+            .executive-sidebar.sidebar-open {
+                transform: translateX(0);
+            }
+            .sidebar-close-btn { display: flex; }
+            .btn-hamburger-mobile { display: flex; }
+            .executive-main { padding: 14px 16px; }
+            .topbar-search-box { display: none; }
         }
 
         @media (max-width: 640px) {
-            .admin-app-container { padding: 12px 14px; gap: 14px; }
-            .admin-topbar { padding: 10px 14px; border-radius: 16px; }
-            .brand-text-sub { display: none; }
+            .admin-cards-grid { grid-template-columns: 1fr; }
+            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .workspace-topbar { padding: 10px 14px; border-radius: 16px; }
+            .topbar-breadcrumbs span:first-child { display: none; }
             .status-live-pill span:not(.status-dot) { display: none; }
-            .dashboard-unified-header { padding: 18px 16px; border-radius: 20px; gap: 16px; }
-            .user-avatar-badge { width: 48px; height: 48px; font-size: 22px; }
-            .user-titles h1 { font-size: 17px; }
-            .kpi-tile { padding: 10px 12px; }
-            .kpi-tile-num { font-size: 18px; }
-            .action-card { padding: 16px 14px; border-radius: 18px; }
-            .card-icon-box { width: 42px; height: 42px; font-size: 18px; border-radius: 12px; }
-            .card-title { font-size: 14px; }
+            .workspace-footer { flex-direction: column; gap: 10px; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Background Orbs -->
+    <!-- Ambient Glowing Background Blobs -->
     <div class="admin-bg-blob blob-1"></div>
     <div class="admin-bg-blob blob-2"></div>
+    <div class="admin-bg-blob blob-3"></div>
 
-    <div class="admin-app-container">
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
 
-        <!-- Sleek Top Navbar -->
-        <header class="admin-topbar">
-            <a href="admin-panel.html" class="brand-section">
-                <div class="brand-logo-badge">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div>
-                    <span class="brand-title-main">لوحة القيادة العليا</span>
-                    <div class="brand-text-sub">منصة الخطة التعليمية • 2027</div>
-                </div>
-            </a>
+    <!-- Executive Layout Container -->
+    <div class="executive-layout">
 
-            <div class="topbar-actions">
-                <div class="status-live-pill">
-                    <span class="status-dot"></span>
-                    <span>النظام نشط ومباشر</span>
-                </div>
-
-                <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
-                    <i class="fa-solid fa-moon" id="themeIcon"></i>
-                </button>
-
-                <a href="home.html" class="btn-top-action" title="معاينة المنصة كطالب">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </a>
-
-                <button class="btn-top-action logout-top" onclick="adminLogout()" title="تسجيل الخروج">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Integrated Unified Master Header & Stat Tiles -->
-        <div class="dashboard-unified-header">
-            <div class="header-top-info">
-                <div class="user-identity-box">
-                    <div class="user-avatar-badge" id="adminHeaderIcon">👑</div>
-                    <div class="user-titles">
-                        <h1 id="adminHeaderTitle">لوحة تحكم المدير العام</h1>
-                        <div class="user-subtitle-pill" id="adminHeaderSub">
-                            <i class="fa-solid fa-crown" style="color: #F59E0B;"></i>
-                            <span>مرحباً بك يا المدير العام — صلاحيات كاملة</span>
+        <!-- ─── Executive Sidebar (RTL Right) ─── -->
+        <aside class="executive-sidebar">
+            <div>
+                <!-- Brand Identity -->
+                <div class="sidebar-brand-box">
+                    <a href="admin-panel.html" class="sidebar-brand-identity">
+                        <div class="sidebar-brand-badge">
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
+                        <div class="sidebar-brand-titles">
+                            <span class="sidebar-brand-title-main">منصة الخطة</span>
+                            <span class="sidebar-brand-sub">مركز العمليات • 2027 🎓</span>
+                        </div>
+                    </a>
+                    <button class="sidebar-close-btn" onclick="closeMobileSidebar()" title="إغلاق القائمة">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Hub List -->
+                <div class="sidebar-nav-container">
+                    <div class="sidebar-nav-heading">غرف العمليات المركزية</div>
+
+                    <button onclick="switchAdminHubTab('noc')" id="hubTab_noc" class="sidebar-nav-btn active">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-gauge-high sidebar-btn-icon" style="color: #818CF8;"></i>
+                            <span>غرفة السيطرة العامة (NOC)</span>
+                        </div>
+                        <span class="sidebar-badge-pill">Live 🟢</span>
+                    </button>
+
+                    <button onclick="switchAdminHubTab('students')" id="hubTab_students" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-users-gear sidebar-btn-icon" style="color: #38BDF8;"></i>
+                            <span>الطلاب والأجهزة والتشخيص</span>
+                        </div>
+                        <span class="sidebar-badge-pill">10/10 ⚡</span>
+                    </button>
+
+                    <button onclick="switchAdminHubTab('helpdesk')" id="hubTab_helpdesk" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-headset sidebar-btn-icon" style="color: #F43F5E;"></i>
+                            <span>تذاكر الدعم ومساعد AI</span>
+                        </div>
+                        <span class="sidebar-badge-pill">SLA 🎧</span>
+                    </button>
+
+                    <button onclick="switchAdminHubTab('maintenance')" id="hubTab_maintenance" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-toolbox sidebar-btn-icon" style="color: #F59E0B;"></i>
+                            <span>الصيانة ومفاتيح الطوارئ</span>
+                        </div>
+                        <span class="sidebar-badge-pill">Kill-SW 🔴</span>
+                    </button>
+
+                    <button onclick="switchAdminHubTab('database')" id="hubTab_database" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-database sidebar-btn-icon" style="color: #10B981;"></i>
+                            <span>المقررات والبيانات السحابية</span>
+                        </div>
+                        <span class="sidebar-badge-pill">Cloud 📚</span>
+                    </button>
+
+                    <div class="sidebar-nav-heading" style="margin-top: 10px;">إدارات الربط والخدمات</div>
+
+                    <a href="admin-config.html" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-sliders sidebar-btn-icon" style="color: #A5B4FC;"></i>
+                            <span>إعدادات المشرفين والأمان</span>
+                        </div>
+                        <i class="fa-solid fa-angle-left" style="font-size: 11px; opacity: 0.6;"></i>
+                    </a>
+
+                    <a href="admin-mysql.html" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
+                            <span>لوحة MySQL السحابية VIP</span>
+                        </div>
+                        <span class="sidebar-badge-pill" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B;">VIP</span>
+                    </a>
+
+                    <a href="home.html" class="sidebar-nav-btn">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-graduation-cap sidebar-btn-icon" style="color: #34D399;"></i>
+                            <span>معاينة كطالب</span>
+                        </div>
+                        <i class="fa-solid fa-angle-left" style="font-size: 11px; opacity: 0.6;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Profile & Fast Logout Box -->
+            <div class="sidebar-footer-box">
+                <div class="sidebar-user-card">
+                    <div class="sidebar-avatar" id="adminHeaderIcon">👑</div>
+                    <div class="sidebar-user-details">
+                        <div class="sidebar-user-title" id="adminHeaderTitle">المدير العام</div>
+                        <div class="sidebar-user-role" id="adminHeaderSub">صلاحيات كاملة 🛡️</div>
                     </div>
                 </div>
 
-                <div class="header-date-box">
-                    <div class="header-date-pill" id="liveDateClock">📅 السبت، 12 سبتمبر 2026</div>
-                    <div class="header-batch-pill">الفرقة الرابعة • كلية الخدمة الاجتماعية 2027 🎓</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px;">
+                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">جاهزية المنظومة:</span>
+                    <span style="font-size: 11px; color: #34D399; font-weight: 900;">🟢 99.98% Uptime</span>
                 </div>
-            </div>
 
-            <!-- Integrated KPI Stat Tiles -->
-            <div class="kpi-row">
-                <div class="kpi-tile">
-                    <div class="kpi-tile-icon blue">
+                <button class="sidebar-logout-btn" onclick="adminLogout()">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>تسجيل الخروج السريع</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ─── Executive Main Workspace ─── -->
+        <main class="executive-main">
+
+            <!-- Topbar Header -->
+            <header class="workspace-topbar">
+                <div class="topbar-right-area">
+                    <button class="btn-hamburger-mobile" onclick="toggleMobileSidebar()" title="فتح القائمة">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-breadcrumbs">
+                        <span>لوحة القيادة</span>
+                        <i class="fa-solid fa-angle-left" style="font-size: 10px; opacity: 0.5;"></i>
+                        <span id="activeHubBreadcrumb" class="breadcrumb-active">🎛️ غرفة السيطرة العامة (NOC)</span>
+                    </div>
+                </div>
+
+                <!-- Fast Search Bar -->
+                <div class="topbar-search-box">
+                    <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
+                    <input type="text" class="topbar-search-input" placeholder="🔎 بحث سريع بكود الطالب أو الفحص الفوري (اضغط Enter)..." onkeypress="handleGlobalSearch(event, this.value)">
+                </div>
+
+                <div class="topbar-actions-group">
+                    <div class="status-live-pill">
+                        <span class="status-dot"></span>
+                        <span>مباشر 🟢</span>
+                    </div>
+
+                    <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); display: none;" id="liveDateClock"></div>
+
+                    <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
+
+                    <a href="home.html" class="btn-top-action" title="معاينة المنصة كطالب">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </a>
+
+                    <button class="btn-top-action" onclick="adminLogout()" title="تسجيل الخروج" style="color: #F87171;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ─── KPI Bento Ribbon ─── -->
+            <div class="kpi-bento-grid">
+                <div class="kpi-bento-card">
+                    <div class="kpi-card-data">
+                        <span class="kpi-card-num" id="statStudents">0</span>
+                        <span class="kpi-card-label">طالب مسجل</span>
+                        <span class="kpi-card-tag tag-blue"><i class="fa-solid fa-arrow-trend-up"></i> نشط الآن</span>
+                    </div>
+                    <div class="kpi-card-icon icon-blue">
                         <i class="fa-solid fa-users"></i>
                     </div>
-                    <div class="kpi-tile-data">
-                        <div class="kpi-tile-num" id="statStudents">0</div>
-                        <div class="kpi-tile-label">طالب مسجل</div>
-                    </div>
                 </div>
 
-                <div class="kpi-tile">
-                    <div class="kpi-tile-icon purple">
+                <div class="kpi-bento-card">
+                    <div class="kpi-card-data">
+                        <span class="kpi-card-num" id="statLectures">0</span>
+                        <span class="kpi-card-label">محاضرة ومحتوى</span>
+                        <span class="kpi-card-tag tag-purple"><i class="fa-solid fa-cloud-arrow-up"></i> سحابي</span>
+                    </div>
+                    <div class="kpi-card-icon icon-purple">
                         <i class="fa-solid fa-book-open"></i>
                     </div>
-                    <div class="kpi-tile-data">
-                        <div class="kpi-tile-num" id="statLectures">0</div>
-                        <div class="kpi-tile-label">محاضرة مرفوعة</div>
+                </div>
+
+                <div class="kpi-bento-card">
+                    <div class="kpi-card-data">
+                        <span class="kpi-card-num" id="statResults">0</span>
+                        <span class="kpi-card-label">امتحان تم تسليمه</span>
+                        <span class="kpi-card-tag tag-emerald"><i class="fa-solid fa-circle-check"></i> 98% اجتياز</span>
+                    </div>
+                    <div class="kpi-card-icon icon-emerald">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
                     </div>
                 </div>
 
-                <div class="kpi-tile">
-                    <div class="kpi-tile-icon emerald">
-                        <i class="fa-solid fa-circle-check"></i>
+                <div class="kpi-bento-card">
+                    <div class="kpi-card-data">
+                        <span class="kpi-card-num" id="statUnanswered">0</span>
+                        <span class="kpi-card-label">سؤال معلق</span>
+                        <span class="kpi-card-tag tag-amber"><i class="fa-solid fa-clock"></i> رد فوري</span>
                     </div>
-                    <div class="kpi-tile-data">
-                        <div class="kpi-tile-num" id="statResults">0</div>
-                        <div class="kpi-tile-label">امتحان تم تسليمه</div>
-                    </div>
-                </div>
-
-                <div class="kpi-tile">
-                    <div class="kpi-tile-icon amber">
+                    <div class="kpi-card-icon icon-amber">
                         <i class="fa-solid fa-comments"></i>
                     </div>
-                    <div class="kpi-tile-data">
-                        <div class="kpi-tile-num" id="statUnanswered">0</div>
-                        <div class="kpi-tile-label">سؤال معلق</div>
-                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Luxury Operational Hub Tabs Bar -->
-        <div class="admin-hub-tab-bar">
-            <button onclick="switchAdminHubTab('noc')" id="hubTab_noc" class="admin-hub-btn active">
-                <i class="fa-solid fa-gauge-high"></i>
-                <span>🎛️ غرفة السيطرة العامة (NOC)</span>
-            </button>
-            <button onclick="switchAdminHubTab('students')" id="hubTab_students" class="admin-hub-btn">
-                <i class="fa-solid fa-users-gear"></i>
-                <span>👥 الطلاب والأجهزة والتشخيص</span>
-            </button>
-            <button onclick="switchAdminHubTab('helpdesk')" id="hubTab_helpdesk" class="admin-hub-btn">
-                <i class="fa-solid fa-headset"></i>
-                <span>🎧 تذاكر الدعم ومساعد AI</span>
-            </button>
-            <button onclick="switchAdminHubTab('maintenance')" id="hubTab_maintenance" class="admin-hub-btn">
-                <i class="fa-solid fa-toolbox"></i>
-                <span>🛠️ الصيانة والـ Emergency Controls</span>
-            </button>
-            <button onclick="switchAdminHubTab('database')" id="hubTab_database" class="admin-hub-btn">
-                <i class="fa-solid fa-database"></i>
-                <span>📚 المقررات والبيانات</span>
-            </button>
-        </div>
-
-        <!-- HUB 1: 🎛️ غرفة السيطرة العامة (NOC Control Room) -->
-        <div id="hubView_noc" class="hub-view-container" style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="admin-section-heading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-microchip" style="color: #6366F1;"></i>
-                    <h2>مركز القيادة وغرفة السيطرة العامة (NOC Sentry Center)</h2>
-                </div>
-                <span class="section-badge-tag">bcast 🟢 Live</span>
-            </div>
-
-            <!-- 1. What Changed Summary & Security Score Banner -->
-            <div style="
-                background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.9) 100%);
-                border: 1px solid rgba(99, 102, 241, 0.35);
-                border-radius: 22px;
-                padding: 18px 22px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(99, 102, 241, 0.25); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 20px;">💎</div>
-                        <div>
-                            <h3 style="font-size: 15px; font-weight: 900; color: #F8FAFC;">ملخص التغييرات والتشغيل (What Changed?)</h3>
-                            <span style="font-size: 11.5px; color: #A5B4FC; font-weight: 700;">متابعة فورية لاستقرار المنظومة، التحديثات، ومؤشرات الأمان</span>
-                        </div>
-                    </div>
-
+            <!-- ═══════════════════════════════════════════════
+                 HUB 1: 🎛️ غرفة السيطرة العامة (NOC Sentry Center)
+                 ═══════════════════════════════════════════════ -->
+            <div id="hubView_noc" class="hub-view-container" style="display: flex;">
+                
+                <!-- What Changed & Security Score Executive Ribbon -->
+                <div style="
+                    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.85) 100%);
+                    border: 1px solid rgba(99, 102, 241, 0.35);
+                    border-radius: 20px;
+                    padding: 16px 20px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                ">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="text-align: center; background: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                            <div style="font-size: 10px; color: #94A3B8; font-weight: 800;">مؤشر الاستقرار (Uptime)</div>
-                            <div style="font-size: 15px; font-weight: 900; color: #34D399;">99.98% 🟢</div>
+                        <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(99, 102, 241, 0.25); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 20px;">💎</div>
+                        <div>
+                            <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">ملخص التغييرات واستقرار المنظومة (What Changed?)</h3>
+                            <span style="font-size: 11.5px; color: #C7D2FE; font-weight: 700;">متابعة لحظية لاستقرار السيرفرات والـ Uptime ومؤشرات الأمان</span>
                         </div>
-                        <div style="text-align: center; background: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                            <div style="font-size: 10px; color: #94A3B8; font-weight: 800;">مؤشر الأمان (Security Score)</div>
-                            <div style="font-size: 15px; font-weight: 900; color: #F59E0B;" id="securityScoreVal">94/100 🛡️</div>
-                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 11.5px; background: rgba(52, 211, 153, 0.15); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">🟢 99.98% Uptime</span>
+                        <span style="font-size: 11.5px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;" id="securityScoreVal">94/100 🛡️ Security Score</span>
+                        <span style="font-size: 11.5px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">⚡ Firebase Realtime Sync</span>
                     </div>
                 </div>
 
-                <!-- What Changed Badges -->
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <span style="font-size: 11.5px; background: rgba(52, 211, 153, 0.15); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">🟢 2 عمليات رفع ونشر مكتملة</span>
-                    <span style="font-size: 11.5px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">🟡 4 إعدادات منشورة مؤخراً</span>
-                    <span style="font-size: 11.5px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">👤 1 إجراء أدمن مستجل</span>
-                </div>
-            </div>
+                <!-- 2-Column Responsive Bento Cockpit Grid -->
+                <div class="bento-split-grid">
 
-            <!-- 2. System Health & Automated Diagnostics Card -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-heart-pulse" style="color: #EF4444; font-size: 20px;"></i>
-                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مركز صحة المنظومة بالفحص الفوري (System Health Check)</h3>
+                    <!-- Right Column: System Diagnostics & Health Radar -->
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        
+                        <!-- System Health Check Card -->
+                        <div style="
+                            background: var(--card-bg);
+                            backdrop-filter: blur(20px);
+                            border: 1px solid var(--card-border);
+                            border-radius: 20px;
+                            padding: 18px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                            display: flex; flex-direction: column; gap: 14px;
+                        ">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-heart-pulse" style="color: #EF4444; font-size: 20px;"></i>
+                                    <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">فحص صحة المنظومة الفوري (System Health)</h3>
+                                </div>
+                                <button onclick="runFullSystemCheck()" style="
+                                    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+                                    color: white; border: none; padding: 7px 16px; border-radius: 12px;
+                                    font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit;
+                                    display: inline-flex; align-items: center; gap: 6px;
+                                    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+                                ">
+                                    <i class="fa-solid fa-rotate-right" id="healthCheckSpinner"></i>
+                                    <span>فحص شامل 🔄</span>
+                                </button>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="healthCheckGrid">
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Auth Guard</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcAuth">🟢 100%</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Realtime DB</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcDB">🟢 100%</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Storage / PDFs</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcStorage">🟢 Ready</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Exams Engine</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcExams">🟢 Active</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Audio Engine</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcAudio">🟢 Ready</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Push Notice</div>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #F59E0B; margin-top: 3px;" id="hcPush">🟡 Standby</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Platform Health Score Card -->
+                        <div id="secPlatformHealth" style="
+                            background: var(--card-bg);
+                            backdrop-filter: blur(20px);
+                            border: 1px solid var(--card-border);
+                            border-radius: 20px;
+                            padding: 18px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                            display: flex; flex-direction: column; gap: 12px;
+                        ">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #10B981, #059669); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🏥</div>
+                                    <div>
+                                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مؤشر سلامة المنصة (Platform Health Score)</h3>
+                                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">تقييم لحظي شامل لقطاعات المنظومة</span>
+                                    </div>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #34D399; padding: 4px 12px; border-radius: 16px; font-weight: 900; font-size: 15px;">
+                                    97 / 100 🟢
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">الأمان</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;">98% 🟢</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">السرعة</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #38BDF8; margin-top: 2px;">96% 🟢</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">الجاهزية</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;">100% 🟢</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">البيانات</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #A7F3D0; margin-top: 2px;">99% 🟢</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 8px; text-align: center;">
+                                    <div style="font-size: 10px; font-weight: 700; color: var(--text-muted);">SLA دقة</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #F59E0B; margin-top: 2px;">95% 🟢</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Synthetic Diagnostic Engine Card -->
+                        <div id="secSyntheticDiagnostic" style="
+                            background: var(--card-bg);
+                            backdrop-filter: blur(20px);
+                            border: 1px solid var(--card-border);
+                            border-radius: 20px;
+                            padding: 18px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                            display: flex; flex-direction: column; gap: 12px;
+                        ">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #7C3AED, #6366F1); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🧪</div>
+                                    <div>
+                                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">محرك الفحص الشامل (Synthetic Engine)</h3>
+                                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">فحص حي لـ 10 وحدات برمجية</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button onclick="runFullSyntheticDiagnostic()" style="background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 12.5px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+                                        <i class="fa-solid fa-vial-circle-check"></i>
+                                        <span>بدء الفحص 🚀</span>
+                                    </button>
+                                    <span id="diagnosticResultBadge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.3); font-size: 11px; font-weight: 900; padding: 5px 10px; border-radius: 10px;">
+                                        جاهز (10/10)
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="diagnosticLogBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 11.5px; color: #A5B4FC; max-height: 140px; overflow-y: auto; display: none;"></div>
+                        </div>
+
                     </div>
-                    <button onclick="runFullSystemCheck()" style="
-                        background: linear-gradient(135deg, #2563EB, #1D4ED8);
-                        color: white; border: none; padding: 8px 18px; border-radius: 12px;
-                        font-size: 12.5px; font-weight: 900; cursor: pointer; font-family: inherit;
-                        display: inline-flex; align-items: center; gap: 8px;
-                        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+
+                    <!-- Left Column: Live Audit & Cockpit Feed -->
+                    <div class="audit-cockpit-container" style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--card-border);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 14px;
                     ">
-                        <i class="fa-solid fa-rotate-right" id="healthCheckSpinner"></i>
-                        <span>🔄 Run Full System Check (فحص شامل للمنظومة)</span>
-                    </button>
+                        <!-- Cockpit Header & Filter Tabs -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-satellite-dish" style="color: #34D399; font-size: 18px;"></i>
+                                <span style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">رادار النشاط الحي (Live Cockpit Feed)</span>
+                                <span id="auditCountBadge" style="background: rgba(99, 102, 241, 0.2); color: #818CF8; font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0 حدث</span>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="filterAuditStream('all')" class="audit-tab-btn active" id="tabAuditAll" style="background: var(--primary); color: white; border: none; padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">الكل</button>
+                                <button onclick="filterAuditStream('emergency')" class="audit-tab-btn" id="tabAuditEmergency" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">🚨 الأعطال</button>
+                                <button onclick="filterAuditStream('login')" class="audit-tab-btn" id="tabAuditLogin" style="background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--card-border); padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">👤 نشاط الطلاب</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Feed Scroll Stream -->
+                        <div id="liveAuditStreamList" style="max-height: 440px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+                            <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 40px 10px;">جاري جلب سجل النشاط المباشر والعمليات... 📡</div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Health Grid Tiles -->
-                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;" id="healthCheckGrid">
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Authentication</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #34D399; margin-top: 4px;" id="hcAuth">🟢 100%</div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Realtime DB</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #34D399; margin-top: 4px;" id="hcDB">🟢 100%</div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Storage / PDFs</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #34D399; margin-top: 4px;" id="hcStorage">🟢 Ready</div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Exams System</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #34D399; margin-top: 4px;" id="hcExams">🟢 Active</div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Audio System</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #34D399; margin-top: 4px;" id="hcAudio">🟢 Ready</div>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 14px; text-align: center;">
-                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Push Notice</div>
-                        <div style="font-size: 14px; font-weight: 900; color: #F59E0B; margin-top: 4px;" id="hcPush">🟡 Standby</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- 3. Platform Status Score Index -->
-            <div id="secPlatformHealth" style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #10B981, #059669); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🏥</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">مؤشر سلامة وصحة المنصة (Platform Health Score)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">تقييم لحظي شامل لجميع القطاعات والأداء الفني</span>
+            <!-- ═══════════════════════════════════════════════
+                 HUB 2: 👥 الطلاب والأجهزة والتشخيص
+                 ═══════════════════════════════════════════════ -->
+            <div id="hubView_students" class="hub-view-container" style="display: none;">
+                
+                <!-- Individual Student Diagnostic Engine Card -->
+                <div id="secStudentDiagnostics" style="
+                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.92) 100%);
+                    backdrop-filter: blur(20px);
+                    border: 1.5px solid #0EA5E9;
+                    border-radius: 20px;
+                    padding: 18px 20px;
+                    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
+                    display: flex; flex-direction: column; gap: 12px;
+                ">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔍</div>
+                            <div>
+                                <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">مركز الفحص والتشخيص الفردي للطالب (Student Diagnostic 10/10)</h3>
+                                <span style="font-size: 11px; color: #93C5FD; font-weight: 700;">فحص فوري (الحساب، الأمان، الجلسات، المحاضرات، الامتحانات، النتائج، والنقاط)</span>
+                            </div>
                         </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10B981; color: #34D399; padding: 6px 16px; border-radius: 20px; font-weight: 900; font-size: 18px;">
-                            97 / 100 🟢
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Health Categories Breakdown Grid -->
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 4px;">
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">🛡️ الأمان والجلسات</div>
-                        <div style="font-size: 15px; font-weight: 900; color: #34D399; margin-top: 4px;">98% 🟢</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">⚡ سرعة الأداء</div>
-                        <div style="font-size: 15px; font-weight: 900; color: #38BDF8; margin-top: 4px;">96% 🟢</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">🌐 الجاهزية والخدمات</div>
-                        <div style="font-size: 15px; font-weight: 900; color: #34D399; margin-top: 4px;">100% 🟢</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">💾 سلامة البيانات</div>
-                        <div style="font-size: 15px; font-weight: 900; color: #A7F3D0; margin-top: 4px;">99% 🟢</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; text-align: center;">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">🎧 سرعة الدعم SLA</div>
-                        <div style="font-size: 15px; font-weight: 900; color: #F59E0B; margin-top: 4px;">95% 🟢</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. Full Synthetic Diagnostic Engine -->
-            <div id="secSyntheticDiagnostic" style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #7C3AED, #6366F1); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🧪</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">مركز الاختبارات والفحص الفني الشامل (Synthetic Diagnostic Engine)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">اختبار أوتوماتيكي حي لـ 10 وحدات برمجية (Auth, DB, Courses, Exams, Results, Leaderboard, Audio, PDF, Notifications)</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button onclick="runFullSyntheticDiagnostic()" style="background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 10px 20px; border-radius: 14px; font-weight: 900; font-size: 13.5px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
-                            <i class="fa-solid fa-vial-circle-check"></i>
-                            <span>Run Full Diagnostic 🚀</span>
-                        </button>
-                        <span id="diagnosticResultBadge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.3); font-size: 12px; font-weight: 900; padding: 6px 14px; border-radius: 14px;">
-                            جاهز للفحص (10/10)
+                        <span style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.4); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 10px;">
+                            Student Diagnostic Live ⚡
                         </span>
                     </div>
-                </div>
 
-                <!-- Diagnostic Log Output -->
-                <div id="diagnosticLogBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; font-family: monospace; font-size: 12px; color: #A5B4FC; max-height: 160px; overflow-y: auto; display: none;">
-                    <!-- Logs will be streamed here -->
-                </div>
-            </div>
-
-            <!-- 5. Live Audit & Cockpit -->
-            <div class="admin-section-heading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-satellite-dish" style="color: #34D399;"></i>
-                    <h2>مركز المراقبة اللحظية وسجل التفتيش (Live Audit & Cockpit)</h2>
-                </div>
-                <span class="section-badge-tag" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34D399;">بث مباشر 📡</span>
-            </div>
-
-            <div class="audit-cockpit-container" style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <!-- Cockpit Header & Tabs -->
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 14px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 14px; font-weight: 800; color: var(--text-main);">تغذية النشاط الحية:</span>
-                        <span id="auditCountBadge" style="background: rgba(99, 102, 241, 0.2); color: #818CF8; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 12px;">0 حدث</span>
+                    <div style="display: flex; gap: 8px;">
+                        <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 11px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
+                        <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; border: none; padding: 11px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>تشخيص الطالب 🚀</span>
+                        </button>
                     </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button onclick="filterAuditStream('all')" class="audit-tab-btn active" id="tabAuditAll" style="background: var(--primary); color: white; border: none; padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">الكل</button>
-                        <button onclick="filterAuditStream('emergency')" class="audit-tab-btn" id="tabAuditEmergency" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">🚨 بلاغات الأعطال</button>
-                        <button onclick="filterAuditStream('login')" class="audit-tab-btn" id="tabAuditLogin" style="background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--card-border); padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">👤 نشاط الطلاب</button>
-                    </div>
+
+                    <div id="studentDiagReportOutput" style="display: none; flex-direction: column; gap: 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 14px;"></div>
                 </div>
 
-                <!-- Live Stream Items List -->
-                <div id="liveAuditStreamList" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-                    <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 30px;">جاري جلب سجل النشاط المباشر والعمليات... 📡</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- HUB 2: 👥 الطلاب والأجهزة والجلسات -->
-        <div id="hubView_students" class="hub-view-container" style="display: none; flex-direction: column; gap: 16px;">
-            <div class="admin-section-heading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-users-gear" style="color: #38BDF8;"></i>
-                    <h2>مركز إدارة الطلاب وحراسة الجلسات والأجهزة (Student & Device Cockpit)</h2>
-                </div>
-                <span class="section-badge-tag">إدارة وتفويض 🛡️</span>
-            </div>
-
-            <!-- 1. Student Diagnostic & Auto-Repair Engine -->
-            <div id="secStudentDiagnostics" style="
-                background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
-                backdrop-filter: blur(20px);
-                border: 1.5px solid #0EA5E9;
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 12px 35px rgba(14, 165, 233, 0.2);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🔍</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: #FFFFFF;">مركز الفحص وتشخيص الطالب الفردي (Student Diagnostic & Auto-Repair Engine)</h3>
-                            <span style="font-size: 11.5px; color: #93C5FD; font-weight: 700;">فحص حي 10/10 لـ (الحساب، الأمان، الجلسات، المحاضرات، الامتحانات، النتائج، النقاط، والشهادات) بنقرة واحدة</span>
+                <!-- 2-Column Responsive Grid: Device Approvals + Suspicious Names -->
+                <div class="bento-split-grid">
+                    
+                    <!-- Device Approvals Cockpit Card -->
+                    <div style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--card-border);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;" id="secDeviceApprovalsHeading">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B; font-size: 18px;"></i>
+                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">طلبات اعتماد الأجهزة الجديدة</h3>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                    🧪 تجربة طلب
+                                </button>
+                                <span id="deviceReqCountBadge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                                    0 طلب معلق
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <span style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.4); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
-                        Student Diagnostic Live ⚡
-                    </span>
-                </div>
 
-                <!-- Student Search Input Box -->
-                <div style="display: flex; gap: 8px;">
-                    <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
-                    <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; border: none; padding: 12px 22px; border-radius: 14px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>تشخيص الطالب 🚀</span>
-                    </button>
-                </div>
-
-                <!-- Diagnostic Report Container -->
-                <div id="studentDiagReportOutput" style="display: none; flex-direction: column; gap: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 16px;">
-                    <!-- Diagnostic Report Output renders here -->
-                </div>
-            </div>
-
-            <!-- 2. Realtime Device Approvals Cockpit -->
-            <div class="admin-section-heading" id="secDeviceApprovalsHeading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B;"></i>
-                    <h2>حراسة الجلسات وطلبات اعتماد الأجهزة الجديدة</h2>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                        🧪 تجربة جهاز جديد (طلب اختبار)
-                    </button>
-                    <span id="deviceReqCountBadge" class="section-badge-tag" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #F59E0B;">0 طلب معلق</span>
-                </div>
-            </div>
-
-            <div id="deviceApprovalsContainer" style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 12px;
-            ">
-                <div id="deviceApprovalsList" style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">
-                        لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Suspicious Name Quality Inspector -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(239, 68, 68, 0.3);
-                border-radius: 22px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 12px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 18px;">👥</div>
-                        <div>
-                            <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">تفتيش جودة أسماء التسجيل والحسابات المشبوهة (Name Quality Inspector)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">اكتشاف فوري للحسابات المسجلة بأسماء وهمية أو حروف عشوائية (مثل aaaa, test123, xxxx)</span>
+                        <div id="deviceApprovalsContainer" style="display: flex; flex-direction: column; gap: 10px;">
+                            <div id="deviceApprovalsList" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                                <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 25px 10px;">
+                                    لا توجد طلبات اعتماد أجهزة معلقة حالياً ✔️
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <span id="suspiciousNameCountBadge" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 20px;">
-                        جاري الفحص...
-                    </span>
-                </div>
+                    <!-- Suspicious Name Quality Inspector Card -->
+                    <div style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(239, 68, 68, 0.3);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-user-shield" style="color: #EF4444; font-size: 18px;"></i>
+                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">تفتيش جودة أسماء التسجيل والحسابات</h3>
+                            </div>
+                            <span id="suspiciousNameCountBadge" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                                جاري الفحص...
+                            </span>
+                        </div>
 
-                <div id="suspiciousNamesContainer" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 700; padding: 15px;">جاري فحص سجل الأسماء... 🔎</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- HUB 3: 🎧 تذاكر الدعم والذكاء الاصطناعي -->
-        <div id="hubView_helpdesk" class="hub-view-container" style="display: none; flex-direction: column; gap: 16px;">
-            <div class="admin-section-heading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-headset" style="color: #818CF8;"></i>
-                    <h2>مركز خدمة العملاء والدعم الفني والذكاء الاصطناعي (Helpdesk & AI Ops Hub)</h2>
-                </div>
-                <span class="section-badge-tag">استجابة فورية ⚡</span>
-            </div>
-
-            <!-- 1. Support Ticket Desk -->
-            <div id="secSupportTicketDesk" style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🎧</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">مركز تذاكر الدعم والعملاء (Support Tickets & SLA Escalation)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">البلاغات الواردة مباشرةً من قائمة الطلاب مع أولوية الرد والحل المباشر</span>
+                        <div id="suspiciousNamesContainer" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; color: var(--text-muted); font-size: 12.5px; font-weight: 700; padding: 25px 10px;">جاري فحص سجل الأسماء... 🔎</div>
                         </div>
                     </div>
+
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════
+                 HUB 3: 🎧 تذاكر الدعم والذكاء الاصطناعي
+                 ═══════════════════════════════════════════════ -->
+            <div id="hubView_helpdesk" class="hub-view-container" style="display: none;">
+                
+                <div class="bento-split-grid">
+                    
+                    <!-- Support Ticket Desk Card -->
+                    <div id="secSupportTicketDesk" style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--card-border);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-headset" style="color: #0EA5E9; font-size: 18px;"></i>
+                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مركز تذاكر الدعم والعملاء (Helpdesk & SLA)</h3>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button onclick="createTestSupportTicket()" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                    🧪 تذكرة تجربة
+                                </button>
+                                <span id="ticketPendingCountBadge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                                    0 معلق
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="supportTicketsStreamList" style="max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; color: var(--text-muted); font-size: 12.5px; font-weight: 700; padding: 40px 10px;">
+                                لا توجد تذاكر دعم معلقة حالياً — كفاءة 100% 🎧
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Operations Assistant Card -->
+                    <div id="secAIOpsAssistant" style="
+                        background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.85) 100%);
+                        backdrop-filter: blur(20px);
+                        border: 1.5px solid #818CF8;
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #8B5CF6, #D946EF); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🤖</div>
+                                <div>
+                                    <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">مساعد العمليات الذكي (AI Ops Bot)</h3>
+                                    <span style="font-size: 11px; color: #C7D2FE; font-weight: 700;">تحليل آلي للأحداث والتنبؤ بالأعطال</span>
+                                </div>
+                            </div>
+                            <span style="background: rgba(217, 70, 239, 0.2); color: #F0ABFC; border: 1px solid rgba(217, 70, 239, 0.4); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                                AI Ops ⚡
+                            </span>
+                        </div>
+
+                        <!-- Prompt chips -->
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="askAIOpsAssistant('ما هي حالة المنصة الآن؟')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 16px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                💡 حالة المنصة
+                            </button>
+                            <button onclick="askAIOpsAssistant('إيه أهم المشاكل دلوقتي؟')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 16px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                🚨 أهم المشاكل
+                            </button>
+                            <button onclick="askAIOpsAssistant('فحص الأمان والسلامة')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 16px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                🛡️ فحص الأمان
+                            </button>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <input id="aiOpsQueryInput" type="text" placeholder="اسأل مساعد العمليات عن أي نظام بالمنصة..." style="flex: 1; padding: 11px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13px; font-weight: 600; outline: none;" onkeypress="if(event.key==='Enter') askAIOpsAssistant(this.value)">
+                            <button onclick="askAIOpsAssistant(document.getElementById('aiOpsQueryInput').value)" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); color: white; border: none; padding: 11px 18px; border-radius: 12px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px;">
+                                إرسال 🚀
+                            </button>
+                        </div>
+
+                        <div id="aiOpsResponseBox" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 14px; padding: 14px; color: #E2E8F0; font-size: 13px; font-weight: 600; line-height: 1.6; display: none;"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════
+                 HUB 4: 🛠️ الصيانة والـ Emergency Controls
+                 ═══════════════════════════════════════════════ -->
+            <div id="hubView_maintenance" class="hub-view-container" style="display: none;">
+                
+                <!-- Enterprise Kill Switches Ribbon -->
+                <div style="
+                    background: var(--card-bg);
+                    backdrop-filter: blur(20px);
+                    border: 1.5px solid rgba(239, 68, 68, 0.35);
+                    border-radius: 20px;
+                    padding: 18px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                    display: flex; flex-direction: column; gap: 12px;
+                ">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 18px;">🔴</div>
+                            <div>
+                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مفاتيح التعطيل الجزئي وعزل الميزات (Enterprise Kill Switches)</h3>
+                                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">إيقاف أو تفعيل أي ميزة بنقرة واحدة فوراً</span>
+                            </div>
+                        </div>
+                        <span id="killSwitchActiveBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
+                            جميع الخدمات مفعلة 🟢
+                        </span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                        <button onclick="toggleKillSwitch('exams')" id="btnKS_exams" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            📝 الامتحانات 🟢
+                        </button>
+                        <button onclick="toggleKillSwitch('registration')" id="btnKS_registration" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            👤 التسجيل 🟢
+                        </button>
+                        <button onclick="toggleKillSwitch('audio')" id="btnKS_audio" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            🔊 الصوت 🟢
+                        </button>
+                        <button onclick="toggleKillSwitch('leaderboard')" id="btnKS_leaderboard" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            🏆 النقاط 🟢
+                        </button>
+                        <button onclick="toggleKillSwitch('certificates')" id="btnKS_certificates" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            🎓 الشهادات 🟢
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2-Column Responsive Grid: Security Baseline + Maintenance Controls -->
+                <div class="bento-split-grid">
+                    
+                    <!-- Security Baseline Posture -->
+                    <div style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--card-border);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🛡️</div>
+                                <div>
+                                    <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">الجاهزية التفتيشية (Security Posture)</h3>
+                                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">فحص آلي للثغرات وقواعد البيانات</span>
+                                </div>
+                            </div>
+                            <span style="background: rgba(37, 99, 235, 0.15); border: 1px solid #3B82F6; color: #60A5FA; padding: 4px 10px; border-radius: 12px; font-weight: 900; font-size: 13px;">
+                                82/100 🛡️
+                            </span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                                Firebase Auth Guard ✅
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #F59E0B;">
+                                DB Security Rules ⚠️
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                                HTTPS & SSL Encrypt ✅
+                            </div>
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                                Device Fingerprint Guard ✅
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance Modes & Safe Repairs -->
+                    <div style="
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--card-border);
+                        border-radius: 20px;
+                        padding: 18px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-wrench" style="color: #F59E0B; font-size: 18px;"></i>
+                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">الصيانة والنسخ الاحتياطي الآمن</h3>
+                            </div>
+                            <span id="currentMaintModeBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 10px;">النظام يعمل بشكل كامل 🟢</span>
+                        </div>
+
+                        <!-- Maintenance mode 3 buttons -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                            <button onclick="setPartialMaintenanceMode('off')" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                                🟢 تشغيل كامل
+                            </button>
+                            <button onclick="setPartialMaintenanceMode('exams_only')" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                                🔧 امتحانات فقط
+                            </button>
+                            <button onclick="setPartialMaintenanceMode('full')" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                                🚨 صيانة شاملة
+                            </button>
+                        </div>
+
+                        <!-- Safe repairs and backup -->
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="triggerManualCloudBackup()" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                <span>نسخة سحابية 💾</span>
+                            </button>
+                            <button onclick="runSafeRepair('rebuild_progress')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                                🔄 Rebuild Progress
+                            </button>
+                            <button onclick="runSafeRepair('recalculate_points')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                                💯 Recalculate Points
+                            </button>
+                            <button onclick="runSafeRepair('clear_temp_cache')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                                🧹 Clear Cache
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════
+                 HUB 5: 📚 المقررات وقواعد البيانات والخدمات
+                 ═══════════════════════════════════════════════ -->
+            <div id="hubView_database" class="hub-view-container" style="display: none;">
+                
+                <!-- Section 1: إدارة المحتوى والمناهج السحابية -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;" id="secContentTitle">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button onclick="createTestSupportTicket()" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 4px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                            🧪 تذكرة اختبار جديدة
-                        </button>
-                        <span id="ticketPendingCountBadge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 12px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
-                            0 تذكرة معلقة
-                        </span>
+                        <i class="fa-solid fa-database" style="color: #10B981; font-size: 16px;"></i>
+                        <h2 style="font-size: 16px; font-weight: 900; color: var(--text-main);">إدارة المحتوى وقاعدة البيانات السحابية</h2>
                     </div>
+                    <span style="font-size: 11px; font-weight: 800; color: #A7F3D0; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 3px 10px; border-radius: 10px;">المقررات والمناهج</span>
                 </div>
 
-                <div id="supportTicketsStreamList" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 700; padding: 25px;">
-                        لا توجد تذاكر دعم معلقة حالياً — مركز الخدمة يعمل بكفاءة 100% 🎧
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. AI Operations Assistant Console -->
-            <div id="secAIOpsAssistant" style="
-                background: linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(49, 46, 129, 0.8) 100%);
-                backdrop-filter: blur(20px);
-                border: 1.5px solid #818CF8;
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 12px 35px rgba(99, 102, 241, 0.2);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #8B5CF6, #D946EF); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🤖</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: #FFFFFF;">مساعد العمليات والتشخيص الذكي (EL KHETA AI Operations Bot)</h3>
-                            <span style="font-size: 11.5px; color: #C7D2FE; font-weight: 700;">تحليل آلي للأحداث والـ Logs والتنبؤ التلقائي بمواضع الخلل بأسلوب طبيعي</span>
-                        </div>
-                    </div>
-                    <span style="background: rgba(217, 70, 239, 0.2); color: #F0ABFC; border: 1px solid rgba(217, 70, 239, 0.4); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
-                        AI Ops Live ⚡
-                    </span>
-                </div>
-
-                <!-- Preset Prompt Chips -->
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <button onclick="askAIOpsAssistant('ما هي حالة المنصة الآن؟')" style="background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                        💡 "ما هي حالة المنصة الآن؟"
-                    </button>
-                    <button onclick="askAIOpsAssistant('إيه أهم المشاكل دلوقتي؟')" style="background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                        🚨 "إيه أهم المشاكل دلوقتي؟"
-                    </button>
-                    <button onclick="askAIOpsAssistant('فحص الأمان والسلامة')" style="background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                        🛡️ "فحص الأمان والسلامة"
-                    </button>
-                </div>
-
-                <div style="display: flex; gap: 8px;">
-                    <input id="aiOpsQueryInput" type="text" placeholder="اسأل مساعد العمليات عن حالة أي نظام في المنصة..." style="flex: 1; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 600; outline: none;" onkeypress="if(event.key==='Enter') askAIOpsAssistant(this.value)">
-                    <button onclick="askAIOpsAssistant(document.getElementById('aiOpsQueryInput').value)" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); color: white; border: none; padding: 12px 20px; border-radius: 14px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 14px;">
-                        استفسار 🚀
-                    </button>
-                </div>
-
-                <div id="aiOpsResponseBox" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 16px; padding: 16px; color: #E2E8F0; font-size: 13.5px; font-weight: 600; line-height: 1.6; display: none;">
-                    <!-- AI Output response will render here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- HUB 4: 🛠️ الصيانة والـ Emergency Controls -->
-        <div id="hubView_maintenance" class="hub-view-container" style="display: none; flex-direction: column; gap: 16px;">
-            <div class="admin-section-heading">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-shield-halved" style="color: #EF4444;"></i>
-                    <h2>مركز الصيانة وإدارة الأمان والتعطيل الطارئ (Maintenance & Emergency Hub)</h2>
-                </div>
-                <span class="section-badge-tag">أمان وعزل 🔴</span>
-            </div>
-
-            <!-- 1. Enterprise Kill Switches Grid -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1.5px solid rgba(239, 68, 68, 0.4);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 14px; background: rgba(239, 68, 68, 0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔴</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">مفاتيح التعطيل الجزئي وعزل الميزات (Enterprise Kill Switches)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">إيقاف ميزة واحدة محددة (مثل الامتحانات أو التسجيل) بنقرة واحدة دون تعطيل بقية المنصة</span>
-                        </div>
-                    </div>
-                    <span id="killSwitchActiveBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 20px;">
-                        جميع الخدمات مفعلة 🟢
-                    </span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
-                    <button onclick="toggleKillSwitch('exams')" id="btnKS_exams" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
-                        📝 الامتحانات 🟢
-                    </button>
-                    <button onclick="toggleKillSwitch('registration')" id="btnKS_registration" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
-                        👤 التسجيل 🟢
-                    </button>
-                    <button onclick="toggleKillSwitch('audio')" id="btnKS_audio" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
-                        🔊 الصوت 🟢
-                    </button>
-                    <button onclick="toggleKillSwitch('leaderboard')" id="btnKS_leaderboard" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
-                        🏆 النقاط 🟢
-                    </button>
-                    <button onclick="toggleKillSwitch('certificates')" id="btnKS_certificates" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
-                        🎓 الشهادات 🟢
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. Security Baseline Posture Index -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 20px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px;">🛡️</div>
-                        <div>
-                            <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">درجة الجاهزية والأمان التفتيشية (Security Baseline: 82/100)</h3>
-                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">فحص آلي للثغرات، وقواعد الأمان، وتفويض المشرفين، وحراسة الجلسات</span>
-                        </div>
-                    </div>
-                    <div style="background: rgba(37, 99, 235, 0.15); border: 1px solid #3B82F6; color: #60A5FA; padding: 4px 14px; border-radius: 18px; font-weight: 900; font-size: 15px;">
-                        Posture: 82/100 🛡️
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; font-size: 12px; font-weight: 700; color: #34D399;">
-                        Firebase Auth Guard ✅
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; font-size: 12px; font-weight: 700; color: #F59E0B;">
-                        Database Security Rules ⚠️
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; font-size: 12px; font-weight: 700; color: #34D399;">
-                        HTTPS & SSL Encryption ✅
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; font-size: 12px; font-weight: 700; color: #34D399;">
-                        Device Fingerprint Guard ✅
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Partial & Full Maintenance Control Card -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 14px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-wrench" style="color: #F59E0B; font-size: 19px;"></i>
-                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مركز الصيانة الجزئية والتامة (Partial & Full Maintenance)</h3>
-                    </div>
-                    <span id="currentMaintModeBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 12px;">النظام يعمل بشكل كامل 🟢</span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                    <button onclick="setPartialMaintenanceMode('off')" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; padding: 12px; border-radius: 14px; font-weight: 900; font-size: 13px; cursor: pointer; font-family: inherit;">
-                        🟢 تشغيل كامل بدون صيانة
-                    </button>
-
-                    <button onclick="setPartialMaintenanceMode('exams_only')" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; padding: 12px; border-radius: 14px; font-weight: 900; font-size: 13px; cursor: pointer; font-family: inherit;">
-                        🔧 صيانة جزئية (الامتحانات فقط)
-                    </button>
-
-                    <button onclick="setPartialMaintenanceMode('full')" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; padding: 12px; border-radius: 14px; font-weight: 900; font-size: 13px; cursor: pointer; font-family: inherit;">
-                        🚨 صيانة شاملة للموقع بالكامل
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4. Backup & Safe Repair Tools Card -->
-            <div style="
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border: 1px solid var(--card-border);
-                border-radius: 22px;
-                padding: 18px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                display: flex; flex-direction: column; gap: 12px;
-            ">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-floppy-disk" style="color: #38BDF8; font-size: 19px;"></i>
-                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">أدوات النسخ الاحتياطي والإصلاح الآمن (Backup & Safe Repairs)</h3>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <button onclick="triggerManualCloudBackup()" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 13px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-cloud-arrow-down"></i>
-                        <span>💾 إنشاء نسخة احتياطية سحابية الآن</span>
-                    </button>
-
-                    <button onclick="runSafeRepair('rebuild_progress')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit;">
-                        🔄 [ Rebuild Student Progress ]
-                    </button>
-
-                    <button onclick="runSafeRepair('recalculate_points')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit;">
-                        💯 [ Recalculate Points & Leaderboard ]
-                    </button>
-
-                    <button onclick="runSafeRepair('clear_temp_cache')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit;">
-                        🧹 [ Clear Temp Cache ]
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- HUB 5: 📚 المقررات وقواعد البيانات والخدمات -->
-        <div id="hubView_database" class="hub-view-container" style="display: none; flex-direction: column; gap: 16px;">
-            <!-- Section 1: إدارة المحتوى والمناهج السحابية -->
-            <div class="admin-section-heading" id="secContentTitle">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-database" style="color: #10B981;"></i>
-                    <h2>إدارة المحتوى وقاعدة البيانات السحابية</h2>
-                </div>
-                <span class="section-badge-tag">مسار المقررات والمناهج</span>
-            </div>
-
-            <div class="admin-cards-grid" id="gridContent">
-                <!-- 1. Featured MySQL Card -->
-                <div class="action-card featured-mysql" data-perm="config" onclick="location.href='admin-mysql.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #4F46E5, #3730A3);">
-                            <i class="fa-solid fa-bolt"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">لوحة MySQL السحابية الشاملة</span>
-                                <span class="card-badge badge-vip">VIP ⚡</span>
+                <div class="admin-cards-grid" id="gridContent">
+                    <!-- 1. Featured MySQL Card -->
+                    <div class="action-card featured-mysql" data-perm="config" onclick="location.href='admin-mysql.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #4F46E5, #3730A3);">
+                                <i class="fa-solid fa-bolt"></i>
                             </div>
-                            <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">لوحة MySQL السحابية الشاملة</span>
+                                    <span class="card-badge badge-vip">VIP ⚡</span>
+                                </div>
+                                <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
+                            </div>
                         </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+
+                    <!-- 2. Courses & Lectures -->
+                    <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">المواد والمقررات الدراسية</span>
+                                </div>
+                                <div class="card-desc">إضافة، تعديل، وترتيب المواد لدفعة الفرقة الرابعة 2027</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 3. Question Bank & Exams -->
+                    <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #10B981, #059669);">
+                                <i class="fa-solid fa-file-pen"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
+                                </div>
+                                <div class="card-desc">إنشاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 4. Student Community Chat -->
+                    <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">إدارة أسئلة المجتمع الطلابي</span>
+                                    <span class="card-badge badge-live-red" id="communityUnansweredBadge" style="display:none;">جديد 🔴</span>
+                                </div>
+                                <div class="card-desc">الرد المباشر على استفسارات وتساؤلات الطلاب المرفوعة كصوت أو صورة</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 5. Push Notifications -->
+                    <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DB2777, #EC4899);">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">مركز الإشعارات والتنبيهات</span>
+                                </div>
+                                <div class="card-desc">إرسال إشعارات فورية وتنبيهات مخصصة لجميع الطلاب المسجلين</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
                 </div>
 
-                <!-- 2. Courses & Lectures -->
-                <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
-                            <i class="fa-solid fa-folder-open"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">المواد والمقررات الدراسية</span>
-                            </div>
-                            <div class="card-desc">إضافة، تعديل، وترتيب المواد لدفعة الفرقة الرابعة 2027</div>
-                        </div>
+                <!-- Section 2: المتابعة والطلاب والأمان -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px;" id="secUsersTitle">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-line" style="color: #38BDF8; font-size: 16px;"></i>
+                        <h2 style="font-size: 16px; font-weight: 900; color: var(--text-main);">التحليلات ومتابعة الطلاب وإعدادات الأمان</h2>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <span style="font-size: 11px; font-weight: 800; color: #A5B4FC; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(99, 102, 241, 0.25); padding: 3px 10px; border-radius: 10px;">الرقابة والأداء</span>
                 </div>
 
-                <!-- 3. Question Bank & Exams -->
-                <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #10B981, #059669);">
-                            <i class="fa-solid fa-file-pen"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
+                <div class="admin-cards-grid" id="gridUsers">
+                    <!-- 1. Exam Results -->
+                    <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #3B82F6);">
+                                <i class="fa-solid fa-square-poll-vertical"></i>
                             </div>
-                            <div class="card-desc">إنهاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">كشف نتائج ودرجات الطلاب</span>
+                                </div>
+                                <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب</div>
+                            </div>
                         </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+
+                    <!-- 2. Mistakes & AI Analytics -->
+                    <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #7C3AED, #8B5CF6);">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
+                                    <span class="card-badge badge-ai">AI ⚡</span>
+                                </div>
+                                <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 3. Registered Students -->
+                    <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0EA5E9);">
+                                <i class="fa-solid fa-users-gear"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
+                                </div>
+                                <div class="card-desc">توليد الأكواد المعتادة، فحص أجهزة الدخول، وتعديل وتصدير البيانات</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 4. Activation Codes Generator -->
+                    <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #16A34A, #15803D);">
+                                <i class="fa-solid fa-key"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">توليد وإدارة أكواد التفعيل</span>
+                                    <span class="card-badge badge-vip">تفعيل 🔑</span>
+                                </div>
+                                <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 5. Troubleshooting & Diagnostic Tools -->
+                    <div class="action-card" data-perm="config" onclick="location.href='admin-troubleshoot.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">
+                                <i class="fa-solid fa-toolbox"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">مركز حل المشاكل والدعم الفني</span>
+                                    <span class="card-badge badge-live-red">طوارئ 🛠️</span>
+                                </div>
+                                <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
+
+                    <!-- 6. System Settings & Supervisors -->
+                    <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
+                        <div class="card-left-content">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #475569, #334155);">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <div class="card-texts">
+                                <div class="card-title-row">
+                                    <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
+                                </div>
+                                <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة</div>
+                            </div>
+                        </div>
+                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    </div>
                 </div>
 
-                <!-- 4. Student Community Chat -->
-                <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
-                            <i class="fa-solid fa-comments"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إدارة أسئلة المجتمع الطلابي</span>
-                                <span class="card-badge badge-live-red" id="communityUnansweredBadge" style="display:none;">جديد 🔴</span>
-                            </div>
-                            <div class="card-desc">الرد المباشر على استفسارات وتساؤلات الطلاب المرفوعة كصوت أو صورة</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 5. Push Notifications -->
-                <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #DB2777, #EC4899);">
-                            <i class="fa-solid fa-bullhorn"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">مركز الإشعارات والتنبيهات</span>
-                            </div>
-                            <div class="card-desc">إرسال إشعارات فورية وتنبيهات مخصصة لجميع الطلاب المسجلين</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
             </div>
 
-            <!-- Section 2: المتابعة والطلاب والأمان -->
-            <div class="admin-section-heading" id="secUsersTitle">
-                <div class="section-title-wrap">
-                    <i class="fa-solid fa-chart-line" style="color: #38BDF8;"></i>
-                    <h2>التحليلات ومتابعة الطلاب وإعدادات الأمان</h2>
+            <!-- Footer Bar -->
+            <footer class="workspace-footer">
+                <div class="footer-watermark">
+                    <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
+                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية v3.0 • دفعة 2027 🎓</span>
                 </div>
-                <span class="section-badge-tag">الرقابة والأداء</span>
-            </div>
+                <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 6px 18px;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>تسجيل الخروج من لوحة الإدارة</span>
+                </button>
+            </footer>
 
-            <div class="admin-cards-grid" id="gridUsers">
-                <!-- 1. Exam Results -->
-                <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #3B82F6);">
-                            <i class="fa-solid fa-square-poll-vertical"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">كشف نتائج ودرجات الطلاب</span>
-                            </div>
-                            <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 2. Mistakes & AI Analytics -->
-                <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #7C3AED, #8B5CF6);">
-                            <i class="fa-solid fa-brain"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
-                                <span class="card-badge badge-ai">AI ⚡</span>
-                            </div>
-                            <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 3. Registered Students -->
-                <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0EA5E9);">
-                            <i class="fa-solid fa-users-gear"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
-                            </div>
-                            <div class="card-desc">توليد الأكواد المعتادة، فحص أجهزة الدخول، وتعديل وتصدير البيانات</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 4. Activation Codes Generator -->
-                <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #16A34A, #15803D);">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">توليد وإدارة أكواد التفعيل</span>
-                                <span class="card-badge badge-vip">تفعيل 🔑</span>
-                            </div>
-                            <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 5. Troubleshooting & Diagnostic Tools -->
-                <div class="action-card" data-perm="config" onclick="location.href='admin-troubleshoot.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">
-                            <i class="fa-solid fa-toolbox"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">مركز حل المشاكل والدعم الفني</span>
-                                <span class="card-badge badge-live-red">طوارئ 🛠️</span>
-                            </div>
-                            <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-
-                <!-- 7. System Settings & Supervisors -->
-                <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #475569, #334155);">
-                            <i class="fa-solid fa-sliders"></i>
-                        </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
-                            </div>
-                            <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة</div>
-                        </div>
-                    </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Control Bar -->
-        <footer class="admin-footer-bar">
-            <div class="footer-watermark-text">
-                <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
-                <span>منصة الخطة التعليمية • لوحة الإدارة العليا v2.7 • دفعة 2027 🎓</span>
-            </div>
-            <button class="btn-logout-full" onclick="adminLogout()">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>تسجيل الخروج من لوحة الإدارة</span>
-            </button>
-        </footer>
-
+        </main>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
@@ -2525,7 +2701,55 @@
         }
 
         // ─── Luxury Operational Hub Tabs Switcher ───
+        
+        // Mobile Sidebar Controls
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('sidebar-open');
+                backdrop.classList.toggle('active');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.remove('sidebar-open');
+                backdrop.classList.remove('active');
+            }
+        }
+
+        // Quick Global Search Bar Handler
+        function handleGlobalSearch(event, val) {
+            if (event.key === 'Enter') {
+                val = (val || '').trim();
+                if (!val) return;
+                // If it looks like a student code (e.g. ST..., numbers, or text)
+                switchAdminHubTab('students');
+                const inp = document.getElementById('diagStudentCodeInput');
+                if (inp) {
+                    inp.value = val;
+                    runIndividualStudentDiagnostic(val);
+                }
+            }
+        }
+
         function switchAdminHubTab(tabName) {
+            const tabTitles = {
+                'noc': '🎛️ غرفة السيطرة العامة (NOC)',
+                'students': '👥 إدارة الطلاب والتشخيص',
+                'helpdesk': '🎧 تذاكر الدعم والذكاء الاصطناعي',
+                'maintenance': '🛠️ الصيانة ومفاتيح الطوارئ',
+                'database': '📚 المقررات وقواعد البيانات'
+            };
+            const breadcrumbEl = document.getElementById('activeHubBreadcrumb');
+            if (breadcrumbEl && tabTitles[tabName]) {
+                breadcrumbEl.textContent = tabTitles[tabName];
+            }
+            closeMobileSidebar();
+
             const tabs = ['noc', 'students', 'helpdesk', 'maintenance', 'database'];
             tabs.forEach(t => {
                 const btn = document.getElementById('hubTab_' + t);
