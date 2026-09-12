@@ -402,26 +402,67 @@
             const ref = db.ref('EmergencyIssues').push();
             ref.set({
                 ...data,
+                pageUrl: window.location.href,
+                userAgent: navigator.userAgent,
+                screenRes: `${window.innerWidth}x${window.innerHeight}`,
                 timestamp: Date.now(),
                 status: 'pending'
             }).then(() => {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         title: 'تم إرسال البلاغ بنجاح 🎉',
-                        text: 'تم وصول بلاغك إلى لوحة التحكم الرئيسية للأدمن وسيتم التواصل معك وحل المشكلة فوراً.',
+                        text: 'تم وصول بلاغك مع تشخيص جهازك كلياً للوحة الأدمن وسيتم التواصل معك فوراً.',
                         icon: 'success',
                         confirmButtonColor: '#6366F1'
                     });
                 } else {
-                    alert('تم إرسال بلاغك بنجاح');
+                    alert('تم إرسال بلاغك بنجاح للأدمن');
                 }
             });
         });
     }
 
+    // زر الإبلاغ السريع العائم عن المشاكل الأكاديمية والفنية
+    function initFloatingBugButton() {
+        const page = window.location.pathname.split('/').pop();
+        if (page.startsWith('admin') || page === 'index.html' || page === 'register.html') return;
+        if (document.getElementById('elkhetaFloatingBugBtn')) return;
+
+        const btn = document.createElement('button');
+        btn.id = 'elkhetaFloatingBugBtn';
+        btn.innerHTML = '<span>🐞 الإبلاغ عن عطل</span>';
+        btn.title = 'تجاوزت مشكلة أو واجهت عطلاً؟ أبلغ الإدارة فوراً';
+        btn.onclick = () => window.showEmergencyReportModal();
+        btn.style.cssText = `
+            position: fixed;
+            bottom: 82px;
+            left: 18px;
+            z-index: 9999;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(239, 68, 68, 0.15);
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
+        btn.onmouseover = () => { btn.style.transform = 'translateY(-2px) scale(1.04)'; btn.style.borderColor = '#EF4444'; btn.style.color = '#F8FAFC'; btn.style.background = '#EF4444'; };
+        btn.onmouseout = () => { btn.style.transform = 'translateY(0) scale(1)'; btn.style.borderColor = 'rgba(239, 68, 68, 0.35)'; btn.style.color = '#EF4444'; btn.style.background = 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95))'; };
+
+        document.body.appendChild(btn);
+    }
+
     // تشغيل الحماية الشاملة فور جاهزية الصفحة وقاعدة البيانات
     function startGuards() {
         checkStudentBan();
+        initFloatingBugButton();
         ensureFirebase((db) => {
             initMaintenanceGuard(db);
         });
