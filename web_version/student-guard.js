@@ -1,6 +1,6 @@
 /**
- * ELKHETA Live Student Ban Enforcement & Maintenance Timer Guard
- * شاشة قفل ثابتة تظهر بوضوح عند حظر الطالب أو عند تفعيل وضع الصيانة بالتايمر
+ * ELKHETA Universal Student Guard & Maintenance Timer System
+ * فحص حظر الطالب + فحص وتطبيق وضع الصيانة بالتايمر والعد التنازلي على كافة الشاشات
  */
 
 (function() {
@@ -8,6 +8,61 @@
     let isMaintenanceOverlayShown = false;
     let maintenanceInterval = null;
 
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.database && firebase.apps && firebase.apps.length) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    function ensureFirebase(callback) {
+        const db = getDB();
+        if (db) {
+            callback(db);
+            return;
+        }
+
+        // تحضير SDKs لـ Firebase إذا لم تكن موجودة بالصفحة
+        if (typeof firebase === 'undefined') {
+            const s1 = document.createElement('script');
+            s1.src = "https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js";
+            document.head.appendChild(s1);
+
+            const s2 = document.createElement('script');
+            s2.src = "https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js";
+            document.head.appendChild(s2);
+
+            const s3 = document.createElement('script');
+            s3.src = "firebase-config.js";
+            document.head.appendChild(s3);
+        } else if (!firebase.database) {
+            const s2 = document.createElement('script');
+            s2.src = "https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js";
+            document.head.appendChild(s2);
+            
+            if (typeof window.database === 'undefined') {
+                const s3 = document.createElement('script');
+                s3.src = "firebase-config.js";
+                document.head.appendChild(s3);
+            }
+        }
+
+        let attempts = 0;
+        const timer = setInterval(() => {
+            attempts++;
+            const activeDb = getDB();
+            if (activeDb) {
+                clearInterval(timer);
+                callback(activeDb);
+            } else if (attempts > 25) {
+                clearInterval(timer);
+            }
+        }, 300);
+    }
+
+    // ==========================================
+    // 1. Student Ban Check Guard
+    // ==========================================
     function showBanLockScreen(studentName) {
         if (isBanModalShown) return;
         isBanModalShown = true;
@@ -20,7 +75,7 @@
         overlay.id = 'elkhetaBanOverlay';
         overlay.style.cssText = `
             position: fixed; inset: 0;
-            background: rgba(15, 23, 42, 0.92);
+            background: rgba(15, 23, 42, 0.94);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             z-index: 99999999;
@@ -99,15 +154,13 @@
     }
 
     // ==========================================
-    // Realtime Maintenance Guard with Timer & Issues Report
+    // 2. Realtime Maintenance & Live Timer Guard
     // ==========================================
-    function initMaintenanceGuard() {
+    function initMaintenanceGuard(db) {
         const page = window.location.pathname.split('/').pop();
         if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html') return;
 
-        if (typeof firebase === 'undefined' || !firebase.database) return;
-
-        firebase.database().ref('Settings').on('value', snap => {
+        db.ref('Settings').on('value', snap => {
             if (!snap.exists()) {
                 removeMaintenanceOverlay();
                 return;
@@ -159,7 +212,7 @@
                 max-width: 480px;
                 width: 100%;
                 text-align: center;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.2);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.25);
                 color: #F8FAFC;
                 position: relative; overflow: hidden;
             ">
@@ -281,7 +334,7 @@
 
         if (typeof Swal === 'undefined') {
             const msg = prompt("اكتب تفاصيل المشكلة أو كود الحساب ليصل للادمن مباشرة:");
-            if (msg && typeof firebase !== 'undefined' && firebase.database) {
+            if (msg) {
                 saveEmergencyIssueDirect({ studentCode: defaultCode, studentName: defaultName, phone: defaultPhone, issueType: 'أخرى', message: msg });
             }
             return;
@@ -345,30 +398,40 @@
     };
 
     function saveEmergencyIssueDirect(data) {
-        if (typeof firebase === 'undefined' || !firebase.database) return;
-        const ref = firebase.database().ref('EmergencyIssues').push();
-        ref.set({
-            ...data,
-            timestamp: Date.now(),
-            status: 'pending'
-        }).then(() => {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'تم إرسال البلاغ بنجاح 🎉',
-                    text: 'تم وصول بلاغك إلى لوحة التحكم الرئيسية للأدمن وسيتم التواصل معك وحل المشكلة فوراً.',
-                    icon: 'success',
-                    confirmButtonColor: '#6366F1'
-                });
-            } else {
-                alert('تم إرسال بلاغك بنجاح');
-            }
+        ensureFirebase((db) => {
+            const ref = db.ref('EmergencyIssues').push();
+            ref.set({
+                ...data,
+                timestamp: Date.now(),
+                status: 'pending'
+            }).then(() => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'تم إرسال البلاغ بنجاح 🎉',
+                        text: 'تم وصول بلاغك إلى لوحة التحكم الرئيسية للأدمن وسيتم التواصل معك وحل المشكلة فوراً.',
+                        icon: 'success',
+                        confirmButtonColor: '#6366F1'
+                    });
+                } else {
+                    alert('تم إرسال بلاغك بنجاح');
+                }
+            });
         });
     }
 
-    // فحص حظر الطالب والصيانة فوراً ودورياً
-    window.addEventListener('DOMContentLoaded', () => {
+    // تشغيل الحماية الشاملة فور جاهزية الصفحة وقاعدة البيانات
+    function startGuards() {
         checkStudentBan();
-        initMaintenanceGuard();
-    });
+        ensureFirebase((db) => {
+            initMaintenanceGuard(db);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startGuards);
+    } else {
+        startGuards();
+    }
+
     setInterval(checkStudentBan, 15000);
 })();

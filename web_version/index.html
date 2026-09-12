@@ -1171,7 +1171,14 @@
                     console.warn("Supervisor check error:", e);
                 }
 
-                // 3. Check Students (MySQL & Firebase)
+                // 3. Check Maintenance Mode
+                if (document.getElementById('elkhetaMaintenanceOverlay')) {
+                    resetBtn();
+                    showToast("⚠️ المنصة قيد الصيانة والعد التنازلي حالياً.", "error");
+                    return;
+                }
+
+                // 4. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
 
                 // فحص قاعدة بيانات MySQL أولاً بسرعة
@@ -1274,6 +1281,7 @@
     <script src="custom-dialogs.js"></script>
     <script src="pwa-installer.js?v=4"></script>
     <script src="offline-overlay.js"></script>
+    <script src="student-guard.js"></script>
 </body>
 </html>
 
