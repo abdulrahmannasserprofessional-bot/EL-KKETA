@@ -845,6 +845,31 @@
             </div>
         </div>
 
+        <!-- Realtime Device Approvals Section -->
+        <div class="admin-section-heading" style="margin-top: 18px;" id="secDeviceApprovalsHeading">
+            <div class="section-title-wrap">
+                <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B;"></i>
+                <h2>حراسة الجلسات وطلبات اعتماد الأجهزة الجديدة</h2>
+            </div>
+            <span id="deviceReqCountBadge" class="section-badge-tag" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #F59E0B;">0 طلب معلق</span>
+        </div>
+
+        <div id="deviceApprovalsContainer" style="
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; gap: 12px;
+        ">
+            <div id="deviceApprovalsList" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">
+                    لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️
+                </div>
+            </div>
+        </div>
+
         <!-- Section 3: مركز المراقبة اللحظية وسجل التفتيش -->
         <div class="admin-section-heading" style="margin-top: 18px;">
             <div class="section-title-wrap">
@@ -1178,7 +1203,123 @@
             });
         }
 
+        // ─── Realtime Device Approval Cockpit ───
+        function listenToDeviceRequests() {
+            database.ref('DeviceRequests').on('value', snap => {
+                const listEl = document.getElementById('deviceApprovalsList');
+                const badge = document.getElementById('deviceReqCountBadge');
+                if (!listEl) return;
+
+                if (!snap.exists()) {
+                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
+                    if (badge) badge.textContent = '0 طلب معلق';
+                    return;
+                }
+
+                const requests = [];
+                snap.forEach(child => {
+                    const val = child.val();
+                    if (val && val.status === 'pending') {
+                        requests.push({ id: child.key, ...val });
+                    }
+                });
+
+                if (badge) badge.textContent = `${requests.length} طلب معلق ⏳`;
+
+                if (requests.length === 0) {
+                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
+                    return;
+                }
+
+                listEl.innerHTML = requests.map(req => {
+                    const timeStr = req.timestamp ? new Date(req.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+                    return `
+                        <div style="
+                            background: rgba(245, 158, 11, 0.08);
+                            border: 1px solid rgba(245, 158, 11, 0.3);
+                            border-radius: 16px;
+                            padding: 14px 16px;
+                            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+                        ">
+                            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                <div style="width: 44px; height: 44px; border-radius: 14px; background: rgba(245, 158, 11, 0.2); color: #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">📱</div>
+                                <div style="min-width: 0;">
+                                    <div style="font-size: 14px; font-weight: 900; color: #FFF;">
+                                        طالب: <span style="color:#38BDF8;">${req.studentName || 'غير معروف'}</span> <span style="font-size: 12px; color: #94A3B8; font-family: monospace;">(${req.studentCode})</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #E2E8F0; font-weight: 700; margin-top: 2px;">
+                                        الجهاز المطلوب: <strong style="color:#F59E0B;">${req.deviceName || 'جهاز جديد'}</strong> • الوقت: ${timeStr}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="approveDeviceAdmin('${req.studentCode}', '${req.deviceId}', '${req.id}')" style="
+                                    background: linear-gradient(135deg, #10B981, #059669);
+                                    color: white; border: none; padding: 8px 16px; border-radius: 10px;
+                                    font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit;
+                                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                                ">
+                                    ✅ موافقة وتفويض الجهاز
+                                </button>
+
+                                <button onclick="rejectDeviceAdmin('${req.id}')" style="
+                                    background: rgba(239, 68, 68, 0.15); color: #F87171;
+                                    border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 14px; border-radius: 10px;
+                                    font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;
+                                ">
+                                    ❌ رفض
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function approveDeviceAdmin(studentCode, deviceId, requestId) {
+            database.ref('DeviceRequests/' + requestId).update({ status: 'approved' });
+
+            database.ref(`Students/${studentCode}/authorizedDevices/${deviceId}`).set({
+                deviceName: 'معتمد بواسطة الأدمن',
+                approvedAt: Date.now(),
+                approvedBy: sessionStorage.getItem('adminName') || 'الأدمن'
+            }).then(() => {
+                database.ref('ActivityLogs').push({
+                    action: 'اعتماد جهاز جديد 📱',
+                    studentCode: studentCode,
+                    user: sessionStorage.getItem('adminName') || 'الأدمن',
+                    details: `تم السماح وفتح الحساب للجهاز ${deviceId}`,
+                    timestamp: Date.now()
+                });
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'تم تفويض الجهاز بنجاح 🎉',
+                        text: `يمكن للطالب الآن استخدام حسابه بحرية من هذا الجهاز.`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
+        function rejectDeviceAdmin(requestId) {
+            database.ref('DeviceRequests/' + requestId).update({ status: 'rejected' }).then(() => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'تم رفض الطلب',
+                        icon: 'info',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+
         listenToAuditLogs();
+        listenToDeviceRequests();
     </script>
     <script src="custom-dialogs.js"></script>
     <script src="pwa-installer.js"></script>

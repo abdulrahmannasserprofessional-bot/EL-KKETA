@@ -333,10 +333,7 @@
         const defaultPhone = uObj.phone || '';
 
         if (typeof Swal === 'undefined') {
-            const msg = prompt("اكتب تفاصيل المشكلة أو كود الحساب ليصل للادمن مباشرة:");
-            if (msg) {
-                saveEmergencyIssueDirect({ studentCode: defaultCode, studentName: defaultName, phone: defaultPhone, issueType: 'أخرى', message: msg });
-            }
+            showFallbackEmergencyModal(defaultCode, defaultName, defaultPhone);
             return;
         }
 
@@ -397,6 +394,83 @@
         });
     };
 
+    function showFallbackEmergencyModal(defaultCode, defaultName, defaultPhone) {
+        const existing = document.getElementById('elkhetaFallbackEmgModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'elkhetaFallbackEmgModal';
+        modal.style.cssText = `
+            position: fixed; inset: 0;
+            background: rgba(9, 13, 22, 0.94);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            z-index: 9999999;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl;
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: #111827;
+                border: 1px solid rgba(99, 102, 241, 0.35);
+                border-radius: 26px;
+                padding: 28px 24px;
+                max-width: 440px; width: 100%;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+                color: #F8FAFC;
+            ">
+                <h3 style="font-size: 19px; font-weight: 900; color: #F8FAFC; margin-bottom: 14px; text-align: center;">الإبلاغ عن مشكلة عاجلة 🚨</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">كود الطالب:</label>
+                        <input id="fbCode" value="${defaultCode}" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #38BDF8; font-family: monospace; font-size: 15px; font-weight: 800; padding: 10px; border-radius: 12px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">اسم الطالب الكامل:</label>
+                        <input id="fbName" value="${defaultName}" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">رقم الواتساب للتواصل:</label>
+                        <input id="fbPhone" value="${defaultPhone}" placeholder="01xxxxxxxxx" style="width: 100%; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: 800; color: #94A3B8; display: block; margin-bottom: 4px;">تفاصيل المشكلة:</label>
+                        <textarea id="fbMsg" placeholder="اشرح المشكلة بالتفصيل..." style="width: 100%; height: 75px; background: #1E293B; border: 1px solid #334155; color: #FFF; font-size: 13px; font-weight: 700; padding: 10px; border-radius: 12px; font-family: inherit; box-sizing: border-box;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button id="fbSubmitBtn" style="flex: 1; background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13.5px; cursor: pointer; font-family: inherit;">إرسال البلاغ فوراً 🚀</button>
+                    <button onclick="document.getElementById('elkhetaFallbackEmgModal').remove()" style="background: rgba(255,255,255,0.06); color: #94A3B8; border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit;">إلغاء</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        document.getElementById('fbSubmitBtn').onclick = function() {
+            const code = document.getElementById('fbCode').value.trim();
+            const name = document.getElementById('fbName').value.trim();
+            const phone = document.getElementById('fbPhone').value.trim();
+            const msg = document.getElementById('fbMsg').value.trim();
+
+            if (!msg) {
+                alert('يرجى كتابة تفاصيل المشكلة');
+                return;
+            }
+
+            saveEmergencyIssueDirect({
+                studentCode: code,
+                studentName: name,
+                phone: phone,
+                issueType: 'أخرى',
+                message: msg
+            });
+            modal.remove();
+        };
+    }
+
     function saveEmergencyIssueDirect(data) {
         ensureFirebase((db) => {
             const ref = db.ref('EmergencyIssues').push();
@@ -419,6 +493,196 @@
                     alert('تم إرسال بلاغك بنجاح للأدمن');
                 }
             });
+        });
+    }
+
+    // ==========================================
+    // 3. Multi-Device Security & Approval System
+    // ==========================================
+    function getOrCreateDeviceId() {
+        let devId = localStorage.getItem('elkheta_device_fingerprint');
+        if (!devId) {
+            devId = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+            localStorage.setItem('elkheta_device_fingerprint', devId);
+        }
+        return devId;
+    }
+
+    function getDeviceName() {
+        const ua = navigator.userAgent;
+        let os = 'جهاز غير معروف';
+        if (ua.includes('Win')) os = 'كمبيوتر ويندوز (Windows PC)';
+        else if (ua.includes('Android')) os = 'هاتف أندرويد (Android Phone)';
+        else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'آيفون / آيباد (iOS Device)';
+        else if (ua.includes('Mac')) os = 'جهاز ماك (Mac OS)';
+        else if (ua.includes('Linux')) os = 'نظام لينكس (Linux)';
+        return os;
+    }
+
+    function checkStudentDeviceAuth(db) {
+        const page = window.location.pathname.split('/').pop();
+        if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html' || page === 'index.html' || page === 'register.html') return;
+
+        const storedUser = localStorage.getItem('user');
+        if (!storedUser) return;
+        let uObj = {};
+        try { uObj = JSON.parse(storedUser); } catch(e){}
+        const studentCode = uObj.studentCode || uObj.code || localStorage.getItem('studentCode');
+        const studentName = uObj.fullName || uObj.name || uObj.full_name || 'طالب';
+        if (!studentCode) return;
+
+        const deviceId = getOrCreateDeviceId();
+        const deviceName = getDeviceName();
+
+        const studentRef = db.ref('Students/' + studentCode);
+        studentRef.child('authorizedDevices').on('value', snap => {
+            const devices = snap.val();
+
+            if (!devices) {
+                // First device ever: auto-authorize!
+                studentRef.child('authorizedDevices/' + deviceId).set({
+                    deviceName: deviceName,
+                    addedAt: Date.now(),
+                    userAgent: navigator.userAgent
+                });
+                removeDeviceLockOverlay();
+                return;
+            }
+
+            if (devices[deviceId]) {
+                // Device is authorized!
+                removeDeviceLockOverlay();
+            } else {
+                // Device not authorized! Show lock screen & send approval request to Admin
+                showDeviceLockScreen(db, studentCode, studentName, deviceId, deviceName);
+            }
+        });
+    }
+
+    let isDeviceLockShown = false;
+    let deviceApprovalListener = null;
+
+    function removeDeviceLockOverlay() {
+        const existing = document.getElementById('elkhetaDeviceLockOverlay');
+        if (existing) existing.remove();
+        if (deviceApprovalListener) deviceApprovalListener.off();
+        isDeviceLockShown = false;
+    }
+
+    function showDeviceLockScreen(db, studentCode, studentName, deviceId, deviceName) {
+        if (isDeviceLockShown) return;
+        isDeviceLockShown = true;
+
+        const reqRef = db.ref('DeviceRequests/' + studentCode + '_' + deviceId);
+        reqRef.set({
+            requestId: studentCode + '_' + deviceId,
+            studentCode: studentCode,
+            studentName: studentName,
+            deviceId: deviceId,
+            deviceName: deviceName,
+            userAgent: navigator.userAgent,
+            screenRes: `${window.innerWidth}x${window.innerHeight}`,
+            timestamp: Date.now(),
+            status: 'pending'
+        });
+
+        const overlay = document.createElement('div');
+        overlay.id = 'elkhetaDeviceLockOverlay';
+        overlay.style.cssText = `
+            position: fixed; inset: 0;
+            background: rgba(9, 13, 22, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 9999999;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl;
+        `;
+
+        overlay.innerHTML = `
+            <div style="
+                background: rgba(17, 24, 39, 0.95);
+                border: 1px solid rgba(239, 68, 68, 0.35);
+                border-radius: 28px;
+                padding: 36px 28px;
+                max-width: 480px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(239, 68, 68, 0.2);
+                color: #F8FAFC;
+                position: relative; overflow: hidden;
+            ">
+                <div style="
+                    width: 80px; height: 80px;
+                    background: linear-gradient(135deg, #7F1D1D, #991B1B);
+                    border: 2px solid rgba(239, 68, 68, 0.5);
+                    color: #FCA5A5;
+                    border-radius: 24px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 38px; margin: 0 auto 20px;
+                    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+                ">🔒</div>
+
+                <h2 style="font-size: 22px; font-weight: 900; color: #F8FAFC; margin-bottom: 8px;">محاولة دخول من جهاز جديد غير مصرح به</h2>
+                <p style="font-size: 13.5px; font-weight: 700; color: #94A3B8; margin-bottom: 20px; line-height: 1.6;">
+                    عزيزي الطالب <strong style="color:#FFF;">${studentName}</strong>،<br>
+                    هذا الجهاز (<span style="color:#38BDF8;">${deviceName}</span>) ليس مدرجاً ضمن أجهزتك المعتمدة.<br>
+                    تم إرسال طلب اعتماد لجهازك تلقائياً إلى إدارة المنصة.
+                </p>
+
+                <div style="
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 18px;
+                    padding: 16px;
+                    margin-bottom: 22px;
+                ">
+                    <div style="font-size: 13px; font-weight: 800; color: #F59E0B; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>⏳</span>
+                        <span id="deviceStatusText">الطلب قيد المراجعة لدى الأدمن الآن...</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="https://wa.me/201158210358" target="_blank" style="
+                        background: #10B981; color: white; padding: 13px; border-radius: 14px;
+                        font-weight: 800; font-size: 14px; text-decoration: none; display: block;
+                    ">
+                        💬 تواصل مع الأدمن على واتساب لسرعة الاعتماد
+                    </a>
+                    <button onclick="window.location.href='index.html'" style="
+                        background: rgba(255,255,255,0.06); color: #94A3B8; border: 1px solid rgba(255,255,255,0.1);
+                        padding: 11px; border-radius: 14px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit;
+                    ">
+                        العودة لصفحة الدخول الرئيسية
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        deviceApprovalListener = reqRef.on('value', snap => {
+            if (snap.exists()) {
+                const data = snap.val();
+                const statusEl = document.getElementById('deviceStatusText');
+                if (data.status === 'approved') {
+                    if (statusEl) statusEl.textContent = '🎉 تم اعتماد جهازك من قبل الأدمن! جاري الدخول...';
+                    db.ref(`Students/${studentCode}/authorizedDevices/${deviceId}`).set({
+                        deviceName: deviceName,
+                        addedAt: Date.now(),
+                        userAgent: navigator.userAgent
+                    }).then(() => {
+                        setTimeout(() => {
+                            removeDeviceLockOverlay();
+                        }, 1000);
+                    });
+                } else if (data.status === 'rejected') {
+                    if (statusEl) {
+                        statusEl.textContent = '❌ تم رفض اعتماد هذا الجهاز من قبل الأدمن.';
+                        statusEl.style.color = '#EF4444';
+                    }
+                }
+            }
         });
     }
 
@@ -454,7 +718,7 @@
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         `;
         btn.onmouseover = () => { btn.style.transform = 'translateY(-2px) scale(1.04)'; btn.style.borderColor = '#EF4444'; btn.style.color = '#F8FAFC'; btn.style.background = '#EF4444'; };
-        btn.onmouseout = () => { btn.style.transform = 'translateY(0) scale(1)'; btn.style.borderColor = 'rgba(239, 68, 68, 0.35)'; btn.style.color = '#EF4444'; btn.style.background = 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95))'; };
+        btn.onmouseout = () => { btn.style.transform = 'translateY(0) scale(1)'; btn.style.borderColor = 'rgba(239, 68, 68, 0.35)'; btn.color = '#EF4444'; btn.style.background = 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.95))'; };
 
         document.body.appendChild(btn);
     }
@@ -465,6 +729,7 @@
         initFloatingBugButton();
         ensureFirebase((db) => {
             initMaintenanceGuard(db);
+            checkStudentDeviceAuth(db);
         });
     }
 
