@@ -9,7 +9,6 @@ const examsController = require('../controllers/examsController');
 const settingsController = require('../controllers/settingsController');
 const activityController = require('../controllers/activityController');
 const verifyController = require('../controllers/verifyController');
-const supportController = require('../controllers/supportController');
 
 // 1. مسارات المصادقة والتسجيل (Auth)
 router.post('/auth/admin/login', authController.adminLogin);
@@ -57,10 +56,5 @@ router.post('/settings', settingsController.updateSettings);
 router.get('/supervisors', settingsController.getSupervisors);
 router.post('/supervisors', settingsController.addSupervisor);
 router.delete('/supervisors/:id', settingsController.deleteSupervisor);
-// 7. مسارات تذاكر الدعم الفني (Support Tickets)
-router.post('/support/tickets', supportController.createTicket);
-router.get('/support/tickets', supportController.getTickets);
-router.post('/support/tickets/reply', supportController.replyTicket);
-router.delete('/support/tickets/:id', supportController.deleteTicket);
 
 module.exports = router;

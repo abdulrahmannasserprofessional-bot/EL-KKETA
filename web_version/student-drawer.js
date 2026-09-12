@@ -586,17 +586,6 @@
                 <!-- Section 3: الحساب الشخصي -->
                 <div class="elkheta-menu-section-title" style="margin-top: 10px;">إعدادات الحساب</div>
 
-                <a href="support.html" class="elkheta-nav-card ${isActive('support.html')}">
-                    <div class="elkheta-nav-card-left">
-                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #2563EB, #3B82F6);">💬</div>
-                        <div class="elkheta-nav-card-texts">
-                            <span class="elkheta-nav-title">تذاكر الدعم الفني</span>
-                            <span class="elkheta-nav-subtitle">الاستفسارات ومتابعة ردود السيرفر</span>
-                        </div>
-                    </div>
-                    <span class="elkheta-nav-badge-pill badge-emerald">جديد 💬</span>
-                </a>
-
                 <a href="profile.html" class="elkheta-nav-card ${isActive('profile.html')}">
                     <div class="elkheta-nav-card-left">
                         <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">👤</div>
