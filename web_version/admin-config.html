@@ -610,8 +610,8 @@
                 window.location.href = "admin-gate.html";
             }
         }
-        const savedTheme = localStorage.getItem('admin_theme') || 'dark';
-        if (savedTheme === 'light') {
+        window.savedTheme = localStorage.getItem('admin_theme') || 'dark';
+        if (window.savedTheme === 'light') {
             document.body.classList.add('light-theme');
         }
     </script>
@@ -635,7 +635,7 @@
                     <i class="fa-solid fa-shield-halved"></i>
                     <span>إعدادات المنصة 2027</span>
                 </div>
-                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="تبديل المظهر">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
             </div>
@@ -673,15 +673,15 @@
 
         <!-- Tabs Navigation -->
         <nav class="tabs-nav">
-            <button class="tab-btn active" onclick="switchConfigTab(this, 'supervisors')">
+            <button class="tab-btn active" onclick="window.switchConfigTab(this, 'supervisors')">
                 <i class="fa-solid fa-users-gear"></i>
                 <span>المشرفين والصلاحيات</span>
             </button>
-            <button class="tab-btn" onclick="switchConfigTab(this, 'toggles')">
+            <button class="tab-btn" onclick="window.switchConfigTab(this, 'toggles')">
                 <i class="fa-solid fa-toggle-on"></i>
                 <span>مفاتيح المنصة</span>
             </button>
-            <button class="tab-btn" onclick="switchConfigTab(this, 'maintenance')">
+            <button class="tab-btn" onclick="window.switchConfigTab(this, 'maintenance')">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>الصيانة والعد التنازلي والحلول</span>
             </button>
@@ -692,7 +692,7 @@
             <div class="config-card">
                 <div class="card-header-flex">
                     <h3><i class="fa-solid fa-user-shield"></i> قائمة المشرفين المعتمدين</h3>
-                    <button class="btn-config primary" onclick="addSupervisorModal()">
+                    <button class="btn-config primary" onclick="window.addSupervisorModal()">
                         <i class="fa-solid fa-plus"></i> إضافة مشرف جديد
                     </button>
                 </div>
@@ -717,7 +717,7 @@
                         <p>قفل وصول الطلاب للمنصة وعرض شاشة الصيانة المؤقتة بالتايمر</p>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="toggleMaintenance" onchange="updateSetting('maintenance', this.checked)">
+                        <input type="checkbox" id="toggleMaintenance" onchange="window.updateSetting('maintenance', this.checked)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -727,7 +727,7 @@
                         <p>السماح للطلاب الجدد بإنشاء حسابات أو قفل التسجيل</p>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="toggleRegistration" checked onchange="updateSetting('registration', this.checked)">
+                        <input type="checkbox" id="toggleRegistration" checked onchange="window.updateSetting('registration', this.checked)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -737,7 +737,7 @@
                         <p>تفعيل تبادل المناقشات والأسئلة بين الطلاب</p>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="toggleCommunity" checked onchange="updateSetting('community', this.checked)">
+                        <input type="checkbox" id="toggleCommunity" checked onchange="window.updateSetting('community', this.checked)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -773,10 +773,10 @@
                 </div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn-config primary" onclick="activateMaintenanceWithTimer()">
+                    <button class="btn-config primary" onclick="window.activateMaintenanceWithTimer()">
                         <i class="fa-solid fa-play"></i> تفعيل حظر الصيانة مع التايمر الآن
                     </button>
-                    <button class="btn-config danger" onclick="stopMaintenanceMode()">
+                    <button class="btn-config danger" onclick="window.stopMaintenanceMode()">
                         <i class="fa-solid fa-power-off"></i> إيقاف الصيانة فوراً وفتح المنصة
                     </button>
                 </div>
@@ -786,7 +786,7 @@
             <div class="config-card">
                 <div class="card-header-flex">
                     <h3><i class="fa-solid fa-triangle-exclamation" style="color:#F87171;"></i> مركز بلاغات وأعطال الطلاب الحية (Realtime Issues Database)</h3>
-                    <button class="btn-config" onclick="loadEmergencyIssues()">
+                    <button class="btn-config" onclick="window.loadEmergencyIssues()">
                         <i class="fa-solid fa-rotate-right"></i> تحديث القائمة
                     </button>
                 </div>
@@ -809,7 +809,7 @@
                         <h4>مسح الكاش وتحديث النسخة</h4>
                         <p>إجبار كافة هواتف متصفحات الطلاب على تنظيف الكاش والتحميل الفوري للنسخة الحديثة 2027</p>
                     </div>
-                    <button class="btn-config" onclick="purgeCache()">
+                    <button class="btn-config" onclick="window.purgeCache()">
                         <i class="fa-solid fa-arrows-rotate"></i> مسح الكاش فوراً
                     </button>
                 </div>
@@ -818,7 +818,7 @@
                         <h4>تصدير نسخة احتياطية من البيانات (JSON)</h4>
                         <p>تحميل نسخة احتياطية كاملة وشاملة لكافة جداول البيانات والبلاغات</p>
                     </div>
-                    <button class="btn-config primary" onclick="exportBackup()">
+                    <button class="btn-config primary" onclick="window.exportBackup()">
                         <i class="fa-solid fa-download"></i> تصدير النسخة الاحتياطية
                     </button>
                 </div>
@@ -832,53 +832,74 @@
     <script src="firebase-config.js"></script>
 
     <script>
-        function toggleTheme() {
+        window.toggleTheme = function() {
             const isLight = document.body.classList.toggle('light-theme');
             const next = isLight ? 'light' : 'dark';
             localStorage.setItem('admin_theme', next);
-            updateThemeIcon(next);
-        }
-        function updateThemeIcon(t) {
-            const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = t === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        }
-        updateThemeIcon(savedTheme);
+            window.updateThemeIcon(next);
+        };
 
-        function switchConfigTab(btn, tab) {
+        window.updateThemeIcon = function(t) {
+            const icon = document.getElementById('themeIcon');
+            const mode = t || window.savedTheme || localStorage.getItem('admin_theme') || 'dark';
+            if (icon) icon.className = mode === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        };
+        window.updateThemeIcon(window.savedTheme);
+
+        window.switchConfigTab = function(target, tabName) {
+            let tabId = tabName;
+            let targetBtn = null;
+            if (typeof target === 'string') {
+                tabId = target;
+                targetBtn = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+            } else {
+                targetBtn = target;
+            }
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            document.getElementById('pane-' + tab).classList.add('active');
+            if (targetBtn && targetBtn.classList) targetBtn.classList.add('active');
+            const pane = document.getElementById('pane-' + tabId);
+            if (pane) pane.classList.add('active');
+        };
+
+        function getDB() {
+            return window.database || (typeof firebase !== 'undefined' ? firebase.database() : null);
         }
 
         // Load Realtime Settings
-        database.ref('Settings').on('value', snap => {
-            if (snap.exists()) {
-                const s = snap.val();
-                if (s.maintenance !== undefined) {
-                    document.getElementById('toggleMaintenance').checked = s.maintenance;
-                    const maintBadge = document.getElementById('statMaintBadge');
-                    if (maintBadge) {
-                        maintBadge.textContent = s.maintenance ? 'مفعل (قيد الصيانة)' : 'معطل (يعمل)';
-                        maintBadge.style.color = s.maintenance ? '#F87171' : '#34D399';
+        const db = getDB();
+        if (db) {
+            db.ref('Settings').on('value', snap => {
+                if (snap.exists()) {
+                    const s = snap.val();
+                    if (s.maintenance !== undefined) {
+                        const maintToggle = document.getElementById('toggleMaintenance');
+                        if (maintToggle) maintToggle.checked = s.maintenance;
+                        const maintBadge = document.getElementById('statMaintBadge');
+                        if (maintBadge) {
+                            maintBadge.textContent = s.maintenance ? 'مفعل (قيد الصيانة)' : 'معطل (يعمل)';
+                            maintBadge.style.color = s.maintenance ? '#F87171' : '#34D399';
+                        }
                     }
-                }
-                if (s.registration !== undefined) {
-                    document.getElementById('toggleRegistration').checked = s.registration;
-                }
-                if (s.community !== undefined) {
-                    document.getElementById('toggleCommunity').checked = s.community;
-                }
-                if (s.maintenanceDetails) {
-                    if (s.maintenanceDetails.reason) {
+                    if (s.registration !== undefined) {
+                        const regToggle = document.getElementById('toggleRegistration');
+                        if (regToggle) regToggle.checked = s.registration;
+                    }
+                    if (s.community !== undefined) {
+                        const commToggle = document.getElementById('toggleCommunity');
+                        if (commToggle) commToggle.checked = s.community;
+                    }
+                    if (s.maintenanceDetails && s.maintenanceDetails.reason) {
                         const reasonIn = document.getElementById('maintReasonInput');
                         if (reasonIn && !reasonIn.value) reasonIn.value = s.maintenanceDetails.reason;
                     }
                 }
-            }
-        });
+            });
+        }
 
-        function updateSetting(key, val) {
+        window.updateSetting = function(key, val) {
+            const database = getDB();
+            if (!database) return;
             database.ref('Settings/' + key).set(val).then(() => {
                 Swal.fire({
                     title: 'تم الحفظ!',
@@ -888,11 +909,16 @@
                     showConfirmButton: false
                 });
             });
-        }
+        };
 
-        function activateMaintenanceWithTimer() {
-            const mins = parseInt(document.getElementById('maintTimerMinutes').value) || 30;
-            const reason = document.getElementById('maintReasonInput').value.trim() || 'صيانة دورية للمنصة';
+        window.activateMaintenanceWithTimer = function() {
+            const database = getDB();
+            if (!database) return;
+
+            const minsEl = document.getElementById('maintTimerMinutes');
+            const reasonEl = document.getElementById('maintReasonInput');
+            const mins = minsEl ? parseInt(minsEl.value) || 30 : 30;
+            const reason = reasonEl && reasonEl.value ? reasonEl.value.trim() : 'صيانة دورية للمنصة';
 
             const timerEnd = Date.now() + (mins * 60 * 1000);
 
@@ -914,10 +940,14 @@
                     icon: 'success',
                     confirmButtonColor: '#6366F1'
                 });
+            }).catch(err => {
+                Swal.fire('خطأ في الحفظ', err.message, 'error');
             });
-        }
+        };
 
-        function stopMaintenanceMode() {
+        window.stopMaintenanceMode = function() {
+            const database = getDB();
+            if (!database) return;
             database.ref('Settings').update({
                 maintenance: false,
                 'maintenanceDetails/active': false
@@ -928,18 +958,25 @@
                     icon: 'success',
                     confirmButtonColor: '#10B981'
                 });
+            }).catch(err => {
+                Swal.fire('خطأ في الحفظ', err.message, 'error');
             });
-        }
+        };
 
         // Realtime Emergency Issues Feed
-        function loadEmergencyIssues() {
+        window.loadEmergencyIssues = function() {
+            const database = getDB();
+            if (!database) return;
+
             database.ref('EmergencyIssues').on('value', snap => {
                 const container = document.getElementById('emergencyIssuesList');
+                if (!container) return;
                 container.innerHTML = "";
                 const issues = [];
 
                 if (!snap.exists()) {
-                    document.getElementById('statIssuesCount').textContent = '0';
+                    const stCount = document.getElementById('statIssuesCount');
+                    if (stCount) stCount.textContent = '0';
                     container.innerHTML = `
                         <div style="text-align:center; padding:35px; color:var(--text-muted);">
                             <i class="fa-solid fa-circle-check" style="font-size:36px; color:#34D399; margin-bottom:8px;"></i>
@@ -957,7 +994,8 @@
                 issues.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
                 const pendingCount = issues.filter(i => i.status !== 'resolved').length;
-                document.getElementById('statIssuesCount').textContent = pendingCount;
+                const stCount = document.getElementById('statIssuesCount');
+                if (stCount) stCount.textContent = pendingCount;
 
                 issues.forEach(iss => {
                     const isResolved = iss.status === 'resolved';
@@ -996,11 +1034,11 @@
 
                         <div class="issue-actions">
                             ${!isResolved ? `
-                                <button class="sup-btn-action" style="background:rgba(16, 185, 129, 0.15); color:#34D399; border-color:rgba(16, 185, 129, 0.3);" onclick="markIssueResolved('${escId}')" title="تأكيد حل المشكلة">
+                                <button class="sup-btn-action" style="background:rgba(16, 185, 129, 0.15); color:#34D399; border-color:rgba(16, 185, 129, 0.3);" onclick="window.markIssueResolved('${escId}')" title="تأكيد حل المشكلة">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                             ` : ''}
-                            <button class="sup-btn-action" style="background:rgba(99, 102, 241, 0.15); color:#38BDF8; border-color:rgba(99, 102, 241, 0.3);" onclick="generateEmergencyCodeForIssue('${escCode}', '${escName}')" title="توليد كود طوارئ سريع">
+                            <button class="sup-btn-action" style="background:rgba(99, 102, 241, 0.15); color:#38BDF8; border-color:rgba(99, 102, 241, 0.3);" onclick="window.generateEmergencyCodeForIssue('${escCode}', '${escName}')" title="توليد كود طوارئ سريع">
                                 <i class="fa-solid fa-key"></i>
                             </button>
                             ${iss.phone ? `
@@ -1008,7 +1046,7 @@
                                     <i class="fa-brands fa-whatsapp"></i>
                                 </button>
                             ` : ''}
-                            <button class="sup-btn-action del" onclick="deleteEmergencyIssue('${escId}')" title="حذف البلاغ">
+                            <button class="sup-btn-action del" onclick="window.deleteEmergencyIssue('${escId}')" title="حذف البلاغ">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -1016,10 +1054,12 @@
                     container.appendChild(card);
                 });
             });
-        }
-        loadEmergencyIssues();
+        };
+        window.loadEmergencyIssues();
 
-        function markIssueResolved(issueId) {
+        window.markIssueResolved = function(issueId) {
+            const database = getDB();
+            if (!database) return;
             database.ref('EmergencyIssues/' + issueId).update({ status: 'resolved' }).then(() => {
                 Swal.fire({
                     title: 'تم الإغلاق بنجاح!',
@@ -1029,9 +1069,9 @@
                     showConfirmButton: false
                 });
             });
-        }
+        };
 
-        function generateEmergencyCodeForIssue(studentCode, name) {
+        window.generateEmergencyCodeForIssue = function(studentCode, name) {
             const emgPin = Math.floor(1000 + Math.random() * 9000).toString();
             Swal.fire({
                 title: 'توليد كود طوارئ سريع 🔑',
@@ -1048,114 +1088,122 @@
                 confirmButtonText: 'إغلاق',
                 confirmButtonColor: '#6366F1'
             });
-        }
+        };
 
-        function deleteEmergencyIssue(issueId) {
+        window.deleteEmergencyIssue = function(issueId) {
+            const database = getDB();
+            if (!database) return;
             database.ref('EmergencyIssues/' + issueId).remove();
-        }
+        };
 
         // Load Realtime Supervisors
         let allSupervisors = [];
-        database.ref('Supervisors').on('value', snap => {
-            const container = document.getElementById('supervisorsList');
-            container.innerHTML = "";
-            allSupervisors = [];
+        const dbSup = getDB();
+        if (dbSup) {
+            dbSup.ref('Supervisors').on('value', snap => {
+                const container = document.getElementById('supervisorsList');
+                if (!container) return;
+                container.innerHTML = "";
+                allSupervisors = [];
 
-            if (!snap.exists()) {
-                document.getElementById('statSupCount').textContent = '0';
-                container.innerHTML = `
-                    <div style="text-align:center; padding:40px; color:var(--text-muted);">
-                        <i class="fa-solid fa-user-shield" style="font-size:42px; color:var(--primary); opacity:0.5; margin-bottom:12px;"></i>
-                        <p style="font-weight:700; font-size:15px;">لا يوجد مشرفون إضافيون مسجلون حالياً</p>
-                        <p style="font-size:12px; opacity:0.8; margin-top:4px;">(الأدمن الرئيسي فقط يعمل بالنظام)</p>
-                    </div>
-                `;
-                return;
-            }
-
-            snap.forEach(child => {
-                const sup = child.val();
-                if (sup) {
-                    allSupervisors.push({ id: child.key, ...sup });
+                if (!snap.exists()) {
+                    const stSup = document.getElementById('statSupCount');
+                    if (stSup) stSup.textContent = '0';
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                            <i class="fa-solid fa-user-shield" style="font-size:42px; color:var(--primary); opacity:0.5; margin-bottom:12px;"></i>
+                            <p style="font-weight:700; font-size:15px;">لا يوجد مشرفون إضافيون مسجلون حالياً</p>
+                            <p style="font-size:12px; opacity:0.8; margin-top:4px;">(الأدمن الرئيسي فقط يعمل بالنظام)</p>
+                        </div>
+                    `;
+                    return;
                 }
-            });
 
-            document.getElementById('statSupCount').textContent = allSupervisors.length;
+                snap.forEach(child => {
+                    const sup = child.val();
+                    if (sup) {
+                        allSupervisors.push({ id: child.key, ...sup });
+                    }
+                });
 
-            allSupervisors.forEach(sup => {
-                const isActive = sup.isActive !== false;
-                const pinVal = sup.pin || sup.id || '—';
-                const roleTitle = sup.roleTitle || sup.role || 'مشرف المنصة';
-                const name = sup.name || 'مشرف معتمد';
+                const stSup = document.getElementById('statSupCount');
+                if (stSup) stSup.textContent = allSupervisors.length;
 
-                const perms = sup.permissions || {};
-                const permLabels = [];
-                if (perms.students) permLabels.push('الطلاب');
-                if (perms.lessons) permLabels.push('الدروس والامتحانات');
-                if (perms.courses) permLabels.push('المواد');
-                if (perms.codes) permLabels.push('الأكواد');
-                if (perms.notifications) permLabels.push('الإشعارات');
-                if (perms.reports) permLabels.push('التقارير');
-                if (perms.mistakes) permLabels.push('بنك الأخطاء');
-                if (perms.otps) permLabels.push('أكواد الطوارئ');
+                allSupervisors.forEach(sup => {
+                    const isActive = sup.isActive !== false;
+                    const pinVal = sup.pin || sup.id || '—';
+                    const roleTitle = sup.roleTitle || sup.role || 'مشرف المنصة';
+                    const name = sup.name || 'مشرف معتمد';
 
-                const permTagsHtml = permLabels.length > 0 
-                    ? permLabels.map(l => `<span class="perm-tag">${l}</span>`).join('') 
-                    : `<span class="perm-tag" style="opacity:0.6;">صلاحيات محدودة</span>`;
+                    const perms = sup.permissions || {};
+                    const permLabels = [];
+                    if (perms.students) permLabels.push('الطلاب');
+                    if (perms.lessons) permLabels.push('الدروس والامتحانات');
+                    if (perms.courses) permLabels.push('المواد');
+                    if (perms.codes) permLabels.push('الأكواد');
+                    if (perms.notifications) permLabels.push('الإشعارات');
+                    if (perms.reports) permLabels.push('التقارير');
+                    if (perms.mistakes) permLabels.push('بنك الأخطاء');
+                    if (perms.otps) permLabels.push('أكواد الطوارئ');
 
-                const initial = name.trim().charAt(0) || '🛡️';
-                const escId = sup.id.replace(/'/g, "\\'");
-                const escName = name.replace(/'/g, "\\'");
-                const escPin = pinVal.replace(/'/g, "\\'");
-                const escRole = roleTitle.replace(/'/g, "\\'");
+                    const permTagsHtml = permLabels.length > 0 
+                        ? permLabels.map(l => `<span class="perm-tag">${l}</span>`).join('') 
+                        : `<span class="perm-tag" style="opacity:0.6;">صلاحيات محدودة</span>`;
 
-                const card = document.createElement('div');
-                card.className = "supervisor-card-item";
-                card.innerHTML = `
-                    <div class="sup-left-info">
-                        <div class="sup-avatar">${initial}</div>
-                        <div class="sup-details">
-                            <h4>
-                                <span>${name}</span>
-                                <span class="sup-status-badge ${isActive ? 'active' : 'inactive'}">
-                                    ${isActive ? '● نشط' : '● معطل'}
-                                </span>
-                            </h4>
-                            <div class="sup-meta">
-                                <span>المسمى: <b style="color:var(--text-main);">${roleTitle}</b></span>
-                                <span>• كود الدخول:</span>
-                                <span class="pin-pill" onclick="copySupervisorPin('${escPin}')" title="انقر لنسخ الرمز السري">${pinVal} <i class="fa-regular fa-copy" style="font-size:11px;"></i></span>
-                            </div>
-                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
-                                ${permTagsHtml}
+                    const initial = name.trim().charAt(0) || '🛡️';
+                    const escId = sup.id.replace(/'/g, "\\'");
+                    const escName = name.replace(/'/g, "\\'");
+                    const escPin = pinVal.replace(/'/g, "\\'");
+                    const escRole = roleTitle.replace(/'/g, "\\'");
+
+                    const card = document.createElement('div');
+                    card.className = "supervisor-card-item";
+                    card.innerHTML = `
+                        <div class="sup-left-info">
+                            <div class="sup-avatar">${initial}</div>
+                            <div class="sup-details">
+                                <h4>
+                                    <span>${name}</span>
+                                    <span class="sup-status-badge ${isActive ? 'active' : 'inactive'}">
+                                        ${isActive ? '● نشط' : '● معطل'}
+                                    </span>
+                                </h4>
+                                <div class="sup-meta">
+                                    <span>المسمى: <b style="color:var(--text-main);">${roleTitle}</b></span>
+                                    <span>• كود الدخول:</span>
+                                    <span class="pin-pill" onclick="window.copySupervisorPin('${escPin}')" title="انقر لنسخ الرمز السري">${pinVal} <i class="fa-regular fa-copy" style="font-size:11px;"></i></span>
+                                </div>
+                                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                                    ${permTagsHtml}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="sup-actions">
-                        <button class="sup-btn-action wa" onclick="sendSupervisorWA('${escName}', '${escPin}', '${escRole}')" title="إرسال بيانات الدخول عبر واتساب">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </button>
-                        <button class="sup-btn-action edit" onclick="editSupervisorModal('${escId}')" title="تعديل الصلاحيات والبيانات">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button class="sup-btn-action" style="${isActive ? 'color:#F59E0B;' : 'color:#34D399;'}" onclick="toggleSupervisorActive('${escId}', ${isActive})" title="${isActive ? 'تعطيل الحساب' : 'تنشيط الحساب'}">
-                            <i class="fa-solid ${isActive ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
-                        </button>
-                        <button class="sup-btn-action del" onclick="deleteSupervisor('${escId}', '${escName}')" title="حذف المشرف نهائياً">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
+                        <div class="sup-actions">
+                            <button class="sup-btn-action wa" onclick="window.sendSupervisorWA('${escName}', '${escPin}', '${escRole}')" title="إرسال بيانات الدخول عبر واتساب">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                            <button class="sup-btn-action edit" onclick="window.editSupervisorModal('${escId}')" title="تعديل الصلاحيات والبيانات">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="sup-btn-action" style="${isActive ? 'color:#F59E0B;' : 'color:#34D399;'}" onclick="window.toggleSupervisorActive('${escId}', ${isActive})" title="${isActive ? 'تعطيل الحساب' : 'تنشيط الحساب'}">
+                                <i class="fa-solid ${isActive ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                            </button>
+                            <button class="sup-btn-action del" onclick="window.deleteSupervisor('${escId}', '${escName}')" title="حذف المشرف نهائياً">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
             });
-        });
-
-        function generateRandomSupervisorPin() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
-        function copySupervisorPin(pin) {
+        window.generateRandomSupervisorPin = function() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        };
+
+        window.copySupervisorPin = function(pin) {
             navigator.clipboard.writeText(pin).then(() => {
                 Swal.fire({
                     title: 'تم النسخ!',
@@ -1165,15 +1213,15 @@
                     showConfirmButton: false
                 });
             });
-        }
+        };
 
-        function sendSupervisorWA(name, pin, role) {
+        window.sendSupervisorWA = function(name, pin, role) {
             const msg = encodeURIComponent(`أهلاً بك يا أستاذ ${name} 🛡️\nتم اعتمادك كـ (${role}) في منصة الخطة التعليمية 2027 🎓\nرمز الدخول السري الخاص بك: ${pin}\nرابط الدخول: https://elkheta2026.web.app/admin-gate.html`);
             window.open(`https://wa.me/?text=${msg}`, '_blank');
-        }
+        };
 
-        function addSupervisorModal() {
-            const autoPin = generateRandomSupervisorPin();
+        window.addSupervisorModal = function() {
+            const autoPin = window.generateRandomSupervisorPin();
             Swal.fire({
                 title: 'إضافة مشرف جديد 🛡️',
                 html: `
@@ -1195,7 +1243,7 @@
                         <div style="margin-bottom:14px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                 <label style="font-weight:800; color:#F8FAFC;">رمز المرور السري (PIN):</label>
-                                <button type="button" onclick="document.getElementById('swalSupPin').value = generateRandomSupervisorPin()" style="background:rgba(99, 102, 241, 0.2); border:1px solid rgba(99, 102, 241, 0.4); color:#38BDF8; border-radius:8px; padding:3px 10px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز تلقائي</button>
+                                <button type="button" onclick="document.getElementById('swalSupPin').value = window.generateRandomSupervisorPin()" style="background:rgba(99, 102, 241, 0.2); border:1px solid rgba(99, 102, 241, 0.4); color:#38BDF8; border-radius:8px; padding:3px 10px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز تلقائي</button>
                             </div>
                             <input id="swalSupPin" class="swal2-input" value="${autoPin}" placeholder="4 أرقام" maxlength="6" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:18px; letter-spacing:3px; text-align:center; color:#38BDF8;">
                         </div>
@@ -1249,6 +1297,8 @@
                 }
             }).then(async (result) => {
                 if (result.isConfirmed && result.value) {
+                    const database = getDB();
+                    if (!database) return;
                     const { name, roleTitle, pin, permissions } = result.value;
                     const supId = database.ref('Supervisors').push().key;
 
@@ -1271,8 +1321,8 @@
                                     <div style="font-size:26px; font-weight:900; font-family:monospace; color:#6EE7B7; letter-spacing:4px;">${pin}</div>
                                 </div>
                                 <div style="display:flex; gap:10px; justify-content:center;">
-                                    <button onclick="copySupervisorPin('${pin}')" class="btn-config primary"><i class="fa-regular fa-copy"></i> نسخ الرمز</button>
-                                    <button onclick="sendSupervisorWA('${name.replace(/'/g, "\\'")}', '${pin}', '${roleTitle.replace(/'/g, "\\'")}')" class="btn-config" style="background:#22C55E; color:#FFFFFF; border:none;"><i class="fa-brands fa-whatsapp"></i> إرسال بالواتساب</button>
+                                    <button onclick="window.copySupervisorPin('${pin}')" class="btn-config primary"><i class="fa-regular fa-copy"></i> نسخ الرمز</button>
+                                    <button onclick="window.sendSupervisorWA('${name.replace(/'/g, "\\'")}', '${pin}', '${roleTitle.replace(/'/g, "\\'")}')" class="btn-config" style="background:#22C55E; color:#FFFFFF; border:none;"><i class="fa-brands fa-whatsapp"></i> إرسال بالواتساب</button>
                                 </div>
                             </div>
                         `,
@@ -1282,9 +1332,9 @@
                     });
                 }
             });
-        }
+        };
 
-        function editSupervisorModal(supId) {
+        window.editSupervisorModal = function(supId) {
             const sup = allSupervisors.find(s => s.id === supId);
             if (!sup) return;
 
@@ -1305,7 +1355,7 @@
                         <div style="margin-bottom:14px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                 <label style="font-weight:800; color:#F8FAFC;">رمز المرور السري (PIN):</label>
-                                <button type="button" onclick="document.getElementById('swalEditSupPin').value = generateRandomSupervisorPin()" style="background:rgba(99, 102, 241, 0.2); border:1px solid rgba(99, 102, 241, 0.4); color:#38BDF8; border-radius:8px; padding:3px 10px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز جديد</button>
+                                <button type="button" onclick="document.getElementById('swalEditSupPin').value = window.generateRandomSupervisorPin()" style="background:rgba(99, 102, 241, 0.2); border:1px solid rgba(99, 102, 241, 0.4); color:#38BDF8; border-radius:8px; padding:3px 10px; font-size:11px; font-weight:800; cursor:pointer; font-family:inherit;">⚡ توليد رمز جديد</button>
                             </div>
                             <input id="swalEditSupPin" class="swal2-input" value="${sup.pin || ''}" style="width:100%; margin:0; font-family:monospace; font-weight:800; font-size:18px; letter-spacing:3px; text-align:center; color:#38BDF8;">
                         </div>
@@ -1359,13 +1409,17 @@
                 }
             }).then(async (result) => {
                 if (result.isConfirmed && result.value) {
+                    const database = getDB();
+                    if (!database) return;
                     await database.ref('Supervisors/' + supId).update(result.value);
                     Swal.fire('تم التحديث!', 'تم تحديث بيانات وصلاحيات المشرف بنجاح.', 'success');
                 }
             });
-        }
+        };
 
-        async function toggleSupervisorActive(supId, currentActive) {
+        window.toggleSupervisorActive = async function(supId, currentActive) {
+            const database = getDB();
+            if (!database) return;
             const newState = !currentActive;
             await database.ref('Supervisors/' + supId).update({ isActive: newState });
             Swal.fire({
@@ -1375,9 +1429,9 @@
                 timer: 1500,
                 showConfirmButton: false
             });
-        }
+        };
 
-        function deleteSupervisor(supId, name) {
+        window.deleteSupervisor = function(supId, name) {
             Swal.fire({
                 title: `حذف المشرف (${name || ''})؟`,
                 text: 'لن يتمكن هذا المشرف من الدخول إلى لوحة التحكم مجدداً.',
@@ -1389,13 +1443,15 @@
                 cancelButtonText: 'إلغاء'
             }).then(async (r) => {
                 if (r.isConfirmed) {
+                    const database = getDB();
+                    if (!database) return;
                     await database.ref('Supervisors/' + supId).remove();
                     Swal.fire('تم الحذف!', 'تم حذف المشرف من النظام.', 'success');
                 }
             });
-        }
+        };
 
-        function purgeCache() {
+        window.purgeCache = function() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
                     for (let registration of registrations) registration.unregister();
@@ -1403,9 +1459,11 @@
             }
             localStorage.setItem('cache_ver', Date.now());
             Swal.fire('تم بنجاح!', 'تم إرسال إشارة إعادة تنشيط وتحديث لكافة الأجهزة.', 'success');
-        }
+        };
 
-        function exportBackup() {
+        window.exportBackup = function() {
+            const database = getDB();
+            if (!database) return;
             database.ref('/').once('value').then(snap => {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snap.val(), null, 2));
                 const dl = document.createElement('a');
@@ -1413,7 +1471,7 @@
                 dl.setAttribute("download", "elkheta_backup_2027_" + Date.now() + ".json");
                 dl.click();
             });
-        }
+        };
     </script>
 </body>
 </html>

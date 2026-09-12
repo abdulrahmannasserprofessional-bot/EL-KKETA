@@ -6,11 +6,12 @@ const firebaseConfig = {
     projectId: "elkhotta",
     storageBucket: "elkhotta.firebasestorage.app",
     messagingSenderId: "458941220534",
-    appId: "1:458941220534:web:6e18f2f2118335f608817" // تم استخراجه من بيانات المشروع
+    appId: "1:458941220534:web:6e18f2f2118335f608817"
 };
 
 // تهيئة Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const database = firebase.database();
+window.database = firebase.database();
+var database = window.database;
