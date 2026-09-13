@@ -160,8 +160,20 @@
         const page = window.location.pathname.split('/').pop();
         if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html') return;
 
+        // Admin bypass for inspection and development
+        const isAdmin = sessionStorage.getItem('adminRole') || localStorage.getItem('isAdmin');
+        if (isAdmin) {
+            removeMaintenanceOverlay();
+            return;
+        }
+
         db.ref('Settings').on('value', snap => {
             if (!snap.exists()) {
+                removeMaintenanceOverlay();
+                return;
+            }
+            // Re-check admin session on value change
+            if (sessionStorage.getItem('adminRole') || localStorage.getItem('isAdmin')) {
                 removeMaintenanceOverlay();
                 return;
             }
