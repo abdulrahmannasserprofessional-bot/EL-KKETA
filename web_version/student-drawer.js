@@ -496,8 +496,11 @@
                 <button type="button" class="elkheta-quick-btn" onclick="window.showPwaInstallModal && window.showPwaInstallModal()">
                     📲 التطبيق
                 </button>
-                <a href="ai-report.html" class="elkheta-quick-btn">
-                    🧠 تقريري
+                <button type="button" class="elkheta-quick-btn" onclick="if(window.playElkhetaIntroMotion) window.playElkhetaIntroMotion(true);" title="تشغيل موشن تجميع المنصة">
+                    🎬 تجميع المنصة
+                </button>
+                <a href="notifications.html" class="elkheta-quick-btn" title="مركز التنبيهات">
+                    🔔 رسائلي
                 </a>
             </div>
 
@@ -514,6 +517,17 @@
                             <span class="elkheta-nav-subtitle">نظرة عامة والدروس الحالية</span>
                         </div>
                     </div>
+                </a>
+
+                <a href="notifications.html" class="elkheta-nav-card ${isActive('notifications.html')}">
+                    <div class="elkheta-nav-card-left">
+                        <div class="elkheta-nav-icon-box" style="background: linear-gradient(135deg, #0284C7, #2563EB);">📬</div>
+                        <div class="elkheta-nav-card-texts">
+                            <span class="elkheta-nav-title">مركز الرسائل والإشعارات</span>
+                            <span class="elkheta-nav-subtitle">التنبيهات الإدارية والإعلانات 📢</span>
+                        </div>
+                    </div>
+                    <span class="elkheta-nav-badge-pill badge-blue">جديد 🔔</span>
                 </a>
 
                 <a href="courses.html" class="elkheta-nav-card ${isActive('courses.html')}">

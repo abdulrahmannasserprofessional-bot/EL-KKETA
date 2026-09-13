@@ -281,19 +281,179 @@
         }
     };
 
+    // ─── 6. Cinematic Assembly Opening Motion (موشن افتتاح وتجميع المنصة 🧩) ───
+    window.playElkhetaIntroMotion = function(force = false) {
+        if (!force && sessionStorage.getItem('elkheta_intro_seen') === 'true') return;
+        
+        let overlay = document.getElementById('elkhetaIntroOverlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'elkheta-intro-overlay';
+            overlay.id = 'elkhetaIntroOverlay';
+            overlay.innerHTML = `
+                <div class="intro-cyber-grid"></div>
+                <button type="button" class="intro-skip-btn" onclick="window.dismissElkhetaIntro()">تخطي العرض ✕</button>
+                <div class="intro-stage-container">
+                    <div class="intro-shockwave"></div>
+                    <div class="intro-module-block intro-mod-1"><span style="font-size:18px;">📚</span> المحتوى والدروس</div>
+                    <div class="intro-module-block intro-mod-2"><span style="font-size:18px;">📝</span> بنوك الأسئلة والامتحانات</div>
+                    <div class="intro-module-block intro-mod-3"><span style="font-size:18px;">🎧</span> الشرح الصوتي المطور</div>
+                    <div class="intro-module-block intro-mod-4"><span style="font-size:18px;">📊</span> التقارير والذكاء الاصطناعي</div>
+                    <div class="intro-module-block intro-mod-5"><span style="font-size:18px;">🏆</span> لوحة الشرف والأوائل</div>
+                    
+                    <div class="intro-assembled-core">
+                        <div class="intro-logo-badge">🎓</div>
+                        <div class="intro-brand-title">منصة الخطة</div>
+                        <div class="intro-brand-sub">EL KHETA PRO 2027 • المنظومة المتكاملة</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        overlay.classList.remove('dismissed');
+        sessionStorage.setItem('elkheta_intro_seen', 'true');
+
+        // Auto dismiss after 3.6s
+        clearTimeout(overlay._dismissTimer);
+        overlay._dismissTimer = setTimeout(() => {
+            window.dismissElkhetaIntro();
+        }, 3600);
+    };
+
+    window.dismissElkhetaIntro = function() {
+        const overlay = document.getElementById('elkhetaIntroOverlay');
+        if (overlay) {
+            overlay.classList.add('dismissed');
+            setTimeout(() => {
+                if (overlay.parentElement) overlay.remove();
+            }, 650);
+        }
+    };
+
+    // ─── 7. Luxury Elkheta Pro Loader ⏳ (موشن التحميل الاحترافي) ───
+    let _loaderEl = null;
+    let _loaderCycleInterval = null;
+
+    window.showElkhetaLoader = function(msg = 'جاري تجهيز بياناتك الأكاديمية...') {
+        if (!_loaderEl) {
+            _loaderEl = document.createElement('div');
+            _loaderEl.className = 'elkheta-pro-loader-wrap';
+            _loaderEl.id = 'elkhetaGlobalLoader';
+            _loaderEl.innerHTML = `
+                <div class="pro-loader-card">
+                    <div class="pro-loader-icon-flipper" id="proLoaderFlipperIcon">📚</div>
+                    <div class="pro-loader-brand">منصة الخطة • EL KHETA</div>
+                    <div class="pro-loader-msg" id="proLoaderMsg">${msg}</div>
+                    <div class="pro-loader-track">
+                        <div class="pro-loader-fill"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(_loaderEl);
+        }
+
+        const msgEl = _loaderEl.querySelector('#proLoaderMsg');
+        if (msgEl) msgEl.textContent = msg;
+
+        _loaderEl.classList.add('active');
+
+        // Cycle through icons: 📚 → 📝 → 🎯 → 🏆
+        const icons = ['📚', '📝', '🎯', '🏆'];
+        let idx = 0;
+        const iconEl = _loaderEl.querySelector('#proLoaderFlipperIcon');
+        clearInterval(_loaderCycleInterval);
+        _loaderCycleInterval = setInterval(() => {
+            idx = (idx + 1) % icons.length;
+            if (iconEl) iconEl.textContent = icons[idx];
+        }, 750);
+    };
+
+    window.hideElkhetaLoader = function() {
+        clearInterval(_loaderCycleInterval);
+        if (_loaderEl) {
+            _loaderEl.classList.remove('active');
+        }
+    };
+
+    // ─── 8. Student Achievement Popup 🏆 (موشن إنجاز الطالب والدرجات) ───
+    window.showStudentAchievementMotion = function(targetScore = 90, title = 'أحسنت! إنجاز أكاديمي رائع 🎉', subtitle = 'واصل التألق وتصدر قائمة أوائل دفعة 2027!') {
+        let wrap = document.getElementById('elkhetaAchievementModal');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'elkheta-achievement-wrap';
+            wrap.id = 'elkhetaAchievementModal';
+            wrap.innerHTML = `
+                <div class="achievement-dialog-card">
+                    <div class="achievement-trophy-badge">🏆</div>
+                    <div class="achievement-score-num" id="achievementScoreNum">0%</div>
+                    <div class="achievement-title" id="achievementTitle">${title}</div>
+                    <div class="achievement-subtitle" id="achievementSubtitle">${subtitle}</div>
+                    <button type="button" class="achievement-claim-btn" onclick="window.hideStudentAchievementMotion()">
+                        ✨ استمرار ومواصلة التعلم
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(wrap);
+        }
+
+        const numEl = wrap.querySelector('#achievementScoreNum');
+        const titleEl = wrap.querySelector('#achievementTitle');
+        const subEl = wrap.querySelector('#achievementSubtitle');
+        if (titleEl) titleEl.textContent = title;
+        if (subEl) subEl.textContent = subtitle;
+
+        wrap.classList.add('active');
+
+        // Ascent animation: 0 -> 25 -> 50 -> 75 -> target
+        animateCounter(numEl, targetScore, 1400, '%');
+        window.launchMotionCelebration(3200);
+    };
+
+    window.hideStudentAchievementMotion = function() {
+        const wrap = document.getElementById('elkhetaAchievementModal');
+        if (wrap) wrap.classList.remove('active');
+    };
+
+    // ─── 9. Mistake Correction Micro-Interaction 🧠 (موشن تصحيح الأخطاء) ───
+    window.showMistakeCorrectionMotion = function(elementOrId) {
+        const el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+        if (!el) return;
+
+        el.classList.remove('state-correct', 'state-wrong');
+        el.classList.add('mistake-flip-node', 'state-flipping');
+        el.innerHTML = '🔄 جاري التحقق...';
+
+        setTimeout(() => {
+            el.classList.remove('state-flipping');
+            el.classList.add('state-correct');
+            el.innerHTML = '✅ تم تصحيح الخطأ وتثبيت المفهوم!';
+        }, 650);
+    };
+
     // ─── Initialize All On DOM Ready ───
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            initNumberCounters();
-            initCardTilt();
-            initRippleClicks();
-            initSiteAssembly();
-        });
-    } else {
+    function initAllMotionSystems() {
         initNumberCounters();
         initCardTilt();
         initRippleClicks();
         initSiteAssembly();
+
+        // Auto launch intro only on home.html on first entry of the session
+        const path = window.location.pathname.toLowerCase();
+        if ((path.endsWith('home.html') || path.endsWith('/') || path.endsWith('index.html')) && !sessionStorage.getItem('elkheta_intro_seen')) {
+            // Slight delay for smooth visual paint
+            setTimeout(() => {
+                if (window.playElkhetaIntroMotion) {
+                    window.playElkhetaIntroMotion();
+                }
+            }, 300);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllMotionSystems);
+    } else {
+        initAllMotionSystems();
     }
 
 })();
