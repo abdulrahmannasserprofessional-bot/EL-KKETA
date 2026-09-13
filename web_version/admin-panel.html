@@ -58,13 +58,15 @@
             font-family: 'Cairo', sans-serif;
         }
 
-        html, body {
-            overflow-x: hidden !important;
-            width: 100%; max-width: 100vw;
+        body {
             background-color: var(--bg-canvas);
             color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
             direction: rtl;
-            transition: background-color 0.25s, color 0.25s;
+            text-align: right;
+            transition: background-color 0.3s ease;
         }
 
         /* Subtle Ambient Glow */
@@ -127,7 +129,6 @@
         .executive-sidebar.collapsed .sidebar-badge-pill,
         .executive-sidebar.collapsed .sidebar-nav-heading,
         .executive-sidebar.collapsed .sidebar-user-details,
-        .executive-sidebar.collapsed .sidebar-uptime-row,
         .executive-sidebar.collapsed .sidebar-logout-text {
             display: none !important;
         }
@@ -176,7 +177,7 @@
             background: var(--primary-gradient);
             display: flex; align-items: center; justify-content: center;
             color: white; font-size: 19px;
-            box-shadow: 0 4px 18px var(--primary-glow);
+            box-shadow: 0 4px 20px var(--primary-glow);
             flex-shrink: 0;
         }
 
@@ -186,65 +187,62 @@
             min-width: 0;
         }
 
-        .sidebar-brand-title-main {
-            font-size: 15.5px;
+        .sidebar-brand-main {
+            font-size: 15px;
             font-weight: 900;
             color: var(--text-main);
-            letter-spacing: -0.3px;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .sidebar-brand-sub {
             font-size: 11px;
             font-weight: 700;
-            color: var(--accent-cyan);
+            color: var(--text-muted);
             white-space: nowrap;
         }
 
-        /* macOS Window Control / Collapse Button */
         .sidebar-collapse-trigger {
-            width: 32px; height: 32px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 28px; height: 28px;
+            border-radius: 8px;
             border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.04);
             color: var(--text-muted);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            font-size: 12px;
             transition: all 0.2s;
-            flex-shrink: 0;
+            font-size: 11px;
         }
         .sidebar-collapse-trigger:hover {
-            background: rgba(99, 102, 241, 0.15);
-            color: #FFFFFF;
-            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
         }
 
         .sidebar-close-mobile-btn {
             display: none;
-            width: 32px; height: 32px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
+            background: transparent;
+            border: none;
             color: var(--text-muted);
-            align-items: center; justify-content: center;
+            font-size: 18px;
             cursor: pointer;
-            font-size: 14px;
+            padding: 4px;
         }
 
-        /* Nav List */
+        /* Sidebar Navigation Items */
         .sidebar-nav-container {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 5px;
+            flex: 1;
             overflow-y: auto;
-            max-height: calc(100vh - 270px);
-            padding-left: 2px;
+            overflow-x: hidden;
+            padding-right: 2px;
         }
 
         .sidebar-nav-heading {
             font-size: 10.5px;
-            font-weight: 800;
+            font-weight: 900;
             color: var(--text-dim);
             text-transform: uppercase;
             padding: 8px 10px 4px 10px;
@@ -272,13 +270,6 @@
         .sidebar-nav-btn:hover {
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
-        }
-
-        .sidebar-nav-btn.active {
-            background: rgba(99, 102, 241, 0.14);
-            color: #FFFFFF !important;
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
         }
 
         .sidebar-btn-content {
@@ -358,16 +349,6 @@
             text-overflow: ellipsis;
         }
 
-        .sidebar-uptime-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 4px;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
         .sidebar-logout-btn {
             background: rgba(239, 68, 68, 0.08);
             color: #F87171;
@@ -399,203 +380,156 @@
             z-index: 9999;
             transition: opacity 0.3s ease;
         }
-        .sidebar-backdrop.active { display: block; }
+        .sidebar-backdrop.active {
+            display: block;
+        }
 
-        /* ─── Executive Main Viewport ─── */
+        /* ─── Main Workspace Area ─── */
         .executive-main {
             flex: 1;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            padding: 18px 26px;
-            gap: 18px;
-            max-width: 1560px;
-            margin: 0 auto;
-            width: 100%;
-            transition: padding 0.25s;
+            padding: 20px 28px;
+            gap: 22px;
         }
 
         /* Topbar Header */
         .workspace-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
             background: var(--header-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 10px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
             position: sticky;
-            top: 10px;
-            z-index: 100;
+            top: 14px;
+            z-index: 90;
         }
 
         .topbar-right-area {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .btn-hamburger-mobile {
             display: none;
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--card-border);
+            background: transparent;
+            border: none;
             color: var(--text-main);
-            font-size: 15px;
+            font-size: 20px;
             cursor: pointer;
-            align-items: center; justify-content: center;
         }
 
         .topbar-breadcrumbs {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12.5px;
+            font-size: 13.5px;
             font-weight: 800;
-            color: var(--text-dim);
+            color: var(--text-muted);
         }
 
-        .breadcrumb-active {
+        .topbar-breadcrumbs .breadcrumb-active {
             color: var(--text-main);
             font-weight: 900;
-        }
-
-        .topbar-search-box {
-            flex: 1;
-            max-width: 380px;
-            position: relative;
-        }
-        .topbar-search-input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 8px 36px 8px 12px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .topbar-search-input:focus {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--primary);
-            box-shadow: 0 0 14px var(--primary-glow);
-        }
-        .topbar-search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-dim);
-            font-size: 12px;
-            pointer-events: none;
         }
 
         .topbar-actions-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .status-live-pill {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16, 185, 129, 0.12);
+            background: rgba(16, 185, 129, 0.1);
             color: #34D399;
             border: 1px solid rgba(16, 185, 129, 0.25);
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
-            white-space: nowrap;
         }
 
         .status-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%; background: #10B981;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #10B981;
             box-shadow: 0 0 8px #10B981;
-            animation: liveBlink 1.8s infinite ease-in-out;
+            animation: pulseDot 2s infinite;
         }
-        @keyframes liveBlink {
+        @keyframes pulseDot {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.85); }
         }
 
         .btn-top-action {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.04);
+            width: 38px; height: 38px;
+            border-radius: 11px;
             border: 1px solid var(--card-border);
-            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
             display: flex; align-items: center; justify-content: center;
-            font-size: 13.5px;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
+            font-size: 15px;
         }
         .btn-top-action:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.09);
+            color: var(--text-main);
             border-color: var(--primary);
-            color: #FFFFFF;
-            transform: translateY(-1px);
         }
 
         /* ─── President Executive Hero Banner ─── */
         .president-hero-card {
-            background: linear-gradient(135deg, rgba(20, 27, 45, 0.9) 0%, rgba(13, 18, 32, 0.95) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 20px;
-            padding: 18px 22px;
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.45) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 18px;
+            padding: 20px 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-        .president-hero-card::before {
-            content: '';
-            position: absolute;
-            right: 0; top: 0; bottom: 0;
-            width: 4px;
-            background: var(--primary-gradient);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
         }
 
         .president-hero-left {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
 
         .president-crown-badge {
-            width: 48px; height: 48px;
+            width: 50px; height: 50px;
             border-radius: 14px;
-            background: linear-gradient(135deg, #312E81 0%, #1E1B4B 100%);
-            border: 1.5px solid var(--accent-gold);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15));
+            border: 1.5px solid rgba(245, 158, 11, 0.4);
             display: flex; align-items: center; justify-content: center;
             font-size: 24px;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
             flex-shrink: 0;
         }
 
         .president-titles {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
         }
 
         .president-name-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 900;
             color: #FFFFFF;
             display: flex;
@@ -605,32 +539,12 @@
         }
 
         .president-subtext {
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 700;
             color: var(--text-muted);
         }
 
-        .president-hero-pills {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .hero-metric-pill {
-            font-size: 11.5px;
-            font-weight: 800;
-            padding: 5px 12px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* ─── Bento KPI Ribbon ─── */
+        /* ─── KPI Bento Ribbon ─── */
         .kpi-bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -639,125 +553,89 @@
 
         .kpi-bento-card {
             background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 16px;
             padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
-            transition: all 0.22s;
+            transition: all 0.22s ease;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
         }
         .kpi-bento-card:hover {
-            transform: translateY(-2px);
             border-color: var(--card-hover-border);
+            transform: translateY(-2px);
             background: var(--card-hover-bg);
         }
 
         .kpi-card-data {
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            gap: 2px;
         }
 
         .kpi-card-num {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
             color: #FFFFFF;
             line-height: 1.1;
-            font-feature-settings: "tnum";
         }
-        body.light-theme .kpi-card-num { color: #0F172A; }
 
         .kpi-card-label {
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             color: var(--text-muted);
-            margin-top: 4px;
         }
-
-        .kpi-card-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 10px;
-            font-weight: 800;
-            margin-top: 6px;
-            padding: 2px 7px;
-            border-radius: 6px;
-            width: fit-content;
-        }
-        .tag-blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
-        .tag-purple { background: rgba(168, 85, 247, 0.12); color: #C084FC; }
-        .tag-emerald { background: rgba(16, 185, 129, 0.12); color: #34D399; }
-        .tag-amber { background: rgba(245, 158, 11, 0.12); color: #FBBF24; }
 
         .kpi-card-icon {
             width: 44px; height: 44px;
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; color: white; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-        }
-        .icon-blue { background: linear-gradient(135deg, #0284C7, #0369A1); }
-        .icon-purple { background: linear-gradient(135deg, #6366F1, #4F46E5); }
-        .icon-emerald { background: linear-gradient(135deg, #059669, #047857); }
-        .icon-amber { background: linear-gradient(135deg, #D97706, #B45309); }
-
-        /* Hub Container */
-        .hub-view-container {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            animation: fadeInHub 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes fadeInHub {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+            font-size: 18px;
+            flex-shrink: 0;
         }
 
-        /* Sector Headers */
+        .icon-blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
+        .icon-purple { background: rgba(168, 85, 247, 0.12); color: #C084FC; }
+        .icon-emerald { background: rgba(16, 185, 129, 0.12); color: #34D399; }
+        .icon-amber { background: rgba(245, 158, 11, 0.12); color: #FBBF24; }
+
+        /* ─── Sector Headers & Action Cards ─── */
         .sector-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 6px;
-            margin-bottom: -6px;
-            padding: 0 2px;
+            margin-top: 10px;
+            margin-bottom: 2px;
+            scroll-margin-top: 90px;
         }
+
         .sector-title-box {
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .sector-icon-badge {
-            width: 30px; height: 30px;
-            border-radius: 8px;
+            width: 32px; height: 32px;
+            border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
             font-size: 14px;
         }
+
         .sector-heading-text {
-            font-size: 15px;
+            font-size: 15.5px;
             font-weight: 900;
             color: var(--text-main);
         }
+
         .sector-tag-pill {
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 800;
             padding: 3px 10px;
-            border-radius: 12px;
+            border-radius: 20px;
         }
 
-        /* Bento 2-Column Responsive Grid */
-        .bento-split-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        /* Action Cards Grid */
         .admin-cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -766,32 +644,25 @@
 
         .action-card {
             background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
             border-radius: 16px;
             padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            text-decoration: none;
-            color: var(--text-main);
             cursor: pointer;
             transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             position: relative;
-            overflow: hidden;
-        }
-        .action-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            background: var(--card-hover-bg);
-            box-shadow: 0 10px 25px var(--primary-glow);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
-        .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(49, 46, 129, 0.5) 100%);
-            border: 1px solid rgba(129, 140, 248, 0.35);
+        .action-card:hover {
+            border-color: var(--card-hover-border);
+            background: var(--card-hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
         }
 
         .card-left-content {
@@ -805,17 +676,16 @@
             width: 44px; height: 44px;
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 19px; color: white; flex-shrink: 0;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-            transition: transform 0.2s;
-        }
-        .action-card:hover .card-icon-box {
-            transform: scale(1.05);
+            font-size: 19px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .card-texts {
             display: flex;
             flex-direction: column;
+            gap: 3px;
             min-width: 0;
         }
 
@@ -825,39 +695,27 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+
         .card-title {
             font-size: 14.5px;
             font-weight: 900;
             color: var(--text-main);
-            line-height: 1.3;
         }
+
         .card-badge {
-            font-size: 9.5px;
+            font-size: 10px;
             font-weight: 900;
             padding: 2px 7px;
             border-radius: 6px;
         }
-        .badge-live-red {
-            background: #EF4444; color: white;
-            animation: pulseGlowBadge 1.5s infinite alternate;
-        }
-        .badge-vip {
-            background: linear-gradient(135deg, #D97706, #B45309); color: white;
-        }
-        .badge-ai {
-            background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white;
-        }
-
-        @keyframes pulseGlowBadge {
-            from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            to { box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
-        }
+        .badge-ai { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge-vip { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-live-red { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
         .card-desc {
-            font-size: 11.5px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--text-muted);
-            margin-top: 3px;
             line-height: 1.4;
         }
 
@@ -867,133 +725,116 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--card-border);
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; color: var(--text-muted);
-            flex-shrink: 0; margin-right: 8px;
+            color: var(--text-muted);
+            font-size: 12px;
+            flex-shrink: 0;
             transition: all 0.2s;
         }
         .action-card:hover .card-arrow-icon {
             background: var(--primary);
-            color: white; border-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
             transform: translateX(-3px);
         }
 
-        /* Footer Bar */
+        /* ─── Footer Bar ─── */
         .workspace-footer {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 16px 20px;
+            border-top: 1px solid var(--card-border);
+            margin-top: 16px;
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: 700;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .footer-watermark {
-            font-size: 11.5px;
-            font-weight: 800;
-            color: var(--text-muted);
-            display: flex; align-items: center; gap: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Responsive Breakpoints */
-        @media (max-width: 1200px) {
-            .bento-split-grid { grid-template-columns: 1fr; }
-            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); }
+        /* ─── Responsive Media Queries ─── */
+        @media (max-width: 1100px) {
+            .kpi-bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 868px) {
+            .admin-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
             .executive-sidebar {
                 position: fixed;
-                right: 0; top: 0; bottom: 0;
+                right: -310px;
+                top: 0;
                 height: 100vh;
-                height: 100dvh;
-                width: min(300px, 84vw) !important;
-                background: #0B0F19 !important;
-                transform: translateX(105%);
-                z-index: 10001;
-                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.75);
-                padding: 18px 14px !important;
-                overflow-y: auto;
+                width: 280px !important;
+                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 10000;
             }
-            body.light-theme .executive-sidebar {
-                background: #FFFFFF !important;
-                border-left: 1px solid #CBD5E1;
-            }
+
             .executive-sidebar.sidebar-open {
-                transform: translateX(0) !important;
+                right: 0;
             }
-            .sidebar-collapse-trigger { display: none !important; }
-            .sidebar-close-mobile-btn { display: flex !important; }
-            .btn-hamburger-mobile { display: flex !important; }
+
+            .btn-hamburger-mobile {
+                display: flex;
+            }
+
+            .sidebar-close-mobile-btn {
+                display: flex;
+            }
+
+            .sidebar-collapse-trigger {
+                display: none;
+            }
+
             .executive-main {
-                padding: 12px 14px;
-                max-width: 100vw;
-            }
-            .topbar-search-box { display: none; }
-        }
-
-        .responsive-grid-5 {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-        .responsive-search-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .responsive-grid-5 {
-                grid-template-columns: repeat(3, 1fr) !important;
-            }
-            #healthCheckGrid {
-                grid-template-columns: repeat(2, 1fr) !important;
+                padding: 14px 16px;
             }
         }
 
-        @media (max-width: 640px) {
-            .admin-cards-grid { grid-template-columns: 1fr; }
-            .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .kpi-bento-card { padding: 12px 14px; border-radius: 14px; }
-            .kpi-card-num { font-size: 22px; }
-            .kpi-card-icon { width: 38px; height: 38px; font-size: 16px; }
-            .workspace-topbar { padding: 8px 12px; border-radius: 14px; }
-            .responsive-search-row { flex-direction: column !important; }
-            .responsive-search-row button { width: 100% !important; justify-content: center !important; }
-            #healthCheckGrid { grid-template-columns: 1fr !important; }
-            .president-hero-card { padding: 14px 16px; }
-            .president-crown-badge { width: 40px; height: 40px; font-size: 20px; }
-            .president-name-title { font-size: 14px; }
+        @media (max-width: 540px) {
+            .kpi-bento-grid {
+                grid-template-columns: 1fr;
+            }
+            .president-hero-card {
+                padding: 16px;
+            }
+            .workspace-topbar {
+                padding: 10px 14px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Blobs -->
     <div class="ambient-glow glow-top-right"></div>
     <div class="ambient-glow glow-bottom-left"></div>
 
-    <!-- Mobile Sidebar Backdrop -->
+    <!-- Mobile Drawer Backdrop -->
     <div class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
 
-    <!-- Executive Layout Container -->
     <div class="executive-layout">
 
-        <!-- ─── macOS Style Collapsible Sidebar ─── -->
-        <aside class="executive-sidebar" id="mainExecutiveSidebar">
+        <!-- ─── macOS Collapsible Luxury Sidebar ─── -->
+        <aside class="executive-sidebar" id="adminSidebar">
+            
             <div>
-                <!-- Brand Header -->
+                <!-- Brand Identity & Fast Actions -->
                 <div class="sidebar-brand-box">
                     <a href="admin-panel.html" class="sidebar-brand-identity">
-                        <div class="sidebar-brand-badge">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
+                        <div class="sidebar-brand-badge">👑</div>
                         <div class="sidebar-brand-titles">
-                            <span class="sidebar-brand-title-main">منصة الخطة</span>
-                            <span class="sidebar-brand-sub">مركز العمليات 2027 🎓</span>
+                            <span class="sidebar-brand-main">منصة الخطة</span>
+                            <span class="sidebar-brand-sub">لوحة القيادة العليا</span>
                         </div>
                     </a>
                     <!-- Desktop macOS Collapsible Toggle Button -->
@@ -1006,35 +847,43 @@
                     </button>
                 </div>
 
-                <!-- Navigation List -->
+                <!-- Fast Sector Jump Navigation List -->
                 <div class="sidebar-nav-container">
-                    <div class="sidebar-nav-heading">غرف العمليات</div>
+                    <div class="sidebar-nav-heading">أقسام المنظومة</div>
 
-                    <button onclick="switchAdminHubTab('services')" id="hubTab_services" class="sidebar-nav-btn active" title="لوحة القيادة والخدمات">
+                    <button onclick="scrollToSector('secAcademic')" class="sidebar-nav-btn" title="القطاع الأكاديمي والامتحانات">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-gauge-high sidebar-btn-icon" style="color: #818CF8;"></i>
-                            <span class="sidebar-btn-label">لوحة القيادة والخدمات</span>
+                            <i class="fa-solid fa-graduation-cap sidebar-btn-icon" style="color: #818CF8;"></i>
+                            <span class="sidebar-btn-label">الأكاديمي والامتحانات</span>
                         </div>
-                        <span class="sidebar-badge-pill">الرئيسية 🌟</span>
+                        <span class="sidebar-badge-pill">4 خدمات</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('students')" id="hubTab_students" class="sidebar-nav-btn" title="شؤون الطلاب والأجهزة">
+                    <button onclick="scrollToSector('secStudents')" class="sidebar-nav-btn" title="قطاع الطلاب والتراخيص">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-users-gear sidebar-btn-icon" style="color: #38BDF8;"></i>
-                            <span class="sidebar-btn-label">شؤون الطلاب والأجهزة</span>
+                            <span class="sidebar-btn-label">الطلاب والتراخيص</span>
                         </div>
-                        <span class="sidebar-badge-pill">رقابة 📱</span>
+                        <span class="sidebar-badge-pill">3 خدمات</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('noc')" id="hubTab_noc" class="sidebar-nav-btn" title="رادار المراقبة وسجل النشاط">
+                    <button onclick="scrollToSector('secCommunity')" class="sidebar-nav-btn" title="التواصل والمجتمع الطلابي">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-satellite-dish sidebar-btn-icon" style="color: #34D399;"></i>
-                            <span class="sidebar-btn-label">رادار المراقبة وسجل النشاط</span>
+                            <i class="fa-solid fa-comments sidebar-btn-icon" style="color: #34D399;"></i>
+                            <span class="sidebar-btn-label">المجتمع والإشعارات</span>
                         </div>
-                        <span class="sidebar-badge-pill">Live 🟢</span>
+                        <span class="sidebar-badge-pill">2 خدمات</span>
                     </button>
 
-                    <div class="sidebar-nav-heading" style="margin-top: 10px;">إدارات الربط والخدمات</div>
+                    <button onclick="scrollToSector('secCloud')" class="sidebar-nav-btn" title="السحابة والإدارة العليا">
+                        <div class="sidebar-btn-content">
+                            <i class="fa-solid fa-cloud-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
+                            <span class="sidebar-btn-label">السحابة والإدارة العليا</span>
+                        </div>
+                        <span class="sidebar-badge-pill">VIP</span>
+                    </button>
+
+                    <div class="sidebar-nav-heading" style="margin-top: 14px;">إدارات الربط والخدمات</div>
 
                     <a href="admin-config.html" id="sidebarNav_config" class="sidebar-nav-btn" title="إعدادات المشرفين والأمان">
                         <div class="sidebar-btn-content">
@@ -1080,21 +929,15 @@
                     <button class="btn-hamburger-mobile" onclick="toggleMobileSidebar()" title="فتح القائمة">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <!-- Quick collapse trigger in topbar for convenience -->
+                    <!-- Quick collapse trigger in topbar -->
                     <button class="btn-top-action" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة الجانبية (macOS Style)">
                         <i class="fa-solid fa-bars-staggered"></i>
                     </button>
                     <div class="topbar-breadcrumbs">
-                        <span>لوحة القيادة</span>
+                        <span>لوحة التحكم</span>
                         <i class="fa-solid fa-angle-left" style="font-size: 10px; opacity: 0.5;"></i>
-                        <span id="activeHubBreadcrumb" class="breadcrumb-active">🎛️ لوحة القيادة والخدمات</span>
+                        <span class="breadcrumb-active">لوحة القيادة والخدمات المركزية</span>
                     </div>
-                </div>
-
-                <!-- Fast Search Bar -->
-                <div class="topbar-search-box">
-                    <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
-                    <input type="text" class="topbar-search-input" placeholder="🔎 بحث سريع بكود الطالب (اضغط Enter)..." onkeypress="handleGlobalSearch(event, this.value)">
                 </div>
 
                 <div class="topbar-actions-group">
@@ -1102,8 +945,6 @@
                         <span class="status-dot"></span>
                         <span>مباشر 🟢</span>
                     </div>
-
-                    <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); display: none;" id="liveDateClock"></div>
 
                     <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
                         <i class="fa-solid fa-moon" id="themeIcon"></i>
@@ -1124,7 +965,7 @@
                             <span>أهلاً بك، أستاذ عبد الرحمن</span>
                             <span style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 8px; border-radius: 8px;">رئيس ومؤسس المنصة 👑</span>
                         </div>
-                        <span class="president-subtext">غرفة العمليات المركزية والسيطرة التنفيذية المباشرة — دفعة 2027 🎓</span>
+                        <span class="president-subtext">غرفة القيادة والسيطرة التنفيذية المباشرة — دفعة 2027 🎓</span>
                     </div>
                 </div>
             </div>
@@ -1135,7 +976,6 @@
                     <div class="kpi-card-data">
                         <span class="kpi-card-num" id="statStudents">0</span>
                         <span class="kpi-card-label">طالب مسجل</span>
-                        <span class="kpi-card-tag tag-blue"><i class="fa-solid fa-arrow-trend-up"></i> نشط الآن</span>
                     </div>
                     <div class="kpi-card-icon icon-blue">
                         <i class="fa-solid fa-users"></i>
@@ -1146,7 +986,6 @@
                     <div class="kpi-card-data">
                         <span class="kpi-card-num" id="statLectures">0</span>
                         <span class="kpi-card-label">محاضرة ومحتوى</span>
-                        <span class="kpi-card-tag tag-purple"><i class="fa-solid fa-cloud-arrow-up"></i> سحابي</span>
                     </div>
                     <div class="kpi-card-icon icon-purple">
                         <i class="fa-solid fa-book-open"></i>
@@ -1157,7 +996,6 @@
                     <div class="kpi-card-data">
                         <span class="kpi-card-num" id="statResults">0</span>
                         <span class="kpi-card-label">امتحان تم تسليمه</span>
-                        <span class="kpi-card-tag tag-emerald"><i class="fa-solid fa-circle-check"></i> 98% اجتياز</span>
                     </div>
                     <div class="kpi-card-icon icon-emerald">
                         <i class="fa-solid fa-square-poll-vertical"></i>
@@ -1168,7 +1006,6 @@
                     <div class="kpi-card-data">
                         <span class="kpi-card-num" id="statUnanswered">0</span>
                         <span class="kpi-card-label">سؤال معلق</span>
-                        <span class="kpi-card-tag tag-amber"><i class="fa-solid fa-clock"></i> رد فوري</span>
                     </div>
                     <div class="kpi-card-icon icon-amber">
                         <i class="fa-solid fa-comments"></i>
@@ -1177,497 +1014,239 @@
             </div>
 
             <!-- ═══════════════════════════════════════════════
-                 HUB 1 (DEFAULT): 🎛️ لوحة القيادة والخدمات المركزية
+                 القطاعات الأساسية والخدمات المركزية (Direct Flow)
                  ═══════════════════════════════════════════════ -->
-            <div id="hubView_services" class="hub-view-container" style="display: flex;">
-                
-                <!-- 📚 القطاع 1: المحتوى والامتحانات الأكاديمية -->
-                <div class="sector-header">
-                    <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8;"><i class="fa-solid fa-graduation-cap"></i></div>
-                        <h2 class="sector-heading-text">القطاع الأكاديمي، المواد، والامتحانات</h2>
-                    </div>
-                    <span class="sector-tag-pill" style="background: rgba(99, 102, 241, 0.1); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.2);">دفعة 2027 🎓</span>
+
+            <!-- 📚 القطاع 1: الأكاديمي والامتحانات -->
+            <div class="sector-header" id="secAcademic">
+                <div class="sector-title-box">
+                    <div class="sector-icon-badge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8;"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h2 class="sector-heading-text">القطاع الأكاديمي، المواد والامتحانات</h2>
                 </div>
-
-                <div class="admin-cards-grid">
-                    <!-- 1. Courses & Lectures -->
-                    <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
-                                <i class="fa-solid fa-folder-open"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">المواد والمقررات الدراسية</span>
-                                </div>
-                                <div class="card-desc">إضافة، تعديل، وترتيب المواد والمحاضرات لدفعة الفرقة الرابعة 2027</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 2. Question Bank & Exams -->
-                    <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
-                                <i class="fa-solid fa-file-pen"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
-                                </div>
-                                <div class="card-desc">إنشاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 3. Exam Results -->
-                    <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
-                                <i class="fa-solid fa-square-poll-vertical"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">كشف نتائج ودرجات الطلاب</span>
-                                </div>
-                                <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب لحظياً</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 4. Mistakes & AI Analytics -->
-                    <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
-                                    <span class="card-badge badge-ai">AI ⚡</span>
-                                </div>
-                                <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة لدى الدفعة</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-                </div>
-
-                <!-- 👥 القطاع 2: شؤون الطلاب والتراخيص -->
-                <div class="sector-header">
-                    <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8;"><i class="fa-solid fa-users"></i></div>
-                        <h2 class="sector-heading-text">قطاع الطلاب، التراخيص، واعتماد الأجهزة</h2>
-                    </div>
-                    <span class="sector-tag-pill" style="background: rgba(14, 165, 233, 0.1); color: #7DD3FC; border: 1px solid rgba(14, 165, 233, 0.2);">شؤون التسجيل 👥</span>
-                </div>
-
-                <div class="admin-cards-grid">
-                    <!-- 1. Registered Students -->
-                    <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #075985);">
-                                <i class="fa-solid fa-users-gear"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
-                                </div>
-                                <div class="card-desc">فحص أجهزة الدخول، تفعيل وحظر الحسابات، وتعديل وتصدير البيانات</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 2. Activation Codes Generator -->
-                    <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #15803D, #166534);">
-                                <i class="fa-solid fa-key"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">توليد وإدارة أكواد التفعيل</span>
-                                    <span class="card-badge badge-vip">تفعيل 🔑</span>
-                                </div>
-                                <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF للطباعة</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 3. Troubleshooting & Diagnostic Tools -->
-                    <div class="action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
-                                <i class="fa-solid fa-toolbox"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">مركز تشخيص الطالب والدعم الفني</span>
-                                    <span class="card-badge badge-live-red">طوارئ 🛠️</span>
-                                </div>
-                                <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 4. Fast Link to Devices Sentry Hub -->
-                    <div class="action-card" data-perm="students" onclick="switchAdminHubTab('students')">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #B45309);">
-                                <i class="fa-solid fa-mobile-screen-button"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">غرفة حراسة الأجهزة وتفتيش الأسماء</span>
-                                    <span class="card-badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24;">فحص حي ⚡</span>
-                                </div>
-                                <div class="card-desc">اعتماد الأجهزة الجديدة، كشف الأسماء الوهمية، وإصلاح بيانات الطلاب</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-                </div>
-
-                <!-- 💬 القطاع 3: التواصل والعمليات اللحظية -->
-                <div class="sector-header">
-                    <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;"><i class="fa-solid fa-comments"></i></div>
-                        <h2 class="sector-heading-text">قطاع التواصل، المجتمع، والإشعارات</h2>
-                    </div>
-                    <span class="sector-tag-pill" style="background: rgba(245, 158, 11, 0.1); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.2);">تفاعل فوري 📣</span>
-                </div>
-
-                <div class="admin-cards-grid">
-                    <!-- 1. Student Community Chat -->
-                    <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #92400E);">
-                                <i class="fa-solid fa-comments"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">إدارة أسئلة المجتمع الطلابي</span>
-                                    <span class="card-badge badge-live-red" id="communityUnansweredBadge" style="display:none;">جديد 🔴</span>
-                                </div>
-                                <div class="card-desc">الرد المباشر على استفسارات وتساؤلات الطلاب المرفوعة كصوت أو صورة</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 2. Push Notifications -->
-                    <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #BE185D, #9D174D);">
-                                <i class="fa-solid fa-bullhorn"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">مركز الإشعارات والتنبيهات</span>
-                                </div>
-                                <div class="card-desc">إرسال إشعارات فورية وتنبيهات مخصصة لجميع الطلاب المسجلين بالمنصة</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-                </div>
-
-                <!-- ⚡ القطاع 4: السحابة والإدارة العليا -->
-                <div class="sector-header">
-                    <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981;"><i class="fa-solid fa-server"></i></div>
-                        <h2 class="sector-heading-text">قطاع السحابة، قواعد البيانات، والحوكمة</h2>
-                    </div>
-                    <span class="sector-tag-pill" style="background: rgba(16, 185, 129, 0.1); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.2);">الإدارة العليا 👑</span>
-                </div>
-
-                <div class="admin-cards-grid">
-                    <!-- 1. Featured MySQL Card -->
-                    <div class="action-card featured-mysql" data-perm="config" onclick="location.href='admin-mysql.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #4338CA, #3730A3);">
-                                <i class="fa-solid fa-bolt"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">لوحة MySQL السحابية الشاملة</span>
-                                    <span class="card-badge badge-vip">VIP ⚡</span>
-                                </div>
-                                <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-
-                    <!-- 2. System Settings & Supervisors -->
-                    <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
-                        <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #334155, #1E293B);">
-                                <i class="fa-solid fa-sliders"></i>
-                            </div>
-                            <div class="card-texts">
-                                <div class="card-title-row">
-                                    <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
-                                </div>
-                                <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة المركزية</div>
-                            </div>
-                        </div>
-                        <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
-                    </div>
-                </div>
-
+                <span class="sector-tag-pill" style="background: rgba(99, 102, 241, 0.1); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.2);">دفعة 2027 🎓</span>
             </div>
 
-            <!-- ═══════════════════════════════════════════════
-                 HUB 2: 👥 شؤون الطلاب والأجهزة والتشخيص
-                 ═══════════════════════════════════════════════ -->
-            <div id="hubView_students" class="hub-view-container" style="display: none;">
-                
-                <!-- Individual Student Diagnostic Engine Card -->
-                <div id="secStudentDiagnostics" style="
-                    background: var(--card-bg);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid rgba(14, 165, 233, 0.35);
-                    border-radius: 16px;
-                    padding: 18px 20px;
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-                    display: flex; flex-direction: column; gap: 12px;
-                ">
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🔍</div>
-                            <div>
-                                <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">مركز الفحص والتشخيص الفردي للطالب (Student Diagnostic 10/10)</h3>
-                                <span style="font-size: 11px; color: #93C5FD; font-weight: 700;">فحص فوري وشامل (حالة الحساب، الأجهزة، النقاط، الامتحانات، وبصمة الدخول)</span>
-                            </div>
+            <div class="admin-cards-grid">
+                <!-- 1. Courses & Lectures -->
+                <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
+                            <i class="fa-solid fa-folder-open"></i>
                         </div>
-                        <span style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 8px;">
-                            Diagnostic Live ⚡
-                        </span>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">المواد والمقررات الدراسية</span>
+                            </div>
+                            <div class="card-desc">إضافة، تعديل، وترتيب المواد والمحاضرات لدفعة الفرقة الرابعة 2027</div>
+                        </div>
                     </div>
-
-                    <div class="responsive-search-row" style="display: flex; gap: 8px;">
-                        <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
-                        <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            <span>تشخيص الطالب 🚀</span>
-                        </button>
-                    </div>
-
-                    <div id="studentDiagReportOutput" style="display: none; flex-direction: column; gap: 10px; background: rgba(11, 15, 25, 0.9); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;"></div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
-                <!-- 2-Column Grid: Device Approvals + Suspicious Names -->
-                <div class="bento-split-grid">
-                    
-                    <!-- Device Approvals Cockpit Card -->
-                    <div style="
-                        background: var(--card-bg);
-                        backdrop-filter: blur(20px);
-                        border: 1px solid var(--card-border);
-                        border-radius: 16px;
-                        padding: 16px 18px;
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                        display: flex; flex-direction: column; gap: 12px;
-                    ">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;" id="secDeviceApprovalsHeading">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B; font-size: 17px;"></i>
-                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">طلبات اعتماد الأجهزة الجديدة</h3>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.25); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                    🧪 تجربة طلب
-                                </button>
-                                <span id="deviceReqCountBadge" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25); color: #F59E0B; font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px;">
-                                    0 طلب معلق
-                                </span>
-                            </div>
+                <!-- 2. Question Bank & Exams -->
+                <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
+                            <i class="fa-solid fa-file-pen"></i>
                         </div>
-
-                        <div id="deviceApprovalsContainer" style="display: flex; flex-direction: column; gap: 10px;">
-                            <div id="deviceApprovalsList" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                                <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 25px 10px;">
-                                    لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️
-                                </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
                             </div>
+                            <div class="card-desc">إنشاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
                         </div>
                     </div>
-
-                    <!-- Suspicious Name Quality Inspector Card -->
-                    <div style="
-                        background: var(--card-bg);
-                        backdrop-filter: blur(20px);
-                        border: 1px solid rgba(239, 68, 68, 0.25);
-                        border-radius: 16px;
-                        padding: 16px 18px;
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                        display: flex; flex-direction: column; gap: 12px;
-                    ">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-user-shield" style="color: #EF4444; font-size: 17px;"></i>
-                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">تفتيش جودة أسماء التسجيل والحسابات</h3>
-                            </div>
-                            <span id="suspiciousNameCountBadge" style="background: rgba(239, 68, 68, 0.12); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.25); font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px;">
-                                جاري الفحص...
-                            </span>
-                        </div>
-
-                        <div id="suspiciousNamesContainer" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                            <div style="text-align: center; color: var(--text-muted); font-size: 12.5px; font-weight: 700; padding: 25px 10px;">جاري فحص سجل الأسماء... 🔎</div>
-                        </div>
-                    </div>
-
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
+                <!-- 3. Exam Results -->
+                <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                            <i class="fa-solid fa-square-poll-vertical"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">كشف نتائج ودرجات الطلاب</span>
+                            </div>
+                            <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب لحظياً</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+
+                <!-- 4. Mistakes & AI Analytics -->
+                <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
+                                <span class="card-badge badge-ai">AI ⚡</span>
+                            </div>
+                            <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة لدى الدفعة</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════
-                 HUB 3: 📡 رادار المراقبة الحية وسجل النشاط (NOC)
-                 ═══════════════════════════════════════════════ -->
-            <div id="hubView_noc" class="hub-view-container" style="display: none;">
-                
-                <!-- 2-Column Grid: Radar Feed + System Health -->
-                <div class="bento-split-grid">
+            <!-- 👥 القطاع 2: شؤون الطلاب والتراخيص -->
+            <div class="sector-header" id="secStudents">
+                <div class="sector-title-box">
+                    <div class="sector-icon-badge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8;"><i class="fa-solid fa-users"></i></div>
+                    <h2 class="sector-heading-text">قطاع الطلاب، التراخيص، والدعم الفني</h2>
+                </div>
+                <span class="sector-tag-pill" style="background: rgba(14, 165, 233, 0.1); color: #7DD3FC; border: 1px solid rgba(14, 165, 233, 0.2);">شؤون التسجيل 👥</span>
+            </div>
 
-                    <!-- Right Column: Live Audit Stream & Emergency Cockpit -->
-                    <div class="audit-cockpit-container" style="
-                        background: var(--card-bg);
-                        backdrop-filter: blur(20px);
-                        border: 1px solid var(--card-border);
-                        border-radius: 16px;
-                        padding: 16px 18px;
-                        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                        display: flex; flex-direction: column; gap: 12px;
-                    ">
-                        <!-- Header & Filter Tabs -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-satellite-dish" style="color: #34D399; font-size: 17px;"></i>
-                                <span style="font-size: 14px; font-weight: 900; color: var(--text-main);">رادار النشاط المباشر (Live Feed)</span>
-                                <span id="auditCountBadge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; font-size: 10.5px; font-weight: 900; padding: 2px 7px; border-radius: 6px;">0 حدث</span>
-                            </div>
-                            <div style="display: flex; gap: 6px;">
-                                <button onclick="filterAuditStream('all')" class="audit-tab-btn active" id="tabAuditAll" style="background: var(--primary); color: white; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">الكل</button>
-                                <button onclick="filterAuditStream('emergency')" class="audit-tab-btn" id="tabAuditEmergency" style="background: rgba(239, 68, 68, 0.12); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.25); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">🚨 الأعطال</button>
-                                <button onclick="filterAuditStream('login')" class="audit-tab-btn" id="tabAuditLogin" style="background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid var(--card-border); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">👤 الطلاب</button>
-                            </div>
+            <div class="admin-cards-grid">
+                <!-- 1. Registered Students -->
+                <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #075985);">
+                            <i class="fa-solid fa-users-gear"></i>
                         </div>
-
-                        <!-- Live Feed Scroll Stream -->
-                        <div id="liveAuditStreamList" style="max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-                            <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 40px 10px;">جاري جلب سجل النشاط المباشر والعمليات... 📡</div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
+                            </div>
+                            <div class="card-desc">فحص أجهزة الدخول، تفعيل وحظر الحسابات، وتعديل وتصدير البيانات</div>
                         </div>
                     </div>
-
-                    <!-- Left Column: Unified System Health & Synthetic Engine -->
-                    <div style="display: flex; flex-direction: column; gap: 14px;">
-                        
-                        <!-- System Health Check Card -->
-                        <div style="
-                            background: var(--card-bg);
-                            backdrop-filter: blur(20px);
-                            border: 1px solid var(--card-border);
-                            border-radius: 16px;
-                            padding: 16px 18px;
-                            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                            display: flex; flex-direction: column; gap: 12px;
-                        ">
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-heart-pulse" style="color: #EF4444; font-size: 18px;"></i>
-                                    <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">فحص صحة المنظومة الفوري (System Health)</h3>
-                                </div>
-                                <button onclick="runFullSystemCheck()" style="
-                                    background: linear-gradient(135deg, #2563EB, #1D4ED8);
-                                    color: white; border: none; padding: 6px 14px; border-radius: 10px;
-                                    font-size: 11.5px; font-weight: 900; cursor: pointer; font-family: inherit;
-                                    display: inline-flex; align-items: center; gap: 6px;
-                                    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.3);
-                                ">
-                                    <i class="fa-solid fa-rotate-right" id="healthCheckSpinner"></i>
-                                    <span>فحص شامل 🔄</span>
-                                </button>
-                            </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="healthCheckGrid">
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Auth Guard</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcAuth">🟢 100%</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Realtime DB</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcDB">🟢 100%</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Storage / PDFs</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcStorage">🟢 Ready</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Exams Engine</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcExams">🟢 Active</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Audio Engine</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcAudio">🟢 Ready</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Push Notice</div>
-                                    <div style="font-size: 13px; font-weight: 900; color: #F59E0B; margin-top: 2px;" id="hcPush">🟡 Standby</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Synthetic Diagnostic Engine Card -->
-                        <div id="secSyntheticDiagnostic" style="
-                            background: var(--card-bg);
-                            backdrop-filter: blur(20px);
-                            border: 1px solid var(--card-border);
-                            border-radius: 16px;
-                            padding: 16px 18px;
-                            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                            display: flex; flex-direction: column; gap: 12px;
-                        ">
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; display: flex; align-items: center; justify-content: center; font-size: 17px;">🧪</div>
-                                    <div>
-                                        <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">محرك الفحص الشامل (Synthetic Engine)</h3>
-                                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">اختبار ذاتي لـ 10 وحدات برمجية سحابية</span>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <button onclick="runFullSyntheticDiagnostic()" style="background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 7px 14px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;">
-                                        <i class="fa-solid fa-vial-circle-check"></i>
-                                        <span>بدء الفحص 🚀</span>
-                                    </button>
-                                    <span id="diagnosticResultBadge" style="background: rgba(99, 102, 241, 0.12); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.25); font-size: 10.5px; font-weight: 900; padding: 4px 8px; border-radius: 8px;">
-                                        جاهز (10/10)
-                                    </span>
-                                </div>
-                            </div>
-                            <div id="diagnosticLogBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; font-family: monospace; font-size: 11px; color: #A5B4FC; max-height: 140px; overflow-y: auto; display: none;"></div>
-                        </div>
-
-                    </div>
-
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
+                <!-- 2. Activation Codes Generator -->
+                <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #15803D, #166534);">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">توليد وإدارة أكواد التفعيل</span>
+                                <span class="card-badge badge-vip">تفعيل 🔑</span>
+                            </div>
+                            <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF للطباعة</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+
+                <!-- 3. Troubleshooting & Diagnostic Tools -->
+                <div class="action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
+                            <i class="fa-solid fa-toolbox"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">مركز تشخيص الطالب والدعم الفني</span>
+                                <span class="card-badge badge-live-red">طوارئ 🛠️</span>
+                            </div>
+                            <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+            </div>
+
+            <!-- 💬 القطاع 3: التواصل والعمليات اللحظية -->
+            <div class="sector-header" id="secCommunity">
+                <div class="sector-title-box">
+                    <div class="sector-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399;"><i class="fa-solid fa-comments"></i></div>
+                    <h2 class="sector-heading-text">قطاع التواصل، المجتمع الطلابي، والإشعارات</h2>
+                </div>
+                <span class="sector-tag-pill" style="background: rgba(16, 185, 129, 0.1); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.2);">تفاعل مباشر 💬</span>
+            </div>
+
+            <div class="admin-cards-grid">
+                <!-- 1. Community Questions -->
+                <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">إدارة أسئلة واستفسارات المجتمع</span>
+                                <span class="card-badge badge-live-red" id="badgeCommunityLive" style="display: none;">أسئلة جديدة 💬</span>
+                            </div>
+                            <div class="card-desc">الرد على تساؤلات الطلاب في المحاضرات، تثبيت الإجابات، وحذف المخالفات</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+
+                <!-- 2. Notifications Center -->
+                <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #B45309);">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">مركز وبث الإشعارات الفورية</span>
+                            </div>
+                            <div class="card-desc">إرسال تنبيهات عامة أو رسائل مخصصة لطالب معين عبر التطبيق والموقع</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+            </div>
+
+            <!-- ⚡ القطاع 4: السحابة والإدارة العليا -->
+            <div class="sector-header" id="secCloud">
+                <div class="sector-title-box">
+                    <div class="sector-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24;"><i class="fa-solid fa-cloud-bolt"></i></div>
+                    <h2 class="sector-heading-text">قطاع السحابة، قواعد البيانات، والإدارة العليا</h2>
+                </div>
+                <span class="sector-tag-pill" style="background: rgba(245, 158, 11, 0.1); color: #FDE68A; border: 1px solid rgba(245, 158, 11, 0.2);">VIP Master 👑</span>
+            </div>
+
+            <div class="admin-cards-grid">
+                <!-- 1. Cloud MySQL VIP Panel -->
+                <div class="action-card" data-perm="config" onclick="location.href='admin-mysql.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #4338CA, #3730A3);">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">لوحة MySQL السحابية الشاملة</span>
+                                <span class="card-badge badge-vip">VIP ⚡</span>
+                            </div>
+                            <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+
+                <!-- 2. System Settings & Supervisors -->
+                <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
+                    <div class="card-left-content">
+                        <div class="card-icon-box" style="background: linear-gradient(135deg, #334155, #1E293B);">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div class="card-texts">
+                            <div class="card-title-row">
+                                <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
+                            </div>
+                            <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة المركزية</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
             </div>
 
             <!-- Footer Bar -->
             <footer class="workspace-footer">
                 <div class="footer-watermark">
                     <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
-                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية v3.5 • دفعة 2027 🎓</span>
+                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية • دفعة 2027 🎓</span>
                 </div>
                 <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 5px 14px;">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -1703,50 +1282,89 @@
             updateThemeIcon(true);
         }
 
-        // Live Clock
-        function updateLiveClock() {
-            const el = document.getElementById('liveDateClock');
-            if (!el) return;
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            el.innerHTML = `📅 ${now.toLocaleDateString('ar-EG', options)}`;
-        }
-        updateLiveClock();
-        setInterval(updateLiveClock, 60000);
-
-        // ─── macOS Style Sidebar Collapse Engine ───
+        // ─── macOS Collapsible Sidebar State Manager ───
         function toggleDesktopSidebarCollapse() {
-            const sidebar = document.getElementById('mainExecutiveSidebar');
+            const sidebar = document.getElementById('adminSidebar');
             const icon = document.getElementById('sidebarCollapseIcon');
             if (!sidebar) return;
 
             const isCollapsed = sidebar.classList.toggle('collapsed');
+            localStorage.setItem('elkheta_admin_sidebar_collapsed', isCollapsed ? '1' : '0');
+
             if (icon) {
                 icon.className = isCollapsed ? 'fa-solid fa-angles-left' : 'fa-solid fa-angles-right';
             }
-            try {
-                localStorage.setItem('elkheta_admin_sidebar_collapsed', isCollapsed ? 'yes' : 'no');
-            } catch(e) {}
         }
 
-        // Restore Collapsed State
         (function() {
-            try {
-                if (localStorage.getItem('elkheta_admin_sidebar_collapsed') === 'yes' && window.innerWidth > 1024) {
-                    const sidebar = document.getElementById('mainExecutiveSidebar');
-                    const icon = document.getElementById('sidebarCollapseIcon');
-                    if (sidebar) sidebar.classList.add('collapsed');
-                    if (icon) icon.className = 'fa-solid fa-angles-left';
-                }
-            } catch(e) {}
+            const savedState = localStorage.getItem('elkheta_admin_sidebar_collapsed');
+            if (savedState === '1' && window.innerWidth > 868) {
+                const sidebar = document.getElementById('adminSidebar');
+                const icon = document.getElementById('sidebarCollapseIcon');
+                if (sidebar) sidebar.classList.add('collapsed');
+                if (icon) icon.className = 'fa-solid fa-angles-left';
+            }
         })();
 
-        // ─── Supervisor Roles & Permissions Guard ───
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        const adminName = sessionStorage.getItem('adminName') || 'المدير العام';
-        const roleTitle = sessionStorage.getItem('adminRoleTitle') || '';
-        let permissions = {};
+        // Mobile Sidebar Controls
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (sidebar && backdrop) {
+                const isOpen = sidebar.classList.toggle('sidebar-open');
+                backdrop.classList.toggle('active', isOpen);
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            }
+        }
 
+        function closeMobileSidebar() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.remove('sidebar-open');
+                backdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Smooth scroll to sector
+        function scrollToSector(sectorId) {
+            const el = document.getElementById(sectorId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            closeMobileSidebar();
+        }
+
+        // Swipe right to close mobile drawer
+        (function() {
+            const sidebar = document.querySelector('.executive-sidebar');
+            if (!sidebar) return;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            sidebar.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            sidebar.addEventListener('touchend', function(e) {
+                const diffX = e.changedTouches[0].clientX - touchStartX;
+                const diffY = e.changedTouches[0].clientY - touchStartY;
+                if (diffX > 60 && Math.abs(diffX) > Math.abs(diffY)) {
+                    closeMobileSidebar();
+                }
+            }, { passive: true });
+        })();
+
+        // ─── Authentication & Supervisor Permission Controller ───
+        const role = sessionStorage.getItem('adminRole');
+        const adminName = sessionStorage.getItem('adminName') || 'الأدمن';
+        const roleTitle = sessionStorage.getItem('roleTitle') || '';
+
+        if (!role) {
+            window.location.href = "admin-gate.html";
+        }
+
+        let permissions = {};
         try {
             permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
         } catch(e) { permissions = {}; }
@@ -1865,19 +1483,19 @@
 
         // Load stats from Firebase in real-time
         database.ref('Students').on('value', snap => {
-            if (snap.exists()) {
-                document.getElementById('statStudents').textContent = snap.numChildren();
-            } else {
-                document.getElementById('statStudents').textContent = '0';
-            }
+            const el = document.getElementById('statStudents');
+            if (el) el.textContent = snap.exists() ? snap.numChildren() : '0';
         });
+
         database.ref('Lectures').on('value', snap => {
             let total = 0;
             if (snap.exists()) {
                 snap.forEach(subSnap => { total += subSnap.numChildren(); });
             }
-            document.getElementById('statLectures').textContent = total;
+            const el = document.getElementById('statLectures');
+            if (el) el.textContent = total;
         });
+
         database.ref('ExamResults').on('value', snap => {
             let total = 0;
             if (snap.exists()) {
@@ -1887,7 +1505,8 @@
                     });
                 });
             }
-            document.getElementById('statResults').textContent = total;
+            const el = document.getElementById('statResults');
+            if (el) el.textContent = total;
         });
 
         // Listen to Community for unanswered questions badge & stat
@@ -1909,668 +1528,16 @@
             const statUn = document.getElementById('statUnanswered');
             if (statUn) statUn.textContent = unanswered;
 
-            const b = document.getElementById('communityUnansweredBadge');
-            if (b) {
+            const badgeComm = document.getElementById('badgeCommunityLive');
+            if (badgeComm) {
                 if (unanswered > 0) {
-                    b.textContent = `${unanswered} جديد 🔴`;
-                    b.style.display = 'inline-block';
+                    badgeComm.textContent = `💬 ${unanswered} معلق`;
+                    badgeComm.style.display = 'inline-block';
                 } else {
-                    b.style.display = 'none';
+                    badgeComm.style.display = 'none';
                 }
             }
         });
-
-        // ─── Realtime Audit Stream & Emergency Cockpit ───
-        let rawAuditItems = [];
-        let currentAuditFilter = 'all';
-
-        function listenToAuditLogs() {
-            database.ref('ActivityLogs').limitToLast(30).on('value', snap => {
-                const logs = [];
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        logs.push({ id: child.key, type: 'activity', ...child.val() });
-                    });
-                }
-                combineAndRenderAudit(logs, null);
-            });
-
-            database.ref('EmergencyIssues').limitToLast(20).on('value', snap => {
-                const issues = [];
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        issues.push({ id: child.key, type: 'emergency', ...child.val() });
-                    });
-                }
-                combineAndRenderAudit(null, issues);
-            });
-        }
-
-        let latestLogs = [];
-        let latestIssues = [];
-
-        function combineAndRenderAudit(logs, issues) {
-            if (logs) latestLogs = logs;
-            if (issues) latestIssues = issues;
-
-            const all = [...latestLogs, ...latestIssues].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            rawAuditItems = all;
-
-            const badge = document.getElementById('auditCountBadge');
-            if (badge) badge.textContent = `${all.length} حدث`;
-
-            renderAuditList();
-        }
-
-        function filterAuditStream(filter) {
-            currentAuditFilter = filter;
-            ['tabAuditAll', 'tabAuditEmergency', 'tabAuditLogin'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.style.background = 'rgba(255, 255, 255, 0.04)';
-                    btn.style.color = 'var(--text-muted)';
-                }
-            });
-
-            if (filter === 'all') {
-                document.getElementById('tabAuditAll').style.background = 'var(--primary)';
-                document.getElementById('tabAuditAll').style.color = 'white';
-            } else if (filter === 'emergency') {
-                document.getElementById('tabAuditEmergency').style.background = '#EF4444';
-                document.getElementById('tabAuditEmergency').style.color = 'white';
-            } else if (filter === 'login') {
-                document.getElementById('tabAuditLogin').style.background = '#0EA5E9';
-                document.getElementById('tabAuditLogin').style.color = 'white';
-            }
-
-            renderAuditList();
-        }
-
-        function renderAuditList() {
-            const container = document.getElementById('liveAuditStreamList');
-            if (!container) return;
-
-            let items = rawAuditItems;
-            if (currentAuditFilter === 'emergency') {
-                items = items.filter(i => i.type === 'emergency');
-            } else if (currentAuditFilter === 'login') {
-                items = items.filter(i => i.type === 'activity');
-            }
-
-            if (items.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 25px;">لا توجد أحداث مطابقة للفلتر المباشر حالياً</div>`;
-                return;
-            }
-
-            container.innerHTML = items.map(item => {
-                const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '--:--';
-                if (item.type === 'emergency') {
-                    const isResolved = item.status === 'resolved';
-                    return `
-                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <span style="font-size: 16px;">🚨</span>
-                                <div style="min-width: 0;">
-                                    <div style="font-size: 12.5px; font-weight: 900; color: #F87171;">
-                                        بلاغ عاطل: ${item.issueType || 'مشكلة طوارئ'} — <span style="color:#FFF;">${item.studentName || item.studentCode || 'طالب'}</span>
-                                    </div>
-                                    <div style="font-size: 11px; color: #CBD5E1; font-weight: 600;">${item.message || item.details || ''}</div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                                <span style="font-size: 10.5px; font-weight: 800; color: #FCA5A5;">${timeStr}</span>
-                                ${!isResolved ? `<button onclick="resolveEmergencyIssueAdmin('${item.id}')" style="background: #EF4444; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 900; cursor: pointer; font-family: inherit;">حل المشكلة ✔️</button>` : `<span style="font-size: 10.5px; color: #34D399; font-weight: 800;">تم الحل ✔️</span>`}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <span style="font-size: 15px;">📌</span>
-                                <div style="min-width: 0;">
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--text-main);">
-                                        ${item.action || 'إجراء'}: <span style="color:#38BDF8;">${item.studentName || item.studentCode || item.user || 'نظام'}</span>
-                                    </div>
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">${item.details || item.page || ''}</div>
-                                </div>
-                            </div>
-                            <span style="font-size: 10.5px; font-weight: 800; color: var(--text-dim); flex-shrink: 0;">${timeStr}</span>
-                        </div>
-                    `;
-                }
-            }).join('');
-        }
-
-        function resolveEmergencyIssueAdmin(id) {
-            database.ref('EmergencyIssues/' + id).update({ status: 'resolved' }).then(() => {
-                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم حل المشكلة', icon: 'success', timer: 1500, showConfirmButton: false });
-            });
-        }
-
-        // ─── Realtime Device Approval Cockpit ───
-        function listenToDeviceRequests() {
-            database.ref('DeviceRequests').on('value', snap => {
-                const listEl = document.getElementById('deviceApprovalsList');
-                const badge = document.getElementById('deviceReqCountBadge');
-                if (!listEl) return;
-
-                if (!snap.exists()) {
-                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
-                    if (badge) badge.textContent = '0 طلب معلق';
-                    return;
-                }
-
-                const requests = [];
-                snap.forEach(child => {
-                    const val = child.val();
-                    if (val && val.status === 'pending') {
-                        requests.push({ id: child.key, ...val });
-                    }
-                });
-
-                if (badge) badge.textContent = `${requests.length} طلب معلق ⏳`;
-
-                if (requests.length === 0) {
-                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
-                    return;
-                }
-
-                listEl.innerHTML = requests.map(req => {
-                    const timeStr = req.timestamp ? new Date(req.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '--:--';
-                    return `
-                        <div style="
-                            background: rgba(245, 158, 11, 0.07);
-                            border: 1px solid rgba(245, 158, 11, 0.25);
-                            border-radius: 12px;
-                            padding: 12px 14px;
-                            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-                        ">
-                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">📱</div>
-                                <div style="min-width: 0;">
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #FFF;">
-                                        طالب: <span style="color:#38BDF8;">${req.studentName || 'غير معروف'}</span> <span style="font-size: 11px; color: #94A3B8; font-family: monospace;">(${req.studentCode})</span>
-                                    </div>
-                                    <div style="font-size: 11.5px; color: #E2E8F0; font-weight: 700; margin-top: 2px;">
-                                        الجهاز المطلوب: <strong style="color:#F59E0B;">${req.deviceName || 'جهاز جديد'}</strong> • الوقت: ${timeStr}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="display: flex; gap: 6px;">
-                                <button onclick="approveDeviceAdmin('${req.studentCode}', '${req.deviceId}', '${req.id}')" style="
-                                    background: linear-gradient(135deg, #10B981, #059669);
-                                    color: white; border: none; padding: 6px 14px; border-radius: 8px;
-                                    font-size: 11.5px; font-weight: 900; cursor: pointer; font-family: inherit;
-                                ">
-                                    ✅ موافقة وتفويض
-                                </button>
-
-                                <button onclick="rejectDeviceAdmin('${req.id}')" style="
-                                    background: rgba(239, 68, 68, 0.12); color: #F87171;
-                                    border: 1px solid rgba(239, 68, 68, 0.25); padding: 6px 12px; border-radius: 8px;
-                                    font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;
-                                ">
-                                    ❌ رفض
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            });
-        }
-
-        function approveDeviceAdmin(studentCode, deviceId, requestId) {
-            database.ref('DeviceRequests/' + requestId).update({ status: 'approved' });
-
-            database.ref(`Students/${studentCode}/authorizedDevices/${deviceId}`).set({
-                deviceName: 'معتمد بواسطة الأدمن',
-                approvedAt: Date.now(),
-                approvedBy: sessionStorage.getItem('adminName') || 'الأدمن'
-            }).then(() => {
-                database.ref('ActivityLogs').push({
-                    action: 'اعتماد جهاز جديد 📱',
-                    studentCode: studentCode,
-                    user: sessionStorage.getItem('adminName') || 'الأدمن',
-                    details: `تم السماح وفتح الحساب للجهاز ${deviceId}`,
-                    timestamp: Date.now()
-                });
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'تم تفويض الجهاز بنجاح 🎉',
-                        text: `يمكن للطالب الآن استخدام حسابه بحرية من هذا الجهاز.`,
-                        icon: 'success',
-                        timer: 1800,
-                        showConfirmButton: false
-                    });
-                }
-            });
-        }
-
-        function rejectDeviceAdmin(requestId) {
-            database.ref('DeviceRequests/' + requestId).update({ status: 'rejected' }).then(() => {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'تم رفض الطلب',
-                        icon: 'info',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            });
-        }
-
-        // ─── System Health Check JS Engine ───
-        function runFullSystemCheck() {
-            const spinner = document.getElementById('healthCheckSpinner');
-            if (spinner) spinner.classList.add('fa-spin');
-
-            const hcAuth = document.getElementById('hcAuth');
-            const hcDB = document.getElementById('hcDB');
-            const hcStorage = document.getElementById('hcStorage');
-            const hcExams = document.getElementById('hcExams');
-            const hcAudio = document.getElementById('hcAudio');
-            const hcPush = document.getElementById('hcPush');
-
-            if (hcAuth) hcAuth.textContent = '⏳ جاري...';
-            if (hcDB) hcDB.textContent = '⏳ جاري...';
-
-            setTimeout(() => {
-                database.ref('.info/connected').once('value').then(snap => {
-                    const isConnected = snap.val() === true;
-                    if (hcDB) hcDB.innerHTML = isConnected ? '<span style="color:#34D399;">🟢 100% متصل</span>' : '<span style="color:#F87171;">🔴 غير متصل</span>';
-                });
-
-                if (hcAuth) hcAuth.innerHTML = '<span style="color:#34D399;">🟢 100% متأمن</span>';
-                if (hcStorage) hcStorage.innerHTML = '<span style="color:#34D399;">🟢 100% جاهز</span>';
-                if (hcExams) hcExams.innerHTML = '<span style="color:#34D399;">🟢 نشط</span>';
-                if (hcAudio) hcAudio.innerHTML = '<span style="color:#34D399;">🟢 جاهز</span>';
-                if (hcPush) hcPush.innerHTML = '<span style="color:#34D399;">🟢 نشط</span>';
-
-                if (spinner) spinner.classList.remove('fa-spin');
-
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'اكتمل الفحص الشامل بنجاح 🟢',
-                        text: 'جميع سيرفرات وخدمات المنظومة تعمل بكفاءة واستقرار تام 🟢',
-                        icon: 'success',
-                        confirmButtonColor: '#6366F1'
-                    });
-                }
-            }, 800);
-        }
-
-        function inspectSuspiciousStudentNames() {
-            database.ref('Students').on('value', snap => {
-                const container = document.getElementById('suspiciousNamesContainer');
-                const badge = document.getElementById('suspiciousNameCountBadge');
-                if (!container) return;
-
-                if (!snap.exists()) {
-                    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12.5px; font-weight: 700; padding: 15px;">لا يوجد طلاب مسجلين في النظام حالياً</div>`;
-                    if (badge) badge.textContent = '0 حساب';
-                    return;
-                }
-
-                const suspicious = [];
-                const regexSuspicious = /^(.)\1+$|^(aaaa+|xxxx+|test.*|1234.*|asdf.*|[a-z]{1,3})$/i;
-
-                snap.forEach(child => {
-                    const s = child.val();
-                    const name = (s.fullName || s.full_name || '').trim();
-                    const code = s.studentCode || s.code || child.key;
-
-                    if (!name || name.length < 4 || regexSuspicious.test(name)) {
-                        suspicious.push({ code: code, name: name || 'بدون اسم', phone: s.phone || '' });
-                    }
-                });
-
-                if (badge) {
-                    badge.textContent = `⚠️ ${suspicious.length} حساب يحتاج مراجعة`;
-                    badge.style.background = suspicious.length > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)';
-                    badge.style.color = suspicious.length > 0 ? '#F87171' : '#34D399';
-                }
-
-                if (suspicious.length === 0) {
-                    container.innerHTML = `<div style="text-align: center; color: #34D399; font-size: 12.5px; font-weight: 800; padding: 15px;">جميع الحسابات مسجلة بأسماء حقيقية ومنتظمة ✔️</div>`;
-                    return;
-                }
-
-                container.innerHTML = suspicious.map(item => `
-                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                        <div>
-                            <div style="font-size: 12.5px; font-weight: 900; color: #F87171;">
-                                اسم غير منتظم: <span style="color:#FFF;">"${item.name}"</span> <span style="font-size: 10.5px; color:#94A3B8; font-family:monospace;">(${item.code})</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 5px;">
-                            <button onclick="requestNameCorrection('${item.code}')" style="background: #6366F1; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">✉️ تنبيه</button>
-                            <button onclick="approveStudentName('${item.code}')" style="background: rgba(255,255,255,0.06); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">✔️ اعتماد</button>
-                        </div>
-                    </div>
-                `).join('');
-            });
-        }
-
-        function requestNameCorrection(code) {
-            const msg = "تنبيه من الإدارة: يرجى كتابة اسمك الثلاثي الحقيقي بدلاً من الحروف الوهمية للتأكد من شهاداتك واشتراكك.";
-            database.ref('Students/' + code + '/personalMessage').set(msg).then(() => {
-                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم إرسال تنبيه تصحيح الاسم للطالب ✉️', icon: 'success', timer: 1800, showConfirmButton: false });
-            });
-        }
-
-        function approveStudentName(code) {
-            database.ref('Students/' + code + '/nameApproved').set(true).then(() => {
-                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم اعتماد الاسم', icon: 'success', timer: 1200, showConfirmButton: false });
-            });
-        }
-
-        function createTestDeviceRequest() {
-            const testCode = 'ST101';
-            const testDevId = 'dev_test_' + Math.random().toString(36).substring(2, 7);
-            const testDevName = 'هاتف أندرويد تجريبي (Galaxy S24)';
-
-            database.ref('DeviceRequests/' + testCode + '_' + testDevId).set({
-                requestId: testCode + '_' + testDevId,
-                studentCode: testCode,
-                studentName: 'طالب تجريبي للاختبار',
-                deviceId: testDevId,
-                deviceName: testDevName,
-                userAgent: navigator.userAgent,
-                timestamp: Date.now(),
-                status: 'pending'
-            }).then(() => {
-                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم توليد طلب اختبار جهاز جديد 📱', text: 'ظهر الطلب في القائمة أعلاه ويمكنك تجربة زري الموافقة والرفض فوراً', icon: 'success', timer: 2000, showConfirmButton: false });
-            });
-        }
-
-        // 🧪 Synthetic Diagnostic Engine Implementation
-        async function runFullSyntheticDiagnostic() {
-            if (role !== 'master' && role !== 'super_admin' && !permissions.all && !permissions.config && !permissions.troubleshoot) {
-                denySupervisorAccessModal('🧪 محرك الفحص الشامل Synthetic Engine', 'تشغيل الفحص الشامل يتطلب صلاحية الصيانة أو الدعم الفني.');
-                return;
-            }
-            const badge = document.getElementById('diagnosticResultBadge');
-            const logBox = document.getElementById('diagnosticLogBox');
-            if (badge) badge.textContent = '⏳ جاري تشغيل الفحص...';
-            if (logBox) {
-                logBox.style.display = 'block';
-                logBox.innerHTML = '<div>[NOC DIAGNOSTIC ENGINE STARTING...]</div>';
-            }
-
-            const appendLog = (msg, success = true) => {
-                if (!logBox) return;
-                const color = success ? '#34D399' : '#F87171';
-                const time = new Date().toLocaleTimeString('ar-EG');
-                logBox.innerHTML += `<div style="color: ${color}; margin-top: 3px;">[${time}] ${msg}</div>`;
-                logBox.scrollTop = logBox.scrollHeight;
-            };
-
-            let passed = 0;
-            const total = 10;
-
-            const tests = [
-                { name: '1. Authentication Guard & Session Lock', check: () => true },
-                { name: '2. Student Device Fingerprinting Engine', check: () => typeof localStorage !== 'undefined' },
-                { name: '3. Firebase RTDB Connection & Read Signal', check: async () => {
-                    const snap = await database.ref('.info/connected').once('value');
-                    return snap.val() === true;
-                }},
-                { name: '4. Courses & Subject Indexes Schema', check: async () => {
-                    const snap = await database.ref('Subjects').once('value');
-                    return snap.exists();
-                }},
-                { name: '5. Exam Suite & Answer Key Engine', check: async () => {
-                    const snap = await database.ref('Exams').once('value');
-                    return true;
-                }},
-                { name: '6. Student Results & Score Calculator', check: () => true },
-                { name: '7. Leaderboard & Points Indexing', check: async () => {
-                    const snap = await database.ref('Leaderboard').once('value');
-                    return true;
-                }},
-                { name: '8. Audio Stream Gateway & Server Probe', check: () => true },
-                { name: '9. Document Delivery & PDF Engine', check: () => true },
-                { name: '10. Notification Gateways & Service Worker', check: () => 'serviceWorker' in navigator }
-            ];
-
-            for (const t of tests) {
-                try {
-                    const ok = await t.check();
-                    if (ok) {
-                        passed++;
-                        appendLog(`✔ ${t.name} -> PASS`, true);
-                    } else {
-                        appendLog(`✖ ${t.name} -> WARN`, false);
-                    }
-                } catch(e) {
-                    appendLog(`✖ ${t.name} -> ERR: ${e.message}`, false);
-                }
-            }
-
-            if (badge) badge.textContent = `${passed}/${total} Passed ✔️`;
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: `تم الانتهاء من الفحص الشامل! 🧪`,
-                    text: `النتيجة النهائية: ${passed} من 10 وحدات تعمل بكفاءة 100%`,
-                    icon: 'success',
-                    timer: 2500,
-                    showConfirmButton: false
-                });
-            }
-        }
-
-        listenToAuditLogs();
-        listenToDeviceRequests();
-        inspectSuspiciousStudentNames();
-
-        // 🔍 Individual Student Diagnostic Engine
-        function runIndividualStudentDiagnostic(rawCode) {
-            if (!rawCode || !rawCode.trim()) {
-                if (typeof Swal !== 'undefined') Swal.fire('تنبيه', 'يرجى إدخال كود الطالب أولاً (مثال: ST101)', 'warning');
-                return;
-            }
-
-            const code = rawCode.trim().toUpperCase();
-            const box = document.getElementById('studentDiagReportOutput');
-            if (!box) return;
-
-            box.style.display = 'flex';
-            box.innerHTML = `<div style="text-align: center; color: #93C5FD; font-weight: 700; padding: 15px;">⏳ جاري جلب وتحليل سجلات الطالب (${code}) عبر 10 قطاعات...</div>`;
-
-            database.ref('Students/' + code).once('value').then(snap => {
-                const s = snap.val();
-                if (!s) {
-                    box.innerHTML = `
-                        <div style="color: #F87171; font-weight: 800; font-size: 13.5px; text-align: center; padding: 15px;">
-                            ❌ لم يتم العثور على طالب برقم الكود (${code}) في قاعدة البيانات الرئيسية.
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Check Device Requests
-                database.ref('DeviceRequests').orderByChild('studentCode').equalTo(code).once('value').then(devSnap => {
-                    let devPending = 0;
-                    if (devSnap.exists()) {
-                        devSnap.forEach(d => {
-                            if (d.val().status === 'pending') devPending++;
-                        });
-                    }
-
-                    const points = s.points || 0;
-                    const level = s.level || 1;
-                    const joinDate = s.joinDate ? new Date(s.joinDate).toLocaleDateString('ar-EG') : 'غير محدد';
-                    const isBanned = s.isBanned ? '🔴 محظور' : '🟢 نشط ومصرح';
-
-                    box.innerHTML = `
-                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-                            <div>
-                                <div style="font-size: 15px; font-weight: 900; color: #FFFFFF;">👤 ${s.fullName || 'طالب الخطة'} (${code})</div>
-                                <div style="font-size: 11.5px; color: #93C5FD; font-weight: 700; margin-top: 2px;">الهاتف: ${s.phone || 'غير مسجل'} • تاريخ الانضمام: ${joinDate}</div>
-                            </div>
-                            <span style="background: rgba(16, 185, 129, 0.12); color: #34D399; font-weight: 900; font-size: 11.5px; padding: 3px 10px; border-radius: 8px;">${isBanned}</span>
-                        </div>
-
-                        <!-- Diagnostic Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 4px;">
-                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
-                                🔑 حالة الحساب والمصادقة: <b style="color: #34D399;">مفعل وشرعي ✅</b>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
-                                📱 حراسة الأجهزة: <b style="color: ${devPending > 0 ? '#F59E0B' : '#34D399'}">${devPending > 0 ? `${devPending} طلب معلق ⚠️` : 'مصرح بالكامل ✅'}</b>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
-                                ⭐ رصيد النقاط والمستوى: <b style="color: #F59E0B;">${points} نقطة (لفل ${level})</b>
-                            </div>
-                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
-                                🛡️ بصمة الجهاز المسجل: <b style="color: #38BDF8;">${s.deviceFingerprint ? 'موثقة ومقيدة ✅' : 'جاهزة للتسجيل ⏳'}</b>
-                            </div>
-                        </div>
-
-                        <!-- Targeted Auto-Repair Buttons -->
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
-                            <button onclick="runSafeRepairForStudent('${code}', 'rebuild_progress')" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                🔄 مزامنة تقدم الطالب
-                            </button>
-                            <button onclick="runSafeRepairForStudent('${code}', 'sync_points')" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                💯 تثبيت نقاط الطالب
-                            </button>
-                            <button onclick="runSafeRepairForStudent('${code}', 'approve_device')" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                ✅ تفويض أجهزة الطالب
-                            </button>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function runSafeRepairForStudent(code, actionType) {
-            database.ref('ActivityLogs').push({
-                action: `تشغيل إصلاح آمن للطالب (${code}): ${actionType}`,
-                user: sessionStorage.getItem('adminName') || 'الأدمن',
-                timestamp: Date.now()
-            });
-
-            if (actionType === 'approve_device') {
-                database.ref('Students/' + code).update({ deviceApproved: true }).then(() => {
-                    if (typeof Swal !== 'undefined') Swal.fire({ title: 'تم تفويض أجهزة الطالب بنجاح ✅', icon: 'success' });
-                });
-            } else {
-                if (typeof Swal !== 'undefined') Swal.fire({ title: 'تمت مزامنة وإصلاح بيانات الطالب بنجاح ✔️', icon: 'success' });
-            }
-        }
-
-        // ─── Luxury Operational Hub Tabs Switcher ───
-        
-        // Mobile Sidebar Controls
-        function toggleMobileSidebar() {
-            const sidebar = document.querySelector('.executive-sidebar');
-            const backdrop = document.querySelector('.sidebar-backdrop');
-            if (sidebar && backdrop) {
-                const isOpen = sidebar.classList.toggle('sidebar-open');
-                backdrop.classList.toggle('active', isOpen);
-                if (isOpen) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            }
-        }
-
-        function closeMobileSidebar() {
-            const sidebar = document.querySelector('.executive-sidebar');
-            const backdrop = document.querySelector('.sidebar-backdrop');
-            if (sidebar && backdrop) {
-                sidebar.classList.remove('sidebar-open');
-                backdrop.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
-
-        // Swipe right to close mobile drawer
-        (function() {
-            const sidebar = document.querySelector('.executive-sidebar');
-            if (!sidebar) return;
-            let touchStartX = 0;
-            let touchStartY = 0;
-            sidebar.addEventListener('touchstart', function(e) {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-            sidebar.addEventListener('touchend', function(e) {
-                const diffX = e.changedTouches[0].clientX - touchStartX;
-                const diffY = e.changedTouches[0].clientY - touchStartY;
-                if (diffX > 60 && Math.abs(diffX) > Math.abs(diffY)) {
-                    closeMobileSidebar();
-                }
-            }, { passive: true });
-        })();
-
-        // Quick Global Search Bar Handler
-        function handleGlobalSearch(event, val) {
-            if (event.key === 'Enter') {
-                val = (val || '').trim();
-                if (!val) return;
-                switchAdminHubTab('students');
-                const inp = document.getElementById('diagStudentCodeInput');
-                if (inp) {
-                    inp.value = val;
-                    runIndividualStudentDiagnostic(val);
-                }
-            }
-        }
-
-        function switchAdminHubTab(tabName) {
-            const tabTitles = {
-                'services': '🎛️ لوحة القيادة والخدمات',
-                'students': '👥 شؤون الطلاب والأجهزة',
-                'noc': '📡 رادار المراقبة وسجل النشاط'
-            };
-
-            // Enforce Tab Permissions for Supervisors
-            if (role !== 'master' && role !== 'super_admin' && !permissions.all) {
-                if (tabName === 'students' && !permissions.students) {
-                    denySupervisorAccessModal('👥 شؤون الطلاب والأجهزة', 'غرفة إدارة الطلاب والأجهزة تتطلب صلاحية إدارة الطلاب.');
-                    return;
-                }
-            }
-            const breadcrumbEl = document.getElementById('activeHubBreadcrumb');
-            if (breadcrumbEl && tabTitles[tabName]) {
-                breadcrumbEl.textContent = tabTitles[tabName];
-            }
-            closeMobileSidebar();
-
-            const tabs = ['services', 'students', 'noc'];
-            tabs.forEach(t => {
-                const btn = document.getElementById('hubTab_' + t);
-                const view = document.getElementById('hubView_' + t);
-                if (btn) btn.classList.remove('active');
-                if (view) view.style.display = 'none';
-            });
-
-            const activeBtn = document.getElementById('hubTab_' + tabName);
-            const activeView = document.getElementById('hubView_' + tabName);
-            if (activeBtn) activeBtn.classList.add('active');
-            if (activeView) {
-                activeView.style.display = 'flex';
-                activeView.style.animation = 'fadeInHub 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-            }
-            try { localStorage.setItem('elkheta_admin_active_tab', tabName); } catch(e){}
-        }
-
-        (function() {
-            let savedTab = localStorage.getItem('elkheta_admin_active_tab') || 'services';
-            if (role !== 'master' && role !== 'super_admin' && !permissions.all) {
-                if (savedTab === 'students' && !permissions.students) savedTab = 'services';
-            }
-            if (savedTab !== 'services' && savedTab !== 'students' && savedTab !== 'noc') {
-                savedTab = 'services';
-            }
-            switchAdminHubTab(savedTab);
-        })();
     </script>
     <script src="custom-dialogs.js"></script>
     <script src="pwa-installer.js"></script>
