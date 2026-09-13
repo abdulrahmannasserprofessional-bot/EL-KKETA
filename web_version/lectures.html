@@ -1964,13 +1964,14 @@
                         let actionsHTML = '';
                         if (isLocked) {
                             actionsHTML = `
-                                <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})">
-                                    <i class="fa-solid fa-lock"></i> <span>المحاضرة مجدولة (اضغط للموعد)</span>
+                                <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);">
+                                    <i class="fa-solid fa-lock"></i> <span>محاضرة مجدولة (اضغط لعرض شاشة القفل والعداد)</span>
                                 </button>
-                                <button class="action-pill-btn pill-qa" onclick="openLectureQA(${index})">
-                                    <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
+                                <button class="action-pill-btn pill-qa" onclick="showLockedModalByIndex(${index})" title="المحاضرة مجدولة">
+                                    <i class="fa-solid fa-clock"></i> <span>تفتح تلقائياً بالموعد</span>
                                 </button>
                             `;
+                        } else {
                             const watchBtnHTML = lesson.videoUrl ? `
                                 <button class="btn-main-watch" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
                                     <i class="fa-solid fa-play"></i> <span>مشاهدة المحاضرة</span>
@@ -2013,7 +2014,7 @@
                         }
 
                         groupItemsHTML.push(`
-                            <div class="lesson-package" ${isLocked ? 'style="border-right-color: #F59E0B;"' : ''}>
+                            <div class="lesson-package" ${isLocked ? 'style="border-right-color: #F59E0B; cursor:pointer;" onclick="showLockedModalByIndex(' + index + ')"' : ''}>
                                 <div class="lesson-header-row">
                                     <div class="lesson-title-area">
                                         <div class="lesson-number" ${isLocked ? 'style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245,158,11,0.35);"' : ''}>${index+1}</div>
@@ -2740,6 +2741,10 @@
             }
 
             const lesson = (typeof index === 'number' && allLessons[index]) ? allLessons[index] : { title, audioUrl, allowAudioDownload: allowDownload };
+            if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
+                showLockedModal(lesson);
+                return;
+            }
             activeAudioLesson = lesson;
             activeAudioIndex = index;
 
@@ -3858,11 +3863,27 @@
                                         
         loadLessons();
     </script>
-<script src="custom-dialogs.js"></script>
-<script src="pwa-installer.js"></script>
-<script src="offline-overlay.js"></script>
-<script src="student-guard.js"></script>
-<script src="student-drawer.js"></script>
-<script src="live-chat.js?v=2.0"></script>
+<script src="custom-dialogs.js?v=2027"></script>
+<script src="pwa-installer.js?v=2027"></script>
+<script src="offline-overlay.js?v=2027"></script>
+<script src="student-guard.js?v=2027_v3"></script>
+<script src="student-drawer.js?v=2027_v3"></script>
+<script src="live-chat.js?v=2027_v3"></script>
+<script>
+    // Force purge any legacy cached bug button immediately
+    (function() {
+        function removeOldBugBtn() {
+            const b = document.getElementById('elkhetaFloatingBugBtn');
+            if (b) b.remove();
+            document.querySelectorAll('button').forEach(btn => {
+                if (btn.textContent && btn.textContent.includes('الإبلاغ عن عطل')) btn.remove();
+            });
+        }
+        removeOldBugBtn();
+        window.addEventListener('DOMContentLoaded', removeOldBugBtn);
+        setTimeout(removeOldBugBtn, 800);
+        setTimeout(removeOldBugBtn, 2000);
+    })();
+</script>
 </body>
 </html>

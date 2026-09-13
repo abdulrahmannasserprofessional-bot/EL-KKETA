@@ -741,14 +741,24 @@
         });
     }
 
-    // زر الإبلاغ السريع العائم تم استبداله بمنظومة الدعم الفني والمحادثة الحية المباشرة
-    function initFloatingBugButton() {
-        const oldBtn = document.getElementById('elkhetaFloatingBugBtn');
-        if (oldBtn) oldBtn.remove();
+    // حذف قسري فوري لزر الإبلاغ القديم واستبداله بمنظومة الشات والدعم الحي
+    function purgeOldBugButton() {
+        const ids = ['elkhetaFloatingBugBtn', 'bug-report-btn', 'reportEmergencyBtn'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        });
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.textContent && btn.textContent.includes('الإبلاغ عن عطل')) {
+                btn.remove();
+            }
+        });
     }
+    purgeOldBugButton();
 
     // تشغيل الحماية الشاملة فور جاهزية الصفحة وقاعدة البيانات
     function startGuards() {
+        purgeOldBugButton();
         checkStudentBan();
         ensureFirebase((db) => {
             initMaintenanceGuard(db);
