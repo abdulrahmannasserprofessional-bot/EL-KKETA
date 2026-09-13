@@ -551,6 +551,41 @@
             gap: 8px;
         }
         .toast-bubble.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        .preset-time-btn {
+            background: #FFFFFF;
+            border: 1px solid #C4B5FD;
+            color: #6D28D9;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .preset-time-btn:hover {
+            background: #7C3AED;
+            color: #FFFFFF;
+            border-color: #7C3AED;
+        }
+        .preset-msg-chip {
+            background: #FFFFFF;
+            border: 1px dashed #F59E0B;
+            color: #92400E;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 10.5px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: right;
+        }
+        .preset-msg-chip:hover {
+            background: #FEF3C7;
+            border-color: #D97706;
+        }
     </style>
 </head>
 <body>
@@ -751,19 +786,67 @@
                     <label class="form-label">⏱️ مدة العرض والمدة التقديرية</label>
                     <input type="text" id="duration" class="form-control" placeholder="مثال: 45 دقيقة">
                 </div>
-                <div class="form-group">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
-                        <label class="form-label" style="margin-bottom:0;">📅 جدولة موعد النشر التلقائي للمحاضرة</label>
-                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:800; color:var(--primary);">
-                            <input type="checkbox" id="enableScheduleToggle" onchange="toggleScheduleInput()" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                <div class="form-group" style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:18px; padding:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label class="form-label" style="margin-bottom:0; font-size:13.5px; font-weight:800; color:#1E293B;">
+                            📅 جدولة المحاضرة وإتاحتها بعداد زمني للطلاب
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:800; color:#7C3AED; background:#F5F3FF; padding:4px 10px; border-radius:20px; border:1px solid #DDD6FE;">
+                            <input type="checkbox" id="enableScheduleToggle" onchange="toggleScheduleInput()" style="width:16px; height:16px; accent-color:#7C3AED; cursor:pointer;">
                             <span>تفعيل الجدولة</span>
                         </label>
                     </div>
-                    <div id="scheduleTimeContainer" style="display:none;">
-                        <input type="datetime-local" id="lessonUnlockTime" class="form-control" style="direction:ltr; text-align:right;">
-                        <span style="font-size:11px; color:#7C3AED; font-weight:700; display:block; margin-top:5px;">
-                            <i class="fa-solid fa-circle-info"></i> عند تفعيل الجدولة بموعد مستقبلي، ستظل المحاضرة مخفية عن الطلاب وتفتح تلقائياً في هذا الموعد بدقة.
-                        </span>
+
+                    <div id="scheduleTimeContainer" style="display:none; margin-top:12px;">
+                        <div style="font-size:11.5px; color:#6D28D9; font-weight:700; background:#F5F3FF; padding:8px 12px; border-radius:10px; border:1px solid #DDD6FE; margin-bottom:10px;">
+                            ⭐ <b>تنبيه:</b> المحاضرة ستظهر للطلاب مقفولة بقفل أنيق 🔒 وعداد تنازلي بالثواني مع كلامك التحفيزي، وتفتح لهم تلقائياً بالثانية!
+                        </div>
+
+                        <!-- Quick Time Preset Chips -->
+                        <div style="margin-bottom:10px;">
+                            <span style="font-size:11px; font-weight:800; color:#64748B; display:block; margin-bottom:5px;">⚡ اختر موعداً سريعاً بضغطة واحدة:</span>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                <button type="button" class="preset-time-btn" onclick="setQuickSchedule(2, 'hours')">⏱️ بعد ساعتين</button>
+                                <button type="button" class="preset-time-btn" onclick="setQuickScheduleTonight(20)">🌙 الليلة 08:00 م</button>
+                                <button type="button" class="preset-time-btn" onclick="setQuickScheduleTomorrow(18)">☀️ غداً 06:00 م</button>
+                                <button type="button" class="preset-time-btn" onclick="setQuickSchedule(2, 'days')">📅 بعد يومين</button>
+                                <button type="button" class="preset-time-btn" onclick="setQuickSchedule(3, 'days')">🗓️ بعد 3 أيام</button>
+                            </div>
+                        </div>
+
+                        <!-- Exact Date & Time Picker -->
+                        <label class="form-label" style="font-size:12px; margin-bottom:4px;">تاريخ ووقت الإتاحة التلقائية بدقة:</label>
+                        <input type="datetime-local" id="lessonUnlockTime" class="form-control" style="direction:ltr; text-align:right;" onchange="updateAdminSchedulePreview()">
+
+                        <!-- Motivating Teaser Message -->
+                        <div style="margin-top:12px;">
+                            <label class="form-label" style="font-size:12px; margin-bottom:4px;">💬 كلام تشجيعي وتحفيزي للطلاب (يظهر على شاشة القفل والعداد):</label>
+                            <textarea id="lessonTeaserMessage" class="form-control" rows="2" placeholder="اكتب كلاماً جميلاً ومحفزاً للطلاب ينتظرون به المحاضرة..." oninput="updateAdminSchedulePreview()">🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!</textarea>
+                            
+                            <!-- Quick Motivating Chips -->
+                            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+                                <span style="font-size:10.5px; font-weight:800; color:#64748B; width:100%;">💡 اقتراحات جاهزة (اضغط لاختيار رسالة):</span>
+                                <button type="button" class="preset-msg-chip" onclick="setTeaserMsg('🚀 استعدوا يا أبطال! محاضرة هامة ستفتح قريباً مع تدريبات قوية')">🚀 استعدوا يا أبطال! محاضرة هامة ستفتح قريباً</button>
+                                <button type="button" class="preset-msg-chip" onclick="setTeaserMsg('🔥 موعدنا مع أقوى شرح وتطبيقات عملية.. جهزوا كشاكيلكم')">🔥 موعدنا مع أقوى شرح وتطبيقات عملية</button>
+                                <button type="button" class="preset-msg-chip" onclick="setTeaserMsg('🌟 خطوة جديدة نحو التفوق والدرجة النهائية.. بانتظاركم بكل حماس')">🌟 خطوة جديدة نحو التفوق والدرجة النهائية</button>
+                                <button type="button" class="preset-msg-chip" onclick="setTeaserMsg('💡 لا تتوقف عندما تتعب، توقف عندما تنتهي.. نلتقي قريباً في الموعد!')">💡 لا تتوقف عندما تتعب.. نلتقي في الموعد!</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Admin Preview Card -->
+                        <div id="adminScheduleLivePreview" style="margin-top:14px; background:linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%); border:1.5px solid #F59E0B; border-radius:14px; padding:12px; box-shadow:0 4px 12px rgba(245,158,11,0.12);">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                                <span style="font-size:11px; font-weight:900; color:#92400E; background:#FEF3C7; padding:3px 8px; border-radius:12px; border:1px solid #FDE68A;">🔒 معاينة بطاقة الطالب</span>
+                                <span id="adminPrevDateBadge" style="font-size:10.5px; font-weight:800; color:#B45309;">📅 موعد الفتح: لم يحدد</span>
+                            </div>
+                            <div id="adminPrevMsg" style="font-size:12px; font-weight:800; color:#78350F; background:rgba(255,255,255,0.8); padding:8px 10px; border-radius:8px; border:1px dashed #F59E0B; margin-bottom:6px;">
+                                💬 "🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!"
+                            </div>
+                            <div style="font-size:11px; color:#92400E; font-weight:700; text-align:center;">
+                                ⏳ ستفتح للطلاب تلقائياً بالثانية فور وصول الموعد المحدد.
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1194,10 +1277,10 @@
                 }
             }
 
-            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize, lesson.audioUrl, lesson.allowAudioDownload);
+            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize, lesson.audioUrl, lesson.allowAudioDownload, lesson.teaserMessage);
         }
 
-        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize, audioUrl, allowAudioDownload) {
+        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize, audioUrl, allowAudioDownload, teaserMessage) {
             editingLessonId = id;
             editingSubject = subject;
             
@@ -1212,6 +1295,11 @@
             document.getElementById('audioUrl').value = audioUrl && audioUrl !== 'undefined' ? audioUrl : "";
             document.getElementById('allowAudioDownload').checked = Boolean(allowAudioDownload === true || allowAudioDownload === 'true');
             
+            const teaserEl = document.getElementById('lessonTeaserMessage');
+            if (teaserEl) {
+                teaserEl.value = (teaserMessage && teaserMessage !== 'undefined') ? teaserMessage : "🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!";
+            }
+
             const cleanChapter = chapter && chapter !== 'undefined' && chapter !== 'null' ? chapter : "";
             updateChapterDropdown(false, cleanChapter);
             updateQuestionCountLive();
@@ -1225,6 +1313,7 @@
                 if (toggle) toggle.checked = true;
                 const container = document.getElementById('scheduleTimeContainer');
                 if (container) container.style.display = 'block';
+                updateAdminSchedulePreview();
             } else {
                 document.getElementById('lessonUnlockTime').value = "";
                 const toggle = document.getElementById('enableScheduleToggle');
@@ -1246,6 +1335,74 @@
             if (container) container.style.display = isChecked ? 'block' : 'none';
             if (!isChecked) {
                 document.getElementById('lessonUnlockTime').value = '';
+            } else {
+                if (!document.getElementById('lessonUnlockTime').value) {
+                    setQuickScheduleTomorrow(18); // Default to tomorrow 6 PM
+                } else {
+                    updateAdminSchedulePreview();
+                }
+            }
+        }
+
+        function setQuickSchedule(amount, unit) {
+            const now = new Date();
+            if (unit === 'hours') {
+                now.setHours(now.getHours() + amount);
+            } else if (unit === 'days') {
+                now.setDate(now.getDate() + amount);
+            }
+            applyDateToUnlockInput(now);
+        }
+
+        function setQuickScheduleTonight(hour24) {
+            const target = new Date();
+            target.setHours(hour24, 0, 0, 0);
+            if (target.getTime() <= Date.now()) {
+                target.setDate(target.getDate() + 1);
+            }
+            applyDateToUnlockInput(target);
+        }
+
+        function setQuickScheduleTomorrow(hour24) {
+            const target = new Date();
+            target.setDate(target.getDate() + 1);
+            target.setHours(hour24, 0, 0, 0);
+            applyDateToUnlockInput(target);
+        }
+
+        function applyDateToUnlockInput(dateObj) {
+            const tzoffset = dateObj.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(dateObj.getTime() - tzoffset)).toISOString().slice(0, 16);
+            const input = document.getElementById('lessonUnlockTime');
+            if (input) {
+                input.value = localISOTime;
+                updateAdminSchedulePreview();
+            }
+        }
+
+        function setTeaserMsg(msg) {
+            const ta = document.getElementById('lessonTeaserMessage');
+            if (ta) {
+                ta.value = msg;
+                updateAdminSchedulePreview();
+            }
+        }
+
+        function updateAdminSchedulePreview() {
+            const input = document.getElementById('lessonUnlockTime')?.value;
+            const dateBadge = document.getElementById('adminPrevDateBadge');
+            const msgEl = document.getElementById('adminPrevMsg');
+            const msg = document.getElementById('lessonTeaserMessage')?.value.trim() || 'كلام تحفيزي للطلاب...';
+
+            if (msgEl) msgEl.innerText = `💬 "${msg}"`;
+
+            if (dateBadge) {
+                if (input) {
+                    const d = new Date(input);
+                    dateBadge.innerText = '📅 موعد الفتح: ' + d.toLocaleString('ar-EG', { weekday:'short', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                } else {
+                    dateBadge.innerText = '📅 موعد الفتح: لم يحدد بعد';
+                }
             }
         }
 
@@ -1264,6 +1421,7 @@
             const isScheduleActive = document.getElementById('enableScheduleToggle')?.checked;
             const unlockInput = isScheduleActive ? document.getElementById('lessonUnlockTime').value : null;
             const unlockTime = (isScheduleActive && unlockInput) ? new Date(unlockInput).getTime() : null;
+            const teaserMessage = document.getElementById('lessonTeaserMessage')?.value.trim() || '';
 
             const chapterSelect = document.getElementById('chapterSelect');
             let chapter = "";
@@ -1290,7 +1448,8 @@
                 jsonCode: examJson || "",
                 duration: duration || "متوفر",
                 chapter: chapter || "",
-                unlockTime: unlockTime || null
+                unlockTime: unlockTime || null,
+                teaserMessage: (isScheduleActive && teaserMessage) ? teaserMessage : null
             };
 
             if (chapter) {
@@ -1350,6 +1509,10 @@
             document.getElementById('examJson').value = "";
             document.getElementById('duration').value = "";
             document.getElementById('lessonUnlockTime').value = "";
+
+            const teaserEl = document.getElementById('lessonTeaserMessage');
+            if (teaserEl) teaserEl.value = "🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!";
+            updateAdminSchedulePreview();
             
             const toggle = document.getElementById('enableScheduleToggle');
             if (toggle) toggle.checked = false;

@@ -1655,10 +1655,6 @@
         if (cachedLec) {
             try {
                 let parsed = JSON.parse(cachedLec);
-                const isUserAdmin = sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true';
-                if (!isUserAdmin) {
-                    parsed = parsed.filter(l => !l.unlockTime || l.unlockTime <= Date.now());
-                }
                 allLessons = parsed;
                 if (allLessons.length > 0) renderLessons(allLessons);
             } catch(e){}
@@ -1676,10 +1672,6 @@
 
                 function addLesson(key, val) {
                     if (!val) return;
-                    const isUserAdmin = sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true';
-                    if (!isUserAdmin && val.unlockTime && val.unlockTime > Date.now()) {
-                        return; // Lesson is scheduled for the future; keep hidden from student until time arrives
-                    }
                     const id = key || val.id;
                     const title = (val.title || val.name || '').trim();
                     if (id && seenIds.has(id)) return;
@@ -1849,6 +1841,7 @@
                         
                         const lockDate = new Date(lesson.unlockTime);
                         const dateFormatted = `${lockDate.toLocaleDateString('ar-EG', { weekday:'short', month:'short', day:'numeric' })} - ${lockDate.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' })}`;
+                        const teaserMsg = lesson.teaserMessage || "استعدوا يا أبطال! محاضرة شيقة ومهمة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم! 🚀✨";
 
                         lockHTML = `
                             <div class="scheduled-premium-card" onclick="showLockedModalByIndex(${index})">
@@ -1860,6 +1853,10 @@
                                     <div class="scheduled-date-badge">
                                         📅 ${dateFormatted}
                                     </div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.95); border: 1.5px dashed #F59E0B; border-radius: 12px; padding: 10px 14px; margin: 10px 0 8px; font-size: 13px; font-weight: 800; color: #92400E; display: flex; align-items: center; gap: 8px; line-height: 1.5; box-shadow: 0 2px 8px rgba(245,158,11,0.08);">
+                                    <span style="font-size: 18px;">✨</span>
+                                    <span>${teaserMsg}</span>
                                 </div>
                                 <div class="scheduled-timer-grid" data-unlock="${lesson.unlockTime}">
                                     <div class="time-segment">
@@ -1884,7 +1881,7 @@
                                 </div>
                                 <div class="scheduled-subtext">
                                     <span>⏳ تفتح تلقائياً فور انتهاء العد التنازلي</span>
-                                    <span class="scheduled-click-tip">اضغط للتفاصيل 👈</span>
+                                    <span class="scheduled-click-tip">اضغط لعرض شاشة القفل 👈</span>
                                 </div>
                             </div>
                         `;
@@ -2300,6 +2297,7 @@
             }
         }
 
+        let activeLockedModalInterval = null;
         function showLockedModal(lesson) {
             if (!lesson) return;
             const lockDate = new Date(lesson.unlockTime);
@@ -2311,58 +2309,104 @@
 
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
             const dateFormatted = lockDate.toLocaleDateString('ar-EG', dateOptions);
+            const teaserMsg = lesson.teaserMessage || "استعدوا يا أبطال! محاضرة شيقة ومهمة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم! 🚀✨";
 
             Swal.fire({
                 title: '',
                 html: `
-                    <div style="text-align: center; padding: 5px 0;">
-                        <div style="width: 75px; height: 75px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35); border: 3px solid #F59E0B;">
+                    <div style="text-align: center; padding: 8px 4px;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin: 0 auto 16px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4); border: 3px solid #F59E0B; animation: pulse-dot 2s infinite;">
                             🔒
                         </div>
-                        <div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:800; padding:3px 12px; border-radius:20px; border:1px solid #FDE68A; margin-bottom:10px;">
+                        <div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11.5px; font-weight:800; padding:4px 14px; border-radius:20px; border:1px solid #FDE68A; margin-bottom:10px;">
                             ✨ محاضرة حصرية مجدولة
                         </div>
-                        <h3 style="font-size: 17px; font-weight: 900; color: #1E293B; margin: 0 0 6px 0; line-height:1.4;">${lesson.title}</h3>
-                        <div style="font-size: 12px; color: #64748B; font-weight: bold; margin-bottom: 18px;">${lesson.chapter || 'منهج المادة الدراسية'}</div>
+                        <h3 style="font-size: 18px; font-weight: 900; color: #1E293B; margin: 0 0 6px 0; line-height:1.4;">${lesson.title}</h3>
+                        <div style="font-size: 12.5px; color: #64748B; font-weight: bold; margin-bottom: 14px;">${lesson.chapter || (subject || 'منهج المادة')}</div>
 
+                        <!-- Motivating / Teaser Message -->
+                        <div style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1.5px dashed #F59E0B; border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; color: #92400E; font-weight: 800; font-size: 13.5px; line-height: 1.6; text-align: center; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);">
+                            💬 "${teaserMsg}"
+                        </div>
+
+                        <!-- Live Ticking Countdown Box -->
                         <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-                            <div style="font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 10px;">⏳ متبقي على إتاحة المحتوى لجميع الطلاب:</div>
+                            <div style="font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 10px;">⏳ متبقي على الإتاحة التلقائية (بالثواني):</div>
                             <div style="display: flex; align-items: center; justify-content: center; gap: 6px; direction: ltr;">
-                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
-                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${days < 10 ? '0' + days : days}</span>
-                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">أيام</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 8px 10px; min-width: 52px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span id="swalLockedDays" style="display:block; font-size:18px; font-weight:900; color:#D97706; font-family:monospace;">${days < 10 ? '0' + days : days}</span>
+                                    <span style="display:block; font-size:9.5px; color:#94A3B8; font-weight:bold; margin-top:2px;">أيام</span>
                                 </div>
                                 <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
-                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
-                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${hours < 10 ? '0' + hours : hours}</span>
-                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">ساعة</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 8px 10px; min-width: 52px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span id="swalLockedHours" style="display:block; font-size:18px; font-weight:900; color:#D97706; font-family:monospace;">${hours < 10 ? '0' + hours : hours}</span>
+                                    <span style="display:block; font-size:9.5px; color:#94A3B8; font-weight:bold; margin-top:2px;">ساعة</span>
                                 </div>
                                 <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
-                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
-                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${mins < 10 ? '0' + mins : mins}</span>
-                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">دقيقة</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 8px 10px; min-width: 52px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span id="swalLockedMins" style="display:block; font-size:18px; font-weight:900; color:#D97706; font-family:monospace;">${mins < 10 ? '0' + mins : mins}</span>
+                                    <span style="display:block; font-size:9.5px; color:#94A3B8; font-weight:bold; margin-top:2px;">دقيقة</span>
                                 </div>
                                 <span style="font-weight:900; color:#F59E0B; font-size:16px;">:</span>
-                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 6px 8px; min-width: 50px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
-                                    <span style="display:block; font-size:17px; font-weight:900; color:#D97706; font-family:monospace;">${secs < 10 ? '0' + secs : secs}</span>
-                                    <span style="display:block; font-size:9px; color:#94A3B8; font-weight:bold; margin-top:2px;">ثانية</span>
+                                <div style="background: #FFFFFF; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 8px 10px; min-width: 52px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                    <span id="swalLockedSecs" style="display:block; font-size:18px; font-weight:900; color:#D97706; font-family:monospace;">${secs < 10 ? '0' + secs : secs}</span>
+                                    <span style="display:block; font-size:9.5px; color:#94A3B8; font-weight:bold; margin-top:2px;">ثانية</span>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Target Unlock Date -->
                         <div style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border: 1px solid #FDE68A; border-radius: 14px; padding: 12px 14px; font-size: 12px; font-weight: bold; color: #92400E; margin-bottom: 14px; text-align:center;">
                             📅 موعد الفتح التلقائي:<br>
-                            <span style="font-size: 13px; color: #B45309; font-weight:800;">${dateFormatted}</span>
+                            <span style="font-size: 13.5px; color: #B45309; font-weight:900; display:block; margin-top:4px;">${dateFormatted}</span>
                         </div>
 
-                        <div style="background:#F1F5F9; border-radius:12px; padding:10px 14px; font-size: 11px; color: #64748B; line-height: 1.6; text-align:right;">
-                            💡 تم رفع محتوى المحاضرة وملحقاتها بالكامل مسبقاً، وسيتم فتح إمكانية مشاهدة الفيديو وتصفح الملخص وخوض الامتحان مباشرةً وبشكل تلقائي بمجرد انتهاء الوقت.
+                        <div style="background:#F1F5F9; border-radius:12px; padding:10px 14px; font-size: 11.5px; color: #64748B; line-height: 1.6; text-align:right;">
+                            💡 <b>فتح تلقائي بالثانية:</b> تم رفع المحتوى مسبقاً، وسيتم إتاحة المشاهدة والتصفح والامتحان فوراً وبشكل تلقائي بدون الحاجة لتحديث الصفحة بمجرد انتهاء العداد.
                         </div>
                     </div>
                 `,
-                confirmButtonText: 'حسناً، بانتظار المحاضرة 🌟',
+                confirmButtonText: 'حسناً، سأكون في الموعد 🎯',
                 confirmButtonColor: '#D97706',
-                showCloseButton: true
+                showCloseButton: true,
+                didOpen: () => {
+                    if (activeLockedModalInterval) clearInterval(activeLockedModalInterval);
+                    const modal = Swal.getHtmlContainer();
+                    if (!modal) return;
+                    activeLockedModalInterval = setInterval(() => {
+                        const target = lesson.unlockTime || Date.now();
+                        const rem = target - Date.now();
+                        if (rem <= 0) {
+                            clearInterval(activeLockedModalInterval);
+                            activeLockedModalInterval = null;
+                            Swal.close();
+                            if (typeof showToast === 'function') {
+                                showToast('🎉 حان موعد المحاضرة! تم فتحها لك الآن بنجاح!', 'success');
+                            }
+                            filterLessons();
+                            return;
+                        }
+                        const d = Math.max(0, Math.floor(rem / (1000 * 60 * 60 * 24)));
+                        const h = Math.max(0, Math.floor((rem / (1000 * 60 * 60)) % 24));
+                        const m = Math.max(0, Math.floor((rem / 1000 / 60) % 60));
+                        const s = Math.max(0, Math.floor((rem / 1000) % 60));
+
+                        const dEl = modal.querySelector('#swalLockedDays');
+                        const hEl = modal.querySelector('#swalLockedHours');
+                        const mEl = modal.querySelector('#swalLockedMins');
+                        const sEl = modal.querySelector('#swalLockedSecs');
+                        if (dEl) dEl.innerText = d < 10 ? '0' + d : d;
+                        if (hEl) hEl.innerText = h < 10 ? '0' + h : h;
+                        if (mEl) mEl.innerText = m < 10 ? '0' + m : m;
+                        if (sEl) sEl.innerText = s < 10 ? '0' + s : s;
+                    }, 1000);
+                },
+                willClose: () => {
+                    if (activeLockedModalInterval) {
+                        clearInterval(activeLockedModalInterval);
+                        activeLockedModalInterval = null;
+                    }
+                }
             });
         }
 
