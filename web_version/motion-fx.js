@@ -1,0 +1,246 @@
+/**
+ * 🎬 ELKHETA KINETIC MOTION & INTERACTION ENGINE (PRO 2027)
+ * Hardware-accelerated 3D Tilt, Kinetic Number Counters, Liquid Ripples & Scroll Reveals.
+ */
+
+(function () {
+    'use strict';
+
+    // ─── 1. Fluid Number Counter Animation ───
+    function animateCounter(el, target, duration = 1200, suffix = '', prefix = '') {
+        if (!el || isNaN(target) || el._isAnimatingCounter) return;
+        el._isAnimatingCounter = true;
+        const start = 0;
+        const startTime = performance.now();
+
+        function update(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease-out cubic formula
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = Math.floor(start + (target - start) * easeOut);
+            
+            el.textContent = `${prefix}${current.toLocaleString('en-US')}${suffix}`;
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = `${prefix}${target.toLocaleString('en-US')}${suffix}`;
+                el._isAnimatingCounter = false;
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
+    function initNumberCounters() {
+        const selectorList = [
+            '.kpi-num',
+            '.stat-value',
+            '#totalStudents',
+            '#onlineStudents',
+            '#activeToday',
+            '#inactiveStudents',
+            '#examsCount',
+            '#pdfCount',
+            '#totalLessonsCount',
+            '#activeSubjectsCount',
+            '[data-counter]'
+        ];
+
+        const elements = document.querySelectorAll(selectorList.join(', '));
+        elements.forEach(el => {
+            // Observe DOM text changes if numbers are populated dynamically by Firebase
+            const observer = new MutationObserver(() => {
+                const raw = el.textContent.trim();
+                if (raw && raw !== '—' && raw !== '...' && !el._hasAnimatedOnce) {
+                    const match = raw.match(/^([^\d]*)([\d,]+)(.*)$/);
+                    if (match) {
+                        const prefix = match[1] || '';
+                        const num = parseInt(match[2].replace(/,/g, ''), 10);
+                        const suffix = match[3] || '';
+                        if (!isNaN(num) && num > 0) {
+                            el._hasAnimatedOnce = true;
+                            animateCounter(el, num, 1100, suffix, prefix);
+                        }
+                    }
+                }
+            });
+
+            observer.observe(el, { childList: true, characterData: true, subtree: true });
+
+            // Initial check
+            const raw = el.textContent.trim();
+            const match = raw.match(/^([^\d]*)([\d,]+)(.*)$/);
+            if (match) {
+                const prefix = match[1] || '';
+                const num = parseInt(match[2].replace(/,/g, ''), 10);
+                const suffix = match[3] || '';
+                if (!isNaN(num) && num > 0 && !el._hasAnimatedOnce) {
+                    el._hasAnimatedOnce = true;
+                    animateCounter(el, num, 1100, suffix, prefix);
+                }
+            }
+        });
+    }
+
+    // ─── 2. Interactive 3D Card Tilt Physics ───
+    function initCardTilt() {
+        // Do not enable on touch devices to conserve battery & prevent jumpy touch scrolling
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+
+        const tiltCards = document.querySelectorAll('.service-card, .kpi-card, .subject-card, .stat-chip, .card');
+        
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Max tilt 3.5 degrees
+                const rotateX = ((y - centerY) / centerY) * -3.5;
+                const rotateY = ((x - centerX) / centerX) * 3.5;
+
+                card.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-4px) scale(1.008)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+
+    // ─── 3. Liquid Ripple Click System ───
+    function initRippleClicks() {
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('button, .btn, .service-card, .action-icon-btn, .nav-btn, .filter-chip, .sort-btn');
+            if (!target) return;
+
+            const rect = target.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'motion-ripple-circle';
+
+            const size = Math.max(rect.width, rect.height) * 1.5;
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+            ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+            target.appendChild(ripple);
+
+            setTimeout(() => {
+                if (ripple.parentElement) {
+                    ripple.remove();
+                }
+            }, 600);
+        });
+    }
+
+    // ─── 4. Staggered Cascading Reveal Engine ───
+    function initScrollReveal() {
+        const revealItems = document.querySelectorAll(
+            '.service-card, .kpi-card, .student-item-card, .lesson-card-item, .subject-group-card, .sector-header, .card, .stat-chip'
+        );
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, i) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('motion-reveal');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+
+            revealItems.forEach((el, idx) => {
+                // Apply subtle staggering if within the initial viewport
+                const staggerClass = `stagger-${(idx % 12) + 1}`;
+                el.classList.add(staggerClass);
+                observer.observe(el);
+            });
+        } else {
+            revealItems.forEach(el => el.classList.add('motion-reveal'));
+        }
+    }
+
+    // ─── 5. Golden Confetti / Celebration Engine ───
+    window.launchMotionCelebration = function(durationMs = 2800) {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999999';
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#F59E0B', '#FBBF24', '#38BDF8', '#818CF8', '#10B981', '#FFFFFF', '#6366F1'];
+
+            for (let i = 0; i < 90; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.4,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * 40 + 10,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.floor(Math.random() * 10) - 10,
+                    tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+                    tiltAngle: 0
+                });
+            }
+
+            let animationFrameId;
+            const startTime = performance.now();
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 1.5;
+                    p.tilt = Math.sin(p.tiltAngle - (particles.indexOf(p) / 3)) * 15;
+
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r / 2;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+                    ctx.stroke();
+                });
+
+                if (performance.now() - startTime < durationMs) {
+                    animationFrameId = requestAnimationFrame(draw);
+                } else {
+                    cancelAnimationFrame(animationFrameId);
+                    if (canvas.parentElement) canvas.remove();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        } catch(e) {
+            console.warn('Celebration canvas unsupported', e);
+        }
+    };
+
+    // ─── Initialize All On DOM Ready ───
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initNumberCounters();
+            initCardTilt();
+            initRippleClicks();
+            initScrollReveal();
+        });
+    } else {
+        initNumberCounters();
+        initCardTilt();
+        initRippleClicks();
+        initScrollReveal();
+    }
+
+})();

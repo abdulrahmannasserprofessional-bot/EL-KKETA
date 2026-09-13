@@ -1,0 +1,346 @@
+/**
+ * 🎬 ELKHETA KINETIC MOTION GRAPHICS SYSTEM (PRO 2027)
+ * High-performance, GPU-accelerated motion graphics, spring physics & liquid micro-interactions.
+ */
+
+/* ─── 1. Keyframe Physics & Kinetic Springs ─── */
+@keyframes motionFadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+    60% {
+        opacity: 0.9;
+        transform: translateY(-2px) scale(1.003);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes motionFadeSlideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes motionScaleSpring {
+    0% {
+        opacity: 0;
+        transform: scale(0.88);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.035);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes motionShimmerSweep {
+    0% {
+        transform: translateX(-150%) skewX(-20deg);
+    }
+    100% {
+        transform: translateX(250%) skewX(-20deg);
+    }
+}
+
+@keyframes motionAmbientOrbFloat {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+        filter: blur(60px);
+    }
+    33% {
+        transform: translate(30px, -25px) scale(1.08);
+        filter: blur(75px);
+    }
+    66% {
+        transform: translate(-25px, 20px) scale(0.95);
+        filter: blur(50px);
+    }
+    100% {
+        transform: translate(0px, 0px) scale(1);
+        filter: blur(60px);
+    }
+}
+
+@keyframes motionRadarPulseMulti {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 0 0 rgba(56, 189, 248, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 9px rgba(16, 185, 129, 0), 0 0 0 16px rgba(56, 189, 248, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 0 0 rgba(56, 189, 248, 0);
+    }
+}
+
+@keyframes motionTrophyGleam {
+    0%, 100% {
+        filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.95)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.6));
+        transform: scale(1.08) rotate(3deg);
+    }
+}
+
+@keyframes motionFloatingBadge {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes motionRippleAnim {
+    0% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* ─── 2. Universal Kinetic Card Physics ─── */
+.service-card,
+.kpi-card,
+.stat-chip,
+.student-item-card,
+.lesson-card-item,
+.card,
+.subject-card,
+.course-card,
+.exam-card,
+.quiz-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s ease,
+                background-color 0.25s ease !important;
+    will-change: transform, box-shadow;
+}
+
+/* Glass Reflection Sweep on Card Hover */
+.service-card::after,
+.kpi-card::after,
+.student-item-card::after,
+.lesson-card-item::after,
+.subject-card::after,
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%
+    );
+    transform: translateX(-200%) skewX(-22deg);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.service-card:hover::after,
+.kpi-card:hover::after,
+.student-item-card:hover::after,
+.lesson-card-item:hover::after,
+.subject-card:hover::after,
+.card:hover::after {
+    opacity: 1;
+    animation: motionShimmerSweep 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Card Hover Elevation */
+.service-card:hover,
+.subject-card:hover,
+.card:hover {
+    transform: translateY(-4px) scale(1.008) !important;
+    box-shadow: 0 14px 34px -8px rgba(0, 0, 0, 0.35),
+                0 0 20px -3px rgba(56, 189, 248, 0.15) !important;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px) scale(1.015) !important;
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.student-item-card:hover,
+.lesson-card-item:hover {
+    transform: translateY(-3px) scale(1.005) !important;
+    box-shadow: 0 12px 30px -8px rgba(37, 99, 235, 0.22) !important;
+}
+
+/* ─── 3. Icon Kinetic Micro-Bounce ─── */
+.app-icon,
+.kpi-icon,
+.brand-icon,
+.sector-icon-box,
+.avatar-ring {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.35s ease !important;
+    will-change: transform;
+}
+
+.service-card:hover .app-icon,
+.kpi-card:hover .kpi-icon,
+.student-item-card:hover .avatar-ring {
+    transform: scale(1.12) rotate(-4deg);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4) !important;
+}
+
+/* Arrow Slide */
+.card-arrow {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease !important;
+}
+.service-card:hover .card-arrow {
+    transform: translateX(-5px) scale(1.08) !important;
+}
+
+/* ─── 4. Tactile Elastic Button Press ─── */
+button,
+.btn,
+.btn-publish-main,
+.btn-add-student,
+.btn-export-hdr,
+.action-icon-btn,
+.nav-btn,
+.filter-chip,
+.back-btn,
+.sort-btn,
+.btn-radar-alert {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease,
+                background-color 0.2s ease,
+                border-color 0.2s ease !important;
+}
+
+button:active,
+.btn:active,
+.btn-publish-main:active,
+.btn-add-student:active,
+.action-icon-btn:active,
+.nav-btn:active,
+.filter-chip:active {
+    transform: scale(0.95) !important;
+}
+
+/* Click Ripple Layer */
+.motion-ripple-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+    animation: motionRippleAnim 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    transform-origin: center center;
+    z-index: 99;
+}
+
+/* ─── 5. Staggered Cascading Reveal Delays ─── */
+.motion-reveal {
+    animation: motionFadeSlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stagger-1  { animation-delay: 0.04s; }
+.stagger-2  { animation-delay: 0.08s; }
+.stagger-3  { animation-delay: 0.12s; }
+.stagger-4  { animation-delay: 0.16s; }
+.stagger-5  { animation-delay: 0.20s; }
+.stagger-6  { animation-delay: 0.24s; }
+.stagger-7  { animation-delay: 0.28s; }
+.stagger-8  { animation-delay: 0.32s; }
+.stagger-9  { animation-delay: 0.36s; }
+.stagger-10 { animation-delay: 0.40s; }
+.stagger-11 { animation-delay: 0.44s; }
+.stagger-12 { animation-delay: 0.48s; }
+
+/* ─── 6. Ambient Light & Pulsing Living Orbs ─── */
+.ambient-glow,
+.living-ambient-orb {
+    animation: motionAmbientOrbFloat 14s infinite ease-in-out !important;
+    pointer-events: none;
+}
+
+/* Radar multi-ring beacon */
+.pulse-dot,
+.live-pulse-dot {
+    position: relative;
+    display: inline-block;
+}
+.pulse-dot::before,
+.live-pulse-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: motionRadarPulseMulti 2s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Trophy & Gold Shimmer */
+.trophy-gleam,
+.badge-honor-gold {
+    animation: motionTrophyGleam 2.8s infinite ease-in-out;
+}
+
+.floating-badge {
+    animation: motionFloatingBadge 2.2s infinite ease-in-out;
+}
+
+/* Shimmer Loading Skeleton */
+.motion-skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: motionSkeletonSweep 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes motionSkeletonSweep {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ─── 7. Modal & Dialogue Motion ─── */
+.swal2-popup,
+.modal-box-motion {
+    animation: motionScaleSpring 0.38s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+/* ─── 8. Accessibility: Respect User's Reduced Motion Preferences ─── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

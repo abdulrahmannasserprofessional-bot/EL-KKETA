@@ -6,8 +6,10 @@
     <title>نتائج ودرجات الطلاب - ELKHETA PRO 2027</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="motion-fx.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="motion-fx.js?v=2.0" defer></script>
     <style>
         :root {
             --primary: #2563EB;
@@ -781,6 +783,7 @@
             };
 
             database.ref('HonorRoll').set(payload).then(() => {
+                if (window.launchMotionCelebration) window.launchMotionCelebration(3500);
                 Swal.fire({
                     icon: 'success',
                     title: 'تم النشر بنجاح! 🏆',
@@ -878,6 +881,7 @@
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
                 }).from(certWrapper).save().then(() => {
                     document.body.removeChild(certWrapper);
+                    if (window.launchMotionCelebration) window.launchMotionCelebration(2800);
                     Swal.fire({
                         icon: 'success',
                         title: 'تم تصدير الشهادة بنجاح! 🎓',
