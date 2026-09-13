@@ -7,59 +7,73 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="الخطة">
+    <meta name="apple-mobile-web-app-title" content="الخطة - iPad Pro">
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غرفة القيادة العليا ورئيس المنصة - ELKHETA</title>
+    <title>iPad Pro 4 - لوحة القيادة العليا ورئيس المنصة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* ─── Apple iPad Pro 4 & iPadOS Pro System Tokens ─── */
         :root {
-            --bg-canvas: #06080F;
-            --sidebar-bg: rgba(11, 15, 25, 0.95);
-            --header-bg: rgba(11, 15, 25, 0.82);
-            --card-bg: rgba(15, 21, 37, 0.78);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-hover-border: rgba(99, 102, 241, 0.45);
-            --card-hover-bg: rgba(20, 28, 48, 0.9);
-            --primary: #6366F1;
-            --primary-glow: rgba(99, 102, 241, 0.25);
-            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --text-dim: #64748B;
-            --accent-gold: #F59E0B;
-            --accent-cyan: #38BDF8;
-            --accent-emerald: #10B981;
-            --accent-rose: #F43F5E;
-            --sidebar-w: 270px;
-            --sidebar-collapsed-w: 76px;
+            --ipad-bg: #07080D;
+            --ipad-surface: rgba(18, 21, 32, 0.76);
+            --ipad-surface-hover: rgba(28, 33, 50, 0.88);
+            --ipad-dock-bg: rgba(15, 18, 28, 0.85);
+            --ipad-glass-blur: blur(32px);
+            --ipad-border: rgba(255, 255, 255, 0.09);
+            --ipad-border-hover: rgba(255, 255, 255, 0.22);
+            --ipad-inner-specular: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            --ipad-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+            --ipad-shadow-sm: 0 6px 20px rgba(0, 0, 0, 0.25);
+            
+            /* Apple Cupertino Palette */
+            --apple-blue: #0A84FF;
+            --apple-blue-glow: rgba(10, 132, 255, 0.28);
+            --apple-indigo: #5E5CE6;
+            --apple-purple: #BF5AF2;
+            --apple-pink: #FF375F;
+            --apple-orange: #FF9F0A;
+            --apple-gold: #FFD60A;
+            --apple-emerald: #30D158;
+            --apple-cyan: #64D2FF;
+            --apple-red: #FF453A;
+            
+            --text-main: #FFFFFF;
+            --text-sub: #98989F;
+            --text-tertiary: #636366;
+            
+            --sidebar-w: 275px;
+            --sidebar-collapsed-w: 78px;
+            --spring-transition: all 0.32s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         body.light-theme {
-            --bg-canvas: #F8FAFC;
-            --sidebar-bg: rgba(255, 255, 255, 0.96);
-            --header-bg: rgba(255, 255, 255, 0.92);
-            --card-bg: #FFFFFF;
-            --card-border: #E2E8F0;
-            --card-hover-border: #6366F1;
-            --card-hover-bg: #F8FAFC;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --text-dim: #94A3B8;
+            --ipad-bg: #F2F2F7;
+            --ipad-surface: rgba(255, 255, 255, 0.82);
+            --ipad-surface-hover: rgba(255, 255, 255, 0.95);
+            --ipad-dock-bg: rgba(242, 242, 247, 0.88);
+            --ipad-border: rgba(0, 0, 0, 0.08);
+            --ipad-border-hover: rgba(0, 0, 0, 0.18);
+            --ipad-inner-specular: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            --ipad-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
+            --ipad-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04);
+            --text-main: #000000;
+            --text-sub: #8E8E93;
+            --text-tertiary: #AEAEB2;
         }
 
         * {
             margin: 0; padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background-color: var(--bg-canvas);
+            background-color: var(--ipad-bg);
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
@@ -69,97 +83,105 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Subtle Ambient Glow */
+        /* ─── Ambient Stage Glows ─── */
         .ambient-glow {
             position: fixed;
             pointer-events: none;
             z-index: 0;
             border-radius: 50%;
-            filter: blur(160px);
-            opacity: 0.22;
+            filter: blur(170px);
+            opacity: 0.18;
         }
         .glow-top-right {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, #4338CA 0%, transparent 70%);
-            top: -150px; right: -150px;
+            width: 550px; height: 550px;
+            background: radial-gradient(circle, #5E5CE6 0%, transparent 70%);
+            top: -120px; right: -120px;
         }
         .glow-bottom-left {
-            width: 450px; height: 450px;
-            background: radial-gradient(circle, #0284C7 0%, transparent 70%);
-            bottom: -150px; left: -150px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #0A84FF 0%, transparent 70%);
+            bottom: -120px; left: -120px;
         }
 
-        /* Executive Master Layout */
-        .executive-layout {
+        /* ─── iPad Pro Master Stage Frame ─── */
+        .ipad-stage-layout {
             display: flex;
             min-height: 100vh;
             width: 100%;
             position: relative;
             z-index: 1;
+            padding: 14px 18px 14px 14px;
+            gap: 18px;
         }
 
-        /* ─── macOS Style Collapsible Sidebar ─── */
-        .executive-sidebar {
+        /* ─── iPadOS Floating Glass Sidebar / Dock ─── */
+        .ipad-sidebar {
             width: var(--sidebar-w);
             position: sticky;
-            top: 0;
-            height: 100vh;
+            top: 14px;
+            height: calc(100vh - 28px);
             flex-shrink: 0;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-left: 1px solid var(--card-border);
+            background: var(--ipad-dock-bg);
+            backdrop-filter: var(--ipad-glass-blur);
+            -webkit-backdrop-filter: var(--ipad-glass-blur);
+            border: 1px solid var(--ipad-border);
+            border-radius: 26px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 18px 14px;
             z-index: 99;
-            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.35);
-            transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), padding 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--ipad-shadow);
+            box-shadow: var(--ipad-inner-specular), var(--ipad-shadow);
+            transition: width 0.32s cubic-bezier(0.25, 1, 0.5, 1), padding 0.32s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Collapsed Sidebar Mode */
-        .executive-sidebar.collapsed {
+        /* Collapsed iPad Mini Dock Mode */
+        .ipad-sidebar.collapsed {
             width: var(--sidebar-collapsed-w);
             padding: 18px 10px;
         }
 
-        .executive-sidebar.collapsed .sidebar-brand-titles,
-        .executive-sidebar.collapsed .sidebar-btn-label,
-        .executive-sidebar.collapsed .sidebar-badge-pill,
-        .executive-sidebar.collapsed .sidebar-nav-heading,
-        .executive-sidebar.collapsed .sidebar-user-details,
-        .executive-sidebar.collapsed .sidebar-logout-text {
+        .ipad-sidebar.collapsed .sidebar-brand-titles,
+        .ipad-sidebar.collapsed .sidebar-btn-label,
+        .ipad-sidebar.collapsed .sidebar-badge-pill,
+        .ipad-sidebar.collapsed .sidebar-nav-heading,
+        .ipad-sidebar.collapsed .sidebar-user-details,
+        .ipad-sidebar.collapsed .sidebar-logout-text {
             display: none !important;
         }
 
-        .executive-sidebar.collapsed .sidebar-brand-box {
+        .ipad-sidebar.collapsed .sidebar-brand-box {
             justify-content: center;
             padding-bottom: 12px;
         }
 
-        .executive-sidebar.collapsed .sidebar-nav-btn {
+        .ipad-sidebar.collapsed .sidebar-nav-btn {
             justify-content: center;
-            padding: 11px 0;
+            padding: 12px 0;
+            border-radius: 18px;
         }
 
-        .executive-sidebar.collapsed .sidebar-user-card {
+        .ipad-sidebar.collapsed .sidebar-user-card {
             justify-content: center;
             padding: 8px 0;
+            background: transparent;
+            border-color: transparent;
         }
 
-        .executive-sidebar.collapsed .sidebar-logout-btn {
+        .ipad-sidebar.collapsed .sidebar-logout-btn {
             justify-content: center;
             padding: 10px 0;
+            border-radius: 16px;
         }
 
-        /* Sidebar Brand Header */
+        /* Sidebar Brand Box */
         .sidebar-brand-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 4px 6px 16px 6px;
-            border-bottom: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--ipad-border);
             margin-bottom: 14px;
         }
 
@@ -172,13 +194,17 @@
         }
 
         .sidebar-brand-badge {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: var(--primary-gradient);
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0A84FF, #5E5CE6);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 19px;
-            box-shadow: 0 4px 20px var(--primary-glow);
+            color: white; font-size: 20px;
+            box-shadow: 0 6px 20px var(--apple-blue-glow);
             flex-shrink: 0;
+            transition: var(--spring-transition);
+        }
+        .sidebar-brand-badge:hover {
+            transform: scale(1.06) rotate(5deg);
         }
 
         .sidebar-brand-titles {
@@ -188,52 +214,50 @@
         }
 
         .sidebar-brand-main {
-            font-size: 15px;
+            font-size: 15.5px;
             font-weight: 900;
             color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            letter-spacing: -0.2px;
         }
 
         .sidebar-brand-sub {
             font-size: 11px;
             font-weight: 700;
-            color: var(--text-muted);
-            white-space: nowrap;
+            color: var(--text-sub);
         }
 
         .sidebar-collapse-trigger {
-            width: 28px; height: 28px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
+            width: 30px; height: 30px;
+            border-radius: 10px;
+            border: 1px solid var(--ipad-border);
             background: rgba(255, 255, 255, 0.04);
-            color: var(--text-muted);
+            color: var(--text-sub);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--spring-transition);
             font-size: 11px;
         }
         .sidebar-collapse-trigger:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             color: var(--text-main);
+            transform: scale(1.08);
         }
 
         .sidebar-close-mobile-btn {
             display: none;
             background: transparent;
             border: none;
-            color: var(--text-muted);
-            font-size: 18px;
+            color: var(--text-sub);
+            font-size: 20px;
             cursor: pointer;
             padding: 4px;
         }
 
-        /* Sidebar Navigation Items */
+        /* Nav List */
         .sidebar-nav-container {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
@@ -241,35 +265,39 @@
         }
 
         .sidebar-nav-heading {
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 900;
-            color: var(--text-dim);
+            color: var(--text-tertiary);
             text-transform: uppercase;
             padding: 8px 10px 4px 10px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
 
         .sidebar-nav-btn {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: 11px 14px;
+            border-radius: 16px;
             background: transparent;
-            color: var(--text-muted);
+            color: var(--text-sub);
             border: 1px solid transparent;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 13px;
-            font-weight: 700;
+            transition: var(--spring-transition);
+            font-size: 13.5px;
+            font-weight: 800;
             font-family: inherit;
-            position: relative;
         }
 
         .sidebar-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.07);
             color: var(--text-main);
+            transform: translateX(-3px);
+        }
+
+        .sidebar-nav-btn:active {
+            transform: scale(0.96);
         }
 
         .sidebar-btn-content {
@@ -280,25 +308,30 @@
         }
 
         .sidebar-btn-icon {
-            font-size: 16px;
-            width: 22px;
+            font-size: 17px;
+            width: 24px;
             text-align: center;
             flex-shrink: 0;
+            transition: var(--spring-transition);
+        }
+        .sidebar-nav-btn:hover .sidebar-btn-icon {
+            transform: scale(1.15);
         }
 
         .sidebar-badge-pill {
-            font-size: 10px;
+            font-size: 10.5px;
             font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.07);
-            color: var(--text-muted);
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-sub);
+            border: 1px solid var(--ipad-border);
         }
 
-        /* Sidebar Bottom */
+        /* Sidebar Footer & User Card */
         .sidebar-footer-box {
-            padding-top: 12px;
-            border-top: 1px solid var(--card-border);
+            padding-top: 14px;
+            border-top: 1px solid var(--ipad-border);
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -307,21 +340,22 @@
         .sidebar-user-card {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--card-border);
-            padding: 8px 10px;
-            border-radius: 12px;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--ipad-border);
+            padding: 10px 12px;
+            border-radius: 18px;
+            transition: var(--spring-transition);
         }
 
         .sidebar-avatar {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-            border: 1.5px solid var(--accent-gold);
+            width: 40px; height: 40px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #1C1917, #292524);
+            border: 1.5px solid var(--apple-gold);
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; color: white;
-            box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 14px rgba(255, 214, 10, 0.25);
             flex-shrink: 0;
         }
 
@@ -332,7 +366,7 @@
         }
 
         .sidebar-user-title {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 900;
             color: var(--text-main);
             white-space: nowrap;
@@ -341,80 +375,65 @@
         }
 
         .sidebar-user-role {
-            font-size: 10.5px;
+            font-size: 11px;
             font-weight: 700;
-            color: #FEF3C7;
+            color: var(--apple-gold);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .sidebar-logout-btn {
-            background: rgba(239, 68, 68, 0.08);
-            color: #F87171;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
+            background: rgba(255, 69, 58, 0.08);
+            color: var(--apple-red);
+            border: 1px solid rgba(255, 69, 58, 0.2);
+            padding: 9px 14px;
+            border-radius: 14px;
+            font-size: 12.5px;
             font-weight: 800;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             gap: 8px;
-            transition: all 0.2s;
+            transition: var(--spring-transition);
             font-family: inherit;
         }
         .sidebar-logout-btn:hover {
-            background: #EF4444; color: white;
-            border-color: #EF4444;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+            background: var(--apple-red);
+            color: white;
+            border-color: var(--apple-red);
+            box-shadow: 0 6px 20px rgba(255, 69, 58, 0.35);
         }
 
-        /* Mobile Backdrop */
-        .sidebar-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 9999;
-            transition: opacity 0.3s ease;
-        }
-        .sidebar-backdrop.active {
-            display: block;
-        }
-
-        /* ─── Main Workspace Area ─── */
-        .executive-main {
+        /* ─── Main iPad Workspace ─── */
+        .ipad-workspace {
             flex: 1;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            padding: 20px 28px;
-            gap: 22px;
+            gap: 20px;
         }
 
-        /* Topbar Header */
-        .workspace-topbar {
+        /* ─── Apple Dynamic Island & Executive Header ─── */
+        .ipad-dynamic-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 20px;
-            background: var(--header-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            padding: 12px 22px;
+            background: var(--ipad-dock-bg);
+            backdrop-filter: var(--ipad-glass-blur);
+            -webkit-backdrop-filter: var(--ipad-glass-blur);
+            border: 1px solid var(--ipad-border);
+            border-radius: 22px;
+            box-shadow: var(--ipad-inner-specular), var(--ipad-shadow-sm);
             position: sticky;
             top: 14px;
             z-index: 90;
         }
 
-        .topbar-right-area {
+        .header-left-cluster {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .btn-hamburger-mobile {
@@ -426,182 +445,208 @@
             cursor: pointer;
         }
 
-        .topbar-breadcrumbs {
+        .dynamic-island-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--ipad-border);
+            padding: 6px 16px;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .island-crown {
+            font-size: 16px;
+            filter: drop-shadow(0 0 8px rgba(255, 214, 10, 0.5));
+        }
+
+        .island-title {
             font-size: 13.5px;
-            font-weight: 800;
-            color: var(--text-muted);
-        }
-
-        .topbar-breadcrumbs .breadcrumb-active {
-            color: var(--text-main);
             font-weight: 900;
+            color: var(--text-main);
         }
 
-        .topbar-actions-group {
+        .island-badge {
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(255, 214, 10, 0.14);
+            color: var(--apple-gold);
+            border: 1px solid rgba(255, 214, 10, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .header-actions-cluster {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .status-live-pill {
+        .status-live-indicator {
             display: flex;
             align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.1);
-            color: #34D399;
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            padding: 5px 12px;
+            gap: 7px;
+            background: rgba(48, 209, 88, 0.1);
+            color: var(--apple-emerald);
+            border: 1px solid rgba(48, 209, 88, 0.25);
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
         }
 
-        .status-dot {
-            width: 7px; height: 7px;
+        .live-dot-pulse {
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: #10B981;
-            box-shadow: 0 0 8px #10B981;
-            animation: pulseDot 2s infinite;
+            background: var(--apple-emerald);
+            box-shadow: 0 0 10px var(--apple-emerald);
+            animation: applePulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
-        @keyframes pulseDot {
+        @keyframes applePulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.85); }
+            50% { opacity: 0.35; transform: scale(0.8); }
         }
 
-        .btn-top-action {
-            width: 38px; height: 38px;
-            border-radius: 11px;
-            border: 1px solid var(--card-border);
+        .btn-ipad-action {
+            width: 40px; height: 40px;
+            border-radius: 13px;
+            border: 1px solid var(--ipad-border);
             background: rgba(255, 255, 255, 0.04);
-            color: var(--text-muted);
+            color: var(--text-sub);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+            transition: var(--spring-transition);
             font-size: 15px;
         }
-        .btn-top-action:hover {
-            background: rgba(255, 255, 255, 0.09);
+        .btn-ipad-action:hover {
+            background: rgba(255, 255, 255, 0.12);
             color: var(--text-main);
-            border-color: var(--primary);
+            border-color: var(--apple-blue);
+            transform: scale(1.06);
         }
 
-        /* ─── President Executive Hero Banner ─── */
-        .president-hero-card {
-            background: linear-gradient(135deg, rgba(30, 27, 75, 0.45) 0%, rgba(15, 23, 42, 0.6) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            border-radius: 18px;
+        /* ─── iPad Pro Hero Banner ─── */
+        .ipad-pro-hero {
+            background: linear-gradient(135deg, rgba(28, 26, 60, 0.45) 0%, rgba(18, 20, 32, 0.65) 100%);
+            border: 1px solid var(--ipad-border);
+            border-radius: 24px;
             padding: 20px 24px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: var(--ipad-glass-blur);
+            -webkit-backdrop-filter: var(--ipad-glass-blur);
+            box-shadow: var(--ipad-inner-specular), var(--ipad-shadow-sm);
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
         }
 
-        .president-hero-left {
+        .hero-left-box {
             display: flex;
             align-items: center;
             gap: 16px;
         }
 
-        .president-crown-badge {
-            width: 50px; height: 50px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15));
-            border: 1.5px solid rgba(245, 158, 11, 0.4);
+        .hero-avatar-squircle {
+            width: 54px; height: 54px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(255, 214, 10, 0.25), rgba(255, 159, 10, 0.15));
+            border: 1.5px solid rgba(255, 214, 10, 0.4);
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+            font-size: 26px;
+            box-shadow: 0 8px 24px rgba(255, 214, 10, 0.2);
             flex-shrink: 0;
         }
 
-        .president-titles {
+        .hero-titles-column {
             display: flex;
             flex-direction: column;
             gap: 3px;
         }
 
-        .president-name-title {
-            font-size: 18px;
+        .hero-greeting-line {
+            font-size: 18.5px;
             font-weight: 900;
             color: #FFFFFF;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        .president-subtext {
-            font-size: 12.5px;
+        .hero-subtext-line {
+            font-size: 13px;
             font-weight: 700;
-            color: var(--text-muted);
+            color: var(--text-sub);
         }
 
-        /* ─── KPI Bento Ribbon ─── */
-        .kpi-bento-grid {
+        /* ─── iPad 2x2 Widgets (KPI Bento Cards) ─── */
+        .ipad-widgets-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
+            gap: 16px;
         }
 
-        .kpi-bento-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px 18px;
+        .ipad-widget-card {
+            background: var(--ipad-surface);
+            border: 1px solid var(--ipad-border);
+            border-radius: 24px;
+            padding: 18px 20px;
+            backdrop-filter: var(--ipad-glass-blur);
+            -webkit-backdrop-filter: var(--ipad-glass-blur);
+            box-shadow: var(--ipad-inner-specular), var(--ipad-shadow-sm);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.22s ease;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+            transition: var(--spring-transition);
         }
-        .kpi-bento-card:hover {
-            border-color: var(--card-hover-border);
-            transform: translateY(-2px);
-            background: var(--card-hover-bg);
+        .ipad-widget-card:hover {
+            border-color: var(--ipad-border-hover);
+            background: var(--ipad-surface-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
         }
 
-        .kpi-card-data {
+        .widget-metric-box {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
 
-        .kpi-card-num {
-            font-size: 26px;
+        .widget-metric-val {
+            font-size: 28px;
             font-weight: 900;
             color: #FFFFFF;
             line-height: 1.1;
+            letter-spacing: -0.5px;
         }
 
-        .kpi-card-label {
-            font-size: 12.5px;
+        .widget-metric-label {
+            font-size: 13px;
             font-weight: 800;
-            color: var(--text-muted);
+            color: var(--text-sub);
         }
 
-        .kpi-card-icon {
-            width: 44px; height: 44px;
-            border-radius: 12px;
+        .widget-icon-squircle {
+            width: 48px; height: 48px;
+            border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             flex-shrink: 0;
+            transition: var(--spring-transition);
+        }
+        .ipad-widget-card:hover .widget-icon-squircle {
+            transform: scale(1.12);
         }
 
-        .icon-blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
-        .icon-purple { background: rgba(168, 85, 247, 0.12); color: #C084FC; }
-        .icon-emerald { background: rgba(16, 185, 129, 0.12); color: #34D399; }
-        .icon-amber { background: rgba(245, 158, 11, 0.12); color: #FBBF24; }
+        .widget-blue { background: rgba(10, 132, 255, 0.14); color: var(--apple-blue); border: 1px solid rgba(10, 132, 255, 0.25); }
+        .widget-purple { background: rgba(191, 90, 242, 0.14); color: var(--apple-purple); border: 1px solid rgba(191, 90, 242, 0.25); }
+        .widget-emerald { background: rgba(48, 209, 88, 0.14); color: var(--apple-emerald); border: 1px solid rgba(48, 209, 88, 0.25); }
+        .widget-amber { background: rgba(255, 214, 10, 0.14); color: var(--apple-gold); border: 1px solid rgba(255, 214, 10, 0.25); }
 
-        /* ─── Sector Headers & Action Cards ─── */
-        .sector-header {
+        /* ─── Sector Headers & Stage Manager Cards ─── */
+        .sector-stage-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -610,143 +655,153 @@
             scroll-margin-top: 90px;
         }
 
-        .sector-title-box {
+        .sector-badge-title {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .sector-icon-badge {
-            width: 32px; height: 32px;
-            border-radius: 9px;
+        .sector-icon-pill {
+            width: 34px; height: 34px;
+            border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
         }
 
-        .sector-heading-text {
-            font-size: 15.5px;
+        .sector-title-text {
+            font-size: 16px;
             font-weight: 900;
             color: var(--text-main);
+            letter-spacing: -0.2px;
         }
 
-        .sector-tag-pill {
+        .sector-pill-tag {
             font-size: 11px;
             font-weight: 800;
-            padding: 3px 10px;
+            padding: 3px 12px;
             border-radius: 20px;
         }
 
-        .admin-cards-grid {
+        .ipad-cards-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            gap: 15px;
         }
 
-        .action-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px 18px;
+        /* Apple Squircle Action Card */
+        .ipad-action-card {
+            background: var(--ipad-surface);
+            border: 1px solid var(--ipad-border);
+            border-radius: 22px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: var(--ipad-glass-blur);
+            -webkit-backdrop-filter: var(--ipad-glass-blur);
+            box-shadow: var(--ipad-inner-specular), var(--ipad-shadow-sm);
+            transition: var(--spring-transition);
             position: relative;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
         }
 
-        .action-card:hover {
-            border-color: var(--card-hover-border);
-            background: var(--card-hover-bg);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+        .ipad-action-card:hover {
+            border-color: var(--ipad-border-hover);
+            background: var(--ipad-surface-hover);
+            transform: translateY(-3px) scale(1.008);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
         }
 
-        .card-left-content {
+        .ipad-action-card:active {
+            transform: scale(0.97);
+        }
+
+        .card-inner-left {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             min-width: 0;
         }
 
-        .card-icon-box {
-            width: 44px; height: 44px;
-            border-radius: 12px;
+        .card-app-icon {
+            width: 48px; height: 48px;
+            border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 19px;
+            font-size: 21px;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+            transition: var(--spring-transition);
+        }
+        .ipad-action-card:hover .card-app-icon {
+            transform: scale(1.08);
         }
 
-        .card-texts {
+        .card-typography {
             display: flex;
             flex-direction: column;
             gap: 3px;
             min-width: 0;
         }
 
-        .card-title-row {
+        .card-title-group {
             display: flex;
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
         }
 
-        .card-title {
-            font-size: 14.5px;
+        .card-main-title {
+            font-size: 15px;
             font-weight: 900;
             color: var(--text-main);
         }
 
-        .card-badge {
-            font-size: 10px;
+        .card-tag-pill {
+            font-size: 10.5px;
             font-weight: 900;
-            padding: 2px 7px;
-            border-radius: 6px;
+            padding: 2px 8px;
+            border-radius: 8px;
         }
-        .badge-ai { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
-        .badge-vip { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-live-red { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .tag-ai { background: rgba(191, 90, 242, 0.16); color: var(--apple-purple); border: 1px solid rgba(191, 90, 242, 0.35); }
+        .tag-vip { background: rgba(255, 214, 10, 0.16); color: var(--apple-gold); border: 1px solid rgba(255, 214, 10, 0.35); }
+        .tag-red { background: rgba(255, 69, 58, 0.16); color: var(--apple-red); border: 1px solid rgba(255, 69, 58, 0.35); }
 
-        .card-desc {
-            font-size: 12px;
+        .card-description {
+            font-size: 12.5px;
             font-weight: 700;
-            color: var(--text-muted);
-            line-height: 1.4;
+            color: var(--text-sub);
+            line-height: 1.45;
         }
 
-        .card-arrow-icon {
-            width: 32px; height: 32px;
-            border-radius: 9px;
+        .card-chevron-pill {
+            width: 34px; height: 34px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--ipad-border);
             display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted);
-            font-size: 12px;
+            color: var(--text-sub);
+            font-size: 13px;
             flex-shrink: 0;
-            transition: all 0.2s;
+            transition: var(--spring-transition);
         }
-        .action-card:hover .card-arrow-icon {
-            background: var(--primary);
+        .ipad-action-card:hover .card-chevron-pill {
+            background: var(--apple-blue);
             color: white;
-            border-color: var(--primary);
-            transform: translateX(-3px);
+            border-color: var(--apple-blue);
+            transform: translateX(-4px);
         }
 
         /* ─── Footer Bar ─── */
-        .workspace-footer {
+        .ipad-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
-            border-top: 1px solid var(--card-border);
-            margin-top: 16px;
-            color: var(--text-dim);
-            font-size: 12px;
+            padding: 16px 22px;
+            border-top: 1px solid var(--ipad-border);
+            margin-top: 14px;
+            color: var(--text-tertiary);
+            font-size: 12.5px;
             font-weight: 700;
             flex-wrap: wrap;
             gap: 12px;
@@ -760,27 +815,28 @@
 
         /* ─── Responsive Media Queries ─── */
         @media (max-width: 1100px) {
-            .kpi-bento-grid {
+            .ipad-widgets-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 868px) {
-            .admin-cards-grid {
+            .ipad-cards-grid {
                 grid-template-columns: 1fr;
             }
 
-            .executive-sidebar {
+            .ipad-sidebar {
                 position: fixed;
-                right: -310px;
+                right: -320px;
                 top: 0;
                 height: 100vh;
-                width: 280px !important;
-                transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 290px !important;
+                border-radius: 0;
+                transition: right 0.32s cubic-bezier(0.25, 1, 0.5, 1);
                 z-index: 10000;
             }
 
-            .executive-sidebar.sidebar-open {
+            .ipad-sidebar.sidebar-open {
                 right: 0;
             }
 
@@ -796,21 +852,39 @@
                 display: none;
             }
 
-            .executive-main {
-                padding: 14px 16px;
+            .ipad-stage-layout {
+                padding: 12px 14px;
             }
         }
 
         @media (max-width: 540px) {
-            .kpi-bento-grid {
+            .ipad-widgets-grid {
                 grid-template-columns: 1fr;
             }
-            .president-hero-card {
+            .ipad-pro-hero {
                 padding: 16px;
             }
-            .workspace-topbar {
+            .ipad-dynamic-header {
                 padding: 10px 14px;
             }
+            .dynamic-island-pill .island-title {
+                display: none;
+            }
+        }
+
+        /* Mobile Backdrop */
+        .ipad-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        .ipad-backdrop.active {
+            display: block;
         }
     </style>
 </head>
@@ -819,13 +893,14 @@
     <div class="ambient-glow glow-top-right"></div>
     <div class="ambient-glow glow-bottom-left"></div>
 
-    <!-- Mobile Drawer Backdrop -->
-    <div class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+    <!-- Mobile Backdrop -->
+    <div class="ipad-backdrop" onclick="closeMobileSidebar()"></div>
 
-    <div class="executive-layout">
+    <!-- ─── iPad Pro Master Stage Frame ─── -->
+    <div class="ipad-stage-layout">
 
-        <!-- ─── macOS Collapsible Luxury Sidebar ─── -->
-        <aside class="executive-sidebar" id="adminSidebar">
+        <!-- ─── iPadOS Floating Glass Sidebar / Dock ─── -->
+        <aside class="ipad-sidebar" id="adminSidebar">
             
             <div>
                 <!-- Brand Identity & Fast Actions -->
@@ -834,10 +909,10 @@
                         <div class="sidebar-brand-badge">👑</div>
                         <div class="sidebar-brand-titles">
                             <span class="sidebar-brand-main">منصة الخطة</span>
-                            <span class="sidebar-brand-sub">لوحة القيادة العليا</span>
+                            <span class="sidebar-brand-sub">iPad Pro Edition</span>
                         </div>
                     </a>
-                    <!-- Desktop macOS Collapsible Toggle Button -->
+                    <!-- Desktop iPad Collapsible Toggle Button -->
                     <button class="sidebar-collapse-trigger" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة">
                         <i class="fa-solid fa-angles-right" id="sidebarCollapseIcon"></i>
                     </button>
@@ -853,7 +928,7 @@
 
                     <button onclick="scrollToSector('secAcademic')" class="sidebar-nav-btn" title="القطاع الأكاديمي والامتحانات">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-graduation-cap sidebar-btn-icon" style="color: #818CF8;"></i>
+                            <i class="fa-solid fa-graduation-cap sidebar-btn-icon" style="color: var(--apple-indigo);"></i>
                             <span class="sidebar-btn-label">الأكاديمي والامتحانات</span>
                         </div>
                         <span class="sidebar-badge-pill">4 خدمات</span>
@@ -861,7 +936,7 @@
 
                     <button onclick="scrollToSector('secStudents')" class="sidebar-nav-btn" title="قطاع الطلاب والتراخيص">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-users-gear sidebar-btn-icon" style="color: #38BDF8;"></i>
+                            <i class="fa-solid fa-users-gear sidebar-btn-icon" style="color: var(--apple-cyan);"></i>
                             <span class="sidebar-btn-label">الطلاب والتراخيص</span>
                         </div>
                         <span class="sidebar-badge-pill">3 خدمات</span>
@@ -869,7 +944,7 @@
 
                     <button onclick="scrollToSector('secCommunity')" class="sidebar-nav-btn" title="التواصل والمجتمع الطلابي">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-comments sidebar-btn-icon" style="color: #34D399;"></i>
+                            <i class="fa-solid fa-comments sidebar-btn-icon" style="color: var(--apple-emerald);"></i>
                             <span class="sidebar-btn-label">المجتمع والإشعارات</span>
                         </div>
                         <span class="sidebar-badge-pill">2 خدمات</span>
@@ -877,7 +952,7 @@
 
                     <button onclick="scrollToSector('secCloud')" class="sidebar-nav-btn" title="السحابة والإدارة العليا">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-cloud-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
+                            <i class="fa-solid fa-cloud-bolt sidebar-btn-icon" style="color: var(--apple-gold);"></i>
                             <span class="sidebar-btn-label">السحابة والإدارة العليا</span>
                         </div>
                         <span class="sidebar-badge-pill">VIP</span>
@@ -895,10 +970,10 @@
 
                     <a href="admin-mysql.html" id="sidebarNav_mysql" class="sidebar-nav-btn" title="لوحة MySQL السحابية VIP">
                         <div class="sidebar-btn-content">
-                            <i class="fa-solid fa-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
+                            <i class="fa-solid fa-bolt sidebar-btn-icon" style="color: var(--apple-gold);"></i>
                             <span class="sidebar-btn-label">لوحة MySQL السحابية VIP</span>
                         </div>
-                        <span class="sidebar-badge-pill" style="color: #F59E0B;">VIP</span>
+                        <span class="sidebar-badge-pill" style="color: var(--apple-gold);">VIP</span>
                     </a>
                 </div>
             </div>
@@ -920,335 +995,341 @@
             </div>
         </aside>
 
-        <!-- ─── Executive Main Workspace ─── -->
-        <main class="executive-main">
+        <!-- ─── Main iPad Workspace ─── -->
+        <main class="ipad-workspace">
 
-            <!-- Topbar Header -->
-            <header class="workspace-topbar">
-                <div class="topbar-right-area">
+            <!-- ─── Apple Dynamic Island & Executive Header ─── -->
+            <header class="ipad-dynamic-header">
+                <div class="header-left-cluster">
                     <button class="btn-hamburger-mobile" onclick="toggleMobileSidebar()" title="فتح القائمة">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <!-- Quick collapse trigger in topbar -->
-                    <button class="btn-top-action" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة الجانبية (macOS Style)">
+                    <button class="btn-ipad-action" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة الجانبية (iPad Style)">
                         <i class="fa-solid fa-bars-staggered"></i>
                     </button>
-                    <div class="topbar-breadcrumbs">
-                        <span>لوحة التحكم</span>
-                        <i class="fa-solid fa-angle-left" style="font-size: 10px; opacity: 0.5;"></i>
-                        <span class="breadcrumb-active">لوحة القيادة والخدمات المركزية</span>
+
+                    <!-- Apple Dynamic Island Pill -->
+                    <div class="dynamic-island-pill">
+                        <span class="island-crown">👑</span>
+                        <span class="island-title">أهلاً بك، أستاذ عبد الرحمن</span>
+                        <span class="island-badge">رئيس ومؤسس المنصة 👑</span>
                     </div>
                 </div>
 
-                <div class="topbar-actions-group">
-                    <div class="status-live-pill">
-                        <span class="status-dot"></span>
+                <div class="header-actions-cluster">
+                    <div class="status-live-indicator">
+                        <span class="live-dot-pulse"></span>
                         <span>مباشر 🟢</span>
                     </div>
 
-                    <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
+                    <button class="btn-ipad-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
                         <i class="fa-solid fa-moon" id="themeIcon"></i>
                     </button>
 
-                    <button class="btn-top-action" onclick="adminLogout()" title="تسجيل الخروج" style="color: #F87171;">
+                    <button class="btn-ipad-action" onclick="adminLogout()" title="تسجيل الخروج" style="color: var(--apple-red);">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </button>
                 </div>
             </header>
 
-            <!-- ─── President Executive Hero Banner ─── -->
-            <div class="president-hero-card">
-                <div class="president-hero-left">
-                    <div class="president-crown-badge">👑</div>
-                    <div class="president-titles">
-                        <div class="president-name-title">
-                            <span>أهلاً بك، أستاذ عبد الرحمن</span>
-                            <span style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 8px; border-radius: 8px;">رئيس ومؤسس المنصة 👑</span>
+            <!-- ─── iPad Pro Hero Banner ─── -->
+            <div class="ipad-pro-hero">
+                <div class="hero-left-box">
+                    <div class="hero-avatar-squircle">👑</div>
+                    <div class="hero-titles-column">
+                        <div class="hero-greeting-line">
+                            <span>غرفة العمليات التنفيذية والسيطرة المركزية</span>
+                            <span style="font-size: 11px; background: rgba(10, 132, 255, 0.15); color: var(--apple-blue); border: 1px solid rgba(10, 132, 255, 0.3); padding: 2px 8px; border-radius: 8px;">iPad Pro OS 18 ⚡</span>
                         </div>
-                        <span class="president-subtext">غرفة القيادة والسيطرة التنفيذية المباشرة — دفعة 2027 🎓</span>
+                        <span class="hero-subtext-line">منصة الخطة التعليمية — شاشة الإدارة العليا دفعة 2027 🎓</span>
                     </div>
                 </div>
             </div>
 
-            <!-- ─── KPI Bento Ribbon ─── -->
-            <div class="kpi-bento-grid">
-                <div class="kpi-bento-card">
-                    <div class="kpi-card-data">
-                        <span class="kpi-card-num" id="statStudents">0</span>
-                        <span class="kpi-card-label">طالب مسجل</span>
+            <!-- ─── iPad 2x2 Widgets (KPI Bento Cards) ─── -->
+            <div class="ipad-widgets-grid">
+                <!-- Widget 1 -->
+                <div class="ipad-widget-card">
+                    <div class="widget-metric-box">
+                        <span class="widget-metric-val" id="statStudents">0</span>
+                        <span class="widget-metric-label">طالب مسجل</span>
                     </div>
-                    <div class="kpi-card-icon icon-blue">
+                    <div class="widget-icon-squircle widget-blue">
                         <i class="fa-solid fa-users"></i>
                     </div>
                 </div>
 
-                <div class="kpi-bento-card">
-                    <div class="kpi-card-data">
-                        <span class="kpi-card-num" id="statLectures">0</span>
-                        <span class="kpi-card-label">محاضرة ومحتوى</span>
+                <!-- Widget 2 -->
+                <div class="ipad-widget-card">
+                    <div class="widget-metric-box">
+                        <span class="widget-metric-val" id="statLectures">0</span>
+                        <span class="widget-metric-label">محاضرة ومحتوى</span>
                     </div>
-                    <div class="kpi-card-icon icon-purple">
+                    <div class="widget-icon-squircle widget-purple">
                         <i class="fa-solid fa-book-open"></i>
                     </div>
                 </div>
 
-                <div class="kpi-bento-card">
-                    <div class="kpi-card-data">
-                        <span class="kpi-card-num" id="statResults">0</span>
-                        <span class="kpi-card-label">امتحان تم تسليمه</span>
+                <!-- Widget 3 -->
+                <div class="ipad-widget-card">
+                    <div class="widget-metric-box">
+                        <span class="widget-metric-val" id="statResults">0</span>
+                        <span class="widget-metric-label">امتحان تم تسليمه</span>
                     </div>
-                    <div class="kpi-card-icon icon-emerald">
+                    <div class="widget-icon-squircle widget-emerald">
                         <i class="fa-solid fa-square-poll-vertical"></i>
                     </div>
                 </div>
 
-                <div class="kpi-bento-card">
-                    <div class="kpi-card-data">
-                        <span class="kpi-card-num" id="statUnanswered">0</span>
-                        <span class="kpi-card-label">سؤال معلق</span>
+                <!-- Widget 4 -->
+                <div class="ipad-widget-card">
+                    <div class="widget-metric-box">
+                        <span class="widget-metric-val" id="statUnanswered">0</span>
+                        <span class="widget-metric-label">سؤال معلق</span>
                     </div>
-                    <div class="kpi-card-icon icon-amber">
+                    <div class="widget-icon-squircle widget-amber">
                         <i class="fa-solid fa-comments"></i>
                     </div>
                 </div>
             </div>
 
             <!-- ═══════════════════════════════════════════════
-                 القطاعات الأساسية والخدمات المركزية (Direct Flow)
+                 iPad App Grid: الأقسام والخدمات المركزية
                  ═══════════════════════════════════════════════ -->
 
             <!-- 📚 القطاع 1: الأكاديمي والامتحانات -->
-            <div class="sector-header" id="secAcademic">
-                <div class="sector-title-box">
-                    <div class="sector-icon-badge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8;"><i class="fa-solid fa-graduation-cap"></i></div>
-                    <h2 class="sector-heading-text">القطاع الأكاديمي، المواد والامتحانات</h2>
+            <div class="sector-stage-header" id="secAcademic">
+                <div class="sector-badge-title">
+                    <div class="sector-icon-pill" style="background: rgba(94, 92, 230, 0.16); color: var(--apple-indigo);"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <h2 class="sector-title-text">القطاع الأكاديمي، المواد والامتحانات</h2>
                 </div>
-                <span class="sector-tag-pill" style="background: rgba(99, 102, 241, 0.1); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.2);">دفعة 2027 🎓</span>
+                <span class="sector-pill-tag" style="background: rgba(94, 92, 230, 0.12); color: #A5B4FC; border: 1px solid rgba(94, 92, 230, 0.25);">دفعة 2027 🎓</span>
             </div>
 
-            <div class="admin-cards-grid">
+            <div class="ipad-cards-grid">
                 <!-- 1. Courses & Lectures -->
-                <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
+                <div class="ipad-action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #0A84FF, #0066CC);">
                             <i class="fa-solid fa-folder-open"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">المواد والمقررات الدراسية</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">المواد والمقررات الدراسية</span>
                             </div>
-                            <div class="card-desc">إضافة، تعديل، وترتيب المواد والمحاضرات لدفعة الفرقة الرابعة 2027</div>
+                            <div class="card-description">إضافة، تعديل، وترتيب المواد والمحاضرات لدفعة الفرقة الرابعة 2027</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 2. Question Bank & Exams -->
-                <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
+                <div class="ipad-action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #30D158, #248A3D);">
                             <i class="fa-solid fa-file-pen"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">بنك الأسئلة والامتحانات السحابية</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">بنك الأسئلة والامتحانات السحابية</span>
                             </div>
-                            <div class="card-desc">إنشاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
+                            <div class="card-description">إنشاء الامتحانات، رفع الأسئلة المقالية والبابل شيت والمجالات</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 3. Exam Results -->
-                <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                <div class="ipad-action-card" data-perm="reports" onclick="location.href='admin-results.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #5E5CE6, #4240A8);">
                             <i class="fa-solid fa-square-poll-vertical"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">كشف نتائج ودرجات الطلاب</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">كشف نتائج ودرجات الطلاب</span>
                             </div>
-                            <div class="card-desc">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب لحظياً</div>
+                            <div class="card-description">متابعة درجات ونسب اجتياز الامتحانات وسجل محاولات كل طالب لحظياً</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 4. Mistakes & AI Analytics -->
-                <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                <div class="ipad-action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #BF5AF2, #8E24AA);">
                             <i class="fa-solid fa-brain"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
-                                <span class="card-badge badge-ai">AI ⚡</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">تحليل أخطاء الطلاب والذكاء الاصطناعي</span>
+                                <span class="card-tag-pill tag-ai">AI ⚡</span>
                             </div>
-                            <div class="card-desc">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة لدى الدفعة</div>
+                            <div class="card-description">كشف الأسئلة الأكثر صعوبة وتحديد نقاط الضعف المشتركة لدى الدفعة</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
             </div>
 
             <!-- 👥 القطاع 2: شؤون الطلاب والتراخيص -->
-            <div class="sector-header" id="secStudents">
-                <div class="sector-title-box">
-                    <div class="sector-icon-badge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8;"><i class="fa-solid fa-users"></i></div>
-                    <h2 class="sector-heading-text">قطاع الطلاب، التراخيص، والدعم الفني</h2>
+            <div class="sector-stage-header" id="secStudents">
+                <div class="sector-badge-title">
+                    <div class="sector-icon-pill" style="background: rgba(100, 210, 255, 0.16); color: var(--apple-cyan);"><i class="fa-solid fa-users"></i></div>
+                    <h2 class="sector-title-text">قطاع الطلاب، التراخيص، والدعم الفني</h2>
                 </div>
-                <span class="sector-tag-pill" style="background: rgba(14, 165, 233, 0.1); color: #7DD3FC; border: 1px solid rgba(14, 165, 233, 0.2);">شؤون التسجيل 👥</span>
+                <span class="sector-pill-tag" style="background: rgba(100, 210, 255, 0.12); color: #7DD3FC; border: 1px solid rgba(100, 210, 255, 0.25);">شؤون التسجيل 👥</span>
             </div>
 
-            <div class="admin-cards-grid">
+            <div class="ipad-cards-grid">
                 <!-- 1. Registered Students -->
-                <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #075985);">
+                <div class="ipad-action-card" data-perm="students" onclick="location.href='admin-students.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #0A84FF, #0055B3);">
                             <i class="fa-solid fa-users-gear"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إدارة حسابات الطلاب المسجلين</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">إدارة حسابات الطلاب المسجلين</span>
                             </div>
-                            <div class="card-desc">فحص أجهزة الدخول، تفعيل وحظر الحسابات، وتعديل وتصدير البيانات</div>
+                            <div class="card-description">فحص أجهزة الدخول، تفعيل وحظر الحسابات، وتعديل وتصدير البيانات</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 2. Activation Codes Generator -->
-                <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #15803D, #166534);">
+                <div class="ipad-action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #30D158, #1E7E34);">
                             <i class="fa-solid fa-key"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">توليد وإدارة أكواد التفعيل</span>
-                                <span class="card-badge badge-vip">تفعيل 🔑</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">توليد وإدارة أكواد التفعيل</span>
+                                <span class="card-tag-pill tag-vip">تفعيل 🔑</span>
                             </div>
-                            <div class="card-desc">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF للطباعة</div>
+                            <div class="card-description">توليد دفعات أكواد، كود فوري بنقرة واحدة، وتصدير كروت PDF للطباعة</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 3. Troubleshooting & Diagnostic Tools -->
-                <div class="action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
+                <div class="ipad-action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #FF453A, #C92A2A);">
                             <i class="fa-solid fa-toolbox"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">مركز تشخيص الطالب والدعم الفني</span>
-                                <span class="card-badge badge-live-red">طوارئ 🛠️</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">مركز تشخيص الطالب والدعم الفني</span>
+                                <span class="card-tag-pill tag-red">طوارئ 🛠️</span>
                             </div>
-                            <div class="card-desc">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
+                            <div class="card-description">تشخيص الطالب، تصفير بصمة الجهاز، تصحيح الأكواد، وتخطي الـ OTP</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
             </div>
 
             <!-- 💬 القطاع 3: التواصل والعمليات اللحظية -->
-            <div class="sector-header" id="secCommunity">
-                <div class="sector-title-box">
-                    <div class="sector-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399;"><i class="fa-solid fa-comments"></i></div>
-                    <h2 class="sector-heading-text">قطاع التواصل، المجتمع الطلابي، والإشعارات</h2>
+            <div class="sector-stage-header" id="secCommunity">
+                <div class="sector-badge-title">
+                    <div class="sector-icon-pill" style="background: rgba(48, 209, 88, 0.16); color: var(--apple-emerald);"><i class="fa-solid fa-comments"></i></div>
+                    <h2 class="sector-title-text">قطاع التواصل، المجتمع الطلابي، والإشعارات</h2>
                 </div>
-                <span class="sector-tag-pill" style="background: rgba(16, 185, 129, 0.1); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.2);">تفاعل مباشر 💬</span>
+                <span class="sector-pill-tag" style="background: rgba(48, 209, 88, 0.12); color: #6EE7B7; border: 1px solid rgba(48, 209, 88, 0.25);">تفاعل مباشر 💬</span>
             </div>
 
-            <div class="admin-cards-grid">
+            <div class="ipad-cards-grid">
                 <!-- 1. Community Questions -->
-                <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
+                <div class="ipad-action-card" data-perm="community" onclick="location.href='admin-community.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #30D158, #1E7E34);">
                             <i class="fa-solid fa-comment-dots"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إدارة أسئلة واستفسارات المجتمع</span>
-                                <span class="card-badge badge-live-red" id="badgeCommunityLive" style="display: none;">أسئلة جديدة 💬</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">إدارة أسئلة واستفسارات المجتمع</span>
+                                <span class="card-tag-pill tag-red" id="badgeCommunityLive" style="display: none;">أسئلة جديدة 💬</span>
                             </div>
-                            <div class="card-desc">الرد على تساؤلات الطلاب في المحاضرات، تثبيت الإجابات، وحذف المخالفات</div>
+                            <div class="card-description">الرد على تساؤلات الطلاب في المحاضرات، تثبيت الإجابات، وحذف المخالفات</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 2. Notifications Center -->
-                <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #B45309);">
+                <div class="ipad-action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #FF9F0A, #B26A00);">
                             <i class="fa-solid fa-bullhorn"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">مركز وبث الإشعارات الفورية</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">مركز وبث الإشعارات الفورية</span>
                             </div>
-                            <div class="card-desc">إرسال تنبيهات عامة أو رسائل مخصصة لطالب معين عبر التطبيق والموقع</div>
+                            <div class="card-description">إرسال تنبيهات عامة أو رسائل مخصصة لطالب معين عبر التطبيق والموقع</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
             </div>
 
             <!-- ⚡ القطاع 4: السحابة والإدارة العليا -->
-            <div class="sector-header" id="secCloud">
-                <div class="sector-title-box">
-                    <div class="sector-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24;"><i class="fa-solid fa-cloud-bolt"></i></div>
-                    <h2 class="sector-heading-text">قطاع السحابة، قواعد البيانات، والإدارة العليا</h2>
+            <div class="sector-stage-header" id="secCloud">
+                <div class="sector-badge-title">
+                    <div class="sector-icon-pill" style="background: rgba(255, 214, 10, 0.16); color: var(--apple-gold);"><i class="fa-solid fa-cloud-bolt"></i></div>
+                    <h2 class="sector-title-text">قطاع السحابة، قواعد البيانات، والإدارة العليا</h2>
                 </div>
-                <span class="sector-tag-pill" style="background: rgba(245, 158, 11, 0.1); color: #FDE68A; border: 1px solid rgba(245, 158, 11, 0.2);">VIP Master 👑</span>
+                <span class="sector-pill-tag" style="background: rgba(255, 214, 10, 0.12); color: #FDE68A; border: 1px solid rgba(255, 214, 10, 0.25);">VIP Master 👑</span>
             </div>
 
-            <div class="admin-cards-grid">
+            <div class="ipad-cards-grid">
                 <!-- 1. Cloud MySQL VIP Panel -->
-                <div class="action-card" data-perm="config" onclick="location.href='admin-mysql.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #4338CA, #3730A3);">
+                <div class="ipad-action-card" data-perm="config" onclick="location.href='admin-mysql.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #5E5CE6, #3B389E);">
                             <i class="fa-solid fa-database"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">لوحة MySQL السحابية الشاملة</span>
-                                <span class="card-badge badge-vip">VIP ⚡</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">لوحة MySQL السحابية الشاملة</span>
+                                <span class="card-tag-pill tag-vip">VIP ⚡</span>
                             </div>
-                            <div class="card-desc">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
+                            <div class="card-description">إدارة قاعدة البيانات، REST API، واستخراج كشوفات الطلاب وطباعة التقارير</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
                 <!-- 2. System Settings & Supervisors -->
-                <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
-                    <div class="card-left-content">
-                        <div class="card-icon-box" style="background: linear-gradient(135deg, #334155, #1E293B);">
+                <div class="ipad-action-card" data-perm="config" onclick="location.href='admin-config.html'">
+                    <div class="card-inner-left">
+                        <div class="card-app-icon" style="background: linear-gradient(135deg, #48484A, #2C2C2E);">
                             <i class="fa-solid fa-sliders"></i>
                         </div>
-                        <div class="card-texts">
-                            <div class="card-title-row">
-                                <span class="card-title">إعدادات المنصة والأمان والمشرفين</span>
+                        <div class="card-typography">
+                            <div class="card-title-group">
+                                <span class="card-main-title">إعدادات المنصة والأمان والمشرفين</span>
                             </div>
-                            <div class="card-desc">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة المركزية</div>
+                            <div class="card-description">إدارة صلاحيات المشرفين وتوليد PIN الأمان وضبط المنظومة المركزية</div>
                         </div>
                     </div>
-                    <div class="card-arrow-icon"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="card-chevron-pill"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
             </div>
 
             <!-- Footer Bar -->
-            <footer class="workspace-footer">
+            <footer class="ipad-footer">
                 <div class="footer-watermark">
-                    <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
-                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية • دفعة 2027 🎓</span>
+                    <i class="fa-solid fa-shield-check" style="color: var(--apple-emerald);"></i>
+                    <span>منصة الخطة التعليمية • iPad Pro Edition • دفعة 2027 🎓</span>
                 </div>
-                <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 5px 14px;">
+                <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 6px 14px;">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span>تسجيل الخروج من لوحة الإدارة</span>
                 </button>
@@ -1282,7 +1363,7 @@
             updateThemeIcon(true);
         }
 
-        // ─── macOS Collapsible Sidebar State Manager ───
+        // ─── iPadOS Collapsible Sidebar State Manager ───
         function toggleDesktopSidebarCollapse() {
             const sidebar = document.getElementById('adminSidebar');
             const icon = document.getElementById('sidebarCollapseIcon');
@@ -1308,8 +1389,8 @@
 
         // Mobile Sidebar Controls
         function toggleMobileSidebar() {
-            const sidebar = document.querySelector('.executive-sidebar');
-            const backdrop = document.querySelector('.sidebar-backdrop');
+            const sidebar = document.querySelector('.ipad-sidebar');
+            const backdrop = document.querySelector('.ipad-backdrop');
             if (sidebar && backdrop) {
                 const isOpen = sidebar.classList.toggle('sidebar-open');
                 backdrop.classList.toggle('active', isOpen);
@@ -1318,8 +1399,8 @@
         }
 
         function closeMobileSidebar() {
-            const sidebar = document.querySelector('.executive-sidebar');
-            const backdrop = document.querySelector('.sidebar-backdrop');
+            const sidebar = document.querySelector('.ipad-sidebar');
+            const backdrop = document.querySelector('.ipad-backdrop');
             if (sidebar && backdrop) {
                 sidebar.classList.remove('sidebar-open');
                 backdrop.classList.remove('active');
@@ -1338,7 +1419,7 @@
 
         // Swipe right to close mobile drawer
         (function() {
-            const sidebar = document.querySelector('.executive-sidebar');
+            const sidebar = document.querySelector('.ipad-sidebar');
             if (!sidebar) return;
             let touchStartX = 0;
             let touchStartY = 0;
@@ -1391,15 +1472,15 @@
                 html: `
                     <div style="text-align: center; font-family: 'Cairo', sans-serif; padding: 4px;">
                         <div style="font-size: 44px; margin-bottom: 12px;">🔒</div>
-                        <h4 style="color: #EF4444; font-weight: 900; font-size: 16px; margin-bottom: 8px;">هذا القسم غير مصرح به لحسابك</h4>
-                        <p style="color: #64748B; font-size: 13px; line-height: 1.6; font-weight: 700;">
+                        <h4 style="color: #FF453A; font-weight: 900; font-size: 16px; margin-bottom: 8px;">هذا القسم غير مصرح به لحسابك</h4>
+                        <p style="color: #8E8E93; font-size: 13px; line-height: 1.6; font-weight: 700;">
                             ${msg}
                         </p>
                     </div>
                 `,
                 confirmButtonText: 'حسناً، فهمت 🫡',
-                confirmButtonColor: '#4F46E5',
-                backdrop: 'rgba(6, 8, 15, 0.75)'
+                confirmButtonColor: '#0A84FF',
+                backdrop: 'rgba(7, 8, 13, 0.78)'
             });
         };
 
@@ -1407,14 +1488,14 @@
         if (role === 'master' || role === 'super_admin' || permissions.all === true) {
             document.getElementById('adminHeaderIcon').textContent = '👑';
             document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
-            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-crown" style="color: #F59E0B;"></i><span>مرحباً بك يا ${adminName} — صلاحيات كاملة</span>`;
+            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-crown" style="color: var(--apple-gold);"></i><span>مرحباً بك يا ${adminName} — صلاحيات كاملة</span>`;
         } else {
             document.getElementById('adminHeaderIcon').textContent = '🛡️';
             document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
-            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-user-shield" style="color: #60A5FA;"></i><span>${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط</span>`;
+            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-user-shield" style="color: var(--apple-blue);"></i><span>${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط</span>`;
 
             // Intercept Protected Cards while keeping all of them visible!
-            document.querySelectorAll('.action-card[data-perm]').forEach(item => {
+            document.querySelectorAll('.ipad-action-card[data-perm]').forEach(item => {
                 const permKey = item.getAttribute('data-perm');
                 let hasAccess = false;
                 if (permKey === 'config') {
@@ -1426,20 +1507,20 @@
                 item.style.display = 'flex';
 
                 if (!hasAccess) {
-                    const badgeContainer = item.querySelector('.card-title-row');
+                    const badgeContainer = item.querySelector('.card-title-group');
                     if (badgeContainer && !badgeContainer.querySelector('.badge-locked')) {
                         const lockBadge = document.createElement('span');
-                        lockBadge.className = 'card-badge badge-locked';
-                        lockBadge.style.cssText = 'background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 10px; font-weight: 900; margin-right: 4px;';
+                        lockBadge.className = 'card-tag-pill badge-locked';
+                        lockBadge.style.cssText = 'background: rgba(255, 69, 58, 0.15); color: #FF453A; border: 1px solid rgba(255, 69, 58, 0.35); font-size: 10.5px; font-weight: 900; margin-right: 4px;';
                         lockBadge.innerHTML = '<i class="fa-solid fa-lock"></i> مقفل';
                         badgeContainer.appendChild(lockBadge);
                     }
 
-                    const arrowIcon = item.querySelector('.card-arrow-icon');
+                    const arrowIcon = item.querySelector('.card-chevron-pill');
                     if (arrowIcon) {
-                        arrowIcon.innerHTML = '<i class="fa-solid fa-lock" style="color: #F87171; font-size: 13px;"></i>';
-                        arrowIcon.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                        arrowIcon.style.background = 'rgba(239, 68, 68, 0.1)';
+                        arrowIcon.innerHTML = '<i class="fa-solid fa-lock" style="color: #FF453A; font-size: 13px;"></i>';
+                        arrowIcon.style.borderColor = 'rgba(255, 69, 58, 0.35)';
+                        arrowIcon.style.background = 'rgba(255, 69, 58, 0.12)';
                     }
 
                     item.style.opacity = '0.88';
