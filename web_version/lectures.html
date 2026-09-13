@@ -1890,16 +1890,24 @@
                     const hasExam = Boolean(lesson.isStandaloneExam || (lesson.jsonCode && lesson.jsonCode.trim().length > 0 && lesson.jsonCode.trim() !== '[]') || (lesson.examUrl && lesson.examUrl.trim().length > 0) || lesson.hasQuiz === true);
 
                     let badgesHTML = '';
-                    if (lesson.videoUrl) badgesHTML += `<span class="meta-pill meta-pill-video"><i class="fa-solid fa-circle-play"></i> فيديو الشرح</span>`;
+                    if (lesson.videoUrl) {
+                        badgesHTML += `<span class="meta-pill meta-pill-video" style="cursor:pointer;" onclick="event.stopPropagation(); ${isLocked ? `showLockedModalByIndex(${index})` : `openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})`}" title="اضغط لمشاهدة الفيديو"><i class="fa-solid fa-circle-play"></i> فيديو الشرح</span>`;
+                    }
                     if (lesson.audioUrl) {
-                        badgesHTML += `<span class="meta-pill meta-pill-audio"><i class="fa-solid fa-headphones"></i> شرح صوتي</span>`;
+                        badgesHTML += `<span class="meta-pill meta-pill-audio" style="cursor:pointer;" onclick="event.stopPropagation(); ${isLocked ? `showLockedModalByIndex(${index})` : `openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})`}" title="اضغط للاستماع للشرح الصوتي"><i class="fa-solid fa-headphones"></i> شرح صوتي</span>`;
                         if (isAudioDone) {
                             badgesHTML += `<span class="meta-pill meta-pill-audio-done"><i class="fa-solid fa-circle-check"></i> تم الاستماع 🎧</span>`;
                         }
                     }
-                    if (lesson.pdfUrl) badgesHTML += `<span class="meta-pill meta-pill-pdf"><i class="fa-solid fa-file-pdf"></i> ملخص السبورة</span>`;
-                    if (hasExam) badgesHTML += `<span class="meta-pill meta-pill-quiz"><i class="fa-solid fa-pen-to-square"></i> اختبار تدريبي</span>`;
-                    if (lesson.chapter && lesson.chapter !== 'محاضرات عامة') badgesHTML += `<span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter}</span>`;
+                    if (lesson.pdfUrl) {
+                        badgesHTML += `<span class="meta-pill meta-pill-pdf" style="cursor:pointer;" onclick="event.stopPropagation(); ${isLocked ? `showLockedModalByIndex(${index})` : `openPdf('${escPdfUrl}', '${escTitle}', ${index})`}" title="اضغط لتصفح الملخص"><i class="fa-solid fa-file-pdf"></i> ملخص السبورة</span>`;
+                    }
+                    if (hasExam) {
+                        badgesHTML += `<span class="meta-pill meta-pill-quiz" style="cursor:pointer;" onclick="event.stopPropagation(); ${isLocked ? `showLockedModalByIndex(${index})` : `startExam('${escTitle}', '${lesson.id || ''}')`}" title="اضغط لبدء الامتحان"><i class="fa-solid fa-pen-to-square"></i> اختبار تدريبي</span>`;
+                    }
+                    if (lesson.chapter && lesson.chapter !== 'محاضرات عامة') {
+                        badgesHTML += `<span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter}</span>`;
+                    }
 
                     let descHTML = lesson.description ? `<div style="font-size:12.5px; color:#64748B; margin-top:6px; line-height:1.5; font-weight:600;">${lesson.description}</div>` : '';
 
@@ -1923,13 +1931,13 @@
                                             </div>
                                         </div>
                                         <div class="lesson-actions">
-                                            <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> اختبار مجدول (اضغط للموعد)</button>
+                                            <button class="btn-main-watch btn-locked" onclick="event.stopPropagation(); showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> اختبار مجدول (اضغط للموعد)</button>
                                         </div>
                                     </div>
                                 `);
                             } else {
                                 groupItemsHTML.push(`
-                                    <div class="lesson-package" style="border-right-color: #10B981;">
+                                    <div class="lesson-package" style="border-right-color: #10B981; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id}')">
                                         <div class="lesson-header-row">
                                             <div class="lesson-title-area">
                                                 <div class="lesson-number" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.35);">📝</div>
@@ -1944,10 +1952,10 @@
                                             </div>
                                         </div>
                                         <div class="lesson-actions">
-                                            <button class="btn-main-watch" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16,185,129,0.3);" onclick="startExam('${escTitle}', '${lesson.id}')">
+                                            <button class="btn-main-watch" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16,185,129,0.3);" onclick="event.stopPropagation(); startExam('${escTitle}', '${lesson.id}')">
                                                 <i class="fa-solid fa-play"></i> <span>بدء الامتحان الآن</span>
                                             </button>
-                                            <button class="action-pill-btn pill-qa" onclick="downloadOfflineExam('${escTitle}', '${lesson.id}')" title="تحميل الامتحان بصيغة HTML أوفلاين">
+                                            <button class="action-pill-btn pill-qa" onclick="event.stopPropagation(); downloadOfflineExam('${escTitle}', '${lesson.id}')" title="تحميل الامتحان بصيغة HTML أوفلاين">
                                                 <i class="fa-solid fa-download"></i> <span>تحميل أوفلاين</span>
                                             </button>
                                         </div>
@@ -1961,51 +1969,78 @@
                     if (currentCategory === 'all') {
                         hasItemsForCurrentView = true;
                         
+                        let cardClickAction = '';
                         let actionsHTML = '';
+
                         if (isLocked) {
+                            cardClickAction = `showLockedModalByIndex(${index})`;
                             actionsHTML = `
-                                <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);">
+                                <button class="btn-main-watch btn-locked" onclick="event.stopPropagation(); showLockedModalByIndex(${index})" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);">
                                     <i class="fa-solid fa-lock"></i> <span>محاضرة مجدولة (اضغط لعرض شاشة القفل والعداد)</span>
                                 </button>
-                                <button class="action-pill-btn pill-qa" onclick="showLockedModalByIndex(${index})" title="المحاضرة مجدولة">
+                                <button class="action-pill-btn pill-qa" onclick="event.stopPropagation(); showLockedModalByIndex(${index})" title="المحاضرة مجدولة">
                                     <i class="fa-solid fa-clock"></i> <span>تفتح تلقائياً بالموعد</span>
                                 </button>
                             `;
                         } else {
+                            if (lesson.videoUrl) {
+                                cardClickAction = `openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})`;
+                            } else if (escAudioUrl) {
+                                cardClickAction = `openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})`;
+                            } else if (escPdfUrl) {
+                                cardClickAction = `openPdf('${escPdfUrl}', '${escTitle}', ${index})`;
+                            } else if (hasExam) {
+                                cardClickAction = `startExam('${escTitle}', '${lesson.id || ''}')`;
+                            } else {
+                                cardClickAction = `openLectureQA(${index})`;
+                            }
+
                             const watchBtnHTML = lesson.videoUrl ? `
-                                <button class="btn-main-watch" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
+                                <button class="btn-main-watch" onclick="event.stopPropagation(); openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
                                     <i class="fa-solid fa-play"></i> <span>مشاهدة المحاضرة</span>
                                 </button>
                             ` : (escAudioUrl ? `
-                                <button class="btn-main-watch btn-audio-listen" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                <button class="btn-main-watch btn-audio-listen" onclick="event.stopPropagation(); openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
                                     <i class="fa-solid fa-headphones"></i> <span>استمع للشرح الصوتي</span>
                                 </button>
-                            ` : '');
+                            ` : (escPdfUrl ? `
+                                <button class="btn-main-watch" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); box-shadow: 0 4px 14px rgba(234,88,12,0.3);" onclick="event.stopPropagation(); openPdf('${escPdfUrl}', '${escTitle}', ${index})">
+                                    <i class="fa-solid fa-file-pdf"></i> <span>معاينة الملخص</span>
+                                </button>
+                            ` : (hasExam ? `
+                                <button class="btn-main-watch" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16,185,129,0.3);" onclick="event.stopPropagation(); startExam('${escTitle}', '${lesson.id || ''}')">
+                                    <i class="fa-solid fa-play"></i> <span>بدء الامتحان</span>
+                                </button>
+                            ` : `
+                                <button class="btn-main-watch" onclick="event.stopPropagation(); openLectureQA(${index})">
+                                    <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
+                                </button>
+                            `)));
 
                             let secondaryBtnsHTML = '';
                             if (escAudioUrl && lesson.videoUrl) {
                                 secondaryBtnsHTML += `
-                                    <button class="action-pill-btn pill-audio" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                    <button class="action-pill-btn pill-audio" onclick="event.stopPropagation(); openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
                                         <i class="fa-solid fa-headphones"></i> <span>الشرح الصوتي</span>
                                     </button>
                                 `;
                             }
-                            if (escPdfUrl) {
+                            if (escPdfUrl && (lesson.videoUrl || escAudioUrl)) {
                                 secondaryBtnsHTML += `
-                                    <button class="action-pill-btn pill-pdf" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})">
+                                    <button class="action-pill-btn pill-pdf" onclick="event.stopPropagation(); openPdf('${escPdfUrl}', '${escTitle}', ${index})">
                                         <i class="fa-solid fa-file-pdf"></i> <span>ملخص السبورة</span>
                                     </button>
                                 `;
                             }
                             if (hasExam) {
                                 secondaryBtnsHTML += `
-                                    <button class="action-pill-btn pill-quiz" onclick="startExam('${escTitle}', '${lesson.id || ''}')">
+                                    <button class="action-pill-btn pill-quiz" onclick="event.stopPropagation(); startExam('${escTitle}', '${lesson.id || ''}')">
                                         <i class="fa-solid fa-pen-to-square"></i> <span>الامتحان التدريبي</span>
                                     </button>
                                 `;
                             }
                             secondaryBtnsHTML += `
-                                <button class="action-pill-btn pill-qa" onclick="openLectureQA(${index})">
+                                <button class="action-pill-btn pill-qa" onclick="event.stopPropagation(); openLectureQA(${index})">
                                     <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
                                 </button>
                             `;
@@ -2014,12 +2049,12 @@
                         }
 
                         groupItemsHTML.push(`
-                            <div class="lesson-package" ${isLocked ? 'style="border-right-color: #F59E0B; cursor:pointer;" onclick="showLockedModalByIndex(' + index + ')"' : ''}>
+                            <div class="lesson-package" style="cursor:pointer; ${isLocked ? 'border-right-color: #F59E0B;' : ''}" onclick="${cardClickAction}">
                                 <div class="lesson-header-row">
                                     <div class="lesson-title-area">
                                         <div class="lesson-number" ${isLocked ? 'style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245,158,11,0.35);"' : ''}>${index+1}</div>
                                         <div class="lesson-info">
-                                            <h4>${lesson.title}</h4>
+                                            <h4 style="cursor:pointer;">${lesson.title}</h4>
                                             <div class="lesson-meta-badges">
                                                 <span class="meta-pill"><i class="fa-regular fa-clock"></i> ${lesson.duration || 'متاحة الآن'}</span>
                                                 ${badgesHTML}
@@ -2032,7 +2067,6 @@
                                 <div class="lesson-actions">
                                     ${actionsHTML}
                                 </div>
-                            </div>
                         `);
                     } else if (currentCategory === 'videos' && lesson.videoUrl) {
                         hasItemsForCurrentView = true;
@@ -2111,7 +2145,7 @@
                             ` : '';
 
                             groupItemsHTML.push(`
-                                <div class="lesson-package" style="border-right-color: #7C3AED;">
+                                <div class="lesson-package" style="border-right-color: #7C3AED; cursor:pointer;" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
                                     <div class="lesson-header-row">
                                         <div class="lesson-title-area">
                                             <div class="lesson-number" style="background: linear-gradient(135deg, #7C3AED, #6366F1); box-shadow: 0 4px 15px rgba(124,58,237,0.3);"><i class="fa-solid fa-headphones" style="font-size: 16px;"></i></div>
@@ -2128,11 +2162,11 @@
                                         </div>
                                     </div>
                                     <div class="lesson-actions">
-                                        <button class="btn-main-watch btn-audio-listen" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                        <button class="btn-main-watch btn-audio-listen" onclick="event.stopPropagation(); openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
                                             <i class="fa-solid fa-play"></i> <span>استمع للشرح الصوتي</span>
                                         </button>
                                         ${dlBtnHTML}
-                                        <button class="action-pill-btn pill-qa" onclick="openLectureQA(${index})">
+                                        <button class="action-pill-btn pill-qa" onclick="event.stopPropagation(); openLectureQA(${index})">
                                             <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
                                         </button>
                                     </div>
@@ -2157,13 +2191,13 @@
                                         </div>
                                     </div>
                                     <div class="lesson-actions">
-                                        <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> <span>ملخص مجدول (اضغط للموعد)</span></button>
+                                        <button class="btn-main-watch btn-locked" onclick="event.stopPropagation(); showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> <span>ملخص مجدول (اضغط للموعد)</span></button>
                                     </div>
                                 </div>
                             `);
                         } else {
                             groupItemsHTML.push(`
-                                <div class="lesson-package" style="border-right-color: #EA580C;">
+                                <div class="lesson-package" style="border-right-color: #EA580C; cursor:pointer;" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})">
                                     <div class="lesson-header-row">
                                         <div class="lesson-title-area">
                                             <div class="lesson-number" style="background: linear-gradient(135deg, #EA580C, #C2410C); box-shadow: 0 4px 15px rgba(234,88,12,0.3);"><i class="fa-solid fa-file-pdf" style="font-size: 16px;"></i></div>
@@ -2177,10 +2211,10 @@
                                         </div>
                                     </div>
                                     <div class="lesson-actions">
-                                        <button class="btn-main-watch" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); box-shadow: 0 4px 14px rgba(234,88,12,0.3);" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})">
+                                        <button class="btn-main-watch" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); box-shadow: 0 4px 14px rgba(234,88,12,0.3);" onclick="event.stopPropagation(); openPdf('${escPdfUrl}', '${escTitle}', ${index})">
                                             <i class="fa-solid fa-eye"></i> <span>معاينة وتصفح الملخص</span>
                                         </button>
-                                        <button class="action-pill-btn pill-pdf" onclick="downloadPdfDirectUrl('${escPdfUrl}', '${escTitle}')" title="تحميل الملف">
+                                        <button class="action-pill-btn pill-pdf" onclick="event.stopPropagation(); downloadPdfDirectUrl('${escPdfUrl}', '${escTitle}')" title="تحميل الملف">
                                             <i class="fa-solid fa-download"></i> <span>تحميل PDF</span>
                                         </button>
                                     </div>
@@ -2205,13 +2239,13 @@
                                         </div>
                                     </div>
                                     <div class="lesson-actions">
-                                        <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> <span>امتحان مجدول (اضغط للموعد)</span></button>
+                                        <button class="btn-main-watch btn-locked" onclick="event.stopPropagation(); showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> <span>امتحان مجدول (اضغط للموعد)</span></button>
                                     </div>
                                 </div>
                             `);
                         } else {
                             groupItemsHTML.push(`
-                                <div class="lesson-package" style="border-right-color: #10B981;">
+                                <div class="lesson-package" style="border-right-color: #10B981; cursor:pointer;" onclick="startExam('${escTitle}', '${lesson.id || ''}')">
                                     <div class="lesson-header-row">
                                         <div class="lesson-title-area">
                                             <div class="lesson-number" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.3);"><i class="fa-solid fa-pen-nib" style="font-size: 16px;"></i></div>
@@ -2225,10 +2259,10 @@
                                         </div>
                                     </div>
                                     <div class="lesson-actions">
-                                        <button class="btn-main-watch" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16,185,129,0.3);" onclick="startExam('${escTitle}', '${lesson.id || ''}')">
+                                        <button class="btn-main-watch" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 14px rgba(16,185,129,0.3);" onclick="event.stopPropagation(); startExam('${escTitle}', '${lesson.id || ''}')">
                                             <i class="fa-solid fa-play"></i> <span>بدء الامتحان الآن</span>
                                         </button>
-                                        <button class="action-pill-btn pill-qa" onclick="downloadOfflineExam('${escTitle}', '${lesson.id || ''}')" title="تحميل الامتحان بصيغة HTML أوفلاين">
+                                        <button class="action-pill-btn pill-qa" onclick="event.stopPropagation(); downloadOfflineExam('${escTitle}', '${lesson.id || ''}')" title="تحميل الامتحان بصيغة HTML أوفلاين">
                                             <i class="fa-solid fa-download"></i> <span>تحميل أوفلاين</span>
                                         </button>
                                     </div>
