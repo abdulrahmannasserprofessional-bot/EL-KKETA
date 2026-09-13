@@ -805,6 +805,65 @@
             width: 100%;
             margin-top: 15px;
         }
+
+        /* Universal SweetAlert & Modal Close Buttons */
+        .swal2-close {
+            position: absolute !important;
+            top: 14px !important;
+            left: 14px !important;
+            right: auto !important;
+            z-index: 100005 !important;
+            width: 38px !important;
+            height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: #F1F5F9 !important;
+            border-radius: 50% !important;
+            color: #64748B !important;
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            border: 1.5px solid #CBD5E1 !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            line-height: 1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .swal2-close:hover {
+            background: #FEE2E2 !important;
+            color: #DC2626 !important;
+            border-color: #FECACA !important;
+            transform: scale(1.1) !important;
+        }
+        .swal-inner-close-btn {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #F1F5F9;
+            border: 1.5px solid #CBD5E1;
+            color: #64748B;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100006;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .swal-inner-close-btn:hover {
+            background: #FEE2E2;
+            color: #DC2626;
+            border-color: #FECACA;
+            transform: scale(1.1);
+        }
     
         /* Community Modal */
         .community-modal {
@@ -2349,7 +2408,10 @@
             Swal.fire({
                 title: '',
                 html: `
-                    <div style="text-align: center; padding: 8px 4px;">
+                    <div style="text-align: center; padding: 8px 4px; position: relative;">
+                        <!-- Direct Fallback Close Button in corner -->
+                        <button type="button" class="swal-inner-close-btn" onclick="Swal.close()" title="إغلاق النافذة">✕</button>
+
                         <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin: 0 auto 16px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4); border: 3px solid #F59E0B; animation: pulse-dot 2s infinite;">
                             🔒
                         </div>
@@ -2403,10 +2465,39 @@
                 `,
                 confirmButtonText: 'حسناً، سأكون في الموعد 🎯',
                 confirmButtonColor: '#D97706',
+                showCancelButton: true,
+                cancelButtonText: 'إغلاق النافذة ✕',
+                cancelButtonColor: '#64748B',
                 showCloseButton: true,
-                didOpen: () => {
+                allowOutsideClick: true,
+                allowEscapeKey: true,
+                didOpen: (popup) => {
                     if (activeLockedModalInterval) clearInterval(activeLockedModalInterval);
                     const modal = Swal.getHtmlContainer();
+
+                    // Ensure all close buttons respond immediately
+                    const safeClose = function(e) {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        if (activeLockedModalInterval) {
+                            clearInterval(activeLockedModalInterval);
+                            activeLockedModalInterval = null;
+                        }
+                        Swal.close();
+                    };
+
+                    const closeBtn = Swal.getCloseButton();
+                    if (closeBtn) {
+                        closeBtn.setAttribute('title', 'إغلاق النافذة');
+                        closeBtn.onclick = safeClose;
+                        closeBtn.ontouchend = safeClose;
+                    }
+
+                    const innerCloseBtn = popup ? popup.querySelector('.swal-inner-close-btn') : null;
+                    if (innerCloseBtn) {
+                        innerCloseBtn.onclick = safeClose;
+                        innerCloseBtn.ontouchend = safeClose;
+                    }
+
                     if (!modal) return;
                     activeLockedModalInterval = setInterval(() => {
                         const target = lesson.unlockTime || Date.now();
