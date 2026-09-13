@@ -723,8 +723,8 @@
                         <button type="button" onclick="formatAndValidateExamJson()" class="chapter-pill-btn" style="background:#10B981; color:white; border-color:#10B981;">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> فحص وتنسيق
                         </button>
-                        <button type="button" onclick="clearExamJson()" class="chapter-pill-btn" style="color:#DC2626;">
-                            <i class="fa-solid fa-trash-can"></i> مسح الأسئلة
+                        <button type="button" onclick="copyExamJson()" class="chapter-pill-btn" style="color:#2563EB;">
+                            <i class="fa-solid fa-copy"></i> نسخ كود الأسئلة
                         </button>
                     </div>
                 </div>
@@ -887,20 +887,14 @@
             }
         }
 
-        function clearExamJson() {
-            Swal.fire({
-                title: "مسح جميع الأسئلة؟",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DC2626",
-                confirmButtonText: "نعم، مسح",
-                cancelButtonText: "إلغاء"
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    document.getElementById('examJson').value = "";
-                    updateQuestionCountLive();
-                    showToast("تم مسح الأسئلة");
-                }
+        function copyExamJson() {
+            const textarea = document.getElementById('examJson');
+            const val = textarea.value.trim();
+            if (!val) return showToast("لا يوجد كود أسئلة لنسخه");
+            navigator.clipboard.writeText(val).then(() => {
+                showToast("تم نسخ كود الأسئلة إلى الحافظة 📋");
+            }).catch(() => {
+                showToast("تعذر النسخ التلقائي");
             });
         }
 
@@ -1173,7 +1167,18 @@
         function startEditLessonByKey(key) {
             const lesson = window.allLessonsMap[key];
             if (!lesson) return;
-            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, lesson.jsonCode, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize);
+
+            // Safe extraction of questions from all potential formats
+            let examData = lesson.jsonCode || lesson.questions || lesson.examJson || lesson.quiz || lesson.exam || "";
+            if (typeof examData === 'object' && examData !== null) {
+                try {
+                    examData = JSON.stringify(examData, null, 2);
+                } catch(e) {
+                    examData = "";
+                }
+            }
+
+            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize);
         }
 
         function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize) {
@@ -1254,7 +1259,17 @@
             if (!title) return showToast("يرجى كتابة عنوان المحاضرة أو الامتحان");
             if (!video && !pdf && !examJson) return showToast("يجب إضافة رابط فيديو، أو ملخص PDF، أو امتحان على الأقل");
 
-            const data = { title, description: desc, videoUrl: video, pdfUrl: pdf, pdfSize, jsonCode: examJson, duration, chapter, unlockTime };
+            const data = {
+                title: title || "",
+                description: desc || "",
+                videoUrl: video || "",
+                pdfUrl: pdf || "",
+                pdfSize: pdfSize || "",
+                jsonCode: examJson || "",
+                duration: duration || "متوفر",
+                chapter: chapter || "",
+                unlockTime: unlockTime || null
+            };
 
             if (chapter) {
                 const chapKey = chapter.replace(/[.#$[\]/]/g, '_');
@@ -1269,7 +1284,10 @@
                 database.ref('Lectures').child(subject).child(editingLessonId).set(data).then(() => {
                     showToast(unlockTime && unlockTime > Date.now() ? "تم تعديل المحتوى وجدولته بنجاح ⏳" : "تم تعديل المحتوى بنجاح ✅");
                     resetForm();
-                }).catch(() => showToast("حدث خطأ في التعديل ❌"));
+                }).catch((err) => {
+                    console.error("Save error:", err);
+                    showToast("حدث خطأ في التعديل: " + (err && err.message ? err.message : "يرجى المحاولة مجدداً") + " ❌");
+                });
             } else {
                 const id = database.ref('Lectures').child(subject).push().key;
                 data.id = id;

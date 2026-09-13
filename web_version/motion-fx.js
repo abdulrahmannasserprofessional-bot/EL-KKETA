@@ -136,31 +136,84 @@
         });
     }
 
-    // ─── 4. Staggered Cascading Reveal Engine ───
-    function initScrollReveal() {
-        const revealItems = document.querySelectorAll(
-            '.service-card, .kpi-card, .student-item-card, .lesson-card-item, .subject-group-card, .sector-header, .card, .stat-chip'
+    // ─── 4. Precision Site Assembly Engine (تجميع جزء جزء نقطة نقطة) ───
+    function initSiteAssembly() {
+        // 1. Stage 1: Structural Foundations & Headers (جزء الهيكل العلوي)
+        const topHeaders = document.querySelectorAll('.dynamic-island-pill, .site-header, .main-topbar, .topbar, .header-island, .app-header');
+        topHeaders.forEach((el, idx) => {
+            el.classList.add('assemble-unit', `assemble-part-${idx + 1}`);
+        });
+
+        // 2. Stage 2: Navigation Dock & Sidebars (جزء القائمة والدوك)
+        const navDocks = document.querySelectorAll('.dock-sidebar, .sidebar, .nav-dock, .bottom-nav, .mobile-bottom-bar');
+        navDocks.forEach((el, idx) => {
+            el.classList.add('assemble-unit', `assemble-part-${idx + 2}`);
+        });
+
+        // 3. Stage 3: KPI Widgets & Live Counters (أجزاء العدادات الذكية)
+        const kpiCards = document.querySelectorAll('.kpi-card, .stat-chip, .kpi-widget, .summary-metric-card');
+        kpiCards.forEach((el, idx) => {
+            const step = Math.min(idx + 3, 7);
+            el.classList.add('assemble-unit', `assemble-part-${step}`);
+            el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
+        });
+
+        // 4. Stage 4: Sectors & Main Service Containers (قطاعات المنظومة والخدمات)
+        const sectorHeaders = document.querySelectorAll('.sector-header, .list-section-header, .form-card, .section-title-wrap');
+        sectorHeaders.forEach((el, idx) => {
+            const step = Math.min(idx + 6, 11);
+            el.classList.add('assemble-unit', `assemble-part-${step}`);
+            el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
+        });
+
+        // 5. Stage 5: Cards, Lessons, Students & Buttons (البطاقات والوحدات التفاعلية)
+        function registerDynamicAssemblyItems(root = document) {
+            const cards = root.querySelectorAll(
+                '.service-card, .student-item-card, .lesson-card-item, .subject-group-card, .exam-box, .card, .course-card, .quiz-card'
+            );
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('motion-reveal');
+                            // Add locked-in precision snap indicator once assembled
+                            setTimeout(() => {
+                                entry.target.classList.add('locked-in');
+                            }, 550);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
+
+                cards.forEach((el, idx) => {
+                    if (el._hasAssemblySetup) return;
+                    el._hasAssemblySetup = true;
+                    const step = (idx % 12) + 1;
+                    el.classList.add(`assemble-part-${step}`);
+                    el.style.setProperty('--assemble-base-delay', `${(step * 0.04).toFixed(2)}s`);
+                    observer.observe(el);
+                });
+            } else {
+                cards.forEach((el, idx) => {
+                    el.classList.add('motion-reveal', `assemble-part-${(idx % 12) + 1}`);
+                });
+            }
+        }
+
+        registerDynamicAssemblyItems(document);
+
+        // 6. Observe dynamic container insertions from Firebase (المحاضرات والطلاب عند جلبهم لحظياً)
+        const dynamicContainers = document.querySelectorAll(
+            '#adminLessonsList, #studentsContainer, #coursesContainer, .lessons-container, .students-grid, .dynamic-cards-list'
         );
 
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry, i) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('motion-reveal');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
-
-            revealItems.forEach((el, idx) => {
-                // Apply subtle staggering if within the initial viewport
-                const staggerClass = `stagger-${(idx % 12) + 1}`;
-                el.classList.add(staggerClass);
-                observer.observe(el);
+        dynamicContainers.forEach(container => {
+            const mutObserver = new MutationObserver(() => {
+                registerDynamicAssemblyItems(container);
             });
-        } else {
-            revealItems.forEach(el => el.classList.add('motion-reveal'));
-        }
+            mutObserver.observe(container, { childList: true });
+        });
     }
 
     // ─── 5. Golden Confetti / Celebration Engine ───
@@ -234,13 +287,13 @@
             initNumberCounters();
             initCardTilt();
             initRippleClicks();
-            initScrollReveal();
+            initSiteAssembly();
         });
     } else {
         initNumberCounters();
         initCardTilt();
         initRippleClicks();
-        initScrollReveal();
+        initSiteAssembly();
     }
 
 })();
