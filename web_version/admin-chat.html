@@ -51,6 +51,31 @@
             padding: 0;
             font-family: 'Cairo', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+        }
+
+        /* ─── Universal Sleek Modern Scrollbars for Laptop & Desktop ─── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        [data-theme="light"] ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.18);
+        }
+        [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
 
         body {
@@ -445,14 +470,25 @@
         .admin-msg-row {
             display: flex;
             flex-direction: column;
-            max-width: 75%;
+            max-width: 80%;
             animation: motionAssembleModule 0.3s ease;
+            position: relative;
         }
         .admin-msg-row.student {
             align-self: flex-start;
         }
         .admin-msg-row.admin {
             align-self: flex-end;
+        }
+
+        .admin-msg-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .admin-msg-row.admin .admin-msg-wrap {
+            flex-direction: row-reverse;
         }
 
         .admin-msg-bubble {
@@ -473,6 +509,62 @@
             background: linear-gradient(135deg, #10B981, #059669);
             color: #FFFFFF;
             border-bottom-left-radius: 4px;
+        }
+
+        /* Message Delete Button */
+        .btn-delete-msg {
+            opacity: 0;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .admin-msg-row:hover .btn-delete-msg,
+        .btn-delete-msg:focus {
+            opacity: 1;
+        }
+        @media (hover: none), (max-width: 860px) {
+            .btn-delete-msg {
+                opacity: 0.85;
+            }
+        }
+        .btn-delete-msg:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+            transform: scale(1.12);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+        }
+
+        /* Clear Entire Conversation Button */
+        .btn-clear-chat {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #EF4444;
+            padding: 7px 14px;
+            border-radius: 11px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-clear-chat:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
         }
 
         .admin-msg-meta {
@@ -496,6 +588,32 @@
         }
         .chat-img-thumb:hover {
             transform: scale(1.02);
+        }
+
+        /* Large laptop / Desktop screen optimization */
+        @media (min-width: 1200px) {
+            .conversations-sidebar {
+                width: 380px;
+                min-width: 380px;
+            }
+            .room-messages-feed {
+                max-width: 1060px;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .room-input-container {
+                max-width: 1060px;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .canned-replies-row {
+                max-width: 1060px;
+                width: 100%;
+                margin: 0 auto;
+            }
+            .room-student-header {
+                padding: 14px 28px;
+            }
         }
 
         /* Canned Quick Replies */
@@ -698,6 +816,9 @@
                             <option value="open">💬 مفتوحة وقيد المتابعة</option>
                             <option value="closed">✅ تم الحل وإغلاق التذكرة</option>
                         </select>
+                        <button class="btn-clear-chat" onclick="deleteEntireConversation()" title="حذف المحادثة بالكامل وتصفير التذكرة">
+                            <i class="fa-solid fa-trash-can"></i> <span>حذف المحادثة</span>
+                        </button>
                         <button class="btn-back-home" onclick="closeMobileChatRoom()" title="رجوع للقائمة" style="display:none;" id="btnMobileBack">
                             <i class="fa-solid fa-arrow-left"></i>
                         </button>
@@ -718,11 +839,12 @@
 
                 <!-- Canned Quick Replies -->
                 <div class="canned-replies-row">
-                    <button class="canned-chip-btn" onclick="sendCanned('أهلاً بك يا بطل! 👋 جاري مراجعة طلبك والرد عليك فوراً ⏳')">👋 تحية وترحيب</button>
-                    <button class="canned-chip-btn" onclick="sendCanned('تم فحص المشكلة وحلها بنجاح، يمكنك تجربة الدخول الآن ✅')">✅ تم الحل</button>
+                    <button class="canned-chip-btn" onclick="sendCanned('أهلاً بك يا بطل! 👋 تم استلام رسالتك وجارٍ فحص طلبك فوراً ⏳')">👋 تحية وترحيب</button>
+                    <button class="canned-chip-btn" onclick="sendCanned('تم فحص المشكلة وحلها بنجاح، يمكنك تجربة الدخول الآن 🚀')">✅ تم الحل</button>
                     <button class="canned-chip-btn" onclick="sendCanned('يرجى إرسال لقطة شاشة توضح رسالة الخطأ التي تظهر لك 📷')">📷 طلب صورة</button>
-                    <button class="canned-chip-btn" onclick="sendCanned('تم تفعيل الكود وحسابك معتمد بنجاح 🚀 بالتوفيق يا بطل!')">🔑 تفعيل الكود</button>
-                    <button class="canned-chip-btn" onclick="sendCanned('تم اعتماد وتسجيل جهازك بنجاح، بالتوفيق في المذاكرة 📱')">📱 اعتماد الجهاز</button>
+                    <button class="canned-chip-btn" onclick="sendCanned('تم تفعيل الكود وتحديث بيانات حسابك، بالتوفيق يا بطل! ✨')">🔑 تفعيل الكود</button>
+                    <button class="canned-chip-btn" onclick="sendCanned('تم مراجعة ورصد درجتك في الامتحان بنجاح 🎯')">🎯 رصد الدرجة</button>
+                    <button class="canned-chip-btn" onclick="sendCanned('فريق دعم منصة الخطة في خدمتك دائماً، ونتمنى لك دوام التميز! 🌟❤️')">❤️ تشجيع ودعم</button>
                 </div>
 
                 <!-- Input Row -->
@@ -949,6 +1071,7 @@
 
                 snap.forEach(child => {
                     const msg = child.val();
+                    const msgKey = child.key;
                     const isStudent = (msg.sender === 'student');
                     const row = document.createElement('div');
                     row.className = `admin-msg-row ${isStudent ? 'student' : 'admin'}`;
@@ -962,9 +1085,14 @@
                     const senderTitle = isStudent ? (conv.studentName || 'الطالب') : ('👑 ' + (msg.senderName || adminName));
 
                     row.innerHTML = `
-                        <div class="admin-msg-bubble">
-                            ${msg.text ? `<div>${escapeHTML(msg.text)}</div>` : ''}
-                            ${imgHTML}
+                        <div class="admin-msg-wrap">
+                            <div class="admin-msg-bubble">
+                                ${msg.text ? `<div>${escapeHTML(msg.text)}</div>` : ''}
+                                ${imgHTML}
+                            </div>
+                            <button class="btn-delete-msg" onclick="deleteChatMessage('${code}', '${msgKey}')" title="حذف هذه الرسالة">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
                         </div>
                         <div class="admin-msg-meta">
                             <span>${senderTitle} • ${time}</span>
@@ -1100,6 +1228,89 @@
             const days = Math.floor(hours / 24);
             return `منذ ${days} ي`;
         }
+
+        // ─── 5. Message & Conversation Deletion ───
+        window.deleteChatMessage = function(code, msgKey) {
+            if (!code || !msgKey) return;
+            Swal.fire({
+                title: 'حذف الرسالة؟',
+                text: 'هل أنت متأكد من رغبتك في حذف هذه الرسالة نهائياً من المحادثة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، احذفها 🗑️',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    database.ref(`DirectChats/${code}/messages/${msgKey}`).remove().then(() => {
+                        database.ref(`DirectChats/${code}/messages`).limitToLast(1).once('value', lastSnap => {
+                            let lastTxt = 'تم حذف الرسائل';
+                            let lastTime = Date.now();
+                            if (lastSnap.exists()) {
+                                lastSnap.forEach(s => {
+                                    const m = s.val() || {};
+                                    lastTxt = m.text || (m.imageUrl ? '📷 صورة' : '');
+                                    lastTime = m.timestamp || Date.now();
+                                });
+                            }
+                            database.ref(`DirectChats/${code}/meta`).update({
+                                lastMessage: lastTxt,
+                                lastTimestamp: lastTime
+                            });
+                        });
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'تم حذف الرسالة بنجاح 🗑️',
+                            showConfirmButton: false,
+                            timer: 2200
+                        });
+                    }).catch(err => {
+                        Swal.fire('خطأ', 'تعذر حذف الرسالة: ' + err.message, 'error');
+                    });
+                }
+            });
+        };
+
+        window.deleteEntireConversation = function(code) {
+            const targetCode = code || activeStudentCode;
+            if (!targetCode) {
+                Swal.fire('تنبيه', 'يرجى اختيار محادثة أولاً لحذفها', 'info');
+                return;
+            }
+            Swal.fire({
+                title: 'حذف المحادثة بالكامل؟',
+                text: 'سيتم مسح كافة الرسائل الخاصة بهذا الطالب وتصفير التذكرة نهائياً!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: 'نعم، احذف المحادثة 🗑️',
+                cancelButtonText: 'تراجع'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    database.ref(`DirectChats/${targetCode}`).remove().then(() => {
+                        activeStudentCode = null;
+                        document.getElementById('activeChatWorkspace').classList.remove('active');
+                        document.getElementById('noChatSelectedState').style.display = 'flex';
+                        if (messagesListenerRef) {
+                            messagesListenerRef.off();
+                            messagesListenerRef = null;
+                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم حذف المحادثة بنجاح 🗑️',
+                            text: 'تم مسح سجل المحادثة بالكامل وتصفير التذكرة.',
+                            confirmButtonColor: '#10B981'
+                        });
+                    }).catch(err => {
+                        Swal.fire('خطأ', 'تعذر حذف المحادثة: ' + err.message, 'error');
+                    });
+                }
+            });
+        };
 
         function escapeHTML(str) {
             const p = document.createElement('p');

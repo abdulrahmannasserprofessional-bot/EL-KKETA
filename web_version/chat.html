@@ -1,226 +1,899 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شات مجتمعنا - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مكتب الدعم المباشر والشات - منصة الخطة | EL KHETA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        .chat-tool-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.2); border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: 0.3s; color: var(--text-main); }
-        .chat-tool-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
-        .chat-tool-btn.recording { background: #ef4444; animation: pulse 1.5s infinite; border-color: #ef4444; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .chat-img-preview { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
-        .chat-audio-player { width: 220px; height: 40px; margin-top: 5px; }
-        .chat-bubble.admin { background: linear-gradient(135deg, #10b981, #059669); color: var(--text-main); border-bottom-left-radius: 0; margin-right: auto; }
-        .admin-badge { font-size: 14px; margin-left: 5px; }
-    </style>
+        :root {
+            --bg-base: #0B0F19;
+            --bg-surface: #111827;
+            --bg-card: #1E293B;
+            --primary: #38BDF8;
+            --primary-dark: #0284C7;
+            --emerald: #10B981;
+            --amber: #F59E0B;
+            --rose: #F43F5E;
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --text-dim: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-hover: rgba(255, 255, 255, 0.16);
+            --bubble-student: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+            --bubble-admin: #1E293B;
+        }
 
+        [data-theme="light"] {
+            --bg-base: #F0F4F8;
+            --bg-surface: #FFFFFF;
+            --bg-card: #F8FAFC;
+            --primary: #0284C7;
+            --primary-dark: #0369A1;
+            --text-main: #0F172A;
+            --text-sub: #475569;
+            --text-dim: #94A3B8;
+            --border-glass: rgba(0, 0, 0, 0.08);
+            --border-glass-hover: rgba(0, 0, 0, 0.15);
+            --bubble-student: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            --bubble-admin: #F1F5F9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+        }
+
+        /* Sleek Modern Scrollbars for Laptop & Desktop */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+        [data-theme="light"] ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Main Responsive Container */
+        .chat-app-frame {
+            width: 1000px;
+            max-width: calc(100vw - 32px);
+            height: calc(100vh - 36px);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #0F172A 100%);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-glass);
+            color: #FFFFFF;
+            position: relative;
+            z-index: 10;
+        }
+
+        [data-theme="light"] .chat-header {
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+        }
+
+        .header-profile-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-back-home {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-back-home:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+
+        .online-status-dot {
+            position: absolute;
+            bottom: -2px;
+            left: -2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #10B981;
+            border: 2px solid #0F172A;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+
+        .header-title-info h1 {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.3;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title-info p {
+            font-size: 12px;
+            color: #93C5FD;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .header-ticket-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ticket-chip {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #E2E8F0;
+        }
+
+        /* Quick Topics Bar */
+        .chat-topics-bar {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .chat-topics-bar::-webkit-scrollbar { display: none; }
+
+        .chat-topic-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .chat-topic-chip:hover,
+        .chat-topic-chip.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Message Area Feed */
+        .chat-feed-container {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.03), transparent 70%);
+        }
+
+        /* Welcome Notice */
+        .chat-welcome-notice {
+            background: rgba(56, 189, 248, 0.07);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 18px;
+            padding: 16px 20px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 10px auto;
+            color: var(--text-main);
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
+
+        /* Message Bubbles */
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 78%;
+            animation: fadeInMsg 0.25s ease-out;
+        }
+
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-row.student {
+            align-self: flex-start;
+        }
+
+        .msg-row.admin {
+            align-self: flex-end;
+        }
+
+        .msg-bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .msg-row.student .msg-bubble {
+            background: var(--bubble-student);
+            color: #FFFFFF;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-row.admin .msg-bubble {
+            background: var(--bubble-admin);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border-glass-hover);
+        }
+
+        .msg-sender-tag {
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .msg-row.admin .msg-sender-tag {
+            color: #F59E0B;
+        }
+
+        .msg-row.student .msg-sender-tag {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .msg-meta-info {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .msg-row.student .msg-meta-info { align-self: flex-start; }
+        .msg-row.admin .msg-meta-info { align-self: flex-end; }
+
+        .chat-img-thumb {
+            max-width: 280px;
+            max-height: 240px;
+            border-radius: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-img-thumb:hover {
+            transform: scale(1.02);
+        }
+
+        /* Attachment Preview */
+        .attachment-preview-bar {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-glass);
+            display: none;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preview-thumbnail-wrap {
+            position: relative;
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--primary);
+        }
+
+        .preview-thumbnail-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-remove-attachment {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Input Controls Area */
+        .chat-input-row {
+            padding: 16px 20px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input-row input[type="text"] {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 13px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .chat-input-row input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .btn-input-tool {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-input-tool:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-send-msg {
+            background: linear-gradient(135deg, #0284C7, #0369A1);
+            color: #FFFFFF;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-send-msg:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+        }
+        .btn-send-msg:active {
+            transform: scale(0.92);
+        }
+
+        /* Lightbox Image Preview Modal */
+        .image-lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .image-lightbox-overlay.active {
+            display: flex;
+        }
+        .image-lightbox-content {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            object-fit: contain;
+        }
+        .btn-close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body {
+                align-items: stretch;
+                justify-content: stretch;
+            }
+            .chat-app-frame {
+                width: 100vw;
+                max-width: 100vw;
+                height: 100dvh;
+                border-radius: 0;
+                border: none;
+            }
+            .chat-header {
+                padding: 12px 16px;
+            }
+            .header-title-info h1 {
+                font-size: 14.5px;
+            }
+            .ticket-chip {
+                display: none;
+            }
+            .chat-feed-container {
+                padding: 16px 12px;
+            }
+            .msg-row {
+                max-width: 90%;
+            }
+            .chat-input-row {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .chat-input-row input[type="text"] {
+                padding: 11px 16px;
+                font-size: 13.5px;
+            }
+            .btn-input-tool, .btn-send-msg {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
 
-    <div class="header-gradient" style="height: 120px; padding-top: 30px;">
-        <div class="back-btn" onclick="location.href='home.html'">🔙</div>
-        <div style="font-size: 22px; font-weight: bold;">شات مجتمع الطلاب 💬</div>
-    </div>
+    <div class="chat-app-frame">
+        <!-- ─── Header ─── -->
+        <header class="chat-header">
+            <div class="header-profile-section">
+                <a href="home.html" class="btn-back-home" title="العودة للصفحة الرئيسية">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <div class="avatar-wrap">
+                    <span>👑</span>
+                    <span class="online-status-dot" id="headerStatusDot" title="الإدارة متصلة"></span>
+                </div>
+                <div class="header-title-info">
+                    <h1>فريق دعم منصة الخطة | EL KHETA</h1>
+                    <p id="headerStatusText">
+                        <i class="fa-solid fa-circle" style="font-size:7px; color:#10B981;"></i>
+                        <span>متاحون للرد اللحظي 🟢</span>
+                    </p>
+                </div>
+            </div>
 
-    <div class="chat-container">
-        <div id="chatMessages" class="chat-messages">
-            <div style="text-align: center; color: var(--text-sub); padding: 20px;">جاري تحميل المحادثات...</div>
+            <div class="header-ticket-meta">
+                <div class="ticket-chip" id="ticketNumberChip">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span id="txtStudentCodeTag">كود: —</span>
+                </div>
+                <div class="ticket-chip" style="color:#10B981; border-color:rgba(16,185,129,0.3);">
+                    <i class="fa-solid fa-shield-check"></i>
+                    <span>محادثة مباشرة مؤمنة</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ─── Quick Topics Filter ─── -->
+        <div class="chat-topics-bar">
+            <span class="chat-topic-chip active" data-topic="عام">💬 استفسار عام</span>
+            <span class="chat-topic-chip" data-topic="امتحان">📝 امتحان وبابل شيت</span>
+            <span class="chat-topic-chip" data-topic="فيديو">🎥 مشكلة بالفيديو</span>
+            <span class="chat-topic-chip" data-topic="كود">🔑 كود التفعيل</span>
+            <span class="chat-topic-chip" data-topic="ملخص">📄 ملخص PDF</span>
+            <span class="chat-topic-chip" data-topic="عطل تقني">⚠️ عطل تقني</span>
         </div>
 
-        
-        <div class="chat-input-area" style="gap: 8px; flex-wrap: wrap;">
-            <label for="imageUpload" class="chat-tool-btn" title="إرسال صورة">📷</label>
-            <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage(event)">
-            
-            <button id="micBtn" class="chat-tool-btn" onclick="toggleRecording()" title="تسجيل صوت">🎤</button>
-            
-            <input type="text" id="msgInput" placeholder="اكتب رسالتك هنا..." style="flex: 1;" onkeypress="if(event.key==='Enter')sendMessage()">
-            <button onclick="sendMessage()" class="btn-primary" id="sendBtn">إرسال 🚀</button>
+        <!-- ─── Messages Feed ─── -->
+        <main class="chat-feed-container" id="chatFeed">
+            <div class="chat-welcome-notice">
+                <div style="font-size:20px; margin-bottom:6px;">👋 مرحباً بك في مكتب الدعم الأكاديمي والتقني المباشر</div>
+                يسعدنا مساعدتك في أي وقت! أرسل رسالتك أو استفسارك وسيقوم فريق الإدارة بالرد عليك ومتابعة تذكرتك فوراً 🚀
+            </div>
+            <div id="messagesListContainer"></div>
+        </main>
+
+        <!-- ─── Attachment Preview Bar ─── -->
+        <div class="attachment-preview-bar" id="attachmentPreview">
+            <div class="preview-thumbnail-wrap">
+                <img id="previewImg" src="" alt="مرفق">
+                <button class="btn-remove-attachment" onclick="clearAttachment()" title="إزالة الصورة">✕</button>
+            </div>
+            <span style="font-size:13px; color:var(--text-sub);">تم إرفاق صورة جاهزة للإرسال</span>
         </div>
 
+        <!-- ─── Input Controls ─── -->
+        <footer class="chat-input-row">
+            <input type="file" id="imageFileInput" accept="image/*" style="display:none;" onchange="handleImageSelection(event)">
+            <button class="btn-input-tool" onclick="document.getElementById('imageFileInput').click()" title="إرفاق صورة">
+                <i class="fa-solid fa-camera"></i>
+            </button>
+
+            <input type="text" id="chatTextInput" placeholder="اكتب رسالتك أو استفسارك هنا..." onkeypress="handleInputKey(event)">
+
+            <button class="btn-send-msg" id="btnSend" onclick="sendStudentMessage()" title="إرسال الرسالة">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </footer>
     </div>
 
+    <!-- ─── Lightbox Modal ─── -->
+    <div class="image-lightbox-overlay" id="imageLightbox" onclick="closeLightbox()">
+        <button class="btn-close-lightbox" onclick="closeLightbox()">✕</button>
+        <img class="image-lightbox-content" id="lightboxImg" src="" alt="تكبير الصورة" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="toast.js"></script>
+
     <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
+        // Apply theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        // Student Auth Guard
+        let user = null;
+        try {
+            user = JSON.parse(localStorage.getItem('user'));
+        } catch(e) {}
+
+        if (!user || !user.studentCode) {
             window.location.href = "index.html";
         }
 
-        const chatRef = database.ref('Chats/Global');
+        const studentCode = String(user.studentCode).trim();
+        const studentName = user.fullName || user.name || 'طالب';
+        const studentPhone = user.phone || '';
 
-        // Load Messages
-        chatRef.limitToLast(50).on('value', (snap) => {
-            const container = document.getElementById('chatMessages');
-            container.innerHTML = "";
+        document.getElementById('txtStudentCodeTag').textContent = "كود: #" + studentCode;
+
+        let currentTopic = 'عام';
+        let selectedImageBase64 = null;
+
+        // Topic selector
+        document.querySelectorAll('.chat-topic-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.chat-topic-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentTopic = chip.getAttribute('data-topic');
+            });
+        });
+
+        // ─── Firebase Database Setup ───
+        const db = firebase.database();
+        const chatMessagesRef = db.ref('DirectChats/' + studentCode + '/messages');
+        const chatMetaRef = db.ref('DirectChats/' + studentCode + '/meta');
+
+        // Admin availability status listener
+        db.ref('AdminSupport/Status').on('value', snap => {
+            const data = snap.val() || {};
+            const state = data.state || 'available';
+            const dot = document.getElementById('headerStatusDot');
+            const txt = document.getElementById('headerStatusText');
+
+            if (state === 'available') {
+                dot.style.background = '#10B981';
+                txt.innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px; color:#10B981;"></i> <span>متاحون للرد اللحظي 🟢</span>';
+            } else if (state === 'busy') {
+                dot.style.background = '#F59E0B';
+                txt.innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px; color:#F59E0B;"></i> <span>الإدارة مشغولة حالياً (رد سريع) 🟡</span>';
+            } else {
+                dot.style.background = '#64748B';
+                txt.innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px; color:#64748B;"></i> <span>خارج أوقات العمل الرسمية ⚫</span>';
+            }
+        });
+
+        // Mark unread messages as read for student
+        chatMetaRef.update({ unreadForStudent: 0 });
+
+        // ─── Listen to Messages ───
+        chatMessagesRef.on('value', snap => {
+            const container = document.getElementById('messagesListContainer');
+            container.innerHTML = '';
 
             if (!snap.exists()) {
-                container.innerHTML = `<div style="text-align: center; color: var(--text-sub); padding: 20px;">كن أول من يرسل رسالة في هذا المجتمع! 🌟</div>`;
                 return;
             }
 
-            snap.forEach((child) => {
+            snap.forEach(child => {
                 const msg = child.val();
-                const isMyMessage = msg.senderCode === user.studentCode;
+                const isStudent = (msg.sender === 'student');
 
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${isMyMessage ? 'outgoing' : 'incoming'}`;
-                
-                // Format timestamp
-                const date = new Date(msg.timestamp);
-                const timeStr = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                const row = document.createElement('div');
+                row.className = 'msg-row ' + (isStudent ? 'student' : 'admin');
 
-                
-                let contentHtml = `<div>${msg.text}</div>`;
-                if (msg.fileType === 'image') {
-                    contentHtml = `<img src="${msg.fileUrl}" class="chat-img-preview" onclick="window.open(this.src)">`;
-                } else if (msg.fileType === 'audio') {
-                    contentHtml = `<audio controls src="${msg.fileUrl}" class="chat-audio-player"></audio>`;
+                const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '';
+
+                let imgHtml = '';
+                if (msg.imageUrl) {
+                    imgHtml = '<img src="' + msg.imageUrl + '" class="chat-img-thumb" onclick="openLightbox(this.src)" alt="صورة مرفقة">';
                 }
-                
-                // Add Admin Badge if it's an admin message
-                let adminHtml = msg.isAdmin ? '<span class="admin-badge">👑 مشرف</span>' : (msg.status === 'pending' ? '<span style="font-size: 10px; color: #F59E0B; margin-right: 5px;">⏳ في انتظار رد مسؤول</span>' : '<span style="font-size: 10px; color: #10B981; margin-right: 5px;">✅ تم الرد</span>');
-                
-                bubble.innerHTML = `
-                    <div style="font-weight: bold; font-size: 12px; margin-bottom: 4px; color: ${isMyMessage ? '#fff' : (msg.isAdmin ? '#f59e0b' : 'var(--primary)')};">
-                        ${msg.senderName} ${adminHtml}
-                    </div>
-                    ${contentHtml}
-                    <div class="chat-meta">
-                        <span>${timeStr}</span>
-                    </div>
-                `;
-                if (msg.isAdmin) bubble.classList.add('admin');
 
-                container.appendChild(bubble);
+                const senderTitle = isStudent ? studentName : (msg.senderName || 'فريق دعم منصة الخطة | EL KHETA 👑');
+
+                row.innerHTML = 
+                    '<div class="msg-bubble">' +
+                        '<div class="msg-sender-tag">' +
+                            '<i class="fa-solid ' + (isStudent ? 'fa-user-graduate' : 'fa-crown') + '"></i>' +
+                            '<span>' + senderTitle + '</span>' +
+                        '</div>' +
+                        (msg.text ? '<div>' + escapeHTML(msg.text) + '</div>' : '') +
+                        imgHtml +
+                    '</div>' +
+                    '<div class="msg-meta-info">' +
+                        '<span>' + timeStr + '</span>' +
+                    '</div>';
+
+                container.appendChild(row);
             });
 
             // Scroll to bottom
-            container.scrollTop = container.scrollHeight;
+            const feed = document.getElementById('chatFeed');
+            feed.scrollTop = feed.scrollHeight;
         });
 
-        
-        const storage = firebase.storage();
-        
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
+        // ─── Send Message ───
+        function sendStudentMessage() {
+            const textInput = document.getElementById('chatTextInput');
+            const text = textInput.value.trim();
+            const img = selectedImageBase64;
 
-        // Toggle Recording
-        async function toggleRecording() {
-            const micBtn = document.getElementById('micBtn');
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    
-                    mediaRecorder.ondataavailable = e => {
-                        audioChunks.push(e.data);
+            if (!text && !img) return;
+
+            const now = Date.now();
+            const newMsgRef = chatMessagesRef.push();
+
+            const msgData = {
+                id: newMsgRef.key,
+                sender: 'student',
+                senderName: studentName,
+                senderCode: studentCode,
+                text: text || '',
+                imageUrl: img || null,
+                topic: currentTopic || 'عام',
+                timestamp: now,
+                status: 'sent'
+            };
+
+            // Clear inputs
+            textInput.value = '';
+            clearAttachment();
+
+            newMsgRef.set(msgData).then(() => {
+                // Update conversation meta
+                chatMetaRef.transaction(curr => {
+                    const prev = curr || {};
+                    return {
+                        ...prev,
+                        studentCode: studentCode,
+                        studentName: studentName,
+                        studentPhone: studentPhone,
+                        lastMessage: text || '📷 صورة مرفقة',
+                        lastTimestamp: now,
+                        status: 'open',
+                        topic: currentTopic || prev.topic || 'عام',
+                        unreadForAdmin: (prev.unreadForAdmin || 0) + 1,
+                        unreadForStudent: 0
                     };
-                    
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                        audioChunks = [];
-                        await uploadFile(audioBlob, 'audio');
-                    };
-                    
-                    mediaRecorder.start();
-                    isRecording = true;
-                    micBtn.classList.add('recording');
-                    showToast('جاري تسجيل الصوت... 🎙️');
-                } catch (err) {
-                    console.error(err);
-                    showToast('يرجى السماح باستخدام الميكروفون', 'error');
-                }
-            } else {
-                mediaRecorder.stop();
-                isRecording = false;
-                micBtn.classList.remove('recording');
-                showToast('جاري رفع الصوت...', 'info');
-            }
-        }
-
-        // Upload Image
-        async function uploadImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            showToast('جاري رفع الصورة...', 'info');
-            await uploadFile(file, 'image');
-            event.target.value = ''; // Reset
-        }
-
-        // Upload File to Firebase Storage
-        async function uploadFile(file, type) {
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.disabled = true;
-            
-            try {
-                const ext = type === 'image' ? file.name.split('.').pop() : 'mp3';
-                const fileName = `chat_${Date.now()}_${user.studentCode}.${ext}`;
-                const storageRef = storage.ref('ChatFiles/' + fileName);
-                
-                await storageRef.put(file);
-                const downloadURL = await storageRef.getDownloadURL();
-                
-                await chatRef.push({
-                    status: 'pending',
-                    senderName: user.fullName,
-                    senderCode: user.studentCode,
-                    text: type === 'image' ? '📷 صورة' : '🎤 تسجيل صوتي',
-                    fileUrl: downloadURL,
-                    fileType: type,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
-                showToast('تم الإرسال بنجاح ✅', 'success');
-            } catch (err) {
-                console.error(err);
-                showToast('فشل الرفع! حاول مرة أخرى', 'error');
-            } finally {
-                sendBtn.disabled = false;
-            }
-        }
 
+                // 🤖 رد تلقائي فوري ومحفز للطالب
+                chatMetaRef.child('lastAutoReply').once('value', arSnap => {
+                    const lastAr = arSnap.val() || 0;
+                    if (!lastAr || (now - lastAr > 15 * 60 * 1000)) {
+                        setTimeout(() => {
+                            const autoRef = chatMessagesRef.push();
+                            const arTime = Date.now();
+                            const autoReplyMsg = {
+                                id: autoRef.key,
+                                sender: 'admin',
+                                senderName: 'فريق دعم منصة الخطة | EL KHETA 👑',
+                                text: 'أهلاً بك يا بطل! 🌟\nتم استلام رسالتك وطلبك بنجاح ✨\nسيتم التواصل معك والرد عليك في أقرب وقت ممكن من قبل مسؤولي الدعم الفني والأكاديمي.\n\nفريق منصة الخطة في خدمتك دائماً لمساعدتك ودعم تفوقك! 🚀❤️',
+                                timestamp: arTime,
+                                status: 'sent',
+                                isAutoReply: true
+                            };
 
-        // Send Message
-        function sendMessage() {
-            const input = document.getElementById('msgInput');
-            const text = input.value.trim();
-            if (text === "") return;
-
-            chatRef.push({
-                senderName: user.fullName,
-                senderCode: user.studentCode,
-                text: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                input.value = "";
-                showToast("تم إرسال الرسالة للمجتمع 🚀", "success");
+                            autoRef.set(autoReplyMsg).then(() => {
+                                chatMetaRef.update({
+                                    lastAutoReply: arTime,
+                                    lastMessage: autoReplyMsg.text.replace(/\n/g, ' ').substring(0, 70) + '...',
+                                    lastTimestamp: arTime
+                                });
+                            });
+                        }, 650);
+                    }
+                });
+            }).catch(err => {
+                Swal.fire('خطأ', 'تعذر إرسال الرسالة: ' + err.message, 'error');
             });
         }
 
-        // Handle enter key
-        document.getElementById('msgInput').addEventListener('keypress', function(e) {
+        function handleInputKey(e) {
             if (e.key === 'Enter') {
-                sendMessage();
+                sendStudentMessage();
             }
-        });
+        }
+
+        // ─── Image Handling & Compression ───
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 8 * 1024 * 1024) {
+                Swal.fire('تنبيه', 'الحد الأقصى لحجم الصورة هو 8 ميجابايت', 'warning');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width;
+                    let h = img.height;
+                    const maxDim = 850;
+
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.72);
+                    document.getElementById('previewImg').src = selectedImageBase64;
+                    document.getElementById('attachmentPreview').style.display = 'flex';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearAttachment() {
+            selectedImageBase64 = null;
+            document.getElementById('attachmentPreview').style.display = 'none';
+            document.getElementById('previewImg').src = '';
+            document.getElementById('imageFileInput').value = '';
+        }
+
+        // ─── Lightbox ───
+        function openLightbox(url) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('imageLightbox').classList.add('active');
+        }
+        function closeLightbox() {
+            document.getElementById('imageLightbox').classList.remove('active');
+        }
+
+        function escapeHTML(str) {
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
     </script>
 </body>
 </html>
-
-
-

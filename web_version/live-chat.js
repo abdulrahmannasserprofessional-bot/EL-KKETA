@@ -79,7 +79,12 @@
                         </div>
                     </div>
                 </div>
-                <button class="live-chat-close-btn" id="chatCloseBtn">✕</button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <a href="chat.html" class="live-chat-expand-btn" title="تكبير للشاشة الكاملة" style="color:rgba(255,255,255,0.85); text-decoration:none; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.14); display:inline-flex; align-items:center; justify-content:center; font-size:12px; transition:all 0.2s;">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                    </a>
+                    <button class="live-chat-close-btn" id="chatCloseBtn">✕</button>
+                </div>
             </div>
 
             <!-- Active Ticket Info Bar -->
@@ -302,6 +307,34 @@
                     unreadForAdmin: (prev.unreadForAdmin || 0) + 1,
                     unreadForStudent: 0
                 };
+            });
+
+            // 🤖 رد تلقائي ترحيبي فوري للطالب من فريق دعم المنصة
+            db.ref(`DirectChats/${studentCode}/meta/lastAutoReply`).once('value', (arSnap) => {
+                const lastAr = arSnap.val() || 0;
+                if (!lastAr || (now - lastAr > 15 * 60 * 1000)) {
+                    setTimeout(() => {
+                        const autoRef = db.ref(`DirectChats/${studentCode}/messages`).push();
+                        const arTime = Date.now();
+                        const autoReplyMsg = {
+                            id: autoRef.key,
+                            sender: 'admin',
+                            senderName: 'فريق دعم منصة الخطة | EL KHETA 👑',
+                            text: `أهلاً بك يا بطل! 🌟\nتم استلام رسالتك وطلبك بنجاح ✨\nسيتم التواصل معك والرد عليك في أقرب وقت ممكن من قبل مسؤولي الدعم الفني والأكاديمي.\n\nفريق منصة الخطة في خدمتك دائماً لمساعدتك ودعم تفوقك! 🚀❤️`,
+                            timestamp: arTime,
+                            status: 'sent',
+                            isAutoReply: true
+                        };
+                        autoRef.set(autoReplyMsg).then(() => {
+                            db.ref(`DirectChats/${studentCode}/meta`).update({
+                                lastAutoReply: arTime,
+                                lastMessage: '🤖 تم استلام طلبك، فريق الدعم في خدمتك',
+                                lastTimestamp: arTime,
+                                unreadForStudent: 1
+                            });
+                        });
+                    }, 650);
+                }
             });
         }).catch((err) => {
             console.error('Send chat error:', err);
