@@ -11,40 +11,44 @@
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>غرفة القيادة والعمليات التنفيذية - ELKHETA</title>
+    <title>غرفة القيادة العليا ورئيس المنصة - ELKHETA</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --bg-canvas: #040711;
-            --sidebar-bg: rgba(9, 13, 24, 0.96);
-            --header-bg: rgba(10, 16, 31, 0.88);
-            --card-bg: linear-gradient(145deg, rgba(13, 20, 38, 0.92) 0%, rgba(20, 29, 54, 0.85) 100%);
-            --card-border: rgba(129, 140, 248, 0.16);
-            --card-hover-border: rgba(129, 140, 248, 0.45);
+            --bg-canvas: #06080F;
+            --sidebar-bg: rgba(11, 15, 25, 0.95);
+            --header-bg: rgba(11, 15, 25, 0.82);
+            --card-bg: rgba(15, 21, 37, 0.78);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(99, 102, 241, 0.45);
+            --card-hover-bg: rgba(20, 28, 48, 0.9);
             --primary: #6366F1;
-            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
-            --text-main: #FFFFFF;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+            --text-main: #F8FAFC;
             --text-muted: #94A3B8;
-            --surface-hover: rgba(255, 255, 255, 0.05);
+            --text-dim: #64748B;
+            --accent-gold: #F59E0B;
             --accent-cyan: #38BDF8;
-            --accent-emerald: #34D399;
-            --accent-amber: #FBBF24;
+            --accent-emerald: #10B981;
             --accent-rose: #F43F5E;
-            --sidebar-w: 280px;
+            --sidebar-w: 270px;
+            --sidebar-collapsed-w: 76px;
         }
 
         body.light-theme {
-            --bg-canvas: #F1F5F9;
-            --sidebar-bg: rgba(255, 255, 255, 0.98);
-            --header-bg: rgba(255, 255, 255, 0.94);
+            --bg-canvas: #F8FAFC;
+            --sidebar-bg: rgba(255, 255, 255, 0.96);
+            --header-bg: rgba(255, 255, 255, 0.92);
             --card-bg: #FFFFFF;
-            --card-border: #CBD5E1;
+            --card-border: #E2E8F0;
             --card-hover-border: #6366F1;
+            --card-hover-bg: #F8FAFC;
             --text-main: #0F172A;
             --text-muted: #64748B;
-            --surface-hover: #F8FAFC;
+            --text-dim: #94A3B8;
         }
 
         * {
@@ -60,31 +64,39 @@
             background-color: var(--bg-canvas);
             color: var(--text-main);
             direction: rtl;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.25s, color 0.25s;
         }
 
-        /* Ambient Glowing Background Blobs */
-        .admin-bg-blob {
+        /* Subtle Ambient Glow */
+        .ambient-glow {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(140px);
-            z-index: 0;
             pointer-events: none;
-            opacity: 0.35;
+            z-index: 0;
+            border-radius: 50%;
+            filter: blur(160px);
+            opacity: 0.22;
         }
-        .blob-1 { width: 650px; height: 650px; background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, rgba(139,92,246,0.12) 70%, transparent 100%); top: -200px; right: -200px; }
-        .blob-2 { width: 550px; height: 550px; background: radial-gradient(circle, rgba(14,165,233,0.25) 0%, rgba(236,72,153,0.12) 70%, transparent 100%); bottom: -200px; left: -200px; }
-        .blob-3 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%); top: 40%; left: 30%; }
+        .glow-top-right {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #4338CA 0%, transparent 70%);
+            top: -150px; right: -150px;
+        }
+        .glow-bottom-left {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, #0284C7 0%, transparent 70%);
+            bottom: -150px; left: -150px;
+        }
 
-        /* Executive Dashboard Layout */
+        /* Executive Master Layout */
         .executive-layout {
             display: flex;
             min-height: 100vh;
             width: 100%;
             position: relative;
+            z-index: 1;
         }
 
-        /* Executive Sidebar (RTL Right) */
+        /* ─── macOS Style Collapsible Sidebar ─── */
         .executive-sidebar {
             width: var(--sidebar-w);
             position: sticky;
@@ -98,19 +110,56 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 20px 16px;
+            padding: 18px 14px;
             z-index: 99;
-            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.35);
+            transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), padding 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Collapsed Sidebar Mode */
+        .executive-sidebar.collapsed {
+            width: var(--sidebar-collapsed-w);
+            padding: 18px 10px;
+        }
+
+        .executive-sidebar.collapsed .sidebar-brand-titles,
+        .executive-sidebar.collapsed .sidebar-btn-label,
+        .executive-sidebar.collapsed .sidebar-badge-pill,
+        .executive-sidebar.collapsed .sidebar-nav-heading,
+        .executive-sidebar.collapsed .sidebar-user-details,
+        .executive-sidebar.collapsed .sidebar-uptime-row,
+        .executive-sidebar.collapsed .sidebar-logout-text {
+            display: none !important;
+        }
+
+        .executive-sidebar.collapsed .sidebar-brand-box {
+            justify-content: center;
+            padding-bottom: 12px;
+        }
+
+        .executive-sidebar.collapsed .sidebar-nav-btn {
+            justify-content: center;
+            padding: 11px 0;
+        }
+
+        .executive-sidebar.collapsed .sidebar-user-card {
+            justify-content: center;
+            padding: 8px 0;
+        }
+
+        .executive-sidebar.collapsed .sidebar-logout-btn {
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        /* Sidebar Brand Header */
         .sidebar-brand-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 4px 8px 18px 8px;
+            padding: 4px 6px 16px 6px;
             border-bottom: 1px solid var(--card-border);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .sidebar-brand-identity {
@@ -118,62 +167,87 @@
             align-items: center;
             gap: 12px;
             text-decoration: none;
+            min-width: 0;
         }
 
         .sidebar-brand-badge {
-            width: 44px; height: 44px;
-            border-radius: 14px;
+            width: 42px; height: 42px;
+            border-radius: 12px;
             background: var(--primary-gradient);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 20px;
-            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+            color: white; font-size: 19px;
+            box-shadow: 0 4px 18px var(--primary-glow);
+            flex-shrink: 0;
         }
 
         .sidebar-brand-titles {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .sidebar-brand-title-main {
-            font-size: 16px;
+            font-size: 15.5px;
             font-weight: 900;
             color: var(--text-main);
             letter-spacing: -0.3px;
+            white-space: nowrap;
         }
 
         .sidebar-brand-sub {
             font-size: 11px;
             font-weight: 700;
             color: var(--accent-cyan);
+            white-space: nowrap;
         }
 
-        .sidebar-close-btn {
-            display: none;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
+        /* macOS Window Control / Collapse Button */
+        .sidebar-collapse-trigger {
             width: 32px; height: 32px;
             border-radius: 10px;
-            font-size: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            align-items: center; justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .sidebar-collapse-trigger:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #FFFFFF;
+            border-color: var(--primary);
         }
 
+        .sidebar-close-mobile-btn {
+            display: none;
+            width: 32px; height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Nav List */
         .sidebar-nav-container {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             overflow-y: auto;
             max-height: calc(100vh - 270px);
             padding-left: 2px;
         }
 
         .sidebar-nav-heading {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
-            color: var(--text-muted);
+            color: var(--text-dim);
             text-transform: uppercase;
-            padding: 8px 12px 4px 12px;
+            padding: 8px 10px 4px 10px;
             letter-spacing: 0.5px;
         }
 
@@ -181,81 +255,82 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            border-radius: 12px;
             background: transparent;
             color: var(--text-muted);
             border: 1px solid transparent;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.22s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 13px;
             font-weight: 700;
             font-family: inherit;
+            position: relative;
         }
 
         .sidebar-nav-btn:hover {
-            background: var(--surface-hover);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
-            transform: translateX(-3px);
         }
 
         .sidebar-nav-btn.active {
-            background: var(--primary-gradient);
+            background: rgba(99, 102, 241, 0.14);
             color: #FFFFFF !important;
-            box-shadow: 0 6px 22px rgba(99, 102, 241, 0.4);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
         }
 
         .sidebar-btn-content {
             display: flex;
             align-items: center;
             gap: 12px;
+            min-width: 0;
         }
 
         .sidebar-btn-icon {
             font-size: 16px;
             width: 22px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .sidebar-badge-pill {
-            font-size: 10.5px;
-            font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.15);
-            color: inherit;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.07);
+            color: var(--text-muted);
         }
 
-        /* Sidebar Bottom Profile */
+        /* Sidebar Bottom */
         .sidebar-footer-box {
-            padding-top: 14px;
+            padding-top: 12px;
             border-top: 1px solid var(--card-border);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 14px;
+            gap: 10px;
         }
 
         .sidebar-user-card {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.04);
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--card-border);
-            padding: 10px 12px;
-            border-radius: 14px;
+            padding: 8px 10px;
+            border-radius: 12px;
         }
 
         .sidebar-avatar {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%);
-            border: 1.5px solid #F59E0B;
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            border: 1.5px solid var(--accent-gold);
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: white;
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+            font-size: 18px; color: white;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
             flex-shrink: 0;
         }
 
@@ -266,7 +341,7 @@
         }
 
         .sidebar-user-title {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 900;
             color: var(--text-main);
             white-space: nowrap;
@@ -275,7 +350,7 @@
         }
 
         .sidebar-user-role {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 700;
             color: #FEF3C7;
             white-space: nowrap;
@@ -283,33 +358,42 @@
             text-overflow: ellipsis;
         }
 
+        .sidebar-uptime-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
         .sidebar-logout-btn {
-            background: rgba(239, 68, 68, 0.12);
+            background: rgba(239, 68, 68, 0.08);
             color: #F87171;
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            padding: 9px;
-            border-radius: 12px;
-            font-size: 12.5px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 800;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             gap: 8px;
-            transition: all 0.22s;
+            transition: all 0.2s;
             font-family: inherit;
         }
         .sidebar-logout-btn:hover {
             background: #EF4444; color: white;
             border-color: #EF4444;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
         }
 
-        /* Mobile Sidebar Backdrop */
+        /* Mobile Backdrop */
         .sidebar-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.72);
+            background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             z-index: 9999;
@@ -317,17 +401,18 @@
         }
         .sidebar-backdrop.active { display: block; }
 
-        /* Executive Main Viewport */
+        /* ─── Executive Main Viewport ─── */
         .executive-main {
             flex: 1;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            padding: 20px 28px;
+            padding: 18px 26px;
             gap: 18px;
             max-width: 1560px;
             margin: 0 auto;
             width: 100%;
+            transition: padding 0.25s;
         }
 
         /* Topbar Header */
@@ -336,32 +421,32 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 12px 20px;
+            border-radius: 16px;
+            padding: 10px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
             position: sticky;
-            top: 12px;
+            top: 10px;
             z-index: 100;
         }
 
         .topbar-right-area {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .btn-hamburger-mobile {
             display: none;
-            width: 40px; height: 40px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.06);
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             align-items: center; justify-content: center;
         }
@@ -370,9 +455,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 800;
-            color: var(--text-muted);
+            color: var(--text-dim);
         }
 
         .breadcrumb-active {
@@ -380,64 +465,63 @@
             font-weight: 900;
         }
 
-        /* Global Search Bar */
         .topbar-search-box {
             flex: 1;
-            max-width: 420px;
+            max-width: 380px;
             position: relative;
         }
         .topbar-search-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 9px 38px 9px 14px;
+            border-radius: 12px;
+            padding: 8px 36px 8px 12px;
             color: var(--text-main);
             font-family: inherit;
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 600;
             outline: none;
-            transition: all 0.22s;
+            transition: all 0.2s;
         }
         .topbar-search-input:focus {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.07);
             border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 14px var(--primary-glow);
         }
         .topbar-search-icon {
             position: absolute;
-            right: 14px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 13px;
+            color: var(--text-dim);
+            font-size: 12px;
             pointer-events: none;
         }
 
         .topbar-actions-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .status-live-pill {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.12);
             color: #34D399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 11.5px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 800;
             white-space: nowrap;
         }
 
         .status-dot {
-            width: 7px; height: 7px;
+            width: 6px; height: 6px;
             border-radius: 50%; background: #10B981;
-            box-shadow: 0 0 10px #10B981;
+            box-shadow: 0 0 8px #10B981;
             animation: liveBlink 1.8s infinite ease-in-out;
         }
         @keyframes liveBlink {
@@ -446,25 +530,107 @@
         }
 
         .btn-top-action {
-            width: 38px; height: 38px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 13.5px;
             cursor: pointer;
-            transition: all 0.22s;
+            transition: all 0.2s;
             text-decoration: none;
         }
         .btn-top-action:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border-color: var(--primary);
             color: #FFFFFF;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
-        /* ─── KPI Bento Ribbon ─── */
+        /* ─── President Executive Hero Banner ─── */
+        .president-hero-card {
+            background: linear-gradient(135deg, rgba(20, 27, 45, 0.9) 0%, rgba(13, 18, 32, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 20px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .president-hero-card::before {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .president-hero-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .president-crown-badge {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #312E81 0%, #1E1B4B 100%);
+            border: 1.5px solid var(--accent-gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+            flex-shrink: 0;
+        }
+
+        .president-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .president-name-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .president-subtext {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .president-hero-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hero-metric-pill {
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ─── Bento KPI Ribbon ─── */
         .kpi-bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -476,17 +642,18 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-            transition: transform 0.25s, border-color 0.25s;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+            transition: all 0.22s;
         }
         .kpi-bento-card:hover {
             transform: translateY(-2px);
             border-color: var(--card-hover-border);
+            background: var(--card-hover-bg);
         }
 
         .kpi-card-data {
@@ -496,15 +663,16 @@
         }
 
         .kpi-card-num {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
-            color: #FFF;
+            color: #FFFFFF;
             line-height: 1.1;
+            font-feature-settings: "tnum";
         }
         body.light-theme .kpi-card-num { color: #0F172A; }
 
         .kpi-card-label {
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
             color: var(--text-muted);
             margin-top: 4px;
@@ -517,47 +685,47 @@
             font-size: 10px;
             font-weight: 800;
             margin-top: 6px;
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 6px;
             width: fit-content;
         }
-        .tag-blue { background: rgba(37, 99, 235, 0.15); color: #60A5FA; }
-        .tag-purple { background: rgba(147, 51, 234, 0.15); color: #C084FC; }
-        .tag-emerald { background: rgba(16, 185, 129, 0.15); color: #34D399; }
-        .tag-amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
+        .tag-blue { background: rgba(56, 189, 248, 0.12); color: #38BDF8; }
+        .tag-purple { background: rgba(168, 85, 247, 0.12); color: #C084FC; }
+        .tag-emerald { background: rgba(16, 185, 129, 0.12); color: #34D399; }
+        .tag-amber { background: rgba(245, 158, 11, 0.12); color: #FBBF24; }
 
         .kpi-card-icon {
-            width: 48px; height: 48px;
-            border-radius: 15px;
+            width: 44px; height: 44px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: white; flex-shrink: 0;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            font-size: 18px; color: white; flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
         }
-        .icon-blue { background: linear-gradient(135deg, #2563EB, #1D4ED8); }
-        .icon-purple { background: linear-gradient(135deg, #7C3AED, #9333EA); }
-        .icon-emerald { background: linear-gradient(135deg, #059669, #10B981); }
-        .icon-amber { background: linear-gradient(135deg, #D97706, #F59E0B); }
+        .icon-blue { background: linear-gradient(135deg, #0284C7, #0369A1); }
+        .icon-purple { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+        .icon-emerald { background: linear-gradient(135deg, #059669, #047857); }
+        .icon-amber { background: linear-gradient(135deg, #D97706, #B45309); }
 
-        /* Hub View Container & Transitions */
+        /* Hub Container */
         .hub-view-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            animation: fadeInHub 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            gap: 18px;
+            animation: fadeInHub 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes fadeInHub {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Sector Section Headers */
+        /* Sector Headers */
         .sector-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-top: 6px;
             margin-bottom: -6px;
-            padding: 0 4px;
+            padding: 0 2px;
         }
         .sector-title-box {
             display: flex;
@@ -565,21 +733,21 @@
             gap: 10px;
         }
         .sector-icon-badge {
-            width: 32px; height: 32px;
-            border-radius: 10px;
+            width: 30px; height: 30px;
+            border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
+            font-size: 14px;
         }
         .sector-heading-text {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
             color: var(--text-main);
         }
         .sector-tag-pill {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
-            padding: 3px 12px;
-            border-radius: 20px;
+            padding: 3px 10px;
+            border-radius: 12px;
         }
 
         /* Bento 2-Column Responsive Grid */
@@ -601,29 +769,29 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 18px 18px;
+            border-radius: 16px;
+            padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             text-decoration: none;
             color: var(--text-main);
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             position: relative;
             overflow: hidden;
         }
         .action-card:hover {
-            transform: translateY(-3px);
-            border-color: #818CF8;
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.25);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            background: var(--card-hover-bg);
+            box-shadow: 0 10px 25px var(--primary-glow);
         }
 
         .action-card.featured-mysql {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.18) 0%, rgba(147, 51, 234, 0.22) 100%);
-            border: 1.5px solid #818CF8;
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25);
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.7) 0%, rgba(49, 46, 129, 0.5) 100%);
+            border: 1px solid rgba(129, 140, 248, 0.35);
         }
 
         .card-left-content {
@@ -634,15 +802,15 @@
         }
 
         .card-icon-box {
-            width: 48px; height: 48px;
-            border-radius: 15px;
+            width: 44px; height: 44px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; color: white; flex-shrink: 0;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-            transition: transform 0.25s;
+            font-size: 19px; color: white; flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s;
         }
         .action-card:hover .card-icon-box {
-            transform: scale(1.08) rotate(-3deg);
+            transform: scale(1.05);
         }
 
         .card-texts {
@@ -658,31 +826,31 @@
             flex-wrap: wrap;
         }
         .card-title {
-            font-size: 15px;
+            font-size: 14.5px;
             font-weight: 900;
             color: var(--text-main);
             line-height: 1.3;
         }
         .card-badge {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 900;
-            padding: 2px 8px;
-            border-radius: 8px;
+            padding: 2px 7px;
+            border-radius: 6px;
         }
         .badge-live-red {
             background: #EF4444; color: white;
             animation: pulseGlowBadge 1.5s infinite alternate;
         }
         .badge-vip {
-            background: linear-gradient(135deg, #F59E0B, #D97706); color: white;
+            background: linear-gradient(135deg, #D97706, #B45309); color: white;
         }
         .badge-ai {
-            background: linear-gradient(135deg, #7C3AED, #9333EA); color: white;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6); color: white;
         }
 
         @keyframes pulseGlowBadge {
             from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            to { box-shadow: 0 0 12px rgba(239, 68, 68, 0.9); }
+            to { box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); }
         }
 
         .card-desc {
@@ -694,19 +862,19 @@
         }
 
         .card-arrow-icon {
-            width: 34px; height: 34px;
-            border-radius: 11px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 32px; height: 32px;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--card-border);
             display: flex; align-items: center; justify-content: center;
-            font-size: 13px; color: var(--text-muted);
+            font-size: 12px; color: var(--text-muted);
             flex-shrink: 0; margin-right: 8px;
-            transition: all 0.25s;
+            transition: all 0.2s;
         }
         .action-card:hover .card-arrow-icon {
             background: var(--primary);
             color: white; border-color: var(--primary);
-            transform: translateX(-4px);
+            transform: translateX(-3px);
         }
 
         /* Footer Bar */
@@ -714,17 +882,17 @@
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 14px 22px;
+            border-radius: 16px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-top: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .footer-watermark {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 800;
             color: var(--text-muted);
             display: flex; align-items: center; gap: 8px;
@@ -742,37 +910,27 @@
                 right: 0; top: 0; bottom: 0;
                 height: 100vh;
                 height: 100dvh;
-                width: min(320px, 86vw);
-                max-width: 320px;
-                background: #090D18 !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
+                width: min(300px, 84vw) !important;
+                background: #0B0F19 !important;
                 transform: translateX(105%);
                 z-index: 10001;
-                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.7);
-                padding: 20px 16px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
+                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.75);
+                padding: 18px 14px !important;
                 overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                border-left: 1px solid rgba(129, 140, 248, 0.3);
             }
             body.light-theme .executive-sidebar {
                 background: #FFFFFF !important;
-                box-shadow: -15px 0 40px rgba(0, 0, 0, 0.15);
                 border-left: 1px solid #CBD5E1;
             }
             .executive-sidebar.sidebar-open {
                 transform: translateX(0) !important;
             }
-            .sidebar-backdrop { z-index: 9999; }
-            .sidebar-close-btn { display: flex !important; }
+            .sidebar-collapse-trigger { display: none !important; }
+            .sidebar-close-mobile-btn { display: flex !important; }
             .btn-hamburger-mobile { display: flex !important; }
             .executive-main {
-                padding: 14px 14px;
+                padding: 12px 14px;
                 max-width: 100vw;
-                overflow-x: hidden;
             }
             .topbar-search-box { display: none; }
         }
@@ -799,28 +957,24 @@
         @media (max-width: 640px) {
             .admin-cards-grid { grid-template-columns: 1fr; }
             .kpi-bento-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .kpi-bento-card { padding: 12px 14px; border-radius: 16px; }
+            .kpi-bento-card { padding: 12px 14px; border-radius: 14px; }
             .kpi-card-num { font-size: 22px; }
-            .kpi-card-icon { width: 40px; height: 40px; font-size: 17px; }
-            .workspace-topbar { padding: 10px 12px; border-radius: 16px; }
+            .kpi-card-icon { width: 38px; height: 38px; font-size: 16px; }
+            .workspace-topbar { padding: 8px 12px; border-radius: 14px; }
             .responsive-search-row { flex-direction: column !important; }
             .responsive-search-row button { width: 100% !important; justify-content: center !important; }
             #healthCheckGrid { grid-template-columns: 1fr !important; }
-            .executive-main { padding: 10px 10px; gap: 14px; }
-            .kpi-bento-grid { gap: 8px; }
-            .kpi-bento-card { padding: 10px 10px; }
-            .kpi-card-num { font-size: 19px; }
-            .kpi-card-label { font-size: 10.5px; }
-            .kpi-card-icon { width: 34px; height: 34px; font-size: 15px; border-radius: 10px; }
+            .president-hero-card { padding: 14px 16px; }
+            .president-crown-badge { width: 40px; height: 40px; font-size: 20px; }
+            .president-name-title { font-size: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Background Blobs -->
-    <div class="admin-bg-blob blob-1"></div>
-    <div class="admin-bg-blob blob-2"></div>
-    <div class="admin-bg-blob blob-3"></div>
+    <!-- Ambient Glowing Blobs -->
+    <div class="ambient-glow glow-top-right"></div>
+    <div class="ambient-glow glow-bottom-left"></div>
 
     <!-- Mobile Sidebar Backdrop -->
     <div class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
@@ -828,10 +982,10 @@
     <!-- Executive Layout Container -->
     <div class="executive-layout">
 
-        <!-- ─── Executive Sidebar (RTL Right) ─── -->
-        <aside class="executive-sidebar">
+        <!-- ─── macOS Style Collapsible Sidebar ─── -->
+        <aside class="executive-sidebar" id="mainExecutiveSidebar">
             <div>
-                <!-- Brand Identity -->
+                <!-- Brand Header -->
                 <div class="sidebar-brand-box">
                     <a href="admin-panel.html" class="sidebar-brand-identity">
                         <div class="sidebar-brand-badge">
@@ -839,82 +993,87 @@
                         </div>
                         <div class="sidebar-brand-titles">
                             <span class="sidebar-brand-title-main">منصة الخطة</span>
-                            <span class="sidebar-brand-sub">مركز العمليات • 2027 🎓</span>
+                            <span class="sidebar-brand-sub">مركز العمليات 2027 🎓</span>
                         </div>
                     </a>
-                    <button class="sidebar-close-btn" onclick="closeMobileSidebar()" title="إغلاق القائمة">
+                    <!-- Desktop macOS Collapsible Toggle Button -->
+                    <button class="sidebar-collapse-trigger" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة">
+                        <i class="fa-solid fa-angles-right" id="sidebarCollapseIcon"></i>
+                    </button>
+                    <!-- Mobile Close Button -->
+                    <button class="sidebar-close-mobile-btn" onclick="closeMobileSidebar()" title="إغلاق">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
-                <!-- Navigation Hub List -->
+                <!-- Navigation List -->
                 <div class="sidebar-nav-container">
-                    <div class="sidebar-nav-heading">غرف العمليات المركزية</div>
+                    <div class="sidebar-nav-heading">غرف العمليات</div>
 
-                    <button onclick="switchAdminHubTab('services')" id="hubTab_services" class="sidebar-nav-btn active">
+                    <button onclick="switchAdminHubTab('services')" id="hubTab_services" class="sidebar-nav-btn active" title="لوحة القيادة والخدمات">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-gauge-high sidebar-btn-icon" style="color: #818CF8;"></i>
-                            <span>لوحة القيادة والخدمات</span>
+                            <span class="sidebar-btn-label">لوحة القيادة والخدمات</span>
                         </div>
                         <span class="sidebar-badge-pill">الرئيسية 🌟</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('students')" id="hubTab_students" class="sidebar-nav-btn">
+                    <button onclick="switchAdminHubTab('students')" id="hubTab_students" class="sidebar-nav-btn" title="شؤون الطلاب والأجهزة">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-users-gear sidebar-btn-icon" style="color: #38BDF8;"></i>
-                            <span>شؤون الطلاب والأجهزة</span>
+                            <span class="sidebar-btn-label">شؤون الطلاب والأجهزة</span>
                         </div>
                         <span class="sidebar-badge-pill">رقابة 📱</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('noc')" id="hubTab_noc" class="sidebar-nav-btn">
+                    <button onclick="switchAdminHubTab('noc')" id="hubTab_noc" class="sidebar-nav-btn" title="رادار المراقبة وسجل النشاط">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-satellite-dish sidebar-btn-icon" style="color: #34D399;"></i>
-                            <span>رادار المراقبة وسجل النشاط</span>
+                            <span class="sidebar-btn-label">رادار المراقبة وسجل النشاط</span>
                         </div>
                         <span class="sidebar-badge-pill">Live 🟢</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('maintenance')" id="hubTab_maintenance" class="sidebar-nav-btn">
+                    <button onclick="switchAdminHubTab('maintenance')" id="hubTab_maintenance" class="sidebar-nav-btn" title="الصيانة ومفاتيح الطوارئ">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-toolbox sidebar-btn-icon" style="color: #F59E0B;"></i>
-                            <span>الصيانة ومفاتيح الطوارئ</span>
+                            <span class="sidebar-btn-label">الصيانة ومفاتيح الطوارئ</span>
                         </div>
                         <span class="sidebar-badge-pill">Kill-SW 🔴</span>
                     </button>
 
-                    <button onclick="switchAdminHubTab('helpdesk')" id="hubTab_helpdesk" class="sidebar-nav-btn">
+                    <button onclick="switchAdminHubTab('helpdesk')" id="hubTab_helpdesk" class="sidebar-nav-btn" title="مساعد العمليات الذكي AI">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-robot sidebar-btn-icon" style="color: #A855F7;"></i>
-                            <span>مساعد العمليات الذكي (AI Ops)</span>
+                            <span class="sidebar-btn-label">مساعد العمليات الذكي (AI Ops)</span>
                         </div>
                         <span class="sidebar-badge-pill">AI ⚡</span>
                     </button>
 
                     <div class="sidebar-nav-heading" style="margin-top: 10px;">إدارات الربط والخدمات</div>
 
-                    <a href="admin-config.html" id="sidebarNav_config" class="sidebar-nav-btn">
+                    <a href="admin-config.html" id="sidebarNav_config" class="sidebar-nav-btn" title="إعدادات المشرفين والأمان">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-sliders sidebar-btn-icon" style="color: #A5B4FC;"></i>
-                            <span>إعدادات المشرفين والأمان</span>
+                            <span class="sidebar-btn-label">إعدادات المشرفين والأمان</span>
                         </div>
-                        <i class="fa-solid fa-angle-left" style="font-size: 11px; opacity: 0.6;"></i>
+                        <i class="fa-solid fa-angle-left sidebar-badge-pill" style="font-size: 10px; border:none; background:transparent;"></i>
                     </a>
 
-                    <a href="admin-mysql.html" id="sidebarNav_mysql" class="sidebar-nav-btn">
+                    <a href="admin-mysql.html" id="sidebarNav_mysql" class="sidebar-nav-btn" title="لوحة MySQL السحابية VIP">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-bolt sidebar-btn-icon" style="color: #FBBF24;"></i>
-                            <span>لوحة MySQL السحابية VIP</span>
+                            <span class="sidebar-btn-label">لوحة MySQL السحابية VIP</span>
                         </div>
-                        <span class="sidebar-badge-pill" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B;">VIP</span>
+                        <span class="sidebar-badge-pill" style="color: #F59E0B;">VIP</span>
                     </a>
 
-                    <a href="home.html" class="sidebar-nav-btn">
+                    <a href="home.html" class="sidebar-nav-btn" title="معاينة كطالب">
                         <div class="sidebar-btn-content">
                             <i class="fa-solid fa-graduation-cap sidebar-btn-icon" style="color: #34D399;"></i>
-                            <span>معاينة كطالب</span>
+                            <span class="sidebar-btn-label">معاينة كطالب</span>
                         </div>
-                        <i class="fa-solid fa-angle-left" style="font-size: 11px; opacity: 0.6;"></i>
+                        <i class="fa-solid fa-angle-left sidebar-badge-pill" style="font-size: 10px; border:none; background:transparent;"></i>
                     </a>
                 </div>
             </div>
@@ -929,14 +1088,14 @@
                     </div>
                 </div>
 
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px;">
-                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">جاهزية المنظومة:</span>
-                    <span style="font-size: 11px; color: #34D399; font-weight: 900;">🟢 99.98% Uptime</span>
+                <div class="sidebar-uptime-row">
+                    <span>جاهزية المنظومة:</span>
+                    <span style="color: #34D399; font-weight: 900;">🟢 99.98% Uptime</span>
                 </div>
 
                 <button class="sidebar-logout-btn" onclick="adminLogout()">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>تسجيل الخروج السريع</span>
+                    <span class="sidebar-logout-text">تسجيل الخروج السريع</span>
                 </button>
             </div>
         </aside>
@@ -950,6 +1109,10 @@
                     <button class="btn-hamburger-mobile" onclick="toggleMobileSidebar()" title="فتح القائمة">
                         <i class="fa-solid fa-bars"></i>
                     </button>
+                    <!-- Quick collapse trigger in topbar for convenience -->
+                    <button class="btn-top-action" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة الجانبية (macOS Style)">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
                     <div class="topbar-breadcrumbs">
                         <span>لوحة القيادة</span>
                         <i class="fa-solid fa-angle-left" style="font-size: 10px; opacity: 0.5;"></i>
@@ -960,7 +1123,7 @@
                 <!-- Fast Search Bar -->
                 <div class="topbar-search-box">
                     <i class="fa-solid fa-magnifying-glass topbar-search-icon"></i>
-                    <input type="text" class="topbar-search-input" placeholder="🔎 بحث سريع بكود الطالب أو الفحص الفوري (اضغط Enter)..." onkeypress="handleGlobalSearch(event, this.value)">
+                    <input type="text" class="topbar-search-input" placeholder="🔎 بحث سريع بكود الطالب (اضغط Enter)..." onkeypress="handleGlobalSearch(event, this.value)">
                 </div>
 
                 <div class="topbar-actions-group">
@@ -969,7 +1132,7 @@
                         <span>مباشر 🟢</span>
                     </div>
 
-                    <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); display: none;" id="liveDateClock"></div>
+                    <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); display: none;" id="liveDateClock"></div>
 
                     <button class="btn-top-action" onclick="toggleAdminTheme()" title="تغيير المظهر (فاتح / داكن)">
                         <i class="fa-solid fa-moon" id="themeIcon"></i>
@@ -984,6 +1147,35 @@
                     </button>
                 </div>
             </header>
+
+            <!-- ─── President Executive Hero Banner ─── -->
+            <div class="president-hero-card">
+                <div class="president-hero-left">
+                    <div class="president-crown-badge">👑</div>
+                    <div class="president-titles">
+                        <div class="president-name-title">
+                            <span>أهلاً بك، أستاذ عبد الرحمن</span>
+                            <span style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 2px 8px; border-radius: 8px;">رئيس ومؤسس المنصة 👑</span>
+                        </div>
+                        <span class="president-subtext">غرفة العمليات المركزية والسيطرة التنفيذية المباشرة — دفعة 2027 🎓</span>
+                    </div>
+                </div>
+
+                <div class="president-hero-pills">
+                    <div class="hero-metric-pill">
+                        <i class="fa-solid fa-circle-check" style="color: #34D399;"></i>
+                        <span>99.98% Uptime 🟢</span>
+                    </div>
+                    <div class="hero-metric-pill" id="securityScoreVal">
+                        <i class="fa-solid fa-shield-halved" style="color: #F59E0B;"></i>
+                        <span>94/100 🛡️ Security Score</span>
+                    </div>
+                    <div class="hero-metric-pill">
+                        <i class="fa-solid fa-bolt" style="color: #38BDF8;"></i>
+                        <span>Firebase Realtime Sync ⚡</span>
+                    </div>
+                </div>
+            </div>
 
             <!-- ─── KPI Bento Ribbon ─── -->
             <div class="kpi-bento-grid">
@@ -1037,48 +1229,20 @@
                  ═══════════════════════════════════════════════ -->
             <div id="hubView_services" class="hub-view-container" style="display: flex;">
                 
-                <!-- Executive Overview Banner -->
-                <div style="
-                    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.85) 100%);
-                    border: 1px solid rgba(99, 102, 241, 0.35);
-                    border-radius: 20px;
-                    padding: 16px 20px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                ">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(99, 102, 241, 0.25); color: #818CF8; display: flex; align-items: center; justify-content: center; font-size: 20px;">💎</div>
-                        <div>
-                            <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">مركز العمليات والخدمات الشامل (Executive Command Suite)</h3>
-                            <span style="font-size: 11.5px; color: #C7D2FE; font-weight: 700;">منظومة تحكم متكاملة ومقسمة قطاعياً وفق أعلى معايير الحوكمة والأمان</span>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <span style="font-size: 11.5px; background: rgba(52, 211, 153, 0.15); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">🟢 99.98% Uptime</span>
-                        <span style="font-size: 11.5px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;" id="securityScoreVal">94/100 🛡️ Security Score</span>
-                        <span style="font-size: 11.5px; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800;">⚡ Firebase Sync Active</span>
-                    </div>
-                </div>
-
                 <!-- 📚 القطاع 1: المحتوى والامتحانات الأكاديمية -->
                 <div class="sector-header">
                     <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(99, 102, 241, 0.2); color: #818CF8;"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div class="sector-icon-badge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8;"><i class="fa-solid fa-graduation-cap"></i></div>
                         <h2 class="sector-heading-text">القطاع الأكاديمي، المواد، والامتحانات</h2>
                     </div>
-                    <span class="sector-tag-pill" style="background: rgba(99, 102, 241, 0.12); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.3);">دفعة 2027 🎓</span>
+                    <span class="sector-tag-pill" style="background: rgba(99, 102, 241, 0.1); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.2);">دفعة 2027 🎓</span>
                 </div>
 
                 <div class="admin-cards-grid">
                     <!-- 1. Courses & Lectures -->
                     <div class="action-card" data-perm="courses" onclick="location.href='admin-courses.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
                                 <i class="fa-solid fa-folder-open"></i>
                             </div>
                             <div class="card-texts">
@@ -1094,7 +1258,7 @@
                     <!-- 2. Question Bank & Exams -->
                     <div class="action-card" data-perm="exams" onclick="location.href='admin-exams.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #10B981, #059669);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #059669, #047857);">
                                 <i class="fa-solid fa-file-pen"></i>
                             </div>
                             <div class="card-texts">
@@ -1110,7 +1274,7 @@
                     <!-- 3. Exam Results -->
                     <div class="action-card" data-perm="reports" onclick="location.href='admin-results.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0EA5E9);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
                                 <i class="fa-solid fa-square-poll-vertical"></i>
                             </div>
                             <div class="card-texts">
@@ -1126,7 +1290,7 @@
                     <!-- 4. Mistakes & AI Analytics -->
                     <div class="action-card" data-perm="mistakes" onclick="location.href='admin-mistakes.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #7C3AED, #8B5CF6);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
                                 <i class="fa-solid fa-brain"></i>
                             </div>
                             <div class="card-texts">
@@ -1144,17 +1308,17 @@
                 <!-- 👥 القطاع 2: شؤون الطلاب والتراخيص -->
                 <div class="sector-header">
                     <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(14, 165, 233, 0.2); color: #38BDF8;"><i class="fa-solid fa-users"></i></div>
+                        <div class="sector-icon-badge" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8;"><i class="fa-solid fa-users"></i></div>
                         <h2 class="sector-heading-text">قطاع الطلاب، التراخيص، واعتماد الأجهزة</h2>
                     </div>
-                    <span class="sector-tag-pill" style="background: rgba(14, 165, 233, 0.12); color: #7DD3FC; border: 1px solid rgba(14, 165, 233, 0.3);">شؤون التسجيل 👥</span>
+                    <span class="sector-tag-pill" style="background: rgba(14, 165, 233, 0.1); color: #7DD3FC; border: 1px solid rgba(14, 165, 233, 0.2);">شؤون التسجيل 👥</span>
                 </div>
 
                 <div class="admin-cards-grid">
                     <!-- 1. Registered Students -->
                     <div class="action-card" data-perm="students" onclick="location.href='admin-students.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #0284C7, #075985);">
                                 <i class="fa-solid fa-users-gear"></i>
                             </div>
                             <div class="card-texts">
@@ -1170,7 +1334,7 @@
                     <!-- 2. Activation Codes Generator -->
                     <div class="action-card" data-perm="codes" onclick="location.href='admin-codes.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #16A34A, #15803D);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #15803D, #166534);">
                                 <i class="fa-solid fa-key"></i>
                             </div>
                             <div class="card-texts">
@@ -1187,7 +1351,7 @@
                     <!-- 3. Troubleshooting & Diagnostic Tools -->
                     <div class="action-card" data-perm="troubleshoot" onclick="location.href='admin-troubleshoot.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #EF4444);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DC2626, #B91C1C);">
                                 <i class="fa-solid fa-toolbox"></i>
                             </div>
                             <div class="card-texts">
@@ -1204,13 +1368,13 @@
                     <!-- 4. Fast Link to Devices Sentry Hub -->
                     <div class="action-card" data-perm="students" onclick="switchAdminHubTab('students')">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #F59E0B);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #B45309);">
                                 <i class="fa-solid fa-mobile-screen-button"></i>
                             </div>
                             <div class="card-texts">
                                 <div class="card-title-row">
                                     <span class="card-title">غرفة حراسة الأجهزة وتفتيش الأسماء</span>
-                                    <span class="card-badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24;">فحص حي ⚡</span>
+                                    <span class="card-badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24;">فحص حي ⚡</span>
                                 </div>
                                 <div class="card-desc">اعتماد الأجهزة الجديدة، كشف الأسماء الوهمية، وإصلاح بيانات الطلاب</div>
                             </div>
@@ -1222,17 +1386,17 @@
                 <!-- 💬 القطاع 3: التواصل والعمليات اللحظية -->
                 <div class="sector-header">
                     <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B;"><i class="fa-solid fa-comments"></i></div>
+                        <div class="sector-icon-badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;"><i class="fa-solid fa-comments"></i></div>
                         <h2 class="sector-heading-text">قطاع التواصل، المجتمع، والإشعارات</h2>
                     </div>
-                    <span class="sector-tag-pill" style="background: rgba(245, 158, 11, 0.12); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3);">تفاعل فوري 📣</span>
+                    <span class="sector-tag-pill" style="background: rgba(245, 158, 11, 0.1); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.2);">تفاعل فوري 📣</span>
                 </div>
 
                 <div class="admin-cards-grid">
                     <!-- 1. Student Community Chat -->
                     <div class="action-card" data-perm="community" onclick="location.href='admin-community.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #D97706, #92400E);">
                                 <i class="fa-solid fa-comments"></i>
                             </div>
                             <div class="card-texts">
@@ -1249,7 +1413,7 @@
                     <!-- 2. Push Notifications -->
                     <div class="action-card" data-perm="notifications" onclick="location.href='admin-notifications.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #DB2777, #EC4899);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #BE185D, #9D174D);">
                                 <i class="fa-solid fa-bullhorn"></i>
                             </div>
                             <div class="card-texts">
@@ -1266,17 +1430,17 @@
                 <!-- ⚡ القطاع 4: السحابة والإدارة العليا -->
                 <div class="sector-header">
                     <div class="sector-title-box">
-                        <div class="sector-icon-badge" style="background: rgba(16, 185, 129, 0.2); color: #10B981;"><i class="fa-solid fa-server"></i></div>
+                        <div class="sector-icon-badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981;"><i class="fa-solid fa-server"></i></div>
                         <h2 class="sector-heading-text">قطاع السحابة، قواعد البيانات، والحوكمة</h2>
                     </div>
-                    <span class="sector-tag-pill" style="background: rgba(16, 185, 129, 0.12); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3);">الإدارة العليا 👑</span>
+                    <span class="sector-tag-pill" style="background: rgba(16, 185, 129, 0.1); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.2);">الإدارة العليا 👑</span>
                 </div>
 
                 <div class="admin-cards-grid">
                     <!-- 1. Featured MySQL Card -->
                     <div class="action-card featured-mysql" data-perm="config" onclick="location.href='admin-mysql.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #4F46E5, #3730A3);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #4338CA, #3730A3);">
                                 <i class="fa-solid fa-bolt"></i>
                             </div>
                             <div class="card-texts">
@@ -1293,7 +1457,7 @@
                     <!-- 2. System Settings & Supervisors -->
                     <div class="action-card" data-perm="config" onclick="location.href='admin-config.html'">
                         <div class="card-left-content">
-                            <div class="card-icon-box" style="background: linear-gradient(135deg, #475569, #334155);">
+                            <div class="card-icon-box" style="background: linear-gradient(135deg, #334155, #1E293B);">
                                 <i class="fa-solid fa-sliders"></i>
                             </div>
                             <div class="card-texts">
@@ -1316,36 +1480,36 @@
                 
                 <!-- Individual Student Diagnostic Engine Card -->
                 <div id="secStudentDiagnostics" style="
-                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.92) 100%);
+                    background: var(--card-bg);
                     backdrop-filter: blur(20px);
-                    border: 1.5px solid #0EA5E9;
-                    border-radius: 20px;
+                    border: 1px solid rgba(14, 165, 233, 0.35);
+                    border-radius: 16px;
                     padding: 18px 20px;
-                    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
                     display: flex; flex-direction: column; gap: 12px;
                 ">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔍</div>
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🔍</div>
                             <div>
                                 <h3 style="font-size: 15px; font-weight: 900; color: #FFFFFF;">مركز الفحص والتشخيص الفردي للطالب (Student Diagnostic 10/10)</h3>
                                 <span style="font-size: 11px; color: #93C5FD; font-weight: 700;">فحص فوري وشامل (حالة الحساب، الأجهزة، النقاط، الامتحانات، وبصمة الدخول)</span>
                             </div>
                         </div>
-                        <span style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.4); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 10px;">
+                        <span style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 8px;">
                             Diagnostic Live ⚡
                         </span>
                     </div>
 
                     <div class="responsive-search-row" style="display: flex; gap: 8px;">
-                        <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 11px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
-                        <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #2563EB); color: white; border: none; padding: 11px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <input id="diagStudentCodeInput" type="text" placeholder="أدخل كود الطالب لتشخيص حالته فوراً (مثال: ST101)..." style="flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13px; font-weight: 700; outline: none;" onkeypress="if(event.key==='Enter') runIndividualStudentDiagnostic(this.value)">
+                        <button onclick="runIndividualStudentDiagnostic(document.getElementById('diagStudentCodeInput').value)" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <span>تشخيص الطالب 🚀</span>
                         </button>
                     </div>
 
-                    <div id="studentDiagReportOutput" style="display: none; flex-direction: column; gap: 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 14px; padding: 14px;"></div>
+                    <div id="studentDiagReportOutput" style="display: none; flex-direction: column; gap: 10px; background: rgba(11, 15, 25, 0.9); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;"></div>
                 </div>
 
                 <!-- 2-Column Grid: Device Approvals + Suspicious Names -->
@@ -1356,21 +1520,21 @@
                         background: var(--card-bg);
                         backdrop-filter: blur(20px);
                         border: 1px solid var(--card-border);
-                        border-radius: 20px;
-                        padding: 18px;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        border-radius: 16px;
+                        padding: 16px 18px;
+                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
                         display: flex; flex-direction: column; gap: 12px;
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;" id="secDeviceApprovalsHeading">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B; font-size: 18px;"></i>
-                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">طلبات اعتماد الأجهزة الجديدة</h3>
+                                <i class="fa-solid fa-mobile-screen-button" style="color: #F59E0B; font-size: 17px;"></i>
+                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">طلبات اعتماد الأجهزة الجديدة</h3>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                <button onclick="createTestDeviceRequest()" style="background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.25); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
                                     🧪 تجربة طلب
                                 </button>
-                                <span id="deviceReqCountBadge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                                <span id="deviceReqCountBadge" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25); color: #F59E0B; font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px;">
                                     0 طلب معلق
                                 </span>
                             </div>
@@ -1389,18 +1553,18 @@
                     <div style="
                         background: var(--card-bg);
                         backdrop-filter: blur(20px);
-                        border: 1px solid rgba(239, 68, 68, 0.3);
-                        border-radius: 20px;
-                        padding: 18px;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        border: 1px solid rgba(239, 68, 68, 0.25);
+                        border-radius: 16px;
+                        padding: 16px 18px;
+                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
                         display: flex; flex-direction: column; gap: 12px;
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-user-shield" style="color: #EF4444; font-size: 18px;"></i>
-                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">تفتيش جودة أسماء التسجيل والحسابات</h3>
+                                <i class="fa-solid fa-user-shield" style="color: #EF4444; font-size: 17px;"></i>
+                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">تفتيش جودة أسماء التسجيل والحسابات</h3>
                             </div>
-                            <span id="suspiciousNameCountBadge" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 10px;">
+                            <span id="suspiciousNameCountBadge" style="background: rgba(239, 68, 68, 0.12); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.25); font-size: 10.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px;">
                                 جاري الفحص...
                             </span>
                         </div>
@@ -1419,7 +1583,7 @@
                  ═══════════════════════════════════════════════ -->
             <div id="hubView_noc" class="hub-view-container" style="display: none;">
                 
-                <!-- 2-Column Cockpit Grid: Radar Feed + System Health -->
+                <!-- 2-Column Grid: Radar Feed + System Health -->
                 <div class="bento-split-grid">
 
                     <!-- Right Column: Live Audit Stream & Emergency Cockpit -->
@@ -1427,55 +1591,55 @@
                         background: var(--card-bg);
                         backdrop-filter: blur(20px);
                         border: 1px solid var(--card-border);
-                        border-radius: 20px;
-                        padding: 18px;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                        display: flex; flex-direction: column; gap: 14px;
+                        border-radius: 16px;
+                        padding: 16px 18px;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                        display: flex; flex-direction: column; gap: 12px;
                     ">
                         <!-- Header & Filter Tabs -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-satellite-dish" style="color: #34D399; font-size: 18px;"></i>
-                                <span style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">رادار النشاط المباشر (Live Feed)</span>
-                                <span id="auditCountBadge" style="background: rgba(99, 102, 241, 0.2); color: #818CF8; font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 10px;">0 حدث</span>
+                                <i class="fa-solid fa-satellite-dish" style="color: #34D399; font-size: 17px;"></i>
+                                <span style="font-size: 14px; font-weight: 900; color: var(--text-main);">رادار النشاط المباشر (Live Feed)</span>
+                                <span id="auditCountBadge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; font-size: 10.5px; font-weight: 900; padding: 2px 7px; border-radius: 6px;">0 حدث</span>
                             </div>
                             <div style="display: flex; gap: 6px;">
-                                <button onclick="filterAuditStream('all')" class="audit-tab-btn active" id="tabAuditAll" style="background: var(--primary); color: white; border: none; padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">الكل</button>
-                                <button onclick="filterAuditStream('emergency')" class="audit-tab-btn" id="tabAuditEmergency" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">🚨 الأعطال</button>
-                                <button onclick="filterAuditStream('login')" class="audit-tab-btn" id="tabAuditLogin" style="background: rgba(255, 255, 255, 0.06); color: var(--text-muted); border: 1px solid var(--card-border); padding: 5px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">👤 الطلاب</button>
+                                <button onclick="filterAuditStream('all')" class="audit-tab-btn active" id="tabAuditAll" style="background: var(--primary); color: white; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">الكل</button>
+                                <button onclick="filterAuditStream('emergency')" class="audit-tab-btn" id="tabAuditEmergency" style="background: rgba(239, 68, 68, 0.12); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.25); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">🚨 الأعطال</button>
+                                <button onclick="filterAuditStream('login')" class="audit-tab-btn" id="tabAuditLogin" style="background: rgba(255, 255, 255, 0.04); color: var(--text-muted); border: 1px solid var(--card-border); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">👤 الطلاب</button>
                             </div>
                         </div>
 
                         <!-- Live Feed Scroll Stream -->
                         <div id="liveAuditStreamList" style="max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-                            <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 40px 10px;">جاري جلب سجل النشاط المباشر والعمليات... 📡</div>
+                            <div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 40px 10px;">جاري جلب سجل النشاط المباشر والعمليات... 📡</div>
                         </div>
                     </div>
 
                     <!-- Left Column: Unified System Health & Synthetic Engine -->
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 14px;">
                         
                         <!-- System Health Check Card -->
                         <div style="
                             background: var(--card-bg);
                             backdrop-filter: blur(20px);
                             border: 1px solid var(--card-border);
-                            border-radius: 20px;
-                            padding: 18px;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                            display: flex; flex-direction: column; gap: 14px;
+                            border-radius: 16px;
+                            padding: 16px 18px;
+                            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                            display: flex; flex-direction: column; gap: 12px;
                         ">
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <i class="fa-solid fa-heart-pulse" style="color: #EF4444; font-size: 20px;"></i>
-                                    <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">فحص صحة المنظومة الفوري (System Health)</h3>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-heart-pulse" style="color: #EF4444; font-size: 18px;"></i>
+                                    <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">فحص صحة المنظومة الفوري (System Health)</h3>
                                 </div>
                                 <button onclick="runFullSystemCheck()" style="
                                     background: linear-gradient(135deg, #2563EB, #1D4ED8);
-                                    color: white; border: none; padding: 7px 16px; border-radius: 12px;
-                                    font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit;
+                                    color: white; border: none; padding: 6px 14px; border-radius: 10px;
+                                    font-size: 11.5px; font-weight: 900; cursor: pointer; font-family: inherit;
                                     display: inline-flex; align-items: center; gap: 6px;
-                                    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+                                    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.3);
                                 ">
                                     <i class="fa-solid fa-rotate-right" id="healthCheckSpinner"></i>
                                     <span>فحص شامل 🔄</span>
@@ -1483,29 +1647,29 @@
                             </div>
 
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" id="healthCheckGrid">
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Auth Guard</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcAuth">🟢 100%</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Auth Guard</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcAuth">🟢 100%</div>
                                 </div>
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Realtime DB</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcDB">🟢 100%</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Realtime DB</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcDB">🟢 100%</div>
                                 </div>
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Storage / PDFs</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcStorage">🟢 Ready</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Storage / PDFs</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcStorage">🟢 Ready</div>
                                 </div>
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Exams Engine</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcExams">🟢 Active</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Exams Engine</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcExams">🟢 Active</div>
                                 </div>
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Audio Engine</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #34D399; margin-top: 3px;" id="hcAudio">🟢 Ready</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Audio Engine</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #34D399; margin-top: 2px;" id="hcAudio">🟢 Ready</div>
                                 </div>
-                                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); padding: 10px; border-radius: 12px; text-align: center;">
-                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700;">Push Notice</div>
-                                    <div style="font-size: 13.5px; font-weight: 900; color: #F59E0B; margin-top: 3px;" id="hcPush">🟡 Standby</div>
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 9px; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">Push Notice</div>
+                                    <div style="font-size: 13px; font-weight: 900; color: #F59E0B; margin-top: 2px;" id="hcPush">🟡 Standby</div>
                                 </div>
                             </div>
                         </div>
@@ -1515,30 +1679,30 @@
                             background: var(--card-bg);
                             backdrop-filter: blur(20px);
                             border: 1px solid var(--card-border);
-                            border-radius: 20px;
-                            padding: 18px;
-                            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                            border-radius: 16px;
+                            padding: 16px 18px;
+                            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
                             display: flex; flex-direction: column; gap: 12px;
                         ">
                             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #7C3AED, #6366F1); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🧪</div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; display: flex; align-items: center; justify-content: center; font-size: 17px;">🧪</div>
                                     <div>
-                                        <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">محرك الفحص الشامل (Synthetic Engine)</h3>
+                                        <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">محرك الفحص الشامل (Synthetic Engine)</h3>
                                         <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">اختبار ذاتي لـ 10 وحدات برمجية سحابية</span>
                                     </div>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <button onclick="runFullSyntheticDiagnostic()" style="background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 12.5px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+                                    <button onclick="runFullSyntheticDiagnostic()" style="background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; border: none; padding: 7px 14px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;">
                                         <i class="fa-solid fa-vial-circle-check"></i>
                                         <span>بدء الفحص 🚀</span>
                                     </button>
-                                    <span id="diagnosticResultBadge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.3); font-size: 11px; font-weight: 900; padding: 5px 10px; border-radius: 10px;">
+                                    <span id="diagnosticResultBadge" style="background: rgba(99, 102, 241, 0.12); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.25); font-size: 10.5px; font-weight: 900; padding: 4px 8px; border-radius: 8px;">
                                         جاهز (10/10)
                                     </span>
                                 </div>
                             </div>
-                            <div id="diagnosticLogBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; font-family: monospace; font-size: 11.5px; color: #A5B4FC; max-height: 140px; overflow-y: auto; display: none;"></div>
+                            <div id="diagnosticLogBox" style="background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; font-family: monospace; font-size: 11px; color: #A5B4FC; max-height: 140px; overflow-y: auto; display: none;"></div>
                         </div>
 
                     </div>
@@ -1556,39 +1720,39 @@
                 <div style="
                     background: var(--card-bg);
                     backdrop-filter: blur(20px);
-                    border: 1.5px solid rgba(239, 68, 68, 0.35);
-                    border-radius: 20px;
-                    padding: 18px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    border-radius: 16px;
+                    padding: 16px 18px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
                     display: flex; flex-direction: column; gap: 12px;
                 ">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 18px;">🔴</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 17px;">🔴</div>
                             <div>
-                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">مفاتيح التعطيل الجزئي وعزل الميزات (Enterprise Kill Switches)</h3>
+                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">مفاتيح التعطيل الجزئي وعزل الميزات (Enterprise Kill Switches)</h3>
                                 <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">إيقاف أو تفعيل أي ميزة بنقرة واحدة فوراً لحماية السيرفر</span>
                             </div>
                         </div>
-                        <span id="killSwitchActiveBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
+                        <span id="killSwitchActiveBadge" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); font-size: 10.5px; font-weight: 900; padding: 4px 10px; border-radius: 8px;">
                             جميع الخدمات مفعلة 🟢
                         </span>
                     </div>
 
                     <div class="responsive-grid-5" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
-                        <button onclick="toggleKillSwitch('exams')" id="btnKS_exams" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                        <button onclick="toggleKillSwitch('exams')" id="btnKS_exams" style="background: rgba(16, 185, 129, 0.1); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 9px; border-radius: 10px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit;">
                             📝 الامتحانات 🟢
                         </button>
-                        <button onclick="toggleKillSwitch('registration')" id="btnKS_registration" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                        <button onclick="toggleKillSwitch('registration')" id="btnKS_registration" style="background: rgba(16, 185, 129, 0.1); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 9px; border-radius: 10px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit;">
                             👤 التسجيل 🟢
                         </button>
-                        <button onclick="toggleKillSwitch('audio')" id="btnKS_audio" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                        <button onclick="toggleKillSwitch('audio')" id="btnKS_audio" style="background: rgba(16, 185, 129, 0.1); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 9px; border-radius: 10px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit;">
                             🔊 الصوت 🟢
                         </button>
-                        <button onclick="toggleKillSwitch('leaderboard')" id="btnKS_leaderboard" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                        <button onclick="toggleKillSwitch('leaderboard')" id="btnKS_leaderboard" style="background: rgba(16, 185, 129, 0.1); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 9px; border-radius: 10px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit;">
                             🏆 النقاط 🟢
                         </button>
-                        <button onclick="toggleKillSwitch('certificates')" id="btnKS_certificates" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                        <button onclick="toggleKillSwitch('certificates')" id="btnKS_certificates" style="background: rgba(16, 185, 129, 0.1); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.25); padding: 9px; border-radius: 10px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit;">
                             🎓 الشهادات 🟢
                         </button>
                     </div>
@@ -1602,35 +1766,35 @@
                         background: var(--card-bg);
                         backdrop-filter: blur(20px);
                         border: 1px solid var(--card-border);
-                        border-radius: 20px;
-                        padding: 18px;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        border-radius: 16px;
+                        padding: 16px 18px;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
                         display: flex; flex-direction: column; gap: 12px;
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px;">🛡️</div>
+                                <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; display: flex; align-items: center; justify-content: center; font-size: 16px;">🛡️</div>
                                 <div>
-                                    <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">الجاهزية التفتيشية (Security Posture)</h3>
+                                    <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">الجاهزية التفتيشية (Security Posture)</h3>
                                     <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">فحص آلي للثغرات وقواعد البيانات</span>
                                 </div>
                             </div>
-                            <span style="background: rgba(37, 99, 235, 0.15); border: 1px solid #3B82F6; color: #60A5FA; padding: 4px 10px; border-radius: 12px; font-weight: 900; font-size: 13px;">
+                            <span style="background: rgba(37, 99, 235, 0.12); border: 1px solid #3B82F6; color: #60A5FA; padding: 3px 8px; border-radius: 8px; font-weight: 900; font-size: 12px;">
                                 82/100 🛡️
                             </span>
                         </div>
 
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 9px; padding: 8px 10px; font-size: 11px; font-weight: 700; color: #34D399;">
                                 Firebase Auth Guard ✅
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #F59E0B;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 9px; padding: 8px 10px; font-size: 11px; font-weight: 700; color: #F59E0B;">
                                 DB Security Rules ⚠️
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 9px; padding: 8px 10px; font-size: 11px; font-weight: 700; color: #34D399;">
                                 HTTPS & SSL Encrypt ✅
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px; font-size: 11.5px; font-weight: 700; color: #34D399;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 9px; padding: 8px 10px; font-size: 11px; font-weight: 700; color: #34D399;">
                                 Device Fingerprint Guard ✅
                             </div>
                         </div>
@@ -1641,45 +1805,45 @@
                         background: var(--card-bg);
                         backdrop-filter: blur(20px);
                         border: 1px solid var(--card-border);
-                        border-radius: 20px;
-                        padding: 18px;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                        border-radius: 16px;
+                        padding: 16px 18px;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
                         display: flex; flex-direction: column; gap: 12px;
                     ">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-wrench" style="color: #F59E0B; font-size: 18px;"></i>
-                                <h3 style="font-size: 15px; font-weight: 900; color: var(--text-main);">الصيانة والنسخ الاحتياطي الآمن</h3>
+                                <i class="fa-solid fa-wrench" style="color: #F59E0B; font-size: 17px;"></i>
+                                <h3 style="font-size: 14.5px; font-weight: 900; color: var(--text-main);">الصيانة والنسخ الاحتياطي الآمن</h3>
                             </div>
-                            <span id="currentMaintModeBadge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 10px;">النظام يعمل بشكل كامل 🟢</span>
+                            <span id="currentMaintModeBadge" style="background: rgba(16, 185, 129, 0.12); color: #34D399; font-size: 10.5px; font-weight: 900; padding: 3px 7px; border-radius: 8px;">النظام يعمل بشكل كامل 🟢</span>
                         </div>
 
                         <!-- Maintenance mode 3 buttons -->
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                            <button onclick="setPartialMaintenanceMode('off')" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            <button onclick="setPartialMaintenanceMode('off')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #34D399; padding: 8px; border-radius: 8px; font-weight: 900; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 🟢 تشغيل كامل
                             </button>
-                            <button onclick="setPartialMaintenanceMode('exams_only')" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #F59E0B; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            <button onclick="setPartialMaintenanceMode('exams_only')" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); color: #F59E0B; padding: 8px; border-radius: 8px; font-weight: 900; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 🔧 امتحانات فقط
                             </button>
-                            <button onclick="setPartialMaintenanceMode('full')" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; padding: 9px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit;">
+                            <button onclick="setPartialMaintenanceMode('full')" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #F87171; padding: 8px; border-radius: 8px; font-weight: 900; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 🚨 صيانة شاملة
                             </button>
                         </div>
 
                         <!-- Safe repairs and backup -->
                         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                            <button onclick="triggerManualCloudBackup()" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 12px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                            <button onclick="triggerManualCloudBackup()" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 7px 12px; border-radius: 8px; font-weight: 900; font-size: 11.5px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px;">
                                 <i class="fa-solid fa-cloud-arrow-down"></i>
                                 <span>نسخة سحابية 💾</span>
                             </button>
-                            <button onclick="runSafeRepair('rebuild_progress')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                            <button onclick="runSafeRepair('rebuild_progress')" style="background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--card-border); padding: 7px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 🔄 Rebuild Progress
                             </button>
-                            <button onclick="runSafeRepair('recalculate_points')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                            <button onclick="runSafeRepair('recalculate_points')" style="background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--card-border); padding: 7px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 💯 Recalculate Points
                             </button>
-                            <button onclick="runSafeRepair('clear_temp_cache')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 10px; font-weight: 800; font-size: 11.5px; cursor: pointer; font-family: inherit;">
+                            <button onclick="runSafeRepair('clear_temp_cache')" style="background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--card-border); padding: 7px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; font-family: inherit;">
                                 🧹 Clear Cache
                             </button>
                         </div>
@@ -1696,52 +1860,52 @@
                 
                 <!-- AI Operations Assistant Console -->
                 <div id="secAIOpsAssistant" style="
-                    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.85) 100%);
+                    background: var(--card-bg);
                     backdrop-filter: blur(20px);
-                    border: 1.5px solid #818CF8;
-                    border-radius: 20px;
-                    padding: 24px;
-                    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-                    display: flex; flex-direction: column; gap: 16px;
+                    border: 1px solid rgba(168, 85, 247, 0.35);
+                    border-radius: 16px;
+                    padding: 20px;
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+                    display: flex; flex-direction: column; gap: 14px;
                 ">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #8B5CF6, #D946EF); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px;">🤖</div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #8B5CF6, #D946EF); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px;">🤖</div>
                             <div>
-                                <h3 style="font-size: 17px; font-weight: 900; color: #FFFFFF;">كونسول مساعد العمليات والذكاء الاصطناعي (AI Ops Console)</h3>
-                                <span style="font-size: 12px; color: #C7D2FE; font-weight: 700;">تحليل فوري لحالة المنظومة، الأمان، الطلاب، وقواعد البيانات السحابية</span>
+                                <h3 style="font-size: 16px; font-weight: 900; color: #FFFFFF;">كونسول مساعد العمليات والذكاء الاصطناعي (AI Ops Console)</h3>
+                                <span style="font-size: 11.5px; color: #C7D2FE; font-weight: 700;">تحليل فوري لحالة المنظومة، الأمان، الطلاب، وقواعد البيانات السحابية</span>
                             </div>
                         </div>
-                        <span style="background: rgba(217, 70, 239, 0.2); color: #F0ABFC; border: 1px solid rgba(217, 70, 239, 0.4); font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 12px;">
+                        <span style="background: rgba(217, 70, 239, 0.15); color: #F0ABFC; border: 1px solid rgba(217, 70, 239, 0.3); font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 8px;">
                             AI Operations Active ⚡
                         </span>
                     </div>
 
                     <!-- Prompt chips -->
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <button onclick="askAIOpsAssistant('ما هي حالة المنصة الآن؟')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                    <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                        <button onclick="askAIOpsAssistant('ما هي حالة المنصة الآن؟')" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
                             💡 ما هي حالة المنصة الآن؟
                         </button>
-                        <button onclick="askAIOpsAssistant('إيه أهم المشاكل دلوقتي؟')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                        <button onclick="askAIOpsAssistant('إيه أهم المشاكل دلوقتي؟')" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
                             🚨 أهم المشاكل والأعطال
                         </button>
-                        <button onclick="askAIOpsAssistant('فحص الأمان والسلامة')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                        <button onclick="askAIOpsAssistant('فحص الأمان والسلامة')" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
                             🛡️ فحص الأمان وقواعد البيانات
                         </button>
-                        <button onclick="askAIOpsAssistant('تقرير النشاط اللحظي')" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid rgba(255,255,255,0.15); padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                        <button onclick="askAIOpsAssistant('تقرير النشاط اللحظي')" style="background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
                             📊 تقرير تفاعل الطلاب
                         </button>
                     </div>
 
                     <div style="display: flex; gap: 8px;">
-                        <input id="aiOpsQueryInput" type="text" placeholder="اسأل مساعد العمليات الذكي عن أي نظام، قاعدة بيانات، أو مشكلة فنية..." style="flex: 1; padding: 13px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13.5px; font-weight: 600; outline: none;" onkeypress="if(event.key==='Enter') askAIOpsAssistant(this.value)">
-                        <button onclick="askAIOpsAssistant(document.getElementById('aiOpsQueryInput').value)" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); color: white; border: none; padding: 13px 22px; border-radius: 14px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+                        <input id="aiOpsQueryInput" type="text" placeholder="اسأل مساعد العمليات الذكي عن أي نظام، قاعدة بيانات، أو مشكلة فنية..." style="flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.3); color: white; font-family: inherit; font-size: 13px; font-weight: 600; outline: none;" onkeypress="if(event.key==='Enter') askAIOpsAssistant(this.value)">
+                        <button onclick="askAIOpsAssistant(document.getElementById('aiOpsQueryInput').value)" style="background: linear-gradient(135deg, #EC4899, #8B5CF6); color: white; border: none; padding: 11px 18px; border-radius: 10px; font-weight: 900; cursor: pointer; font-family: inherit; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-paper-plane"></i>
                             <span>إرسال 🚀</span>
                         </button>
                     </div>
 
-                    <div id="aiOpsResponseBox" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 14px; padding: 16px; color: #E2E8F0; font-size: 13.5px; font-weight: 600; line-height: 1.7; display: none;"></div>
+                    <div id="aiOpsResponseBox" style="background: rgba(11, 15, 25, 0.9); border: 1px solid rgba(129, 140, 248, 0.3); border-radius: 12px; padding: 14px; color: #E2E8F0; font-size: 13px; font-weight: 600; line-height: 1.7; display: none;"></div>
                 </div>
 
             </div>
@@ -1750,9 +1914,9 @@
             <footer class="workspace-footer">
                 <div class="footer-watermark">
                     <i class="fa-solid fa-shield-check" style="color: #10B981;"></i>
-                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية v3.0 • دفعة 2027 🎓</span>
+                    <span>منصة الخطة التعليمية • لوحة الإدارة العليا التنفيذية v3.5 • دفعة 2027 🎓</span>
                 </div>
-                <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 6px 18px;">
+                <button class="sidebar-logout-btn" onclick="adminLogout()" style="padding: 5px 14px;">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span>تسجيل الخروج من لوحة الإدارة</span>
                 </button>
@@ -1765,7 +1929,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        // Theme Toggle Logic
+        // ─── Theme Toggle Logic ───
         function toggleAdminTheme() {
             const isLight = document.body.classList.toggle('light-theme');
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
@@ -1779,7 +1943,6 @@
             }
         }
 
-        // Initialize Theme Icon
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-theme');
             updateThemeIcon(false);
@@ -1798,6 +1961,34 @@
         updateLiveClock();
         setInterval(updateLiveClock, 60000);
 
+        // ─── macOS Style Sidebar Collapse Engine ───
+        function toggleDesktopSidebarCollapse() {
+            const sidebar = document.getElementById('mainExecutiveSidebar');
+            const icon = document.getElementById('sidebarCollapseIcon');
+            if (!sidebar) return;
+
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            if (icon) {
+                icon.className = isCollapsed ? 'fa-solid fa-angles-left' : 'fa-solid fa-angles-right';
+            }
+            try {
+                localStorage.setItem('elkheta_admin_sidebar_collapsed', isCollapsed ? 'yes' : 'no');
+            } catch(e) {}
+        }
+
+        // Restore Collapsed State
+        (function() {
+            try {
+                if (localStorage.getItem('elkheta_admin_sidebar_collapsed') === 'yes' && window.innerWidth > 1024) {
+                    const sidebar = document.getElementById('mainExecutiveSidebar');
+                    const icon = document.getElementById('sidebarCollapseIcon');
+                    if (sidebar) sidebar.classList.add('collapsed');
+                    if (icon) icon.className = 'fa-solid fa-angles-left';
+                }
+            } catch(e) {}
+        })();
+
+        // ─── Supervisor Roles & Permissions Guard ───
         const role = sessionStorage.getItem('adminRole') || 'master';
         const adminName = sessionStorage.getItem('adminName') || 'المدير العام';
         const roleTitle = sessionStorage.getItem('adminRoleTitle') || '';
@@ -1830,14 +2021,14 @@
                     <div style="text-align: center; font-family: 'Cairo', sans-serif; padding: 4px;">
                         <div style="font-size: 44px; margin-bottom: 12px;">🔒</div>
                         <h4 style="color: #EF4444; font-weight: 900; font-size: 16px; margin-bottom: 8px;">هذا القسم غير مصرح به لحسابك</h4>
-                        <p style="color: #64748B; font-size: 13.5px; line-height: 1.6; font-weight: 700;">
+                        <p style="color: #64748B; font-size: 13px; line-height: 1.6; font-weight: 700;">
                             ${msg}
                         </p>
                     </div>
                 `,
                 confirmButtonText: 'حسناً، فهمت 🫡',
                 confirmButtonColor: '#4F46E5',
-                backdrop: 'rgba(15, 23, 42, 0.75)'
+                backdrop: 'rgba(6, 8, 15, 0.75)'
             });
         };
 
@@ -1861,11 +2052,9 @@
                     hasAccess = permissions[permKey] === true;
                 }
 
-                // Ensure the card is 100% visible
                 item.style.display = 'flex';
 
                 if (!hasAccess) {
-                    // Mark as locked visually
                     const badgeContainer = item.querySelector('.card-title-row');
                     if (badgeContainer && !badgeContainer.querySelector('.badge-locked')) {
                         const lockBadge = document.createElement('span');
@@ -1885,7 +2074,6 @@
                     item.style.opacity = '0.88';
                     item.style.cursor = 'pointer';
 
-                    // Replace inline onclick with access denied modal!
                     item.onclick = function(e) {
                         if (e) {
                             e.preventDefault();
@@ -2026,7 +2214,7 @@
             ['tabAuditAll', 'tabAuditEmergency', 'tabAuditLogin'].forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) {
-                    btn.style.background = 'rgba(255, 255, 255, 0.06)';
+                    btn.style.background = 'rgba(255, 255, 255, 0.04)';
                     btn.style.color = 'var(--text-muted)';
                 }
             });
@@ -2057,7 +2245,7 @@
             }
 
             if (items.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 25px;">لا توجد أحداث مطابقة للفلتر المباشر حالياً</div>`;
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 25px;">لا توجد أحداث مطابقة للفلتر المباشر حالياً</div>`;
                 return;
             }
 
@@ -2066,35 +2254,35 @@
                 if (item.type === 'emergency') {
                     const isResolved = item.status === 'resolved';
                     return `
-                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <span style="font-size: 18px;">🚨</span>
+                                <span style="font-size: 16px;">🚨</span>
                                 <div style="min-width: 0;">
-                                    <div style="font-size: 13px; font-weight: 900; color: #F87171;">
+                                    <div style="font-size: 12.5px; font-weight: 900; color: #F87171;">
                                         بلاغ عاطل: ${item.issueType || 'مشكلة طوارئ'} — <span style="color:#FFF;">${item.studentName || item.studentCode || 'طالب'}</span>
                                     </div>
-                                    <div style="font-size: 11.5px; color: #CBD5E1; font-weight: 600;">${item.message || item.details || ''}</div>
+                                    <div style="font-size: 11px; color: #CBD5E1; font-weight: 600;">${item.message || item.details || ''}</div>
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                                <span style="font-size: 11px; font-weight: 800; color: #FCA5A5;">${timeStr}</span>
-                                ${!isResolved ? `<button onclick="resolveEmergencyIssueAdmin('${item.id}')" style="background: #EF4444; color: white; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; font-family: inherit;">حل المشكلة ✔️</button>` : `<span style="font-size: 11px; color: #34D399; font-weight: 800;">تم الحل ✔️</span>`}
+                                <span style="font-size: 10.5px; font-weight: 800; color: #FCA5A5;">${timeStr}</span>
+                                ${!isResolved ? `<button onclick="resolveEmergencyIssueAdmin('${item.id}')" style="background: #EF4444; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 900; cursor: pointer; font-family: inherit;">حل المشكلة ✔️</button>` : `<span style="font-size: 10.5px; color: #34D399; font-weight: 800;">تم الحل ✔️</span>`}
                             </div>
                         </div>
                     `;
                 } else {
                     return `
-                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                                <span style="font-size: 16px;">📌</span>
+                                <span style="font-size: 15px;">📌</span>
                                 <div style="min-width: 0;">
-                                    <div style="font-size: 12.5px; font-weight: 800; color: var(--text-main);">
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--text-main);">
                                         ${item.action || 'إجراء'}: <span style="color:#38BDF8;">${item.studentName || item.studentCode || item.user || 'نظام'}</span>
                                     </div>
-                                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">${item.details || item.page || ''}</div>
+                                    <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 600;">${item.details || item.page || ''}</div>
                                 </div>
                             </div>
-                            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); flex-shrink: 0;">${timeStr}</span>
+                            <span style="font-size: 10.5px; font-weight: 800; color: var(--text-dim); flex-shrink: 0;">${timeStr}</span>
                         </div>
                     `;
                 }
@@ -2115,7 +2303,7 @@
                 if (!listEl) return;
 
                 if (!snap.exists()) {
-                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
+                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
                     if (badge) badge.textContent = '0 طلب معلق';
                     return;
                 }
@@ -2131,7 +2319,7 @@
                 if (badge) badge.textContent = `${requests.length} طلب معلق ⏳`;
 
                 if (requests.length === 0) {
-                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 13px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
+                    listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-weight: 700; font-size: 12.5px; padding: 20px;">لا توجد طلبات اعتماد أجهزة معلقة حالياً — جميع الأجهزة النشطة مصرح بها ✔️</div>`;
                     return;
                 }
 
@@ -2139,38 +2327,37 @@
                     const timeStr = req.timestamp ? new Date(req.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                     return `
                         <div style="
-                            background: rgba(245, 158, 11, 0.08);
-                            border: 1px solid rgba(245, 158, 11, 0.3);
-                            border-radius: 16px;
-                            padding: 14px 16px;
-                            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+                            background: rgba(245, 158, 11, 0.07);
+                            border: 1px solid rgba(245, 158, 11, 0.25);
+                            border-radius: 12px;
+                            padding: 12px 14px;
+                            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
                         ">
-                            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                                <div style="width: 44px; height: 44px; border-radius: 14px; background: rgba(245, 158, 11, 0.2); color: #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">📱</div>
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">📱</div>
                                 <div style="min-width: 0;">
-                                    <div style="font-size: 14px; font-weight: 900; color: #FFF;">
-                                        طالب: <span style="color:#38BDF8;">${req.studentName || 'غير معروف'}</span> <span style="font-size: 12px; color: #94A3B8; font-family: monospace;">(${req.studentCode})</span>
+                                    <div style="font-size: 13.5px; font-weight: 900; color: #FFF;">
+                                        طالب: <span style="color:#38BDF8;">${req.studentName || 'غير معروف'}</span> <span style="font-size: 11px; color: #94A3B8; font-family: monospace;">(${req.studentCode})</span>
                                     </div>
-                                    <div style="font-size: 12px; color: #E2E8F0; font-weight: 700; margin-top: 2px;">
+                                    <div style="font-size: 11.5px; color: #E2E8F0; font-weight: 700; margin-top: 2px;">
                                         الجهاز المطلوب: <strong style="color:#F59E0B;">${req.deviceName || 'جهاز جديد'}</strong> • الوقت: ${timeStr}
                                     </div>
                                 </div>
                             </div>
 
-                            <div style="display: flex; gap: 8px;">
+                            <div style="display: flex; gap: 6px;">
                                 <button onclick="approveDeviceAdmin('${req.studentCode}', '${req.deviceId}', '${req.id}')" style="
                                     background: linear-gradient(135deg, #10B981, #059669);
-                                    color: white; border: none; padding: 8px 16px; border-radius: 10px;
-                                    font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit;
-                                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                                    color: white; border: none; padding: 6px 14px; border-radius: 8px;
+                                    font-size: 11.5px; font-weight: 900; cursor: pointer; font-family: inherit;
                                 ">
-                                    ✅ موافقة وتفويض الجهاز
+                                    ✅ موافقة وتفويض
                                 </button>
 
                                 <button onclick="rejectDeviceAdmin('${req.id}')" style="
-                                    background: rgba(239, 68, 68, 0.15); color: #F87171;
-                                    border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 14px; border-radius: 10px;
-                                    font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;
+                                    background: rgba(239, 68, 68, 0.12); color: #F87171;
+                                    border: 1px solid rgba(239, 68, 68, 0.25); padding: 6px 12px; border-radius: 8px;
+                                    font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;
                                 ">
                                     ❌ رفض
                                 </button>
@@ -2202,7 +2389,7 @@
                         title: 'تم تفويض الجهاز بنجاح 🎉',
                         text: `يمكن للطالب الآن استخدام حسابه بحرية من هذا الجهاز.`,
                         icon: 'success',
-                        timer: 2000,
+                        timer: 1800,
                         showConfirmButton: false
                     });
                 }
@@ -2222,7 +2409,7 @@
             });
         }
 
-        // ─── 🛠️ System Health Check JS Engine ───
+        // ─── System Health Check JS Engine ───
         function runFullSystemCheck() {
             const spinner = document.getElementById('healthCheckSpinner');
             if (spinner) spinner.classList.add('fa-spin');
@@ -2234,8 +2421,8 @@
             const hcAudio = document.getElementById('hcAudio');
             const hcPush = document.getElementById('hcPush');
 
-            if (hcAuth) hcAuth.textContent = '⏳ جاري الفحص...';
-            if (hcDB) hcDB.textContent = '⏳ جاري الفحص...';
+            if (hcAuth) hcAuth.textContent = '⏳ جاري...';
+            if (hcDB) hcDB.textContent = '⏳ جاري...';
 
             setTimeout(() => {
                 database.ref('.info/connected').once('value').then(snap => {
@@ -2259,7 +2446,7 @@
                         confirmButtonColor: '#6366F1'
                     });
                 }
-            }, 1000);
+            }, 800);
         }
 
         function inspectSuspiciousStudentNames() {
@@ -2269,7 +2456,7 @@
                 if (!container) return;
 
                 if (!snap.exists()) {
-                    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 700; padding: 15px;">لا يوجد طلاب مسجلين في النظام حالياً</div>`;
+                    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 12.5px; font-weight: 700; padding: 15px;">لا يوجد طلاب مسجلين في النظام حالياً</div>`;
                     if (badge) badge.textContent = '0 حساب';
                     return;
                 }
@@ -2288,26 +2475,26 @@
                 });
 
                 if (badge) {
-                    badge.textContent = `⚠️ ${suspicious.length} حساب يحتاج مراجعة الاسم`;
-                    badge.style.background = suspicious.length > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                    badge.textContent = `⚠️ ${suspicious.length} حساب يحتاج مراجعة`;
+                    badge.style.background = suspicious.length > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)';
                     badge.style.color = suspicious.length > 0 ? '#F87171' : '#34D399';
                 }
 
                 if (suspicious.length === 0) {
-                    container.innerHTML = `<div style="text-align: center; color: #34D399; font-size: 13px; font-weight: 800; padding: 15px;">جميع الحسابات مسجلة بأسماء حقيقية ومنتظمة ✔️</div>`;
+                    container.innerHTML = `<div style="text-align: center; color: #34D399; font-size: 12.5px; font-weight: 800; padding: 15px;">جميع الحسابات مسجلة بأسماء حقيقية ومنتظمة ✔️</div>`;
                     return;
                 }
 
                 container.innerHTML = suspicious.map(item => `
-                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 900; color: #F87171;">
-                                اسم غير منتظم: <span style="color:#FFF;">"${item.name}"</span> <span style="font-size: 11px; color:#94A3B8; font-family:monospace;">(${item.code})</span>
+                            <div style="font-size: 12.5px; font-weight: 900; color: #F87171;">
+                                اسم غير منتظم: <span style="color:#FFF;">"${item.name}"</span> <span style="font-size: 10.5px; color:#94A3B8; font-family:monospace;">(${item.code})</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 6px;">
-                            <button onclick="requestNameCorrection('${item.code}')" style="background: #6366F1; color: white; border: none; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">✉️ طلب تصحيح</button>
-                            <button onclick="approveStudentName('${item.code}')" style="background: rgba(255,255,255,0.1); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">✔️ اعتماد</button>
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="requestNameCorrection('${item.code}')" style="background: #6366F1; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">✉️ تنبيه</button>
+                            <button onclick="approveStudentName('${item.code}')" style="background: rgba(255,255,255,0.06); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; cursor: pointer; font-family: inherit;">✔️ اعتماد</button>
                         </div>
                     </div>
                 `).join('');
@@ -2556,14 +2743,14 @@
                     const btn = document.getElementById('btnKS_' + key);
                     if (btn) {
                         if (isOk) {
-                            btn.style.background = 'rgba(16, 185, 129, 0.12)';
+                            btn.style.background = 'rgba(16, 185, 129, 0.1)';
                             btn.style.color = '#34D399';
-                            btn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                            btn.style.borderColor = 'rgba(16, 185, 129, 0.25)';
                             btn.innerHTML = `${getKSLabel(key)} 🟢`;
                         } else {
-                            btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                            btn.style.background = 'rgba(239, 68, 68, 0.15)';
                             btn.style.color = '#F87171';
-                            btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                            btn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
                             btn.innerHTML = `${getKSLabel(key)} 🔴 (معطل)`;
                         }
                     }
@@ -2574,14 +2761,14 @@
                 if (badge) {
                     if (anyOff) {
                         badge.textContent = '⚠️ هناك ميزات معزولة جزئياً';
-                        badge.style.background = 'rgba(245, 158, 11, 0.15)';
+                        badge.style.background = 'rgba(245, 158, 11, 0.12)';
                         badge.style.color = '#F59E0B';
-                        badge.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                        badge.style.borderColor = 'rgba(245, 158, 11, 0.25)';
                     } else {
                         badge.textContent = 'جميع الخدمات مفعلة 🟢';
-                        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+                        badge.style.background = 'rgba(16, 185, 129, 0.12)';
                         badge.style.color = '#34D399';
-                        badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                        badge.style.borderColor = 'rgba(16, 185, 129, 0.25)';
                     }
                 }
             });
@@ -2608,7 +2795,7 @@
                         title: `تم تغيير حالة ${getKSLabel(key)}`,
                         text: newStatus ? 'الميزة تعمل حالياً بشكل طبيعي' : 'تم تفعيل مفتاح التعطيل الجزئي لهذه الميزة 🔴',
                         icon: newStatus ? 'success' : 'warning',
-                        timer: 2000,
+                        timer: 1800,
                         showConfirmButton: false
                     });
                 }
@@ -2633,7 +2820,7 @@
                 const s = snap.val();
                 if (!s) {
                     box.innerHTML = `
-                        <div style="color: #F87171; font-weight: 800; font-size: 14px; text-align: center; padding: 15px;">
+                        <div style="color: #F87171; font-weight: 800; font-size: 13.5px; text-align: center; padding: 15px;">
                             ❌ لم يتم العثور على طالب برقم الكود (${code}) في قاعدة البيانات الرئيسية.
                         </div>
                     `;
@@ -2655,40 +2842,40 @@
                     const isBanned = s.isBanned ? '🔴 محظور' : '🟢 نشط ومصرح';
 
                     box.innerHTML = `
-                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
                             <div>
-                                <div style="font-size: 16px; font-weight: 900; color: #FFFFFF;">👤 ${s.fullName || 'طالب الخطة'} (${code})</div>
-                                <div style="font-size: 12px; color: #93C5FD; font-weight: 700; margin-top: 2px;">الهاتف: ${s.phone || 'غير مسجل'} • تاريخ الانضمام: ${joinDate}</div>
+                                <div style="font-size: 15px; font-weight: 900; color: #FFFFFF;">👤 ${s.fullName || 'طالب الخطة'} (${code})</div>
+                                <div style="font-size: 11.5px; color: #93C5FD; font-weight: 700; margin-top: 2px;">الهاتف: ${s.phone || 'غير مسجل'} • تاريخ الانضمام: ${joinDate}</div>
                             </div>
-                            <span style="background: rgba(16, 185, 129, 0.15); color: #34D399; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 12px;">${isBanned}</span>
+                            <span style="background: rgba(16, 185, 129, 0.12); color: #34D399; font-weight: 900; font-size: 11.5px; padding: 3px 10px; border-radius: 8px;">${isBanned}</span>
                         </div>
 
-                        <!-- 10 Diagnostic Checks Grid -->
+                        <!-- Diagnostic Grid -->
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 4px;">
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #E2E8F0;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
                                 🔑 حالة الحساب والمصادقة: <b style="color: #34D399;">مفعل وشرعي ✅</b>
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #E2E8F0;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
                                 📱 حراسة الأجهزة: <b style="color: ${devPending > 0 ? '#F59E0B' : '#34D399'}">${devPending > 0 ? `${devPending} طلب معلق ⚠️` : 'مصرح بالكامل ✅'}</b>
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #E2E8F0;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
                                 ⭐ رصيد النقاط والمستوى: <b style="color: #F59E0B;">${points} نقطة (لفل ${level})</b>
                             </div>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: #E2E8F0;">
+                            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 7px 10px; font-size: 11.5px; color: #E2E8F0;">
                                 🛡️ بصمة الجهاز المسجل: <b style="color: #38BDF8;">${s.deviceFingerprint ? 'موثقة ومقيدة ✅' : 'جاهزة للتسجيل ⏳'}</b>
                             </div>
                         </div>
 
                         <!-- Targeted Auto-Repair Buttons -->
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                            <button onclick="runSafeRepairForStudent('${code}', 'rebuild_progress')" style="background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.4); padding: 6px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                🔄 إعادة مزامنة تقدم الطالب
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
+                            <button onclick="runSafeRepairForStudent('${code}', 'rebuild_progress')" style="background: rgba(14, 165, 233, 0.15); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                🔄 مزامنة تقدم الطالب
                             </button>
-                            <button onclick="runSafeRepairForStudent('${code}', 'sync_points')" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); padding: 6px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                💯 إعادة حساب وتثبيت نقاط الطالب
+                            <button onclick="runSafeRepairForStudent('${code}', 'sync_points')" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                💯 تثبيت نقاط الطالب
                             </button>
-                            <button onclick="runSafeRepairForStudent('${code}', 'approve_device')" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 6px 12px; border-radius: 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; font-family: inherit;">
-                                ✅ تفويض أجهزة الطالب فوراً
+                            <button onclick="runSafeRepairForStudent('${code}', 'approve_device')" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit;">
+                                ✅ تفويض أجهزة الطالب
                             </button>
                         </div>
                     `;
@@ -2714,7 +2901,7 @@
 
         // ─── Luxury Operational Hub Tabs Switcher ───
         
-        // Mobile Sidebar Controls with Body Lock & High Performance
+        // Mobile Sidebar Controls
         function toggleMobileSidebar() {
             const sidebar = document.querySelector('.executive-sidebar');
             const backdrop = document.querySelector('.sidebar-backdrop');
@@ -2815,7 +3002,7 @@
             if (activeBtn) activeBtn.classList.add('active');
             if (activeView) {
                 activeView.style.display = 'flex';
-                activeView.style.animation = 'fadeInHub 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+                activeView.style.animation = 'fadeInHub 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
             }
             try { localStorage.setItem('elkheta_admin_active_tab', tabName); } catch(e){}
         }
@@ -2827,7 +3014,6 @@
                 if (savedTab === 'students' && !permissions.students) savedTab = 'services';
                 if (savedTab === 'helpdesk' && !permissions.troubleshoot && !permissions.community) savedTab = 'services';
             }
-            // Migrate from legacy tabs if stored
             if (savedTab === 'database') savedTab = 'services';
             switchAdminHubTab(savedTab);
         })();
