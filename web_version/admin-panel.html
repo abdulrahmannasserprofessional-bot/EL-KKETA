@@ -1099,6 +1099,23 @@
                     </div>
                     <div class="card-arrow"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
+
+                <!-- 3. Direct Live Chat & Support Desk -->
+                <div class="service-card" onclick="location.href='admin-chat.html'">
+                    <div class="card-start">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #0284C7, #38BDF8);">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-title-row">
+                                <span class="card-heading">مكتب المحادثات والدعم الفني المباشر</span>
+                                <span class="card-badge badge-red" id="badgeDirectChatLive" style="display: none;">رسائل جديدة 💬</span>
+                            </div>
+                            <div class="card-subtext">التواصل الحي الفوري مع الطلاب، استقبال الصور، وإدارة تذاكر الدعم الفني</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
             </div>
 
             <!-- ⚡ القطاع 4: السحابة والإدارة العليا -->
@@ -1422,6 +1439,28 @@
                     badgeComm.style.display = 'inline-block';
                 } else {
                     badgeComm.style.display = 'none';
+                }
+            }
+        });
+
+        // Live Chat Unread Listener
+        database.ref('DirectChats').on('value', snap => {
+            let unreadTotal = 0;
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const meta = child.child('meta').val() || {};
+                    if (meta.unreadForAdmin > 0) {
+                        unreadTotal += meta.unreadForAdmin;
+                    }
+                });
+            }
+            const badgeChat = document.getElementById('badgeDirectChatLive');
+            if (badgeChat) {
+                if (unreadTotal > 0) {
+                    badgeChat.textContent = `💬 ${unreadTotal} جديد`;
+                    badgeChat.style.display = 'inline-block';
+                } else {
+                    badgeChat.style.display = 'none';
                 }
             }
         });

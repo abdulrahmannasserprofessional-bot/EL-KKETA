@@ -679,20 +679,36 @@
             <div class="media-box">
                 <div class="media-box-title">
                     <i class="fa-solid fa-photo-film" style="color:var(--primary);"></i>
-                    <span>المرفقات الأساسية (فيديو الشرح / ملخص PDF)</span>
+                    <span>المرفقات الأساسية (فيديو الشرح / ملخص PDF / الشرح الصوتي 🎙️)</span>
                 </div>
                 <div class="media-grid">
                     <div>
-                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">رابط الفيديو (YouTube / Drive / MP4)</label>
+                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">🎥 رابط الفيديو (YouTube / Drive / MP4)</label>
                         <input type="url" id="videoUrl" class="form-control" placeholder="https://..." style="direction:ltr; text-align:left;">
                     </div>
                     <div>
-                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">رابط ملخص PDF</label>
+                        <label class="form-label" style="font-size:12px; color:var(--text-sub);">📄 رابط ملخص PDF</label>
                         <input type="url" id="pdfUrl" class="form-control" placeholder="https://..." style="direction:ltr; text-align:left;">
                     </div>
                     <div>
                         <label class="form-label" style="font-size:12px; color:var(--text-sub);">حجم PDF</label>
                         <input type="text" id="pdfSize" class="form-control" placeholder="3.5 MB" style="direction:ltr; text-align:left;">
+                    </div>
+                </div>
+
+                <!-- 🎙️ قسم الشرح الصوتي المتقدم -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--card-border); display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: flex-end;">
+                    <div>
+                        <label class="form-label" style="font-size:12px; color:#D97706; font-weight:800;">
+                            🎙️ رابط الشرح الصوتي للمحاضرة (MP3 / M4A / Direct URL / Drive)
+                        </label>
+                        <input type="url" id="audioUrl" class="form-control" placeholder="https://.../audio-lesson.mp3" style="direction:ltr; text-align:left; border-color: rgba(245, 158, 11, 0.4);">
+                    </div>
+                    <div>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:rgba(245, 158, 11, 0.08); padding:10px 14px; border-radius:12px; border:1px solid rgba(245, 158, 11, 0.25); height:46px;">
+                            <input type="checkbox" id="allowAudioDownload" style="width:18px; height:18px; accent-color:#D97706; cursor:pointer;">
+                            <span style="font-size:12px; font-weight:800; color:#D97706;">السماح للطلاب بالتحميل 📥</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -1178,10 +1194,10 @@
                 }
             }
 
-            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize);
+            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize, lesson.audioUrl, lesson.allowAudioDownload);
         }
 
-        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize) {
+        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize, audioUrl, allowAudioDownload) {
             editingLessonId = id;
             editingSubject = subject;
             
@@ -1193,6 +1209,8 @@
             document.getElementById('pdfSize').value = pdfSize && pdfSize !== 'undefined' ? pdfSize : "";
             document.getElementById('examJson').value = examJson && examJson !== 'undefined' ? examJson : "";
             document.getElementById('duration').value = duration && duration !== 'undefined' ? duration : "";
+            document.getElementById('audioUrl').value = audioUrl && audioUrl !== 'undefined' ? audioUrl : "";
+            document.getElementById('allowAudioDownload').checked = Boolean(allowAudioDownload === true || allowAudioDownload === 'true');
             
             const cleanChapter = chapter && chapter !== 'undefined' && chapter !== 'null' ? chapter : "";
             updateChapterDropdown(false, cleanChapter);
@@ -1238,6 +1256,8 @@
             const video = document.getElementById('videoUrl').value.trim();
             const pdf = document.getElementById('pdfUrl').value.trim();
             const pdfSize = document.getElementById('pdfSize').value.trim();
+            const audioUrl = document.getElementById('audioUrl').value.trim();
+            const allowAudioDownload = document.getElementById('allowAudioDownload').checked;
             const examJson = document.getElementById('examJson').value.trim();
             const duration = document.getElementById('duration').value.trim() || 'متوفر';
             
@@ -1257,7 +1277,7 @@
 
             if (!subject) return showToast("يرجى اختيار المادة الدراسية أولاً");
             if (!title) return showToast("يرجى كتابة عنوان المحاضرة أو الامتحان");
-            if (!video && !pdf && !examJson) return showToast("يجب إضافة رابط فيديو، أو ملخص PDF، أو امتحان على الأقل");
+            if (!video && !pdf && !examJson && !audioUrl) return showToast("يجب إضافة فيديو، أو ملخص PDF، أو شرح صوتي، أو امتحان على الأقل");
 
             const data = {
                 title: title || "",
@@ -1265,6 +1285,8 @@
                 videoUrl: video || "",
                 pdfUrl: pdf || "",
                 pdfSize: pdfSize || "",
+                audioUrl: audioUrl || "",
+                allowAudioDownload: Boolean(allowAudioDownload),
                 jsonCode: examJson || "",
                 duration: duration || "متوفر",
                 chapter: chapter || "",
@@ -1294,7 +1316,8 @@
                 database.ref('Lectures').child(subject).child(id).set(data).then(() => {
                     const isFuture = unlockTime && unlockTime > Date.now();
                     let itemType = "محاضرة";
-                    if (examJson && !video && !pdf) itemType = "امتحان";
+                    if (examJson && !video && !pdf && !audioUrl) itemType = "امتحان";
+                    else if (audioUrl && !video && !examJson) itemType = "شرح صوتي 🎙️";
                     else if (video && !examJson) itemType = "فيديو محاضرة";
                     else if (pdf && !video && !examJson) itemType = "ملخص PDF";
 
@@ -1322,6 +1345,8 @@
             document.getElementById('videoUrl').value = "";
             document.getElementById('pdfUrl').value = "";
             document.getElementById('pdfSize').value = "";
+            document.getElementById('audioUrl').value = "";
+            document.getElementById('allowAudioDownload').checked = false;
             document.getElementById('examJson').value = "";
             document.getElementById('duration').value = "";
             document.getElementById('lessonUnlockTime').value = "";
@@ -1376,6 +1401,7 @@
                             const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
                             const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
                             const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
+                            const audioTag = lesson.audioUrl ? `<span class="meta-tag" style="background:rgba(245, 158, 11, 0.12); color:#D97706; border:1px solid rgba(245, 158, 11, 0.35); font-weight:800;"><i class="fa-solid fa-headphones"></i> صوت</span>` : '';
                             const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
                             const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
                             const scheduledTag = isScheduled ? `<span class="meta-tag" style="background:rgba(124, 58, 237, 0.12); color:#7C3AED; border:1px solid rgba(139, 92, 246, 0.35); font-weight:800;" title="موعد إتاحة المحاضرة للطلاب تلقائياً"><i class="fa-solid fa-clock"></i> ⏳ مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
@@ -1392,6 +1418,7 @@
                                             ${scheduledTag}
                                             ${videoTag}
                                             ${pdfTag}
+                                            ${audioTag}
                                             ${examTag}
                                             ${durationTag}
                                             ${lesson.chapter ? `<span class="meta-tag muted" style="color:var(--primary);">📖 ${lesson.chapter}</span>` : ''}

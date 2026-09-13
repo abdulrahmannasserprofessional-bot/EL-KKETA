@@ -20,6 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=2.5">
+    <link rel="stylesheet" href="live-chat.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="motion-fx.js?v=2.0" defer></script>
@@ -1029,6 +1030,118 @@
                 font-size: 9px !important;
             }
         }
+
+        /* Pro Audio Lecture Engine Styling */
+        .meta-pill-audio {
+            background: #F5F3FF !important;
+            color: #7C3AED !important;
+            border: 1px solid #DDD6FE !important;
+        }
+        .meta-pill-audio-done {
+            background: #DCFCE7 !important;
+            color: #166534 !important;
+            border: 1px solid #BBF7D0 !important;
+        }
+        .pill-audio {
+            background: #F5F3FF !important;
+            color: #7C3AED !important;
+            border: 1.5px solid #DDD6FE !important;
+        }
+        .pill-audio:hover {
+            background: #EDE9FE !important;
+            border-color: #C4B5FD !important;
+        }
+        .btn-audio-listen {
+            background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important;
+        }
+        .btn-audio-listen:hover {
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Equalizer Wave Animation */
+        .audio-wave-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 28px;
+        }
+        .audio-wave-bars .wave-bar {
+            width: 4px;
+            background: #FFFFFF;
+            border-radius: 3px;
+            height: 6px;
+            transition: height 0.2s ease;
+        }
+        .audio-wave-bars.playing .wave-bar:nth-child(1) { animation: waveAnim 0.7s infinite alternate ease-in-out; }
+        .audio-wave-bars.playing .wave-bar:nth-child(2) { animation: waveAnim 0.5s infinite 0.2s alternate ease-in-out; }
+        .audio-wave-bars.playing .wave-bar:nth-child(3) { animation: waveAnim 0.9s infinite 0.1s alternate ease-in-out; }
+        .audio-wave-bars.playing .wave-bar:nth-child(4) { animation: waveAnim 0.6s infinite 0.3s alternate ease-in-out; }
+        .audio-wave-bars.playing .wave-bar:nth-child(5) { animation: waveAnim 0.8s infinite 0.15s alternate ease-in-out; }
+
+        @keyframes waveAnim {
+            0% { height: 6px; }
+            100% { height: 26px; }
+        }
+
+        /* Seek Slider Pro */
+        .audio-slider-pro {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 99px;
+            background: #E2E8F0;
+            outline: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .audio-slider-pro::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #7C3AED;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.5);
+            transition: transform 0.15s ease;
+        }
+        .audio-slider-pro::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .audio-slider-pro::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #7C3AED;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.5);
+        }
+
+        body.dark-theme #audioModalContent {
+            background: #0F172A !important;
+            border-color: #1E293B !important;
+            color: #F8FAFC !important;
+        }
+        body.dark-theme #audioModalTitle {
+            color: #F8FAFC !important;
+        }
+        body.dark-theme #audioModalChapter {
+            color: #94A3B8 !important;
+        }
+        body.dark-theme .audio-slider-pro {
+            background: #334155 !important;
+        }
+        body.dark-theme .audio-ctrl-secondary {
+            background: #1E293B !important;
+            color: #CBD5E1 !important;
+            border-color: #334155 !important;
+        }
 </style>
 </head>
 <body>
@@ -1109,6 +1222,7 @@
         <nav class="category-tabs">
             <button class="tab-btn active" onclick="switchCategory('all', this)"><i class="fa-solid fa-layer-group"></i> <span>الكل</span></button>
             <button class="tab-btn" onclick="switchCategory('videos', this)"><i class="fa-solid fa-circle-play"></i> <span>المحاضرات</span></button>
+            <button class="tab-btn" onclick="switchCategory('audios', this)"><i class="fa-solid fa-headphones"></i> <span>الشرح الصوتي</span></button>
             <button class="tab-btn" onclick="switchCategory('pdfs', this)"><i class="fa-solid fa-file-pdf"></i> <span>الملخصات</span></button>
             <button class="tab-btn" onclick="switchCategory('quizzes', this)"><i class="fa-solid fa-pen-to-square"></i> <span>الامتحانات</span></button>
         </nav>
@@ -1398,6 +1512,89 @@
         </div>
     </div>
 
+    <!-- Audio Lecture Player Modal (Pro Apple-Podcast Style) -->
+    <div id="audioModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.7); backdrop-filter:blur(10px); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+        <div id="audioModalContent" style="background:#FFFFFF; border-radius:28px; width:100%; max-width:420px; padding:24px 22px; box-shadow:0 30px 60px -15px rgba(0,0,0,0.35); position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; border:1px solid #E2E8F0; animation:popIn 0.3s ease-out;">
+            
+            <!-- Header Bar -->
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; font-weight:800; background:#F5F3FF; color:#7C3AED; padding:4px 12px; border-radius:20px; border:1px solid #DDD6FE;">🎙️ الشرح الصوتي المعتمد</span>
+                    <span id="audioDoneBadge" style="display:none; font-size:11px; font-weight:800; background:#DCFCE7; color:#166534; padding:4px 10px; border-radius:20px; border:1px solid #BBF7D0;">
+                        <i class="fa-solid fa-circle-check"></i> تم الاستماع
+                    </span>
+                </div>
+                <button onclick="closeAudioModal()" style="background:#F1F5F9; border:none; width:34px; height:34px; border-radius:50%; font-size:14px; font-weight:bold; cursor:pointer; color:#64748B; display:flex; align-items:center; justify-content:center; transition:0.2s;" title="إغلاق">✕</button>
+            </div>
+
+            <!-- Artwork / Equalizer Hero Box -->
+            <div style="width:130px; height:130px; border-radius:24px; background:linear-gradient(135deg, #6366F1 0%, #7C3AED 50%, #EC4899 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; box-shadow:0 12px 28px rgba(124, 58, 237, 0.35); margin-bottom:18px;">
+                <div style="font-size:36px; color:#FFFFFF; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.2));">🎧</div>
+                <div id="audioWaveBars" class="audio-wave-bars">
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                </div>
+            </div>
+
+            <!-- Title & Metadata -->
+            <h3 id="audioModalTitle" style="font-size:17px; font-weight:900; color:#1E293B; margin:0 0 6px 0; line-height:1.4;">عنوان الشرح الصوتي</h3>
+            <div id="audioModalChapter" style="font-size:12.5px; color:#64748B; font-weight:700; margin-bottom:18px;">الباب الأول • الكيمياء</div>
+
+            <!-- Progress Bar & Timestamps -->
+            <div style="width:100%; margin-bottom:16px;">
+                <input type="range" id="audioProgressRange" class="audio-slider-pro" min="0" max="100" value="0" step="0.1" oninput="onAudioSeekInput(this.value)" onchange="onAudioSeekChange(this.value)">
+                <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:11.5px; font-weight:800; color:#64748B;" dir="ltr">
+                    <span id="audioCurrentTime">00:00</span>
+                    <span id="audioTotalDuration">00:00</span>
+                </div>
+            </div>
+
+            <!-- Primary Playback Controls -->
+            <div style="width:100%; display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px;">
+                <!-- Speed Switcher -->
+                <button id="btnAudioSpeed" onclick="cycleAudioSpeed()" class="audio-ctrl-secondary" title="سرعة التشغيل" style="background:#F1F5F9; border:1px solid #E2E8F0; color:#475569; padding:8px 12px; border-radius:12px; font-size:12px; font-weight:800; cursor:pointer; min-width:52px; font-family:'Cairo'; transition:0.2s;">
+                    1.0×
+                </button>
+
+                <!-- Skip -10s -->
+                <button onclick="skipAudio(-10)" class="audio-ctrl-secondary" title="إرجاع 10 ثواني" style="width:42px; height:42px; background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:50%; color:#334155; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+
+                <!-- Big Main Play/Pause Button -->
+                <button id="btnAudioMainPlay" onclick="toggleAudioPlay()" title="تشغيل / إيقاف" style="width:58px; height:58px; background:linear-gradient(135deg, #7C3AED 0%, #6366F1 100%); border:none; border-radius:50%; color:#FFFFFF; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 22px rgba(124, 58, 237, 0.42); transition:transform 0.15s;">
+                    <i class="fa-solid fa-play" style="margin-right:-2px;"></i>
+                </button>
+
+                <!-- Skip +10s -->
+                <button onclick="skipAudio(10)" class="audio-ctrl-secondary" title="تقديم 10 ثواني" style="width:42px; height:42px; background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:50%; color:#334155; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+
+                <!-- Download MP3 (Conditional) -->
+                <button id="btnAudioDownload" onclick="downloadCurrentAudio()" class="audio-ctrl-secondary" title="تحميل الملف الصوتي" style="display:none; width:42px; height:42px; background:#F1F5F9; border:1px solid #E2E8F0; border-radius:50%; color:#7C3AED; font-size:15px; cursor:pointer; align-items:center; justify-content:center; transition:0.2s;">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+
+            <!-- Chapter Navigation & Quick Jump -->
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; border-top:1px solid #F1F5F9; padding-top:14px;">
+                <button id="btnAudioPrev" onclick="navigateAudioLesson(-1)" class="audio-ctrl-secondary" style="background:#F8FAFC; border:1px solid #E2E8F0; color:#64748B; padding:8px 14px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Cairo';">
+                    <i class="fa-solid fa-chevron-right"></i> السابق
+                </button>
+                <span id="audioIndexIndicator" style="font-size:11.5px; font-weight:800; color:#94A3B8;">1 من 5</span>
+                <button id="btnAudioNext" onclick="navigateAudioLesson(1)" class="audio-ctrl-secondary" style="background:#F5F3FF; border:1px solid #DDD6FE; color:#7C3AED; padding:8px 14px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'Cairo';">
+                    التالي <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <audio id="lectureAudioEngine" preload="metadata" style="display:none;"></audio>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -1583,6 +1780,8 @@
                 
                 if (currentCategory === 'videos') {
                     return Boolean(lesson.videoUrl && !lesson.isStandaloneExam);
+                } else if (currentCategory === 'audios') {
+                    return Boolean(lesson.audioUrl);
                 } else if (currentCategory === 'pdfs') {
                     return Boolean(lesson.pdfUrl);
                 } else if (currentCategory === 'quizzes') {
@@ -1635,6 +1834,8 @@
                     const escTitle = (lesson.title || "").replace(/'/g, "\\'");
                     const escVideoUrl = (lesson.videoUrl || "").replace(/'/g, "\\'");
                     const escPdfUrl = (lesson.pdfUrl || "").replace(/'/g, "\\'");
+                    const escAudioUrl = (lesson.audioUrl || "").replace(/'/g, "\\'");
+                    const isAudioDone = isAudioCompleted(lesson);
 
                     let isLocked = false;
                     let lockHTML = '';
@@ -1693,6 +1894,12 @@
 
                     let badgesHTML = '';
                     if (lesson.videoUrl) badgesHTML += `<span class="meta-pill meta-pill-video"><i class="fa-solid fa-circle-play"></i> فيديو الشرح</span>`;
+                    if (lesson.audioUrl) {
+                        badgesHTML += `<span class="meta-pill meta-pill-audio"><i class="fa-solid fa-headphones"></i> شرح صوتي</span>`;
+                        if (isAudioDone) {
+                            badgesHTML += `<span class="meta-pill meta-pill-audio-done"><i class="fa-solid fa-circle-check"></i> تم الاستماع 🎧</span>`;
+                        }
+                    }
                     if (lesson.pdfUrl) badgesHTML += `<span class="meta-pill meta-pill-pdf"><i class="fa-solid fa-file-pdf"></i> ملخص السبورة</span>`;
                     if (hasExam) badgesHTML += `<span class="meta-pill meta-pill-quiz"><i class="fa-solid fa-pen-to-square"></i> اختبار تدريبي</span>`;
                     if (lesson.chapter && lesson.chapter !== 'محاضرات عامة') badgesHTML += `<span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter}</span>`;
@@ -1767,14 +1974,24 @@
                                     <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
                                 </button>
                             `;
-                        } else {
-                            const watchBtnHTML = `
+                            const watchBtnHTML = lesson.videoUrl ? `
                                 <button class="btn-main-watch" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
                                     <i class="fa-solid fa-play"></i> <span>مشاهدة المحاضرة</span>
                                 </button>
-                            `;
+                            ` : (escAudioUrl ? `
+                                <button class="btn-main-watch btn-audio-listen" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                    <i class="fa-solid fa-headphones"></i> <span>استمع للشرح الصوتي</span>
+                                </button>
+                            ` : '');
 
                             let secondaryBtnsHTML = '';
+                            if (escAudioUrl && lesson.videoUrl) {
+                                secondaryBtnsHTML += `
+                                    <button class="action-pill-btn pill-audio" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                        <i class="fa-solid fa-headphones"></i> <span>الشرح الصوتي</span>
+                                    </button>
+                                `;
+                            }
                             if (escPdfUrl) {
                                 secondaryBtnsHTML += `
                                     <button class="action-pill-btn pill-pdf" onclick="openPdf('${escPdfUrl}', '${escTitle}', ${index})">
@@ -1860,6 +2077,65 @@
                                     <div class="lesson-actions">
                                         <button class="btn-main-watch" onclick="openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})">
                                             <i class="fa-solid fa-play"></i> <span>تشغيل المحاضرة</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                    } else if (currentCategory === 'audios' && lesson.audioUrl) {
+                        hasItemsForCurrentView = true;
+                        if (isLocked) {
+                            groupItemsHTML.push(`
+                                <div class="lesson-package" style="border-right-color: #7C3AED; cursor:pointer;" onclick="showLockedModalByIndex(${index})">
+                                    <div class="lesson-header-row">
+                                        <div class="lesson-title-area">
+                                            <div class="lesson-number" style="background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 15px rgba(245,158,11,0.35);">🔒</div>
+                                            <div class="lesson-info">
+                                                <h4>${lesson.title}</h4>
+                                                <div class="lesson-meta-badges">
+                                                    <span class="meta-pill" style="background:#FEF3C7; color:#92400E; font-weight:800;">🔒 تسجيل صوتي مجدول</span>
+                                                </div>
+                                                ${lockHTML}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="lesson-actions">
+                                        <button class="btn-main-watch btn-locked" onclick="showLockedModalByIndex(${index})"><i class="fa-solid fa-lock"></i> <span>تسجيل مجدول (اضغط للموعد)</span></button>
+                                    </div>
+                                </div>
+                            `);
+                        } else {
+                            const doneBadge = isAudioDone ? `<span class="meta-pill meta-pill-audio-done"><i class="fa-solid fa-circle-check"></i> تم الاستماع 🎧</span>` : '';
+                            const dlBtnHTML = lesson.allowAudioDownload ? `
+                                <button class="action-pill-btn pill-audio" onclick="downloadAudioDirect('${escAudioUrl}', '${escTitle}')" title="تحميل الملف الصوتي MP3">
+                                    <i class="fa-solid fa-download"></i> <span>تحميل MP3</span>
+                                </button>
+                            ` : '';
+
+                            groupItemsHTML.push(`
+                                <div class="lesson-package" style="border-right-color: #7C3AED;">
+                                    <div class="lesson-header-row">
+                                        <div class="lesson-title-area">
+                                            <div class="lesson-number" style="background: linear-gradient(135deg, #7C3AED, #6366F1); box-shadow: 0 4px 15px rgba(124,58,237,0.3);"><i class="fa-solid fa-headphones" style="font-size: 16px;"></i></div>
+                                            <div class="lesson-info">
+                                                <h4>${lesson.title}</h4>
+                                                <div class="lesson-meta-badges">
+                                                    <span class="meta-pill meta-pill-audio"><i class="fa-solid fa-headphones"></i> تسجيل صوتي عالي الدقة</span>
+                                                    ${doneBadge}
+                                                    <span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter || 'محاضرة معتمدة'}</span>
+                                                    ${lesson.duration ? `<span class="meta-pill"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : ''}
+                                                </div>
+                                                ${descHTML}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="lesson-actions">
+                                        <button class="btn-main-watch btn-audio-listen" onclick="openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})">
+                                            <i class="fa-solid fa-play"></i> <span>استمع للشرح الصوتي</span>
+                                        </button>
+                                        ${dlBtnHTML}
+                                        <button class="action-pill-btn pill-qa" onclick="openLectureQA(${index})">
+                                            <i class="fa-solid fa-comments"></i> <span>تساؤلات المحاضرة</span>
                                         </button>
                                     </div>
                                 </div>
@@ -2392,14 +2668,280 @@
             }
         }
 
-        function filterLessons() {
-            const query = (document.getElementById('lessonSearchInput') ? document.getElementById('lessonSearchInput').value : "").trim().toLowerCase();
-            let filtered = allLessons;
-            if (query) {
-                filtered = filtered.filter(l => l.title && l.title.toLowerCase().includes(query));
-            }
-            renderLessons(filtered);
+        // ==========================================
+        // PRO AUDIO LECTURE ENGINE (ELKHETA AUDIO)
+        // ==========================================
+        const audioEngine = document.getElementById('lectureAudioEngine') || new Audio();
+        let activeAudioLesson = null;
+        let activeAudioIndex = -1;
+        const availableAudioSpeeds = [0.75, 1.0, 1.25, 1.5, 2.0];
+        let currentAudioSpeedIdx = 1; // default 1.0x
+        let isSeekingAudio = false;
+
+        function getAudioLessonStorageKey(lesson) {
+            if (!lesson) return 'unknown_audio';
+            return lesson.id || lesson.key || (lesson.title ? lesson.title.trim().replace(/\s+/g, '_') : 'unknown_audio');
         }
+
+        function isAudioCompleted(lesson) {
+            if (!lesson) return false;
+            const key = getAudioLessonStorageKey(lesson);
+            return localStorage.getItem('elkheta_audio_done_' + key) === 'true';
+        }
+
+        function openAudioPlayer(audioUrl, title, index, allowDownload) {
+            if (!audioUrl) {
+                if (typeof showToast === 'function') showToast('الملف الصوتي غير متوفر لهذه المحاضرة بعد ⏳', 'warning');
+                return;
+            }
+
+            const lesson = (typeof index === 'number' && allLessons[index]) ? allLessons[index] : { title, audioUrl, allowAudioDownload: allowDownload };
+            activeAudioLesson = lesson;
+            activeAudioIndex = index;
+
+            const modal = document.getElementById('audioModal');
+            const titleEl = document.getElementById('audioModalTitle');
+            const chapEl = document.getElementById('audioModalChapter');
+            const badgeEl = document.getElementById('audioDoneBadge');
+            const dlBtn = document.getElementById('btnAudioDownload');
+            const speedBtn = document.getElementById('btnAudioSpeed');
+
+            if (titleEl) titleEl.innerText = lesson.title || title || 'شرح صوتي';
+            if (chapEl) chapEl.innerText = (lesson.chapter ? lesson.chapter + ' • ' : '') + (subject || 'المادة الدراسية');
+
+            // Completed badge
+            if (badgeEl) {
+                badgeEl.style.display = isAudioCompleted(lesson) ? 'inline-flex' : 'none';
+            }
+
+            // Download button permission
+            const canDownload = Boolean(lesson.allowAudioDownload || allowDownload);
+            if (dlBtn) {
+                dlBtn.style.display = canDownload ? 'inline-flex' : 'none';
+            }
+
+            // Speed
+            const savedSpeed = parseFloat(localStorage.getItem('elkheta_audio_speed') || '1.0');
+            const sIdx = availableAudioSpeeds.indexOf(savedSpeed);
+            currentAudioSpeedIdx = sIdx >= 0 ? sIdx : 1;
+            if (speedBtn) speedBtn.innerText = availableAudioSpeeds[currentAudioSpeedIdx] + '×';
+
+            // Setup audio engine src
+            const isDifferentSrc = (audioEngine.src !== audioUrl && !audioEngine.src.endsWith(audioUrl));
+            if (isDifferentSrc) {
+                audioEngine.src = audioUrl;
+                audioEngine.load();
+                
+                // Check if there is a saved resume position
+                const key = getAudioLessonStorageKey(lesson);
+                const savedPos = parseFloat(localStorage.getItem('elkheta_audio_pos_' + key) || '0');
+                if (savedPos > 0) {
+                    audioEngine.currentTime = savedPos;
+                }
+            }
+
+            audioEngine.playbackRate = availableAudioSpeeds[currentAudioSpeedIdx];
+
+            // Update navigation buttons
+            updateAudioNavState();
+
+            // Display modal
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+
+            // Play audio
+            audioEngine.play().then(() => {
+                updateAudioPlayBtn(true);
+            }).catch(e => {
+                console.log('Audio autoplay info:', e);
+                updateAudioPlayBtn(false);
+            });
+        }
+
+        function closeAudioModal() {
+            const modal = document.getElementById('audioModal');
+            if (modal) modal.style.display = 'none';
+            if (audioEngine) {
+                audioEngine.pause();
+                updateAudioPlayBtn(false);
+            }
+        }
+
+        function toggleAudioPlay() {
+            if (!audioEngine.src) return;
+            if (audioEngine.paused) {
+                audioEngine.play().then(() => updateAudioPlayBtn(true)).catch(console.error);
+            } else {
+                audioEngine.pause();
+                updateAudioPlayBtn(false);
+            }
+        }
+
+        function updateAudioPlayBtn(isPlaying) {
+            const btn = document.getElementById('btnAudioMainPlay');
+            const wave = document.getElementById('audioWaveBars');
+            if (btn) {
+                btn.innerHTML = isPlaying 
+                    ? '<i class="fa-solid fa-pause"></i>' 
+                    : '<i class="fa-solid fa-play" style="margin-right:-2px;"></i>';
+            }
+            if (wave) {
+                if (isPlaying) wave.classList.add('playing');
+                else wave.classList.remove('playing');
+            }
+        }
+
+        function skipAudio(seconds) {
+            if (!audioEngine.duration) return;
+            audioEngine.currentTime = Math.max(0, Math.min(audioEngine.duration, audioEngine.currentTime + seconds));
+        }
+
+        function cycleAudioSpeed() {
+            currentAudioSpeedIdx = (currentAudioSpeedIdx + 1) % availableAudioSpeeds.length;
+            const spd = availableAudioSpeeds[currentAudioSpeedIdx];
+            audioEngine.playbackRate = spd;
+            localStorage.setItem('elkheta_audio_speed', spd);
+            const btn = document.getElementById('btnAudioSpeed');
+            if (btn) btn.innerText = spd + '×';
+        }
+
+        function onAudioSeekInput(val) {
+            isSeekingAudio = true;
+            if (audioEngine.duration) {
+                const targetTime = (val / 100) * audioEngine.duration;
+                const curEl = document.getElementById('audioCurrentTime');
+                if (curEl) curEl.innerText = formatAudioTime(targetTime);
+            }
+        }
+
+        function onAudioSeekChange(val) {
+            if (audioEngine.duration) {
+                audioEngine.currentTime = (val / 100) * audioEngine.duration;
+            }
+            isSeekingAudio = false;
+        }
+
+        function formatAudioTime(sec) {
+            if (!sec || isNaN(sec) || sec < 0) return '00:00';
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+        }
+
+        function downloadCurrentAudio() {
+            if (!activeAudioLesson || !activeAudioLesson.audioUrl) return;
+            if (!activeAudioLesson.allowAudioDownload) {
+                if (typeof showToast === 'function') showToast('عفواً، خيار تحميل هذا التسجيل الصوتي غير مفعل من الإدارة 🔒', 'warning');
+                return;
+            }
+            downloadAudioDirect(activeAudioLesson.audioUrl, activeAudioLesson.title);
+        }
+
+        function downloadAudioDirect(url, title) {
+            if (!url) return;
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (title || 'audio_lecture') + '.mp3';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            if (typeof showToast === 'function') showToast('جاري بدء تحميل الملف الصوتي... 📥', 'success');
+        }
+
+        function updateAudioNavState() {
+            const audioLessons = allLessons.filter(l => Boolean(l.audioUrl));
+            const curIdx = audioLessons.findIndex(l => l === activeAudioLesson || (l.audioUrl && l.audioUrl === activeAudioLesson?.audioUrl));
+            const prevBtn = document.getElementById('btnAudioPrev');
+            const nextBtn = document.getElementById('btnAudioNext');
+            const ind = document.getElementById('audioIndexIndicator');
+
+            if (ind) {
+                ind.innerText = curIdx >= 0 ? `${curIdx + 1} من ${audioLessons.length}` : '';
+            }
+            if (prevBtn) {
+                prevBtn.style.opacity = (curIdx > 0) ? '1' : '0.4';
+                prevBtn.style.pointerEvents = (curIdx > 0) ? 'auto' : 'none';
+            }
+            if (nextBtn) {
+                nextBtn.style.opacity = (curIdx >= 0 && curIdx < audioLessons.length - 1) ? '1' : '0.4';
+                nextBtn.style.pointerEvents = (curIdx >= 0 && curIdx < audioLessons.length - 1) ? 'auto' : 'none';
+            }
+        }
+
+        function navigateAudioLesson(dir) {
+            const audioLessons = allLessons.filter(l => Boolean(l.audioUrl));
+            const curIdx = audioLessons.findIndex(l => l === activeAudioLesson || (l.audioUrl && l.audioUrl === activeAudioLesson?.audioUrl));
+            const newIdx = curIdx + dir;
+            if (newIdx >= 0 && newIdx < audioLessons.length) {
+                const nextLesson = audioLessons[newIdx];
+                const realIdx = allLessons.indexOf(nextLesson);
+                openAudioPlayer(nextLesson.audioUrl, nextLesson.title, realIdx, nextLesson.allowAudioDownload);
+            }
+        }
+
+        // Attach listeners to audioEngine
+        audioEngine.addEventListener('timeupdate', () => {
+            if (isSeekingAudio) return;
+            const cur = audioEngine.currentTime;
+            const dur = audioEngine.duration;
+
+            const curEl = document.getElementById('audioCurrentTime');
+            const durEl = document.getElementById('audioTotalDuration');
+            const rng = document.getElementById('audioProgressRange');
+
+            if (curEl) curEl.innerText = formatAudioTime(cur);
+            if (durEl && dur && !isNaN(dur)) durEl.innerText = formatAudioTime(dur);
+
+            if (rng && dur && !isNaN(dur)) {
+                rng.value = (cur / dur) * 100;
+            }
+
+            // Save resume position
+            if (activeAudioLesson && cur > 1) {
+                const key = getAudioLessonStorageKey(activeAudioLesson);
+                localStorage.setItem('elkheta_audio_pos_' + key, cur);
+
+                // Completion check at 85%+
+                if (dur && cur / dur >= 0.85 && !isAudioCompleted(activeAudioLesson)) {
+                    localStorage.setItem('elkheta_audio_done_' + key, 'true');
+                    const badgeEl = document.getElementById('audioDoneBadge');
+                    if (badgeEl) badgeEl.style.display = 'inline-flex';
+
+                    // Save to Firebase ListeningProgress
+                    if (window.firebase && user && user.studentCode) {
+                        try {
+                            firebase.database().ref('ListeningProgress/' + user.studentCode + '/' + key).set({
+                                completed: true,
+                                title: activeAudioLesson.title || '',
+                                subject: subject || '',
+                                timestamp: firebase.database.ServerValue.TIMESTAMP
+                            });
+                        } catch(e) { console.error(e); }
+                    }
+
+                    if (typeof showToast === 'function') {
+                        showToast('أحسنت! تم تسجيل إتمام الاستماع للشرح الصوتي 🎧🎉', 'success');
+                    }
+                    filterLessons();
+                }
+            }
+        });
+
+        audioEngine.addEventListener('ended', () => {
+            updateAudioPlayBtn(false);
+            if (activeAudioLesson) {
+                const key = getAudioLessonStorageKey(activeAudioLesson);
+                localStorage.setItem('elkheta_audio_done_' + key, 'true');
+                const badgeEl = document.getElementById('audioDoneBadge');
+                if (badgeEl) badgeEl.style.display = 'inline-flex';
+                filterLessons();
+            }
+        });
+
+        audioEngine.addEventListener('pause', () => updateAudioPlayBtn(false));
+        audioEngine.addEventListener('play', () => updateAudioPlayBtn(true));
 
         // Video Player Handlers
         let ytPlayer = null;
@@ -3277,5 +3819,6 @@
 <script src="offline-overlay.js"></script>
 <script src="student-guard.js"></script>
 <script src="student-drawer.js"></script>
+<script src="live-chat.js?v=2.0"></script>
 </body>
 </html>
