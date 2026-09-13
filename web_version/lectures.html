@@ -1456,7 +1456,12 @@
         const cachedLec = sessionStorage.getItem(cacheKey);
         if (cachedLec) {
             try {
-                allLessons = JSON.parse(cachedLec);
+                let parsed = JSON.parse(cachedLec);
+                const isUserAdmin = sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true';
+                if (!isUserAdmin) {
+                    parsed = parsed.filter(l => !l.unlockTime || l.unlockTime <= Date.now());
+                }
+                allLessons = parsed;
                 if (allLessons.length > 0) renderLessons(allLessons);
             } catch(e){}
         }
@@ -1473,6 +1478,10 @@
 
                 function addLesson(key, val) {
                     if (!val) return;
+                    const isUserAdmin = sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true';
+                    if (!isUserAdmin && val.unlockTime && val.unlockTime > Date.now()) {
+                        return; // Lesson is scheduled for the future; keep hidden from student until time arrives
+                    }
                     const id = key || val.id;
                     const title = (val.title || val.name || '').trim();
                     if (id && seenIds.has(id)) return;

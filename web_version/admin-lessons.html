@@ -730,12 +730,23 @@
 
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label class="form-label">⏱️ مدة العرض</label>
+                    <label class="form-label">⏱️ مدة العرض والمدة التقديرية</label>
                     <input type="text" id="duration" class="form-control" placeholder="مثال: 45 دقيقة">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">⏳ جدولة النشر (اختياري)</label>
-                    <input type="datetime-local" id="lessonUnlockTime" class="form-control">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+                        <label class="form-label" style="margin-bottom:0;">📅 جدولة موعد النشر التلقائي للمحاضرة</label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:800; color:var(--primary);">
+                            <input type="checkbox" id="enableScheduleToggle" onchange="toggleScheduleInput()" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                            <span>تفعيل الجدولة</span>
+                        </label>
+                    </div>
+                    <div id="scheduleTimeContainer" style="display:none;">
+                        <input type="datetime-local" id="lessonUnlockTime" class="form-control" style="direction:ltr; text-align:right;">
+                        <span style="font-size:11px; color:#7C3AED; font-weight:700; display:block; margin-top:5px;">
+                            <i class="fa-solid fa-circle-info"></i> عند تفعيل الجدولة بموعد مستقبلي، ستظل المحاضرة مخفية عن الطلاب وتفتح تلقائياً في هذا الموعد بدقة.
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -1185,8 +1196,16 @@
                 const tzoffset = date.getTimezoneOffset() * 60000;
                 const localISOTime = (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 16);
                 document.getElementById('lessonUnlockTime').value = localISOTime;
+                const toggle = document.getElementById('enableScheduleToggle');
+                if (toggle) toggle.checked = true;
+                const container = document.getElementById('scheduleTimeContainer');
+                if (container) container.style.display = 'block';
             } else {
                 document.getElementById('lessonUnlockTime').value = "";
+                const toggle = document.getElementById('enableScheduleToggle');
+                if (toggle) toggle.checked = false;
+                const container = document.getElementById('scheduleTimeContainer');
+                if (container) container.style.display = 'none';
             }
             
             document.getElementById('formCardHeaderTitle').textContent = "تعديل المحتوى التعليمي: " + title;
@@ -1194,6 +1213,15 @@
             document.getElementById('submitLessonBtn').style.background = "linear-gradient(135deg, #10B981, #059669)";
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleScheduleInput() {
+            const isChecked = document.getElementById('enableScheduleToggle').checked;
+            const container = document.getElementById('scheduleTimeContainer');
+            if (container) container.style.display = isChecked ? 'block' : 'none';
+            if (!isChecked) {
+                document.getElementById('lessonUnlockTime').value = '';
+            }
         }
 
         function addLesson() {
@@ -1205,8 +1233,10 @@
             const pdfSize = document.getElementById('pdfSize').value.trim();
             const examJson = document.getElementById('examJson').value.trim();
             const duration = document.getElementById('duration').value.trim() || 'متوفر';
-            const unlockInput = document.getElementById('lessonUnlockTime').value;
-            const unlockTime = unlockInput ? new Date(unlockInput).getTime() : null;
+            
+            const isScheduleActive = document.getElementById('enableScheduleToggle')?.checked;
+            const unlockInput = isScheduleActive ? document.getElementById('lessonUnlockTime').value : null;
+            const unlockTime = (isScheduleActive && unlockInput) ? new Date(unlockInput).getTime() : null;
 
             const chapterSelect = document.getElementById('chapterSelect');
             let chapter = "";
@@ -1235,27 +1265,30 @@
                 }
                 data.id = editingLessonId;
                 database.ref('Lectures').child(subject).child(editingLessonId).set(data).then(() => {
-                    showToast("تم تعديل المحتوى بنجاح ✅");
+                    showToast(unlockTime && unlockTime > Date.now() ? "تم تعديل المحتوى وجدولته بنجاح ⏳" : "تم تعديل المحتوى بنجاح ✅");
                     resetForm();
                 }).catch(() => showToast("حدث خطأ في التعديل ❌"));
             } else {
                 const id = database.ref('Lectures').child(subject).push().key;
                 data.id = id;
                 database.ref('Lectures').child(subject).child(id).set(data).then(() => {
+                    const isFuture = unlockTime && unlockTime > Date.now();
                     let itemType = "محاضرة";
                     if (examJson && !video && !pdf) itemType = "امتحان";
                     else if (video && !examJson) itemType = "فيديو محاضرة";
                     else if (pdf && !video && !examJson) itemType = "ملخص PDF";
 
-                    database.ref('Settings/latestAddedContent').set({
-                        type: itemType,
-                        title: title,
-                        subject: subject,
-                        message: `🎉 تمت إضافة ${itemType} جديدة: (${title}) في مادة (${subject}) 🚀`,
-                        timestamp: Date.now()
-                    });
+                    if (!isFuture) {
+                        database.ref('Settings/latestAddedContent').set({
+                            type: itemType,
+                            title: title,
+                            subject: subject,
+                            message: `🎉 تمت إضافة ${itemType} جديدة: (${title}) في مادة (${subject}) 🚀`,
+                            timestamp: Date.now()
+                        });
+                    }
 
-                    showToast("تمت إضافة المحتوى بنجاح ✅");
+                    showToast(isFuture ? "تمت جدولة المحتوى للنشر التلقائي بنجاح ⏳" : "تمت إضافة ونشر المحتوى بنجاح ✅");
                     resetForm();
                 }).catch(() => showToast("حدث خطأ أثناء الإضافة ❌"));
             }
@@ -1273,6 +1306,11 @@
             document.getElementById('duration').value = "";
             document.getElementById('lessonUnlockTime').value = "";
             
+            const toggle = document.getElementById('enableScheduleToggle');
+            if (toggle) toggle.checked = false;
+            const schedContainer = document.getElementById('scheduleTimeContainer');
+            if (schedContainer) schedContainer.style.display = 'none';
+
             document.getElementById('formCardHeaderTitle').textContent = "إضافة محاضرة أو درس جديد";
             document.getElementById('submitBtnText').textContent = "نشر المحتوى التعليمي الآن";
             document.getElementById('submitLessonBtn').style.background = "linear-gradient(135deg, #2563EB, #1D4ED8)";
@@ -1315,10 +1353,12 @@
                             if (!chapterGroups[chapName]) chapterGroups[chapName] = [];
                             window.allLessonsMap[firebaseKey] = { ...lesson, subjectName, firebaseKey };
 
+                            const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
                             const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
                             const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
                             const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
                             const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
+                            const scheduledTag = isScheduled ? `<span class="meta-tag" style="background:rgba(124, 58, 237, 0.12); color:#7C3AED; border:1px solid rgba(139, 92, 246, 0.35); font-weight:800;" title="موعد إتاحة المحاضرة للطلاب تلقائياً"><i class="fa-solid fa-clock"></i> ⏳ مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
 
                             const escKey = firebaseKey.replace(/'/g, "\\'");
                             const escTitle = (lesson.title || 'المحاضرة').replace(/'/g, "\\'");
@@ -1329,6 +1369,7 @@
                                     <div class="lesson-info-box">
                                         <div class="lesson-card-title">${lesson.title}</div>
                                         <div class="lesson-tags-row">
+                                            ${scheduledTag}
                                             ${videoTag}
                                             ${pdfTag}
                                             ${examTag}
@@ -1337,6 +1378,11 @@
                                         </div>
                                     </div>
                                     <div class="actions-btn-group">
+                                        ${isScheduled ? `
+                                            <button class="btn-card-action" style="background:rgba(37, 99, 235, 0.1); color:#2563EB; border:1px solid rgba(37, 99, 235, 0.25);" onclick="publishScheduledNow('${escSub}', '${escKey}', '${escTitle}')" title="⚡ نشر المحاضرة للطلاب فوراً وتخطي الجدولة">
+                                                <i class="fa-solid fa-bolt"></i>
+                                            </button>
+                                        ` : ''}
                                         <button class="btn-card-action edit" onclick="startEditLessonByKey('${escKey}')" title="تعديل المحاضرة">
                                             <i class="fa-solid fa-pencil"></i>
                                         </button>
@@ -1417,6 +1463,32 @@
                     database.ref('Lectures').child(subject).child(id).remove().then(() => {
                         showToast("تم حذف المحاضرة بنجاح 🗑️");
                     });
+                }
+            });
+        }
+
+        function publishScheduledNow(subject, key, title) {
+            Swal.fire({
+                title: 'نشر المحاضرة فوراً؟ ⚡',
+                html: `هل تريد إلغاء موعد الجدولة وإتاحة محاضرة:<br><b style="color:#2563EB;">${title}</b><br>فوراً لجميع الطلاب في مادة (${subject})؟`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#2563EB',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: '⚡ نعم، نشر الآن فوراً',
+                cancelButtonText: 'إلغاء'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    database.ref('Lectures').child(subject).child(key).update({ unlockTime: null }).then(() => {
+                        database.ref('Settings/latestAddedContent').set({
+                            type: "محاضرة",
+                            title: title,
+                            subject: subject,
+                            message: `🎉 تم نشر محاضرة جديدة فوراً: (${title}) في مادة (${subject}) 🚀`,
+                            timestamp: Date.now()
+                        });
+                        showToast("تم نشر المحاضرة للطلاب فوراً بنجاح ⚡");
+                    }).catch(() => showToast("حدث خطأ أثناء النشر ❌"));
                 }
             });
         }

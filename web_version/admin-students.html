@@ -209,19 +209,71 @@
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
             margin-bottom: 24px;
+        }
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 640px) {
             .kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10B981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseLive 1.8s infinite cubic-bezier(0.66, 0, 0, 1);
+            vertical-align: middle;
+        }
+        @keyframes pulseLive {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .radar-banner {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(234, 88, 12, 0.05));
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        .btn-radar-alert {
+            background: linear-gradient(135deg, #D97706, #B45309);
+            color: #FFFFFF;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-radar-alert:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
         }
 
         .kpi-card {
             background: var(--surface);
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 18px 20px;
+            padding: 16px 18px;
             box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
@@ -237,19 +289,23 @@
             top: 0; right: 0; width: 4px; height: 100%;
         }
         .kpi-card.blue::before { background: #2563EB; }
-        .kpi-card.green::before { background: #10B981; }
+        .kpi-card.emerald::before { background: #10B981; }
+        .kpi-card.green::before { background: #059669; }
+        .kpi-card.amber::before { background: #F59E0B; }
         .kpi-card.purple::before { background: #8B5CF6; }
 
         .kpi-info h4 { font-size: 12px; font-weight: 700; color: var(--text-sub); }
-        .kpi-info .kpi-num { font-size: 26px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
+        .kpi-info .kpi-num { font-size: 24px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
         .kpi-icon {
-            width: 48px; height: 48px;
-            border-radius: 16px;
+            width: 44px; height: 44px;
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
+            font-size: 19px;
         }
         .kpi-card.blue .kpi-icon { background: rgba(37, 99, 235, 0.1); color: #2563EB; }
-        .kpi-card.green .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .kpi-card.emerald .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .kpi-card.green .kpi-icon { background: rgba(5, 150, 105, 0.1); color: #059669; }
+        .kpi-card.amber .kpi-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
         .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
 
         .controls-card {
@@ -643,12 +699,29 @@
                 </div>
                 <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
             </div>
+            <div class="kpi-card emerald">
+                <div class="kpi-info">
+                    <h4>متواجد الآن مباشر</h4>
+                    <div class="kpi-num" style="display:flex; align-items:center; gap:8px;">
+                        <span id="onlineStudents">—</span>
+                        <span class="pulse-dot"></span>
+                    </div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-signal"></i></div>
+            </div>
             <div class="kpi-card green">
                 <div class="kpi-info">
                     <h4>نشط اليوم بالمنصة</h4>
                     <div class="kpi-num" id="activeToday">—</div>
                 </div>
                 <div class="kpi-icon"><i class="fa-solid fa-bolt"></i></div>
+            </div>
+            <div class="kpi-card amber">
+                <div class="kpi-info">
+                    <h4>غائبون 7+ أيام</h4>
+                    <div class="kpi-num" id="inactiveStudents">—</div>
+                </div>
+                <div class="kpi-icon"><i class="fa-solid fa-user-clock"></i></div>
             </div>
             <div class="kpi-card purple">
                 <div class="kpi-info">
@@ -670,8 +743,14 @@
                     <button class="filter-chip active" id="chip-all" onclick="setStatusFilter('all')">
                         <i class="fa-solid fa-list-ul"></i> الكل (<span id="countFilterAll">0</span>)
                     </button>
+                    <button class="filter-chip" id="chip-online" onclick="setStatusFilter('online')" style="border-color: rgba(16, 185, 129, 0.4);">
+                        <span class="pulse-dot"></span> متواجد الآن (<span id="countFilterOnline">0</span>)
+                    </button>
                     <button class="filter-chip" id="chip-active" onclick="setStatusFilter('active')">
                         <i class="fa-solid fa-circle-check" style="color:#10B981;"></i> نشط
+                    </button>
+                    <button class="filter-chip" id="chip-inactive" onclick="setStatusFilter('inactive')" style="border-color: rgba(245, 158, 11, 0.4);">
+                        <i class="fa-solid fa-user-clock" style="color:#F59E0B;"></i> غائبون (<span id="countFilterInactive">0</span>)
                     </button>
                     <button class="filter-chip" id="chip-banned" onclick="setStatusFilter('banned')">
                         <i class="fa-solid fa-ban" style="color:#EF4444;"></i> محظور
@@ -686,6 +765,23 @@
                     <span id="sortLabel">الأحدث تسجيلاً</span>
                 </button>
             </div>
+        </div>
+
+        <!-- Radar Alert Banner for Inactive Students -->
+        <div class="radar-banner" id="radarBanner" style="display: none;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:12px; background:rgba(245, 158, 11, 0.2); color:#D97706; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <div style="font-size:14px; font-weight:900; color:var(--text-main);">رادار الطلاب المتعثرين والغائبين ⏱️</div>
+                    <div style="font-size:12px; color:var(--text-sub);" id="radarBannerSubtitle">تم رصد طلاب لم يسجلوا أي نشاط على المنصة منذ أكثر من 7 أيام</div>
+                </div>
+            </div>
+            <button class="btn-radar-alert" onclick="sendBulkEncouragementNotification()">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>إرسال إشعار تذكير تشجيعي للغائبين 📢</span>
+            </button>
         </div>
 
         <div class="students-list" id="studentsList">
@@ -749,12 +845,41 @@
             filterStudents();
         }
 
+        function isStudentOnline(st) {
+            if (st.isOnline === true) return true;
+            if (st.lastActive && (Date.now() - st.lastActive < 300000)) return true;
+            return false;
+        }
+
+        function isStudentInactive(st) {
+            if (!st.lastActive) return true;
+            return (Date.now() - st.lastActive > 604800000);
+        }
+
+        function formatLastSeen(timestamp) {
+            if (!timestamp) return 'لم يسجل دخول';
+            const diff = Date.now() - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 5) return 'متواجد الآن 🟢';
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            const days = Math.floor(hours / 24);
+            return `منذ ${days} يوم`;
+        }
+
         function setStatusFilter(filter) {
             currentStatusFilter = filter;
-            ['all', 'active', 'banned', 'warnings'].forEach(id => {
+            ['all', 'online', 'active', 'inactive', 'banned', 'warnings'].forEach(id => {
                 const el = document.getElementById(`chip-${id}`);
                 if (el) el.classList.toggle('active', id === filter);
             });
+
+            const banner = document.getElementById('radarBanner');
+            if (banner) {
+                banner.style.display = (filter === 'inactive') ? 'flex' : 'none';
+            }
+
             filterStudents();
         }
 
@@ -780,10 +905,23 @@
                 });
             }
 
+            const onlineCount = allStudents.filter(isStudentOnline).length;
+            const activeTodayCount = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length;
+            const inactiveCount = allStudents.filter(isStudentInactive).length;
+
             document.getElementById('totalStudents').textContent = allStudents.length;
             document.getElementById('countFilterAll').textContent = allStudents.length;
-            document.getElementById('activeToday').textContent = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length || '0';
+            document.getElementById('onlineStudents').textContent = onlineCount;
+            document.getElementById('countFilterOnline').textContent = onlineCount;
+            document.getElementById('activeToday').textContent = activeTodayCount;
+            document.getElementById('inactiveStudents').textContent = inactiveCount;
+            document.getElementById('countFilterInactive').textContent = inactiveCount;
             document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) + '%' : '—';
+
+            const subEl = document.getElementById('radarBannerSubtitle');
+            if (subEl) {
+                subEl.textContent = `تم رصد ${inactiveCount} طالب لم يسجلوا أي نشاط على المنصة منذ أكثر من 7 أيام`;
+            }
 
             filterStudents();
         });
@@ -792,7 +930,11 @@
             const q = document.getElementById('searchInput').value.trim().toLowerCase();
             let filtered = allStudents;
 
-            if (currentStatusFilter === 'active') {
+            if (currentStatusFilter === 'online') {
+                filtered = filtered.filter(isStudentOnline);
+            } else if (currentStatusFilter === 'inactive') {
+                filtered = filtered.filter(isStudentInactive);
+            } else if (currentStatusFilter === 'active') {
                 filtered = filtered.filter(s => !s.isBanned && s.is_banned != 1 && (!s.warnings || s.warnings === 0));
             } else if (currentStatusFilter === 'banned') {
                 filtered = filtered.filter(s => s.isBanned || s.is_banned == 1);
@@ -835,12 +977,23 @@
             sorted.forEach((st, idx) => {
                 const isBanned = Boolean(st.isBanned || st.is_banned == 1);
                 const hasWarnings = (st.warnings > 0);
+                const isOnline = isStudentOnline(st);
+                const isInactive = isStudentInactive(st);
                 
                 let statusBadge = `<span class="status-pill-badge active"><i class="fa-solid fa-circle-check"></i> نشط</span>`;
                 if (isBanned) {
                     statusBadge = `<span class="status-pill-badge banned"><i class="fa-solid fa-ban"></i> محظور</span>`;
                 } else if (hasWarnings) {
                     statusBadge = `<span class="status-pill-badge warn"><i class="fa-solid fa-triangle-exclamation"></i> إنذار (${st.warnings}/3)</span>`;
+                }
+
+                let presenceBadge = '';
+                if (isOnline) {
+                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; color:#10B981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:2px 8px; border-radius:8px;"><span class="pulse-dot"></span> متواجد الآن</span>`;
+                } else if (isInactive) {
+                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; color:#D97706; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); padding:2px 8px; border-radius:8px;"><i class="fa-solid fa-user-clock"></i> غائب (${formatLastSeen(st.lastActive)})</span>`;
+                } else {
+                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:var(--text-sub);"><i class="fa-regular fa-clock"></i> ${formatLastSeen(st.lastActive)}</span>`;
                 }
 
                 const scoreBadge = (st.stats && typeof st.stats.averageScore === 'number')
@@ -854,11 +1007,15 @@
                 card.className = "student-item-card";
                 card.innerHTML = `
                     <div class="student-left-wrap">
-                        <div class="avatar-ring">${getInitial(st.fullName)}</div>
+                        <div class="avatar-ring" style="position:relative;">
+                            ${getInitial(st.fullName)}
+                            ${isOnline ? '<span style="position:absolute; bottom:1px; right:1px; width:12px; height:12px; background:#10B981; border:2.5px solid var(--surface); border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.3);"></span>' : ''}
+                        </div>
                         <div class="student-details">
                             <div class="student-name-row">
                                 <span class="index-badge">#${idx + 1}</span>
                                 <span class="student-name" title="${st.fullName}">${st.fullName}</span>
+                                ${presenceBadge}
                                 ${statusBadge}
                                 ${scoreBadge}
                             </div>
@@ -882,7 +1039,7 @@
                         <button class="action-icon-btn edit" onclick="editStudentModal('${escCode}')" title="تعديل بيانات الطالب">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button class="action-icon-btn whatsapp" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}')" title="مراسلة في واتساب مع كود الدخول">
+                        <button class="action-icon-btn whatsapp" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}', ${isInactive})" title="${isInactive ? 'تشجيع ومراسلة الطالب عبر واتساب 💬' : 'مراسلة في واتساب مع كود الدخول'}">
                             <i class="fa-brands fa-whatsapp"></i>
                         </button>
                         <button class="action-icon-btn ${isBanned ? 'unban' : 'ban'}" onclick="toggleStudentBan('${escCode}', ${isBanned})" title="${isBanned ? 'فك حظر الطالب' : 'حظر الطالب'}">
@@ -1227,11 +1384,71 @@
             });
         }
 
-        function sendStudentWhatsApp(phone, name, code) {
+        function sendStudentWhatsApp(phone, name, code, isInactive) {
             const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
             const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
-            const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\nكود الدخول الخاص بك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
-            window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
+            
+            if (isInactive) {
+                Swal.fire({
+                    title: 'مراسلة الطالب عبر واتساب 💬',
+                    text: `اختر صيغة الرسالة المناسبة للطالب (${name}):`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: '🚀 رسالة تشجيع للغائبين',
+                    denyButtonText: '🔑 إرسال كود الدخول فقط',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#10B981',
+                    denyButtonColor: '#2563EB'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        const msg = encodeURIComponent(`السلام عليكم يا بطل ${name || ''} 👋\nاشتقنا لوجودك في منصة الخطة التعليمية 🎓!\nنزلنا محاضرات وشروحات وامتحانات هامة جداً لدفعتك 2027.\nكود دخولك هو: ${code}\nادخل الآن وتابع دروسك وشد حيلك دايماً معاك 🚀\nhttps://elkheta2026.web.app`);
+                        window.open(`https://wa.me/${waNumber}?text=${msg}`, '_blank');
+                    } else if (res.isDenied) {
+                        const msg = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\nكود الدخول الخاص بك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
+                        window.open(`https://wa.me/${waNumber}?text=${msg}`, '_blank');
+                    }
+                });
+            } else {
+                const waMessage = encodeURIComponent(`أهلاً بك يا ${name || 'طالبنا العزيز'} في منصة الخطة 🎓 (دفعة 2027)\nكود الدخول الخاص بك هو: ${code}\nرابط المنصة: https://elkheta2026.web.app`);
+                window.open(`https://wa.me/${waNumber}?text=${waMessage}`, '_blank');
+            }
+        }
+
+        function sendBulkEncouragementNotification() {
+            const inactives = allStudents.filter(isStudentInactive);
+            Swal.fire({
+                title: 'بث تنبيه تشجيعي للغائبين 📢',
+                html: `سيتم إرسال إشعار تذكير وتشجيع عام عبر المنصة إلى <b>${inactives.length}</b> طالب متغيبين عن المنصة منذ أكثر من أسبوع لتحفيزهم على العودة للمذاكرة والمنافسة في لوحة الشرف 🏆.`,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#D97706',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: '🚀 نعم، إرسال التنبيه الآن',
+                cancelButtonText: 'إلغاء'
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    try {
+                        await database.ref('Announcements').push({
+                            title: '🌟 رسالة تذكير وتشجيع من إدارة المنصة',
+                            message: 'أعزاءنا الطلاب، لا تدعوا المحاضرات والامتحانات تتراكم! الوقت ما زال ملككم والفرصة أمامكم للتألق والتكريم في لوحة الشرف 🏆. نحن نؤمن بقدرتكم ودايماً معاكم خطوة بخطوة!',
+                            type: 'encouragement',
+                            timestamp: Date.now(),
+                            sender: 'إدارة الخطة التعليمية'
+                        });
+                        showToast(`تم بث التنبيه التشجيعي بنجاح 🚀`);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم إرسال التنبيه بنجاح ✅',
+                            text: 'سيظهر التنبيه فور فتح المنصة للطلاب لتشجيعهم على استكمال المذاكرة.',
+                            confirmButtonColor: '#10B981',
+                            confirmButtonText: 'ممتاز'
+                        });
+                    } catch(e) {
+                        showToast('حدث خطأ أثناء إرسال التنبيه ❌');
+                    }
+                }
+            });
         }
     </script>
 </body>

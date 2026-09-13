@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary: #2563EB;
@@ -287,9 +288,85 @@
             gap: 6px;
             transition: 0.2s;
         }
-        .btn-action:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
-        .btn-action.danger { color: #DC2626; border-color: #FECACA; background: #FEF2F2; }
-        .btn-action.danger:hover { background: #FEE2E2; }
+        .btn-honor-top {
+            background: linear-gradient(135deg, #D97706, #F59E0B);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-honor-top:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5); }
+
+        /* Honor Roll Modal */
+        .honor-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 11, 20, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+        .honor-modal-backdrop.active { display: flex; }
+
+        .honor-modal-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border-color);
+            border-radius: 28px;
+            max-width: 720px;
+            width: 100%;
+            padding: 26px 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+
+        .honor-list-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .honor-student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            transition: 0.2s;
+        }
+        .honor-student-row:hover { border-color: #F59E0B; }
+
+        .rank-badge-box {
+            width: 36px; height: 36px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900;
+            flex-shrink: 0;
+        }
+        .rank-gold { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .rank-silver { background: rgba(148, 163, 184, 0.2); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.4); }
+        .rank-bronze { background: rgba(202, 138, 4, 0.2); color: #B45309; border: 1px solid rgba(202, 138, 4, 0.4); }
+        .rank-default { background: rgba(255, 255, 255, 0.05); color: var(--text-sub); border: 1px solid var(--border-color); font-size: 13px; }
     </style>
 </head>
 <body>
@@ -314,9 +391,15 @@
                     <i class="fa-solid fa-arrow-right"></i>
                     <span>لوحة الإدارة</span>
                 </a>
-                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
-                    <i class="fa-solid fa-moon" id="themeIcon"></i>
-                </button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" class="btn-honor-top" onclick="openHonorRollModal()" title="لوحة الشرف والأوائل">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>لوحة الشرف للأوائل 🏆</span>
+                    </button>
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="header-title-box">
@@ -384,6 +467,38 @@
             <div style="text-align: center; padding: 40px; color: var(--text-sub); background: var(--surface); border-radius: 20px; border: 1px solid var(--border-color);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
                 <p style="font-weight: 700;">جاري استخراج وتحليل نتائج الطلاب...</p>
+            </div>
+        </div>
+
+        <!-- Honor Roll Modal Backdrop -->
+        <div class="honor-modal-backdrop" id="honorModalBackdrop" onclick="if(event.target === this) closeHonorRollModal()">
+            <div class="honor-modal-card">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 26px;">🏆</span>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 900; color: var(--text-main); margin: 0;">لوحة شرف أوائل الدفعة</h3>
+                            <p style="font-size: 12px; color: var(--text-sub); margin: 2px 0 0;">ترتيب المتفوقين أصحاب أعلى الدرجات على مستوى المنظومة</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeHonorRollModal()" style="background: transparent; border: none; font-size: 20px; color: var(--text-sub); cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- Top Actions: Publish to Students -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 16px; padding: 12px 16px;">
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">
+                        <span>📢 إتاحة لوحة الشرف لشاشات وهواتف الطلاب</span>
+                    </div>
+                    <button type="button" onclick="publishHonorRollToStudents()" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>نشر وتحديث في الرئيسية 🚀</span>
+                    </button>
+                </div>
+
+                <!-- List Container -->
+                <div class="honor-list-wrap" id="honorListItems">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
         </div>
     </main>
@@ -528,6 +643,10 @@
                     </div>
 
                     <div class="action-btns">
+                        <button class="btn-action" onclick="generateCertificatePDF('${res.studentName.replace(/'/g, "\\'")}', '${res.examTitle.replace(/'/g, "\\'")}', ${res.percentage}, '${new Date(res.submittedAt).toLocaleDateString('ar-EG')}')" style="background: rgba(245, 158, 11, 0.12); color: #D97706; border-color: rgba(245, 158, 11, 0.3);">
+                            <i class="fa-solid fa-certificate"></i>
+                            <span>شهادة تقدير 🎓</span>
+                        </button>
                         <button class="btn-action" onclick="sendWhatsAppReport('${res.studentPhone}', '${res.studentName}', '${res.examTitle}', ${res.percentage})">
                             <i class="fa-brands fa-whatsapp" style="color:#10B981;"></i>
                             <span>إرسال النتيجة</span>
@@ -567,6 +686,210 @@
                     Swal.fire('تمت الإعادة!', 'أصبح بإمكان الطالب الدخول للاختبار الآن مجدداً.', 'success');
                 }
             });
+        }
+
+        // ─── Honor Roll Leaderboard Logic ───
+        function getTopHonorStudents() {
+            // Group by studentCode and compute top or best submission
+            const studentBestMap = {};
+            allResults.forEach(r => {
+                if (!studentBestMap[r.studentCode] || r.percentage > studentBestMap[r.studentCode].percentage) {
+                    studentBestMap[r.studentCode] = r;
+                }
+            });
+            const list = Object.values(studentBestMap);
+            list.sort((a, b) => b.percentage - a.percentage || b.submittedAt - a.submittedAt);
+            return list.slice(0, 15);
+        }
+
+        function openHonorRollModal() {
+            const backdrop = document.getElementById('honorModalBackdrop');
+            const listWrap = document.getElementById('honorListItems');
+            if (!backdrop || !listWrap) return;
+
+            const topList = getTopHonorStudents();
+            listWrap.innerHTML = '';
+
+            if (topList.length === 0) {
+                listWrap.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-sub);">
+                        <i class="fa-solid fa-trophy" style="font-size: 32px; opacity: 0.3; margin-bottom: 8px;"></i>
+                        <p style="font-weight: 800;">لا توجد نتائج امتحانات مسجلة حتى الآن.</p>
+                    </div>
+                `;
+            } else {
+                topList.forEach((st, idx) => {
+                    let rankBadge = `<div class="rank-badge-box rank-default">#${idx + 1}</div>`;
+                    if (idx === 0) rankBadge = `<div class="rank-badge-box rank-gold">🥇</div>`;
+                    else if (idx === 1) rankBadge = `<div class="rank-badge-box rank-silver">🥈</div>`;
+                    else if (idx === 2) rankBadge = `<div class="rank-badge-box rank-bronze">🥉</div>`;
+
+                    const row = document.createElement('div');
+                    row.className = 'honor-student-row';
+                    const escName = st.studentName.replace(/'/g, "\\'");
+                    const escTitle = st.examTitle.replace(/'/g, "\\'");
+                    const dateStr = new Date(st.submittedAt).toLocaleDateString('ar-EG');
+
+                    row.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                            ${rankBadge}
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 900; font-size: 14.5px; color: var(--text-main);">${st.studentName}</div>
+                                <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">
+                                    <span>${st.examTitle}</span> • <span style="color: #F59E0B; font-weight: 800;">${st.percentage}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <button type="button" onclick="generateCertificatePDF('${escName}', '${escTitle}', ${st.percentage}, '${dateStr}')" style="background: rgba(245, 158, 11, 0.15); color: #D97706; border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 12px; border-radius: 9px; font-size: 12px; font-weight: 800; font-family: inherit; cursor: pointer;">
+                                <i class="fa-solid fa-certificate"></i> شهادة
+                            </button>
+                            <button type="button" onclick="sendWhatsAppReport('${st.studentPhone}', '${escName}', '${escTitle}', ${st.percentage})" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 10px; border-radius: 9px; font-size: 12px; cursor: pointer;">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                        </div>
+                    `;
+                    listWrap.appendChild(row);
+                });
+            }
+
+            backdrop.classList.add('active');
+        }
+
+        function closeHonorRollModal() {
+            const backdrop = document.getElementById('honorModalBackdrop');
+            if (backdrop) backdrop.classList.remove('active');
+        }
+
+        // ─── Publish Honor Roll to Firebase for Student Home Page ───
+        function publishHonorRollToStudents() {
+            const topList = getTopHonorStudents();
+            if (topList.length === 0) {
+                return Swal.fire('تنبيه', 'لا توجد نتائج مسجلة لنشرها حالياً.', 'info');
+            }
+
+            const payload = {
+                updatedAt: Date.now(),
+                publishedBy: sessionStorage.getItem('adminName') || 'المدير العام',
+                topStudents: topList.slice(0, 10).map((st, i) => ({
+                    rank: i + 1,
+                    studentName: st.studentName,
+                    studentCode: st.studentCode,
+                    examTitle: st.examTitle,
+                    percentage: st.percentage
+                }))
+            };
+
+            database.ref('HonorRoll').set(payload).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم النشر بنجاح! 🏆',
+                    text: 'تم تحديث لوحة الشرف وأصبحت ظاهرة الآن لجميع الطلاب في الصفحة الرئيسية.',
+                    confirmButtonColor: '#10B981',
+                    confirmButtonText: 'ممتاز 🫡'
+                });
+            }).catch(err => {
+                console.error(err);
+                Swal.fire('خطأ', 'تعذر نشر لوحة الشرف، حاول مجدداً.', 'error');
+            });
+        }
+
+        // ─── Royal Certificate PDF Generator ───
+        function generateCertificatePDF(studentName, examTitle, score, dateStr) {
+            Swal.fire({
+                title: 'جاري إنشاء شهادة التقدير... 🎓',
+                html: `جاري تجهيز وثيقة التكريم الرسمية للطالب <b>${studentName}</b>`,
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Create certificate DOM element
+            const certWrapper = document.createElement('div');
+            certWrapper.style.position = 'fixed';
+            certWrapper.style.left = '-9999px';
+            certWrapper.style.top = '0';
+            certWrapper.style.width = '800px';
+            certWrapper.style.background = '#090D1A';
+            certWrapper.style.color = '#F8FAFC';
+            certWrapper.style.padding = '35px';
+            certWrapper.style.boxSizing = 'border-box';
+            certWrapper.style.fontFamily = "'Cairo', sans-serif";
+            certWrapper.style.direction = 'rtl';
+            certWrapper.style.textAlign = 'center';
+
+            certWrapper.innerHTML = `
+                <div style="border: 4px double #F59E0B; border-radius: 24px; padding: 35px 25px; position: relative; background: radial-gradient(circle at center, #111827 0%, #090D1A 100%);">
+                    <!-- Top Ribbon Header -->
+                    <div style="font-size: 13px; font-weight: 800; color: #F59E0B; letter-spacing: 1px; margin-bottom: 8px;">
+                        👑 جُمْهُورِيَّةُ مِصْرَ العَرَبِيَّةِ • مَنَصَّةُ الخُطَّةِ التَّعْلِيمِيَّةِ 2027 🎓
+                    </div>
+                    
+                    <h1 style="font-size: 32px; font-weight: 900; color: #FFFFFF; margin: 10px 0 16px; text-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
+                        ⭐ شَهَادَةُ تَقْدِيرٍ وَتَفَوُّقٍ أَكَادِيمِيّ ⭐
+                    </h1>
+
+                    <p style="font-size: 15px; color: #94A3B8; margin-bottom: 18px; font-weight: 600;">
+                        تَـتَـقَـدَّمُ إِدَارَةُ مَنَصَّةِ الخُطَّةِ التَّعْلِيمِيَّةِ بِأَسْمَى آيَاتِ التَّهَانِي وَالتَّبْرِيكَاتِ إِلَى الطَّالِبِ/ـةِ:
+                    </p>
+
+                    <!-- Student Name Box -->
+                    <div style="display: inline-block; background: rgba(245, 158, 11, 0.12); border: 2px solid #F59E0B; border-radius: 18px; padding: 10px 40px; margin-bottom: 20px;">
+                        <h2 style="font-size: 28px; font-weight: 900; color: #FBBF24; margin: 0;">${studentName}</h2>
+                    </div>
+
+                    <p style="font-size: 15.5px; color: #CBD5E1; line-height: 1.8; margin-bottom: 24px; font-weight: 700; max-width: 650px; margin-left: auto; margin-right: auto;">
+                        تَقْدِيراً لِاجْتِهَادِهِ البَاهِرِ وَتَفَوُّقِهِ المُشَرِّفِ وَحُصُولِهِ عَلَى نِسْبَةِ
+                        <span style="display: inline-block; background: #059669; color: #FFFFFF; font-weight: 900; padding: 2px 12px; border-radius: 10px; font-size: 18px; margin: 0 4px;">${score}%</span>
+                        فِي اخْتِبَارِ: <b style="color: #38BDF8;">(${examTitle})</b>.
+                        <br>
+                        سَائِلِينَ المَوْلَى عَزَّ وَجَلَّ لَهُ دَوَامَ الرِّفْعَةِ وَالتَّأَلُّقِ فِي مَسِيرَتِهِ العِلْمِيَّةِ.
+                    </p>
+
+                    <!-- Certificate Footer -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; padding-top: 20px; border-top: 1px dashed rgba(245, 158, 11, 0.3);">
+                        <div style="text-align: right;">
+                            <div style="font-size: 11px; color: #94A3B8;">تَارِيخُ الاعْتِمَادِ:</div>
+                            <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF;">📅 ${dateStr || new Date().toLocaleDateString('ar-EG')}</div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <div style="width: 58px; height: 58px; border-radius: 50%; border: 2px solid #F59E0B; display: flex; align-items: center; justify-content: center; font-size: 26px; margin: 0 auto 4px; background: rgba(245, 158, 11, 0.1);">
+                                🛡️
+                            </div>
+                            <div style="font-size: 11px; font-weight: 800; color: #F59E0B;">خَتْمُ الاعْتِمَادِ الرَّسْمِيِّ</div>
+                        </div>
+
+                        <div style="text-align: left;">
+                            <div style="font-size: 11px; color: #94A3B8;">رَئِيسُ وَمُؤَسِّسُ المَنَصَّةِ:</div>
+                            <div style="font-size: 14.5px; font-weight: 900; color: #FBBF24;">أَسْتَاذُ عَبْدِ الرَّحْمَنِ 👑</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(certWrapper);
+
+            setTimeout(() => {
+                html2pdf().set({
+                    margin: 8,
+                    filename: `شهادة_تقدير_${studentName.replace(/\s+/g, '_')}_2027.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                }).from(certWrapper).save().then(() => {
+                    document.body.removeChild(certWrapper);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم تصدير الشهادة بنجاح! 🎓',
+                        text: `تم تنزيل شهادة التقدير الخاصة بالطالب (${studentName}) بصيغة PDF عالية الدقة.`,
+                        confirmButtonColor: '#2563EB'
+                    });
+                }).catch(err => {
+                    console.error(err);
+                    document.body.removeChild(certWrapper);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء إنشاء ملف PDF للشهادة.', 'error');
+                });
+            }, 600);
         }
     </script>
 </body>
