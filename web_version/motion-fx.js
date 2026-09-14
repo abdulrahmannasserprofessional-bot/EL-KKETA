@@ -139,29 +139,37 @@
     // ─── 4. Precision Site Assembly Engine (تجميع جزء جزء نقطة نقطة) ───
     function initSiteAssembly() {
         // 1. Stage 1: Structural Foundations & Headers (جزء الهيكل العلوي)
-        const topHeaders = document.querySelectorAll('.dynamic-island-pill, .site-header, .main-topbar, .topbar, .header-island, .app-header');
+        const topHeaders = document.querySelectorAll(
+            '.dynamic-island-pill, .site-header, .main-topbar, .topbar, .header-island, .app-header, .home-topbar, .courses-topbar, .lectures-topbar, .leaderboard-topbar, .chat-topbar, header'
+        );
         topHeaders.forEach((el, idx) => {
             el.classList.add('assemble-unit', `assemble-part-${idx + 1}`);
         });
 
         // 2. Stage 2: Navigation Dock & Sidebars (جزء القائمة والدوك)
-        const navDocks = document.querySelectorAll('.dock-sidebar, .sidebar, .nav-dock, .bottom-nav, .mobile-bottom-bar');
+        const navDocks = document.querySelectorAll(
+            '.dock-sidebar, .sidebar, .nav-dock, .bottom-nav, .mobile-bottom-bar, .mobile-bottom-nav, .desktop-nav-links, .category-tabs'
+        );
         navDocks.forEach((el, idx) => {
             el.classList.add('assemble-unit', `assemble-part-${idx + 2}`);
         });
 
-        // 3. Stage 3: KPI Widgets & Live Counters (أجزاء العدادات الذكية)
-        const kpiCards = document.querySelectorAll('.kpi-card, .stat-chip, .kpi-widget, .summary-metric-card');
+        // 3. Stage 3: Hero Banners & KPI Widgets (أجزاء البانرات والعدادات الذكية)
+        const kpiCards = document.querySelectorAll(
+            '.home-hero-card, .courses-hero-card, .subject-hero, #lectureBannerContainer, .kpi-card, .stat-chip, .kpi-widget, .summary-metric-card, .gamification-strip, .search-container'
+        );
         kpiCards.forEach((el, idx) => {
-            const step = Math.min(idx + 3, 7);
+            const step = Math.min(idx + 3, 8);
             el.classList.add('assemble-unit', `assemble-part-${step}`);
             el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
         });
 
         // 4. Stage 4: Sectors & Main Service Containers (قطاعات المنظومة والخدمات)
-        const sectorHeaders = document.querySelectorAll('.sector-header, .list-section-header, .form-card, .section-title-wrap');
+        const sectorHeaders = document.querySelectorAll(
+            '.sector-header, .list-section-header, .form-card, .section-title-wrap, .dashboard-main-grid, .subjects-grid'
+        );
         sectorHeaders.forEach((el, idx) => {
-            const step = Math.min(idx + 6, 11);
+            const step = Math.min(idx + 6, 12);
             el.classList.add('assemble-unit', `assemble-part-${step}`);
             el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
         });
@@ -169,7 +177,7 @@
         // 5. Stage 5: Cards, Lessons, Students & Buttons (البطاقات والوحدات التفاعلية)
         function registerDynamicAssemblyItems(root = document) {
             const cards = root.querySelectorAll(
-                '.service-card, .student-item-card, .lesson-card-item, .subject-group-card, .exam-box, .card, .course-card, .quiz-card'
+                '.service-card, .student-item-card, .lesson-card-item, .subject-group-card, .exam-box, .card, .course-card, .quiz-card, .dash-card-box, .gamify-card, .resume-learning-card, .subject-card, .lesson-package, .scheduled-premium-card, .podium-card, .rank-row, .user-stat-card'
             );
 
             if ('IntersectionObserver' in window) {
@@ -184,7 +192,7 @@
                             observer.unobserve(entry.target);
                         }
                     });
-                }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
+                }, { threshold: 0.04, rootMargin: '0px 0px -15px 0px' });
 
                 cards.forEach((el, idx) => {
                     if (el._hasAssemblySetup) return;
@@ -199,20 +207,56 @@
                     el.classList.add('motion-reveal', `assemble-part-${(idx % 12) + 1}`);
                 });
             }
+
+            // Also trigger 3D motion enhancement on dynamically rendered icons
+            init3DMotionGraphics(root);
         }
 
         registerDynamicAssemblyItems(document);
 
-        // 6. Observe dynamic container insertions from Firebase (المحاضرات والطلاب عند جلبهم لحظياً)
+        // 6. Observe dynamic container insertions from Firebase (المحاضرات، المواد، والطلاب عند جلبهم لحظياً)
         const dynamicContainers = document.querySelectorAll(
-            '#adminLessonsList, #studentsContainer, #coursesContainer, .lessons-container, .students-grid, .dynamic-cards-list'
+            '#lessonsList, #coursesContainer, .subjects-grid, #coursesGrid, #adminLessonsList, #studentsContainer, .lessons-container, .students-grid, .dynamic-cards-list, #leaderboardList, #podiumContainer, .dashboard-main-grid'
         );
 
         dynamicContainers.forEach(container => {
             const mutObserver = new MutationObserver(() => {
                 registerDynamicAssemblyItems(container);
             });
-            mutObserver.observe(container, { childList: true });
+            mutObserver.observe(container, { childList: true, subtree: false });
+        });
+    }
+
+    // ─── 4B. 3D Motion Graphics & Living Emojis Initializer 🌟 ───
+    function init3DMotionGraphics(root = document) {
+        // Graduation caps
+        const capIcons = root.querySelectorAll('.fa-graduation-cap, .brand-logo-badge i');
+        capIcons.forEach(icon => {
+            if (!icon.classList.contains('motion-3d-cap')) icon.classList.add('motion-3d-cap');
+        });
+
+        // Trophies
+        const trophyIcons = root.querySelectorAll('.fa-trophy, .badge-honor-gold');
+        trophyIcons.forEach(icon => {
+            if (!icon.classList.contains('motion-3d-trophy')) icon.classList.add('motion-3d-trophy');
+        });
+
+        // Books
+        const bookIcons = root.querySelectorAll('.fa-book-open');
+        bookIcons.forEach(icon => {
+            if (!icon.classList.contains('motion-3d-book')) icon.classList.add('motion-3d-book');
+        });
+
+        // Headphones & Audio
+        const audioIcons = root.querySelectorAll('.fa-headphones');
+        audioIcons.forEach(icon => {
+            if (!icon.classList.contains('motion-3d-audio')) icon.classList.add('motion-3d-audio');
+        });
+
+        // Locks
+        const lockBadges = root.querySelectorAll('.scheduled-pulse-dot, .scheduled-tag');
+        lockBadges.forEach(badge => {
+            if (!badge.classList.contains('motion-3d-lock')) badge.classList.add('motion-3d-lock');
         });
     }
 
@@ -437,6 +481,7 @@
         initCardTilt();
         initRippleClicks();
         initSiteAssembly();
+        init3DMotionGraphics();
 
         // Auto launch intro only on home.html on first entry of the session
         const path = window.location.pathname.toLowerCase();
