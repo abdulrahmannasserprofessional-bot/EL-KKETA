@@ -613,9 +613,189 @@
     }
     purgeOldBugButton();
 
+    // ─── 9. ELKHETA ANTI-INSPECTION & DEVTOOLS LOCKDOWN (حماية F12 والأكواد) ───
+    function isCurrentUserAdmin() {
+        try {
+            const u = JSON.parse(localStorage.getItem('user')) || JSON.parse(sessionStorage.getItem('adminUser'));
+            if (u && (u.role === 'admin' || u.isAdmin === true || u.userType === 'admin')) {
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    let lastWarningTime = 0;
+    function showAntiInspectWarning(msg) {
+        const now = Date.now();
+        if (now - lastWarningTime < 3000) return;
+        lastWarningTime = now;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'warning',
+                title: msg,
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                background: '#0F172A',
+                color: '#FFFFFF'
+            });
+        } else if (typeof showToast === 'function') {
+            showToast(msg, 'warning');
+        }
+    }
+
+    let isDevToolsOpen = false;
+    let debuggerTrapInterval = null;
+
+    function handleDevToolsOpen() {
+        if (isCurrentUserAdmin()) return;
+        if (isDevToolsOpen) return;
+        isDevToolsOpen = true;
+
+        showDevToolsLockOverlay();
+        startDebuggerFreeze();
+    }
+
+    function showDevToolsLockOverlay() {
+        if (document.getElementById('elkhetaDevToolsLockOverlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'elkhetaDevToolsLockOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(8, 14, 31, 0.97);
+            backdrop-filter: blur(25px);
+            z-index: 2147483647;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #FFFFFF;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            padding: 24px;
+            box-sizing: border-box;
+        `;
+        overlay.innerHTML = `
+            <style>
+                @keyframes devToolsPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+            </style>
+            <div style="background: rgba(30, 41, 59, 0.9); border: 2px solid #EF4444; border-radius: 26px; padding: 36px 28px; max-width: 480px; width: 90%; box-shadow: 0 0 60px rgba(239, 68, 68, 0.45); animation: devToolsPop 0.3s ease;">
+                <div style="font-size: 54px; margin-bottom: 14px; filter: drop-shadow(0 4px 14px rgba(239, 68, 68, 0.6));">🛡️</div>
+                <h2 style="font-size: 21px; font-weight: 900; margin: 0 0 10px 0; color: #FCA5A5;">تنبيه أمني: أدوات الفحص محظورة</h2>
+                <p style="font-size: 13.5px; color: #CBD5E1; line-height: 1.7; margin: 0 0 18px 0; font-weight: 600;">
+                    نظام الحماية لمنصة <strong>الخطة التعليمية</strong> يمنع فحص الأكواد أو فتح أدوات المطورين (DevTools) لحماية المحتوى وحقوق الملكية الفكرية.
+                </p>
+                <div style="background: rgba(239, 68, 68, 0.15); border: 1px dashed rgba(239, 68, 68, 0.45); border-radius: 14px; padding: 12px; margin-bottom: 22px; font-size: 13px; color: #FCA5A5; font-weight: 700;">
+                    يرجى إغلاق نافذة الفحص (F12) لإعادة فتح المنصة ومتابعة دراستك.
+                </div>
+                <button onclick="window.location.reload();" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #FFFFFF; border: none; padding: 12px 34px; border-radius: 50px; font-size: 14px; font-weight: 800; font-family: 'Cairo', sans-serif; cursor: pointer; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45); transition: 0.2s;">
+                    🔄 إعادة تحميل الصفحة
+                </button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    function startDebuggerFreeze() {
+        if (debuggerTrapInterval) return;
+        debuggerTrapInterval = setInterval(function() {
+            if (isCurrentUserAdmin()) {
+                clearInterval(debuggerTrapInterval);
+                return;
+            }
+            (function() { return false; }['constructor']('debugger')());
+        }, 400);
+    }
+
+    function initAntiInspectionGuard() {
+        if (isCurrentUserAdmin()) return;
+
+        // 1. Block Keyboard Shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U, Ctrl+S)
+        window.addEventListener('keydown', function(e) {
+            if (isCurrentUserAdmin()) return;
+
+            // F12
+            if (e.keyCode === 123 || e.key === 'F12') {
+                e.preventDefault();
+                e.stopPropagation();
+                showAntiInspectWarning("محاولة فتح أدوات المطور (F12) محظورة 🛡️");
+                handleDevToolsOpen();
+                return false;
+            }
+
+            // Ctrl+Shift+I, J, C, K
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (
+                e.key === 'I' || e.key === 'i' ||
+                e.key === 'J' || e.key === 'j' ||
+                e.key === 'C' || e.key === 'c' ||
+                e.key === 'K' || e.key === 'k'
+            )) {
+                e.preventDefault();
+                e.stopPropagation();
+                showAntiInspectWarning("محاولة فحص عناصر المنصة محظورة 🛡️");
+                handleDevToolsOpen();
+                return false;
+            }
+
+            // Ctrl+U (View Source)
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
+                e.preventDefault();
+                e.stopPropagation();
+                showAntiInspectWarning("عرض الكود المصدري محظور 🛡️");
+                return false;
+            }
+
+            // Ctrl+S (Save Page)
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+
+        // 2. Block Right-Click Context Menu (Except on input/textarea for typing)
+        document.addEventListener('contextmenu', function(e) {
+            if (isCurrentUserAdmin()) return;
+            const tag = e.target && e.target.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+            e.preventDefault();
+            showAntiInspectWarning("القائمة المنسدلة وسرقة المحتوى معطلة لحماية حقوق المنصة 🛡️");
+            return false;
+        }, true);
+
+        // 3. Mute Console Output in Production (No token, URL, or data leaks)
+        try {
+            const noop = function() {};
+            window.console.log = noop;
+            window.console.info = noop;
+            window.console.debug = noop;
+            window.console.dir = noop;
+        } catch(e) {}
+
+        // 4. Periodic DevTools Detection Check
+        setInterval(function() {
+            if (isCurrentUserAdmin()) return;
+            const start = performance.now();
+            (function() { return false; }['constructor']('debugger')());
+            const end = performance.now();
+            if (end - start > 100) {
+                handleDevToolsOpen();
+            }
+        }, 1500);
+    }
+
     // تشغيل الحماية الشاملة فور جاهزية الصفحة وقاعدة البيانات
     function startGuards() {
         purgeOldBugButton();
+        initAntiInspectionGuard();
         checkStudentBan();
         ensureFirebase((db) => {
             initMaintenanceGuard(db);
