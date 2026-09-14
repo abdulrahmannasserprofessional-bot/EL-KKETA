@@ -83,32 +83,9 @@
         });
     }
 
-    // ─── 2. Interactive 3D Card Tilt Physics ───
+    // ─── 2. Interactive 3D Card Tilt Physics (Disabled for clean, static UX) ───
     function initCardTilt() {
-        // Do not enable on touch devices to conserve battery & prevent jumpy touch scrolling
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
-
-        const tiltCards = document.querySelectorAll('.service-card, .kpi-card, .subject-card, .stat-chip, .card');
-        
-        tiltCards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                // Max tilt 3.5 degrees
-                const rotateX = ((y - centerY) / centerY) * -3.5;
-                const rotateY = ((x - centerX) / centerX) * 3.5;
-
-                card.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-4px) scale(1.008)`;
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = '';
-            });
-        });
+        // Disabled
     }
 
     // ─── 3. Liquid Ripple Click System ───
@@ -136,128 +113,15 @@
         });
     }
 
-    // ─── 4. Precision Site Assembly Engine (تجميع جزء جزء نقطة نقطة) ───
+    // ─── 4. Site Assembly (Disabled - Static Instant Reveal) ───
     function initSiteAssembly() {
-        // 1. Stage 1: Structural Foundations & Headers (جزء الهيكل العلوي)
-        const topHeaders = document.querySelectorAll(
-            '.dynamic-island-pill, .site-header, .main-topbar, .topbar, .header-island, .app-header, .home-topbar, .courses-topbar, .lectures-topbar, .leaderboard-topbar, .chat-topbar, header'
-        );
-        topHeaders.forEach((el, idx) => {
-            el.classList.add('assemble-unit', `assemble-part-${idx + 1}`);
-        });
-
-        // 2. Stage 2: Navigation Dock & Sidebars (جزء القائمة والدوك)
-        const navDocks = document.querySelectorAll(
-            '.dock-sidebar, .sidebar, .nav-dock, .bottom-nav, .mobile-bottom-bar, .mobile-bottom-nav, .desktop-nav-links, .category-tabs'
-        );
-        navDocks.forEach((el, idx) => {
-            el.classList.add('assemble-unit', `assemble-part-${idx + 2}`);
-        });
-
-        // 3. Stage 3: Hero Banners & KPI Widgets (أجزاء البانرات والعدادات الذكية)
-        const kpiCards = document.querySelectorAll(
-            '.home-hero-card, .courses-hero-card, .subject-hero, #lectureBannerContainer, .kpi-card, .stat-chip, .kpi-widget, .summary-metric-card, .gamification-strip, .search-container'
-        );
-        kpiCards.forEach((el, idx) => {
-            const step = Math.min(idx + 3, 8);
-            el.classList.add('assemble-unit', `assemble-part-${step}`);
-            el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
-        });
-
-        // 4. Stage 4: Sectors & Main Service Containers (قطاعات المنظومة والخدمات)
-        const sectorHeaders = document.querySelectorAll(
-            '.sector-header, .list-section-header, .form-card, .section-title-wrap, .dashboard-main-grid, .subjects-grid'
-        );
-        sectorHeaders.forEach((el, idx) => {
-            const step = Math.min(idx + 6, 12);
-            el.classList.add('assemble-unit', `assemble-part-${step}`);
-            el.style.setProperty('--assemble-base-delay', `${(step * 0.05).toFixed(2)}s`);
-        });
-
-        // 5. Stage 5: Cards, Lessons, Students & Buttons (البطاقات والوحدات التفاعلية)
-        function registerDynamicAssemblyItems(root = document) {
-            const cards = root.querySelectorAll(
-                '.service-card, .student-item-card, .lesson-card-item, .subject-group-card, .exam-box, .card, .course-card, .quiz-card, .dash-card-box, .gamify-card, .resume-learning-card, .subject-card, .lesson-package, .scheduled-premium-card, .podium-card, .rank-row, .user-stat-card'
-            );
-
-            if ('IntersectionObserver' in window) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('motion-reveal');
-                            // Add locked-in precision snap indicator once assembled
-                            setTimeout(() => {
-                                entry.target.classList.add('locked-in');
-                            }, 550);
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.04, rootMargin: '0px 0px -15px 0px' });
-
-                cards.forEach((el, idx) => {
-                    if (el._hasAssemblySetup) return;
-                    el._hasAssemblySetup = true;
-                    const step = (idx % 12) + 1;
-                    el.classList.add(`assemble-part-${step}`);
-                    el.style.setProperty('--assemble-base-delay', `${(step * 0.04).toFixed(2)}s`);
-                    observer.observe(el);
-                });
-            } else {
-                cards.forEach((el, idx) => {
-                    el.classList.add('motion-reveal', `assemble-part-${(idx % 12) + 1}`);
-                });
-            }
-
-            // Also trigger 3D motion enhancement on dynamically rendered icons
-            init3DMotionGraphics(root);
-        }
-
-        registerDynamicAssemblyItems(document);
-
-        // 6. Observe dynamic container insertions from Firebase (المحاضرات، المواد، والطلاب عند جلبهم لحظياً)
-        const dynamicContainers = document.querySelectorAll(
-            '#lessonsList, #coursesContainer, .subjects-grid, #coursesGrid, #adminLessonsList, #studentsContainer, .lessons-container, .students-grid, .dynamic-cards-list, #leaderboardList, #podiumContainer, .dashboard-main-grid'
-        );
-
-        dynamicContainers.forEach(container => {
-            const mutObserver = new MutationObserver(() => {
-                registerDynamicAssemblyItems(container);
-            });
-            mutObserver.observe(container, { childList: true, subtree: false });
-        });
+        const overlay = document.getElementById('elkhetaIntroOverlay');
+        if (overlay) overlay.remove();
     }
 
-    // ─── 4B. 3D Motion Graphics & Living Emojis Initializer 🌟 ───
+    // ─── 4B. 3D Motion Graphics (Disabled for clean, stationary icons) ───
     function init3DMotionGraphics(root = document) {
-        // Graduation caps
-        const capIcons = root.querySelectorAll('.fa-graduation-cap, .brand-logo-badge i');
-        capIcons.forEach(icon => {
-            if (!icon.classList.contains('motion-3d-cap')) icon.classList.add('motion-3d-cap');
-        });
-
-        // Trophies
-        const trophyIcons = root.querySelectorAll('.fa-trophy, .badge-honor-gold');
-        trophyIcons.forEach(icon => {
-            if (!icon.classList.contains('motion-3d-trophy')) icon.classList.add('motion-3d-trophy');
-        });
-
-        // Books
-        const bookIcons = root.querySelectorAll('.fa-book-open');
-        bookIcons.forEach(icon => {
-            if (!icon.classList.contains('motion-3d-book')) icon.classList.add('motion-3d-book');
-        });
-
-        // Headphones & Audio
-        const audioIcons = root.querySelectorAll('.fa-headphones');
-        audioIcons.forEach(icon => {
-            if (!icon.classList.contains('motion-3d-audio')) icon.classList.add('motion-3d-audio');
-        });
-
-        // Locks
-        const lockBadges = root.querySelectorAll('.scheduled-pulse-dot, .scheduled-tag');
-        lockBadges.forEach(badge => {
-            if (!badge.classList.contains('motion-3d-lock')) badge.classList.add('motion-3d-lock');
-        });
+        // Disabled
     }
 
     // ─── 5. Golden Confetti / Celebration Engine ───
@@ -325,54 +189,15 @@
         }
     };
 
-    // ─── 6. Cinematic Assembly Opening Motion (موشن افتتاح وتجميع المنصة 🧩) ───
-    window.playElkhetaIntroMotion = function(force = false) {
-        if (!force && sessionStorage.getItem('elkheta_intro_seen') === 'true') return;
-        
-        let overlay = document.getElementById('elkhetaIntroOverlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.className = 'elkheta-intro-overlay';
-            overlay.id = 'elkhetaIntroOverlay';
-            overlay.innerHTML = `
-                <div class="intro-cyber-grid"></div>
-                <button type="button" class="intro-skip-btn" onclick="window.dismissElkhetaIntro()">تخطي العرض ✕</button>
-                <div class="intro-stage-container">
-                    <div class="intro-shockwave"></div>
-                    <div class="intro-module-block intro-mod-1"><span style="font-size:18px;">📚</span> المحتوى والدروس</div>
-                    <div class="intro-module-block intro-mod-2"><span style="font-size:18px;">📝</span> بنوك الأسئلة والامتحانات</div>
-                    <div class="intro-module-block intro-mod-3"><span style="font-size:18px;">🎧</span> الشرح الصوتي المطور</div>
-                    <div class="intro-module-block intro-mod-4"><span style="font-size:18px;">📊</span> التقارير والذكاء الاصطناعي</div>
-                    <div class="intro-module-block intro-mod-5"><span style="font-size:18px;">🏆</span> لوحة الشرف والأوائل</div>
-                    
-                    <div class="intro-assembled-core">
-                        <div class="intro-logo-badge">🎓</div>
-                        <div class="intro-brand-title">منصة الخطة</div>
-                        <div class="intro-brand-sub">EL KHETA PRO 2027 • المنظومة المتكاملة</div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-        }
-
-        overlay.classList.remove('dismissed');
-        sessionStorage.setItem('elkheta_intro_seen', 'true');
-
-        // Auto dismiss after 3.6s
-        clearTimeout(overlay._dismissTimer);
-        overlay._dismissTimer = setTimeout(() => {
-            window.dismissElkhetaIntro();
-        }, 3600);
+    // ─── 6. Intro Motion (Completely Disabled) ───
+    window.playElkhetaIntroMotion = function() {
+        const overlay = document.getElementById('elkhetaIntroOverlay');
+        if (overlay) overlay.remove();
     };
 
     window.dismissElkhetaIntro = function() {
         const overlay = document.getElementById('elkhetaIntroOverlay');
-        if (overlay) {
-            overlay.classList.add('dismissed');
-            setTimeout(() => {
-                if (overlay.parentElement) overlay.remove();
-            }, 650);
-        }
+        if (overlay) overlay.remove();
     };
 
     // ─── 7. Luxury Elkheta Pro Loader ⏳ (موشن التحميل الاحترافي) ───
@@ -478,21 +303,9 @@
     // ─── Initialize All On DOM Ready ───
     function initAllMotionSystems() {
         initNumberCounters();
-        initCardTilt();
         initRippleClicks();
-        initSiteAssembly();
-        init3DMotionGraphics();
-
-        // Auto launch intro only on home.html on first entry of the session
-        const path = window.location.pathname.toLowerCase();
-        if ((path.endsWith('home.html') || path.endsWith('/') || path.endsWith('index.html')) && !sessionStorage.getItem('elkheta_intro_seen')) {
-            // Slight delay for smooth visual paint
-            setTimeout(() => {
-                if (window.playElkhetaIntroMotion) {
-                    window.playElkhetaIntroMotion();
-                }
-            }, 300);
-        }
+        const overlay = document.getElementById('elkhetaIntroOverlay');
+        if (overlay) overlay.remove();
     }
 
     if (document.readyState === 'loading') {

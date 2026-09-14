@@ -1686,11 +1686,7 @@
                     </button>
                 </div>
 
-                <!-- Dynamic Anti-Piracy Floating Watermark (العلامة المائية المتحركة لحماية المحتوى الأكاديمي) -->
-                <div id="videoFloatingWatermark" style="position:absolute; top:20%; left:20%; z-index:22; pointer-events:none; user-select:none; opacity:0.35; background:rgba(15,23,42,0.65); border:1px solid rgba(255,255,255,0.25); color:#FFFFFF; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; font-family:'Cairo', sans-serif; backdrop-filter:blur(3px); transition:top 1.5s ease, left 1.5s ease, opacity 0.8s ease; display:flex; align-items:center; gap:6px; text-shadow:0 1px 3px rgba(0,0,0,0.8);">
-                    <i class="fa-solid fa-graduation-cap" style="color:#60A5FA;"></i>
-                    <span id="watermarkStudentText">منصة الخطة التعليمية 🔒</span>
-                </div>
+
 
                 <!-- Luxury Video Cover Banner with 3D Mockup & Elkheta Branding -->
                 <div id="videoFixedBanner" onclick="startVideoAndHideBanner()" class="video-fixed-banner-luxury" style="display:none;">
@@ -4395,8 +4391,7 @@
                 }
             }
 
-            // Start Anti-Piracy Floating Watermark for Student
-            try { startVideoWatermark(); } catch(e){}
+
 
             if (youtubeId) {
                 // 100% White-Label YouTube Player (controls=0, no branding, no copy-link, top & bottom mobile masks)
@@ -4599,38 +4594,7 @@
                 videoBanner.style.opacity = '1';
             }
             isVideoPlayRequested = false;
-            try { stopVideoWatermark(); } catch(e){}
             document.getElementById('playerModal').classList.remove('active');
-        }
-
-        // ─── Anti-Piracy Dynamic Watermark & Tab Switch Blur Guard ───
-        let watermarkInterval = null;
-
-        function startVideoWatermark() {
-            const wm = document.getElementById('videoFloatingWatermark');
-            const txt = document.getElementById('watermarkStudentText');
-            if (!wm || !txt) return;
-
-            const stName = (user && (user.fullName || user.name)) || 'طالب منصة الخطة';
-            const stCode = (user && (user.studentCode || user.code || user.phone)) || 'ST-2027';
-            txt.textContent = `${stName} • ${stCode} • منصة الخطة 🔒`;
-
-            if (watermarkInterval) clearInterval(watermarkInterval);
-            watermarkInterval = setInterval(() => {
-                const randomTop = Math.floor(Math.random() * 65) + 14; // 14% to 79%
-                const randomLeft = Math.floor(Math.random() * 60) + 12; // 12% to 72%
-                const randomOpacity = (Math.random() * 0.22 + 0.26).toFixed(2);
-                wm.style.top = randomTop + '%';
-                wm.style.left = randomLeft + '%';
-                wm.style.opacity = randomOpacity;
-            }, 3500);
-        }
-
-        function stopVideoWatermark() {
-            if (watermarkInterval) {
-                clearInterval(watermarkInterval);
-                watermarkInterval = null;
-            }
         }
 
         // Anti-Screen Recording & Anti-Tab Switch Guard
