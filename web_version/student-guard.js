@@ -616,9 +616,36 @@
     // ─── 9. ELKHETA ANTI-INSPECTION & DEVTOOLS LOCKDOWN (حماية F12 والأكواد) ───
     function isCurrentUserAdmin() {
         try {
-            const u = JSON.parse(localStorage.getItem('user')) || JSON.parse(sessionStorage.getItem('adminUser'));
-            if (u && (u.role === 'admin' || u.isAdmin === true || u.userType === 'admin')) {
+            // Check if on an admin page
+            const path = (window.location.pathname || '').toLowerCase();
+            if (path.includes('admin-') || path.includes('admin.html') || path.includes('admin/')) {
                 return true;
+            }
+
+            // Direct admin flags in storage
+            if (localStorage.getItem('isAdmin') === 'true' || sessionStorage.getItem('isAdmin') === 'true') return true;
+            if (localStorage.getItem('adminRole') || sessionStorage.getItem('adminRole')) return true;
+            if (localStorage.getItem('isMysqlAdmin') === 'true') return true;
+            if (localStorage.getItem('adminLoggedIn') === 'true') return true;
+            if (localStorage.getItem('adminUser') || sessionStorage.getItem('adminUser')) return true;
+
+            // User object inspection
+            const uStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (uStr) {
+                const u = JSON.parse(uStr);
+                if (u && (
+                    u.role === 'admin' ||
+                    u.role === 'master' ||
+                    u.role === 'superadmin' ||
+                    u.role === 'teacher' ||
+                    u.isAdmin === true ||
+                    u.userType === 'admin' ||
+                    u.type === 'admin' ||
+                    u.code === 'admin' ||
+                    u.studentCode === 'admin'
+                )) {
+                    return true;
+                }
             }
         } catch(e) {}
         return false;
@@ -717,7 +744,7 @@
     function initAntiInspectionGuard() {
         if (isCurrentUserAdmin()) return;
 
-        // 1. Block Keyboard Shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U, Ctrl+S)
+        // 1. Block Keyboard Shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U, Ctrl+S)
         window.addEventListener('keydown', function(e) {
             if (isCurrentUserAdmin()) return;
 
@@ -760,27 +787,6 @@
             }
         }, true);
 
-        // Anti-PrintScreen & Clipboard Eraser
-        window.addEventListener('keyup', function(e) {
-            if (isCurrentUserAdmin()) return;
-            if (e.key === 'PrintScreen' || e.keyCode === 44) {
-                try {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText('');
-                    }
-                } catch(err){}
-                showAntiInspectWarning("⚠️ التقاط لقطات الشاشة محظور لحماية المحتوى!");
-                triggerScreenBlackout();
-            }
-        });
-
-        function triggerScreenBlackout() {
-            const b = document.createElement('div');
-            b.style.cssText = "position:fixed;inset:0;background:#000000;z-index:2147483646;opacity:1;transition:opacity 0.6s ease;pointer-events:none;";
-            document.body.appendChild(b);
-            setTimeout(() => { b.style.opacity = '0'; setTimeout(() => b.remove(), 600); }, 600);
-        }
-
         // 2. Block Right-Click Context Menu (Except on input/textarea for typing)
         document.addEventListener('contextmenu', function(e) {
             if (isCurrentUserAdmin()) return;
@@ -813,7 +819,9 @@
         }, 1500);
     }
 
-    // ─── 10. SINGLE ACTIVE SESSION LOCK (منع مشاركة الحسابات على جهازين) ───
+    // ─── 10. MULTI-DEVICE SESSION MANAGER (سماح حتى 3 أجهزة متزامنة لكل طالب ومنع الزيادة) ───
+    const MAX_ALLOWED_DEVICES = 3;
+
     function initSingleSessionLock(db) {
         if (isCurrentUserAdmin()) return;
         let u = null;
@@ -824,22 +832,61 @@
         const stCode = rawCode.toString().trim().replace(/[.#$\[\]]/g, '_');
         if (!stCode) return;
 
-        let sessionToken = sessionStorage.getItem('elkheta_active_session_token');
-        if (!sessionToken) {
-            sessionToken = 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
-            sessionStorage.setItem('elkheta_active_session_token', sessionToken);
-            db.ref(`ActiveSessions/${stCode}`).set({
-                token: sessionToken,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                device: navigator.userAgent || ''
-            });
+        // استخدام معرّف فريد للجهاز في localStorage حتى تشترك كل التبويبات في نفس الجهاز
+        let deviceToken = localStorage.getItem('elkheta_device_session_token');
+        if (!deviceToken) {
+            deviceToken = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+            localStorage.setItem('elkheta_device_session_token', deviceToken);
         }
 
-        // مراقبة فورية: لو فتح من لابتوب أو موبايل تاني، يطرد الجهاز الأول فوراً
-        db.ref(`ActiveSessions/${stCode}/token`).on('value', snap => {
-            if (snap.exists()) {
-                const liveToken = snap.val();
-                if (liveToken && liveToken !== sessionToken) {
+        const devRef = db.ref(`ActiveSessions/${stCode}/devices/${deviceToken}`);
+
+        // تسجيل نبضة نشاط الجهاز (Heartbeat)
+        function updateHeartbeat() {
+            try {
+                devRef.update({
+                    token: deviceToken,
+                    lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                    device: (window.getDeviceName ? window.getDeviceName() : navigator.userAgent || 'Web Browser')
+                });
+            } catch(e){}
+        }
+        updateHeartbeat();
+        const heartbeatInterval = setInterval(updateHeartbeat, 60000);
+
+        // مراقبة فورية لعدد الأجهزة النشطة للطالب (حتى 3 أجهزة مسموح بها معاً)
+        db.ref(`ActiveSessions/${stCode}/devices`).on('value', snap => {
+            if (isCurrentUserAdmin()) return;
+            if (!snap.exists()) return;
+
+            const devices = snap.val();
+            if (!devices || typeof devices !== 'object') return;
+
+            const now = Date.now();
+            const activeList = [];
+
+            Object.keys(devices).forEach(key => {
+                const dev = devices[key];
+                if (!dev) return;
+                const lastSeen = dev.lastSeen || 0;
+                // تنظيف الأجهزة الخاملة التي لم تفتح منذ أكثر من 48 ساعة
+                if (now - lastSeen > 48 * 60 * 60 * 1000) {
+                    try { db.ref(`ActiveSessions/${stCode}/devices/${key}`).remove(); } catch(e){}
+                } else {
+                    activeList.push({ token: key, lastSeen: lastSeen });
+                }
+            });
+
+            // لو عدد الأجهزة النشطة الفعلي أكبر من 3 (مثلاً 4 أجهزة أو أكثر)
+            if (activeList.length > MAX_ALLOWED_DEVICES) {
+                // ترتيب الأجهزة حسب الأحدث نشاطاً
+                activeList.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+                // الاحتفاظ بأحدث 3 أجهزة
+                const allowedTokens = activeList.slice(0, MAX_ALLOWED_DEVICES).map(d => d.token);
+
+                // إذا كان هذا الجهاز الحالي خارج قائمة الـ 3 المسموح بها، يتم إنهاء جلسته
+                if (!allowedTokens.includes(deviceToken)) {
+                    clearInterval(heartbeatInterval);
                     handleConcurrentLoginDetected();
                 }
             }
@@ -847,6 +894,7 @@
     }
 
     function handleConcurrentLoginDetected() {
+        if (isCurrentUserAdmin()) return;
         localStorage.removeItem('user');
         sessionStorage.removeItem('user');
         if (document.getElementById('elkhetaConcurrentLockOverlay')) return;
@@ -873,9 +921,10 @@
         overlay.innerHTML = `
             <div style="background: rgba(30, 41, 59, 0.95); border: 2px solid #EF4444; border-radius: 26px; padding: 36px 26px; max-width: 480px; width: 90%; box-shadow: 0 0 60px rgba(239, 68, 68, 0.45);">
                 <div style="font-size: 52px; margin-bottom: 12px;">🚫</div>
-                <h2 style="font-size: 20px; font-weight: 900; color: #FCA5A5; margin: 0 0 10px 0;">تم تسجيل الدخول من جهاز آخر</h2>
+                <h2 style="font-size: 20px; font-weight: 900; color: #FCA5A5; margin: 0 0 10px 0;">تجاوز الحد الأقصى للأجهزة (3 أجهزة)</h2>
                 <p style="font-size: 13.5px; color: #CBD5E1; line-height: 1.7; margin: 0 0 20px 0; font-weight: 600;">
-                    تم إنهاء هذه الجلسة تلقائياً لحماية حسابك، لأن سياسة منصة <strong>الخطة</strong> تمنع فتح الحساب في جهازين في نفس الوقت لمنع مشاركة الحسابات.
+                    تم إنهاء هذه الجلسة لأنك قمت بفتح الحساب على أكثر من 3 أجهزة في وقت واحد (مثل الهاتف والكمبيوتر والتابلت).<br>
+                    تسمح منصة <strong>الخطة</strong> باستخدام حتى 3 أجهزة لنفس الطالب، ولمنع مشاركة الحسابات يتم قفل الأجهزة الإضافية.
                 </p>
                 <button onclick="location.href='index.html'" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #FFFFFF; border: none; padding: 12px 34px; border-radius: 50px; font-size: 14px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45);">
                     العودة لتسجيل الدخول 🔑
