@@ -496,9 +496,6 @@
                 <button type="button" class="elkheta-quick-btn" onclick="window.showPwaInstallModal && window.showPwaInstallModal()">
                     📲 التطبيق
                 </button>
-                <button type="button" class="elkheta-quick-btn" onclick="if(window.playElkhetaIntroMotion) window.playElkhetaIntroMotion(true);" title="تشغيل موشن تجميع المنصة">
-                    🎬 تجميع المنصة
-                </button>
                 <a href="notifications.html" class="elkheta-quick-btn" title="مركز التنبيهات">
                     🔔 رسائلي
                 </a>
