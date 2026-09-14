@@ -760,6 +760,27 @@
             }
         }, true);
 
+        // Anti-PrintScreen & Clipboard Eraser
+        window.addEventListener('keyup', function(e) {
+            if (isCurrentUserAdmin()) return;
+            if (e.key === 'PrintScreen' || e.keyCode === 44) {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText('');
+                    }
+                } catch(err){}
+                showAntiInspectWarning("⚠️ التقاط لقطات الشاشة محظور لحماية المحتوى!");
+                triggerScreenBlackout();
+            }
+        });
+
+        function triggerScreenBlackout() {
+            const b = document.createElement('div');
+            b.style.cssText = "position:fixed;inset:0;background:#000000;z-index:2147483646;opacity:1;transition:opacity 0.6s ease;pointer-events:none;";
+            document.body.appendChild(b);
+            setTimeout(() => { b.style.opacity = '0'; setTimeout(() => b.remove(), 600); }, 600);
+        }
+
         // 2. Block Right-Click Context Menu (Except on input/textarea for typing)
         document.addEventListener('contextmenu', function(e) {
             if (isCurrentUserAdmin()) return;
@@ -792,6 +813,78 @@
         }, 1500);
     }
 
+    // ─── 10. SINGLE ACTIVE SESSION LOCK (منع مشاركة الحسابات على جهازين) ───
+    function initSingleSessionLock(db) {
+        if (isCurrentUserAdmin()) return;
+        let u = null;
+        try { u = JSON.parse(localStorage.getItem('user')); } catch(e){}
+        if (!u || (!u.studentCode && !u.student_code && !u.code)) return;
+
+        const rawCode = u.studentCode || u.student_code || u.code || '';
+        const stCode = rawCode.toString().trim().replace(/[.#$\[\]]/g, '_');
+        if (!stCode) return;
+
+        let sessionToken = sessionStorage.getItem('elkheta_active_session_token');
+        if (!sessionToken) {
+            sessionToken = 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+            sessionStorage.setItem('elkheta_active_session_token', sessionToken);
+            db.ref(`ActiveSessions/${stCode}`).set({
+                token: sessionToken,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                device: navigator.userAgent || ''
+            });
+        }
+
+        // مراقبة فورية: لو فتح من لابتوب أو موبايل تاني، يطرد الجهاز الأول فوراً
+        db.ref(`ActiveSessions/${stCode}/token`).on('value', snap => {
+            if (snap.exists()) {
+                const liveToken = snap.val();
+                if (liveToken && liveToken !== sessionToken) {
+                    handleConcurrentLoginDetected();
+                }
+            }
+        });
+    }
+
+    function handleConcurrentLoginDetected() {
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+        if (document.getElementById('elkhetaConcurrentLockOverlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'elkhetaConcurrentLockOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(8, 14, 31, 0.98);
+            z-index: 2147483647;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            direction: rtl;
+            font-family: 'Cairo', sans-serif;
+            color: #FFFFFF;
+            backdrop-filter: blur(20px);
+        `;
+        overlay.innerHTML = `
+            <div style="background: rgba(30, 41, 59, 0.95); border: 2px solid #EF4444; border-radius: 26px; padding: 36px 26px; max-width: 480px; width: 90%; box-shadow: 0 0 60px rgba(239, 68, 68, 0.45);">
+                <div style="font-size: 52px; margin-bottom: 12px;">🚫</div>
+                <h2 style="font-size: 20px; font-weight: 900; color: #FCA5A5; margin: 0 0 10px 0;">تم تسجيل الدخول من جهاز آخر</h2>
+                <p style="font-size: 13.5px; color: #CBD5E1; line-height: 1.7; margin: 0 0 20px 0; font-weight: 600;">
+                    تم إنهاء هذه الجلسة تلقائياً لحماية حسابك، لأن سياسة منصة <strong>الخطة</strong> تمنع فتح الحساب في جهازين في نفس الوقت لمنع مشاركة الحسابات.
+                </p>
+                <button onclick="location.href='index.html'" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #FFFFFF; border: none; padding: 12px 34px; border-radius: 50px; font-size: 14px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45);">
+                    العودة لتسجيل الدخول 🔑
+                </button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
     // تشغيل الحماية الشاملة فور جاهزية الصفحة وقاعدة البيانات
     function startGuards() {
         purgeOldBugButton();
@@ -800,6 +893,7 @@
         ensureFirebase((db) => {
             initMaintenanceGuard(db);
             checkStudentDeviceAuth(db);
+            initSingleSessionLock(db);
         });
     }
 
