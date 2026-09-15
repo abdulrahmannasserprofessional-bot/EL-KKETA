@@ -1160,6 +1160,23 @@
                     </div>
                     <div class="card-arrow"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
+
+                <!-- 3. One-Click Full Database Backup -->
+                <div class="service-card" onclick="exportFullDatabaseBackup()">
+                    <div class="card-start">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #059669, #10B981);">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-title-row">
+                                <span class="card-heading">نسخة احتياطية شاملة لقاعدة البيانات</span>
+                                <span class="card-badge badge-green" style="background: rgba(16,185,129,0.18); color:#34D399; border:1px solid rgba(52,211,153,0.35);">حماية 💾</span>
+                            </div>
+                            <div class="card-subtext">تصدير وتنزيل ملف JSON كامل لكافة بيانات الطلاب والنتائج والأكواد والمحاضرات بنقرة واحدة</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow"><i class="fa-solid fa-download"></i></div>
+                </div>
             </div>
 
             <!-- Footer -->
@@ -1464,6 +1481,58 @@
                 }
             }
         });
+
+        // ─── One-Click Full Database Backup (تصدير نسخة احتياطية كاملة) ───
+        async function exportFullDatabaseBackup() {
+            try {
+                Swal.fire({
+                    title: 'جاري تجهيز النسخة الاحتياطية...',
+                    text: 'يتم سحب وتجميع كافة بيانات المنظومة بأمان، يرجى الانتظار ثوانٍ معدودة.',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                const nodes = ['Students', 'Lectures', 'Subjects', 'Chapters', 'Exams', 'ActivationCodes', 'Settings', 'Leaderboard', 'Community'];
+                const backupData = {
+                    exportDate: new Date().toISOString(),
+                    exportedBy: localStorage.getItem('adminName') || 'المدير العام',
+                    system: 'ELKHETA Education Platform',
+                    version: '2027.PRO'
+                };
+
+                for (const node of nodes) {
+                    try {
+                        const snap = await database.ref(node).once('value');
+                        backupData[node] = snap.val() || {};
+                    } catch(e) {
+                        console.warn(`Could not export node ${node}:`, e);
+                    }
+                }
+
+                const jsonStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const dlAnchor = document.createElement('a');
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0, 10);
+                dlAnchor.href = url;
+                dlAnchor.download = `elkheta-full-backup-${dateStr}.json`;
+                document.body.appendChild(dlAnchor);
+                dlAnchor.click();
+                dlAnchor.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم تنزيل النسخة الاحتياطية بنجاح 🎉',
+                    text: `تم حفظ نسخة كاملة من قاعدة البيانات على جهازك باسم elkheta-full-backup-${dateStr}.json`,
+                    confirmButtonText: 'ممتاز',
+                    confirmButtonColor: '#10B981'
+                });
+            } catch(err) {
+                Swal.fire('خطأ في النسخ الاحتياطي', err.message || 'حدث خطأ أثناء سحب البيانات', 'error');
+            }
+        }
     </script>
     <script src="custom-dialogs.js"></script>
     <script src="pwa-installer.js"></script>

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>امتحان - منصة العلم</title>
+    <title>الامتحانات الإلكترونية - منصة الخطة التعليمية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="motion-fx.css?v=2.0">
     <script src="motion-fx.js?v=2.0" defer></script>
@@ -39,6 +39,14 @@
             margin: 0;
             padding: 0;
             font-size: 16px;
+        }
+
+        /* Anti-Cheat & Anti-Copy Protection */
+        .container, .question-card, .options-grid, .matching-container, #questionText, #explanationText {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
         }
 
         /* Header */
@@ -1359,9 +1367,71 @@
                 console.error("Error saving exam result:", e);
             }
 
+            isExamFinished = true;
+
             // Show Certificate & Detailed Review!
             showDetailedReport(correctCount, wrongCount, autoCount);
         }
+
+        // ─── Exam Integrity & Anti-Cheat System (مراقبة الغش وتبديل النوافذ) ───
+        let tabViolationsCount = 0;
+        let isExamFinished = false;
+
+        document.addEventListener('visibilitychange', function() {
+            if (isExamFinished || !questions || questions.length === 0) return;
+
+            if (document.hidden) {
+                tabViolationsCount++;
+                if (tabViolationsCount === 1) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '⚠️ تنبيه أمني: مغادرة صفحة الامتحان محظورة!',
+                            text: 'تم رصد الخروج من صفحة الامتحان. يُرجى التركيز في إجابتك، تكرار هذا التصرف سيؤدي إلى إنهاء وتسليم الامتحان تلقائياً لمنع الغش.',
+                            confirmButtonText: 'فهمت، العودة للامتحان',
+                            confirmButtonColor: '#4F46E5',
+                            allowOutsideClick: false
+                        });
+                    }
+                } else if (tabViolationsCount === 2) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '🚨 إنذار نهائي: محاولة غش محتملة!',
+                            text: 'هذا هو الإنذار الأخير! إذا غادرت صفحة الامتحان مرة أخرى سيتم قفل الامتحان فوراً واحتساب درجتك الحالية فقط.',
+                            confirmButtonText: 'الاستمرار في الامتحان فوراً',
+                            confirmButtonColor: '#DC2626',
+                            allowOutsideClick: false
+                        });
+                    }
+                } else if (tabViolationsCount >= 3) {
+                    isExamFinished = true;
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '🚫 تم إنهاء وتسليم الامتحان تلقائياً',
+                            text: 'تم قفل الامتحان وتسليمه بسبب تكرار مغادرة الصفحة لمواقع أو تبويبات خارجية.',
+                            confirmButtonText: 'عرض النتيجة وتقرير الامتحان',
+                            confirmButtonColor: '#1E3A8A',
+                            allowOutsideClick: false
+                        }).then(() => {
+                            finishQuiz();
+                        });
+                    } else {
+                        finishQuiz();
+                    }
+                }
+            }
+        });
+
+        // Block right click inside exam area
+        document.addEventListener('contextmenu', function(e) {
+            const container = document.querySelector('.container');
+            if (container && container.contains(e.target)) {
+                e.preventDefault();
+                return false;
+            }
+        });
 
         // Init
         fetchQuestions();
