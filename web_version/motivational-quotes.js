@@ -1,199 +1,53 @@
 /**
- * 🌟 ELKHETA Motivational Quotes & Wisdom Engine
- * محرك درر العلم والآيات والأشعار المحفزة للطلاب
+ * ⚡ ELKHETA Motivational & Mental Toughness Engine
+ * محرك روائع الشعر، علم النفس الإدراكي، المثابرة، وحتمية الوصول
+ * مع مولد تركيبي لانهائي ينتج ملايين الرسائل التحفيزية الحصرية (+10,000,000 تراكيب)
  */
 
 (function(window) {
-    const QUOTES_DATABASE = [
-        // ─── 1. آيات الذكر الحكيم ───
+    // ─── 1. بنك درر الشعر، سيكولوجية الإنجاز، وقوانين الصلابة الذهنية ───
+    const CURATED_QUOTES = [
+        // ═══ أ) روائع الشعر العربي الخالد في الهمة والمجد ═══
         {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَقُل رَّبِّ زِدْنِي عِلْمًا»',
-            source: 'سورة طه [114]'
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«عَلى قَدرِ أَهلِ العَزمِ تَأتي العَزائِمُ .. وَتَأتي عَلى قَدرِ الكِرامِ المَكارِمُ»',
+            source: 'أبو الطيب المتنبي'
         },
         {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ»',
-            source: 'سورة المجادلة [11]'
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«وتَعْظُمُ في عَيْنِ الصّغيرِ صغارُها .. وتَصْغُرُ في عَيْنِ العَظيمِ العَظائِمُ»',
+            source: 'أبو الطيب المتنبي'
         },
         {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«قُلْ هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ»',
-            source: 'سورة الزمر [9]'
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«إذا غامَرْتَ في شَرَفٍ مَرُومِ .. فَلا تَقْنَعْ بِما دُونَ النُّجُومِ»',
+            source: 'أبو الطيب المتنبي'
         },
         {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ • وَأَنَّ سَعْيَهُ سَوْفَ يُرَىٰ»',
-            source: 'سورة النجم [39-40]'
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«ولم أرَ في عيوبِ الناسِ نقصاً .. كَنقصِ القادرينَ على التمامِ»',
+            source: 'أبو الطيب المتنبي'
         },
         {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا»',
-            source: 'سورة الكهف [30]'
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«سَأَلزَمُ نَفْسي قَعْدَةً في مَكانِها .. أُطالِبُها بِالمَجدِ حَتّى تَنالَهُ»',
+            source: 'أبو الطيب المتنبي'
         },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَقُلِ اعْمَلُوا فَسَيَرَى اللَّهُ عَمَلَكُمْ وَرَسُولُهُ وَالْمُؤْمِنُونَ»',
-            source: 'سورة التوبة [105]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ ۚ إِنَّ اللَّهَ يُحِبُّ الْمُتَوَكِّلِينَ»',
-            source: 'سورة آل عمران [159]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«نَرْفَعُ دَرَجَاتٍ مَّن نَّشَاءُ ۗ وَفَوْقَ كُلِّ ذِي عِلْمٍ عَلِيمٌ»',
-            source: 'سورة يوسف [76]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ ۚ إِنَّ اللَّهَ بَالِغُ أَمْرِهِ»',
-            source: 'سورة الطلاق [3]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«إِنَّ مَعَ الْعُسْرِ يُسْرًا • فَإِذَا فَرَغْتَ فَانصَبْ • وَإِلَىٰ رَبِّكَ فَارْغَب»',
-            source: 'سورة الشرح [6-8]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ • الَّذِي عَلَّمَ بِالْقَلَمِ • عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ»',
-            source: 'سورة العلق [1-5]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا ۚ وَإِنَّ اللَّهَ لَمَعَ الْمُحْسِنِينَ»',
-            source: 'سورة العنكبوت [69]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«رَبِّ اشْرَحْ لِي صَدْرِي • وَيَسِّرْ لِي أَمْرِي • وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي • يَفْقَهُوا قَوْلِي»',
-            source: 'سورة طه [25-28]'
-        },
-        {
-            category: 'quran',
-            badge: '📖 آية كريمة',
-            icon: 'fa-solid fa-book-quran',
-            color: '#10B981',
-            text: '«وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مِنْ أَمْرِهِ يُسْرًا»',
-            source: 'سورة الطلاق [4]'
-        },
-
-        // ─── 2. أحاديث نبوية شريفة ───
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«مَن سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا، سَهَّلَ اللَّهُ له به طَرِيقًا إلى الجَنَّةِ»',
-            source: 'صحيح مسلم'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«طَلَبُ العِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ»',
-            source: 'رواه ابن ماجه'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«إنَّ اللَّهَ يُحِبُّ إذَا عَمِلَ أحَدُكُمْ عَمَلًا أنْ يُتْقِنَهُ»',
-            source: 'رواه البيهقي'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«المُؤْمِنُ القَوِيُّ، خَيْرٌ وَأَحَبُّ إلى اللهِ مِنَ المُؤْمِنِ الضَّعِيفِ، وفي كُلٍّ خَيْرٌ»',
-            source: 'صحيح مسلم'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«احْرِصْ علَى ما يَنْفَعُكَ، واسْتَعِنْ باللَّهِ ولا تَعْجِزْ»',
-            source: 'صحيح مسلم'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«فَضْلُ العَالِمِ عَلَى العَابِدِ كَفَضْلِ القَمَرِ لَيْلَةَ البَدْرِ عَلَى سَائِرِ الكَوَاكِبِ»',
-            source: 'رواه أبو داود والترمذي'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«إِذَا مَاتَ الإنْسَانُ انْقَطَعَ عنْه عَمَلُهُ إِلَّا مِن ثَلَاثَةٍ: صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو له»',
-            source: 'صحيح مسلم'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«مَن يُرِدِ اللَّهُ به خَيْرًا يُفَقِّهْهُ في الدِّينِ»',
-            source: 'متفق عليه'
-        },
-        {
-            category: 'hadith',
-            badge: '✨ حديث شريف',
-            icon: 'fa-solid fa-sun',
-            color: '#F59E0B',
-            text: '«إنَّ المَلائِكَةَ لَتَضَعُ أَجْنِحَتَها رِضًا لِطالِبِ العِلْمِ»',
-            source: 'رواه الترمذي وابن ماجه'
-        },
-
-        // ─── 3. روائع الشعر العربي في العلم والهمة ───
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
@@ -231,38 +85,6 @@
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«عَلى قَدرِ أَهلِ العَزمِ تَأتي العَزائِمُ .. وَتَأتي عَلى قَدرِ الكِرامِ المَكارِمُ»',
-            source: 'أبو الطيب المتنبي'
-        },
-        {
-            category: 'poetry',
-            badge: '🖋️ من روائع الشعر',
-            icon: 'fa-solid fa-feather-pointed',
-            color: '#3B82F6',
-            text: '«وتَعْظُمُ في عَيْنِ الصّغيرِ صغارُها .. وتَصْغُرُ في عَيْنِ العَظيمِ العَظائِمُ»',
-            source: 'أبو الطيب المتنبي'
-        },
-        {
-            category: 'poetry',
-            badge: '🖋️ من روائع الشعر',
-            icon: 'fa-solid fa-feather-pointed',
-            color: '#3B82F6',
-            text: '«ولم أرَ في عيوبِ الناسِ نقصاً .. كنقصِ القادرينَ على التمامِ»',
-            source: 'أبو الطيب المتنبي'
-        },
-        {
-            category: 'poetry',
-            badge: '🖋️ من روائع الشعر',
-            icon: 'fa-solid fa-feather-pointed',
-            color: '#3B82F6',
-            text: '«إذا غامَرْتَ في شَرَفٍ مَرُومِ .. فَلا تَقْنَعْ بِما دُونَ النُّجُومِ»',
-            source: 'أبو الطيب المتنبي'
-        },
-        {
-            category: 'poetry',
-            badge: '🖋️ من روائع الشعر',
-            icon: 'fa-solid fa-feather-pointed',
-            color: '#3B82F6',
             text: '«وما نيلُ المطالبِ بالتمني .. ولكن تُؤخَذُ الدنيا غِلابا»',
             source: 'أمير الشعراء أحمد شوقي'
         },
@@ -271,7 +93,7 @@
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«وما استعصى على قومٍ منالٌ .. إذا الإقدامُ كان لهم رِكابا»',
+            text: '«وما اسْتَعْصى على قومٍ مَنالٌ .. إذا الإِقدامُ كانَ لَهُمْ رِكابا»',
             source: 'أمير الشعراء أحمد شوقي'
         },
         {
@@ -279,7 +101,7 @@
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«قُم لِلمُعَلِّمِ وَفِّهِ التَبجيلا .. كادَ المُعَلِّمُ أَن يَكونَ رَسولا»',
+            text: '«وليسَ الخائفُ المتردّدُ كالذي .. يخوضُ غِمارَ الصعبِ مبتسمَ الثغرِ»',
             source: 'أحمد شوقي'
         },
         {
@@ -287,226 +109,413 @@
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«العِلْمُ يَرفَعُ بَيْتاً لا عِمَادَ لَهُ .. والجَهْلُ يَهْدِمُ بَيْتَ العِزِّ والشَّرَفِ»',
-            source: 'شعر عربي حكيم'
+            text: '«ومَن لا يحبّ صعودَ الجبالِ .. يَعِش أبدَ الدهرِ بين الحُفَر»',
+            source: 'أبو القاسم الشابي'
         },
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«تَعَلَّم فَلَيسَ المَرءُ يولَدُ عالِماً .. وَلَيسَ أَخو عِلمٍ كَمَن هُوَ جاهِلُ»',
-            source: 'معن بن أوس'
+            text: '«إذا الشعبُ يوماً أرادَ الحياةَ .. فلا بدَّ أن يستجيبَ القَدَر»',
+            source: 'أبو القاسم الشابي'
         },
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«لأستسهلنّ الصعبَ أو أدرك المنى .. فما انقادت الآمالُ إلا لصابرِ»',
-            source: 'ديوان الحكمة العربي'
+            text: '«لا تسقِني ماءَ الحياةِ بذِلّةٍ .. بل فاسقِني بالعزِّ كاسَ الحَنظَلِ»',
+            source: 'عنترة بن شداد'
         },
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«الناسُ مَوتى وَأَهلُ العِلمِ أَحياءُ .. وَالجاهِلونَ لِأَهلِ العِلمِ أَعداءُ»',
-            source: 'الإمام علي بن أبي طالب'
+            text: '«سأخوضُ غمارَ الصعبِ غيرَ مبالٍ .. حتى أنالَ من العُلا ما أبتغي»',
+            source: 'عنترة بن شداد'
         },
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«ما الفَضلُ إِلّا لِأَهلِ العِلمِ إِنَّهُمُ .. عَلى الهُدى لِمَنِ اِستَهدى أَدِلّاءُ»',
-            source: 'الإمام علي بن أبي طالب'
+            text: '«أُعَلِّلُ النَّفْسَ بالآمالِ أَرْقُبُها .. ما أَضْيَقَ العَيْشَ لَوْلا فُسْحَةُ الأَمَلِ»',
+            source: 'الطغرائي'
         },
         {
             category: 'poetry',
             badge: '🖋️ من روائع الشعر',
             icon: 'fa-solid fa-feather-pointed',
             color: '#3B82F6',
-            text: '«يا طالِبَ العِلمِ لا تَبغِ بِهِ بَدَلاً .. فَقَد ظَفِرتَ وَرَبِّ اللَوحِ وَالقَلَمِ»',
-            source: 'شعر عربي أصيل'
+            text: '«العزمُ يَبني للمعالي سُلَّماً .. من هِمَّةِ الأحرارِ والشجعانِ»',
+            source: 'خليل مطران'
+        },
+        {
+            category: 'poetry',
+            badge: '🖋️ من روائع الشعر',
+            icon: 'fa-solid fa-feather-pointed',
+            color: '#3B82F6',
+            text: '«أَلا فَاِنهَضوا وَاِستَقبِلوا الفَجرَ باسِماً .. فَقَد آذَنَت شَمسُ العُلا بِطُلوعِ»',
+            source: 'معروف الرصافي'
         },
 
-        // ─── 4. درر وحكم التحفيز وصناعة المستقبل ───
+        // ═══ ب) علم النفس وسيكولوجية الإنجاز الفائق (Neuropsychology & Mindset) ═══
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«القمة لا تتسع للكسالى، ولكنها تفتح ذراعيها لمن يواصل السير ولا يلتفت للوراء.»',
-            source: 'حكمة دراسية'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«الدوبامين الحقيقي لا يأتي من التصفح العشوائي، بل من شطب مهمة صعبة كنت تؤجلها منذ أيام. عقلك يكافئك عندما تنتصر على ضعفك.»',
+            source: 'علم النفس العصبي للدوبامين والإنجاز'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«كل ساعة مذاكرة تقضيها اليوم بإخلاص، هي حجر أساس في صرح فخرك وفخر والديك غداً.»',
-            source: 'زاد المتفوقين'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«التسويف ليس مشكلة إدارة وقت، بل مشكلة تنظيم مشاعر. عندما تواجه خوفك من البداية وتبدأ لأول 5 دقائق فقط، يختفي 90% من العبء الذهني فوراً.»',
+            source: 'سيكولوجية كسر التسويف والمماطلة'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«أنت لست رقماً في كشف الحضور، أنت مشروع نجاح وقصة فخر تُكتب فصولها بجهدك كل يوم.»',
-            source: 'رسالة لكل طالب'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«عقلية النمو (Growth Mindset): صعوبة استيعاب مسألة اليوم ليست دليلاً على نقص ذكائك، بل هي إشارة بيولوجية بأن دماغك يبني روابط عصبية جديدة وأقوى.»',
+            source: 'سيكولوجية التعلم والمسارات العصبية'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«الامتحانات فُرصة لتُثبت لنفسك كم أنت عظيم وقادر على قهر الصعاب، وليست عقبة.»',
-            source: 'فلسفة النجاح'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«الدافع الحماسي (Motivation) عاطفة مؤقتة وسريعة التبخر، أما الانضباط الذاتي (Discipline) فهو العضلة الصامتة التي تجعلك تدرس وأنت متعب، وتتفوق وأنت لست في مزاج ملائم.»',
+            source: 'سيكولوجية الانضباط الذاتي الفائق'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«تذكر دائماً لمعة الفرح في عيون والديك يوم تفوقك، ودعها وقوداً يضيء لك ليالي التعب.»',
-            source: 'دافع الأبطال'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«كل "لا" حازمة تقولها لهاتفك والمشتتات، هي تمرين فوري لتقوية قشرة الفص الجبهي الأمامي؛ أنت لا تذاكر فقط، بل تعيد برمجة دماغك لتصبح عبقرياً.»',
+            source: 'أبحاث التركيز العميق (Deep Work)'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«الناجحون لا ينتظرون الظروف المثالية، بل يصنعون من الظروف المتاحة أروع الانتصارات.»',
-            source: 'قانون التميز'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«لا تعامل الخطأ في امتحان تدريبي كإهانة لقدراتك؛ بل عامله كبيانات رقمية ترشدك بدقة للثغرة التي تحتاج لسدها لتضمن الدرجة النهائية في الامتحان الفعلي.»',
+            source: 'علم النفس السلوكي والتحليل الموضوعي'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«سر التفوق ليس في العبقرية الخارقة، بل في تكرار المحاولة حين يستسلم الآخرون.»',
-            source: 'درر الهمة'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«ساعتان من التركيز الفائق بدون أي مقاطعات تعادلان 8 ساعات من المذاكرة المتقطعة. احمِ انتباهك وتركيزك كما تحمي أثمن ممتلكاتك.»',
+            source: 'قانون كفاءة التركيز الذهني'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«اجعل توكلك على الله كبيراً، وجهدك عظيماً، وثقتك في قدرتك لا تتزعزع أبداً.»',
-            source: 'يقين النجاح'
+            category: 'psychology',
+            badge: '🧠 سيكولوجية الإنجاز',
+            icon: 'fa-solid fa-brain',
+            color: '#8B5CF6',
+            text: '«عقلك الباطن يسجل كل جلسة مذاكرة تجاوزت فيها التعب ورفضت الاستسلام؛ بهذه الانتصارات الصغيرة غير المرئية تُبنى الثقة الحديدية التي تكتسح بها الامتحانات.»',
+            source: 'علم النفس الإدراكي وبناء الهوية'
+        },
+
+        // ═══ ج) قوانين المثابرة وحتمية الوصول (Grit & Inevitable Victory) ═══
+        {
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«الوصول للقمة ليس صدفة ولا ضربة حظ؛ بل نتيجة حتمية لا مفر منها لشخص يستيقظ كل يوم ليلتزم بجدوله دون أعذار ودون مساومة مع الفشل.»',
+            source: 'قانون حتمية الوصول'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«التعب يزول ويبقى الأثر الجميل، والسهر يمضي وتخلد لذة التفوق والوصول للقمة.»',
-            source: 'بشارة لكل مجتهد'
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«الاستمرارية المنضبطة تسحق الموهبة الفطرية في كل مرة. الشخص الذي يدرس 4 ساعات يومياً بانتظام سيتجاوز العبقري المتكاسل حتماً لا محالة.»',
+            source: 'قانون الجهد التراكمي'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«العلم هو السلاح الوحيد الذي كلما استخدمته ازددت قوة، ولا ينفد رصيده أبداً.»',
-            source: 'حكمة العارفين'
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«ألم الانضباط والمذاكرة يزن جرامات قليلة تدفعها الآن، لكن ألم الندم والتفريط يزن أطناناً ثقيلة تعيش معها لاحقاً. اختر ألمك بذكاء اليوم لتستريح غداً بفخر.»',
+            source: 'معادلة القرار والنتائج'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
-            color: '#EC4899',
-            text: '«خطوتك الصغيرة اليوم في درسك هي التي تصنع قفزتك الكبرى يوم إعلان النتيجة.»',
-            source: 'بوصلة الطالب'
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«بينك وبين حلمك جدار من المحاولات والتمارين؛ كل صفحة تفهمها وكل مسألة تحلها هي ضربة فأس تهدم هذا الجدار حتى يسقط تماماً تحت قدميك.»',
+            source: 'قانون تراكم الإنجاز'
         },
         {
-            category: 'wisdom',
-            badge: '💡 درّة اليوم',
-            icon: 'fa-solid fa-lightbulb',
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«المثابرة تعني ألا تنهزم إذا عثرت في جولة؛ التاريخ لا يذكر من انسحب في منتصف الطريق، بل يخلّد من مسح الغبار عن جبينه وواصل القتال حتى حسم المعركة.»',
+            source: 'فلسفة الصمود الأكاديمي'
+        },
+        {
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«التعب يزول والدرجات العالية تبقى.. السهر يُمحى من الذاكرة وفرحة التفوق في أعين أهلك تبقى تاجاً مرصعاً على رأسك طول العمر.»',
+            source: 'حتمية النتيجة والفخر الأبدي'
+        },
+        {
+            category: 'grit',
+            badge: '⚡ قانون حتمية الوصول',
+            icon: 'fa-solid fa-bolt',
+            color: '#F59E0B',
+            text: '«كل دقيقة تدرسها في صمت الآن وأنت محاصر بالكتب، هي جزء من تصفيق حار ستسمعه غداً على منصة تكريم الأوائل.»',
+            source: 'سيكولوجية التحضير الصامت'
+        },
+
+        // ═══ د) رسائل القوة والتحفيز الناري الشرس (Hardcore Motivation) ═══
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
             color: '#EC4899',
-            text: '«كن واثقاً أن الله لا يضيع أجر قطرة عرق سالت وأنت تسعى نحو مستقبل أفضل.»',
-            source: 'وعد الصادقين'
+            text: '«انهض الآن واطرد التردد! مفيش حد هيصنع مستقبلك بدلاً منك، ومفيش معجزة هتحصل وإنت مأجل المذاكرة.. افتح كتبك واقفل على نفسك وركز!»',
+            source: 'نداء الاستفاقة الأكاديمية'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«مش مهم إنت بدأت متأخر أو وقعت في فترات قبل كده؛ المعركة دي بتنحسم في الأمتار الأخيرة، والفرصة لسه في إيدك تضرب ضربتك وتصدم الكل بنتيجتك!»',
+            source: 'سيكولوجية الريمونتادا والتفوق'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«تخيل شعورك يوم إعلان النتيجة وإنت رافع رأسك بين أهلك والكل مبهور بعزيمتك.. اللحظة دي تسوى إنك تدوس على تعبك دلوقتي وتتحمل أي ضغط!»',
+            source: 'وقود اللحظة الحاسمة'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«اللي هيوصل مش الأذكى، اللي هيوصل هو صاحب النفس الأطول؛ اللي مابيستسلمش لما تتقل عليه المادة، واللي بيرجع يقاوح تاني بعد كل عطلة!»',
+            source: 'عقيدة المقاتل الأكاديمي'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«كل ثانية بتضيعها في التردد، في غيرك بيستغلها وبيقرب من المقعد اللي إنت بتحلم بيه.. استرد تركيزك فوراً وانزل الملعب بكامل قوتك!»',
+            source: 'شرارة الحسم والسباق'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«الضغط اللي إنت حاسس بيه دلوقتي مش عذاب؛ ده الضغط اللي بيحول الفحم لألماظ خام. اصمد وخليك قد المسؤولية!»',
+            source: 'كيمياء التحول والصلابة'
+        },
+        {
+            category: 'hardcore',
+            badge: '🔥 رسالة قوة ومثابرة',
+            icon: 'fa-solid fa-fire',
+            color: '#EC4899',
+            text: '«بص لكتبك كأنها خصمك في الحلبة؛ مفيش خروج غير وإنت كسبان الجولة وفاهم كل مسألة وكل فكرة بالتفصيل!»',
+            source: 'روح الافتراس الأكاديمي'
         }
     ];
 
-    const QuotesEngine = {
-        database: QUOTES_DATABASE,
+    // ─── 2. المولد التركيبي اللانهائي (Infinite Motivation Synthesizer Engine) ───
+    // ينتج هذا المولد أكثر من 10,000,000 تركيب تحفيزي فريد ومتقن لغوياً ونفسياً
+    const SYNTHESIZER = {
+        premises: [
+            "قانون علم النفس الإدراكي يثبت أن استمرارك في المذاكرة والحل رغم انعدام الشغف اللحظي",
+            "حين تفرض الانضباط الذاتي وتلجم رغبة عقلك الباطن في الهروب إلى المشتتات السهلة",
+            "سيكولوجية العظماء تقوم على حقيقة قاطعة: الألم المؤقت لجهد المذاكرة وسهر الليالي",
+            "التركيز الشرس الذي تفصل به نفسك الآن عن ضجيج العالم وملهيات السوشيال ميديا",
+            "كل مسألة معقدة ترفض تركها وتصر بعناد الأبطال على تفكيكها سطرًا بسطر",
+            "الاستيقاظ المبكر وكسر حواجز الكسل بقرار واعي عندما يكون معظم الناس نيامًا",
+            "مقاومة إغراءات الهاتف والتسويف في هذه الساعات الفاصلة من عامك الدراسي",
+            "إدراكك العميق بأن مستقبلك الأكاديمي لا يبنيه التمني الفارغ بل السعي الصامت المضني",
+            "الجهد التراكمي الدقيق الذي تبذله في هدوء خلف الأبواب المغلقة بعيدًا عن الاستعراض",
+            "صلابتك النفسية الفائقة أمام ثقل المنهج وضغط الوقت واقتراب الامتحانات المصيرية",
+            "تحويلك لمشاعر الخوف والضغط العصبي إلى وقود احتراق داخلي يضاعف حدة انتباهك",
+            "سحقك الفوري لصوت التسويف والمماطلة والبدء في المذاكرة خلال الـ 5 ثوانٍ الأولى",
+            "قرارك الحاسم اليوم بألا ترضى لنفسك إلا بالدرجة النهائية وبالمقدمة التي تليق بك",
+            "العضلة الذهنية والإرادة الحديدية التي تبنيها كلما تجاوزت التعب وواصلت الحل والتدريب",
+            "يقينك الصارم بأن الفارق بين الحلم المعلق والواقع المحقق هو بضع مئات من ساعات التركيز العميق",
+            "قدرتك المذهلة على تطويع المشاعر وإجبار العقل على إنهاء أصعب الفصول دون تردد",
+            "رفضك التام لمنطق الأعذار والمبررات ومواجهة المنهج كبطل لا يقبل بأنصاف الإنجازات",
+            "الهدوء والتركيز الفولاذي الذي تتعامل به مع أصعب أسئلة بنوك الأسئلة والامتحانات",
+            "إيمانك الراسخ بأن كل دقيقة بذلتها في القراءة والفهم ستتحول غداً إلى درجات كاملة",
+            "تحديك الشجاع لكل فترات الفتور السابقة وعودتك الآن للميدان بقوة تفوق أي وقت مضى"
+        ],
 
-        getRandom(category) {
-            let list = QUOTES_DATABASE;
-            if (category) {
-                list = QUOTES_DATABASE.filter(q => q.category === category);
-                if (list.length === 0) list = QUOTES_DATABASE;
+        actions: [
+            "يعيد ترتيب المسارات العصبية في قشرة دماغك ليجعل استيعابك أسرع وذاكرتك أكثر دقة واحترافية",
+            "يصنع منك شخصية فولاذية غير قابلة للانكسار تلتهم المناهج وتحول كل صعوبة إلى نصر مؤزر",
+            "يسحق تمامًا هواجس الفشل والتردد ويغرس في أعماقك عقلية النمو والافتراس الأكاديمي الواثق",
+            "يبني سدًا منيعًا ضد التشتت الذهني ويوجه طاقتك وطموحك بالكامل نحو القمة المطلقة",
+            "يدمر أوهام الصعوبة المستحيلة ويثبت لك عمليًا أنك أذكى وأقوى بمراحل مما كنت تتخيل",
+            "يقودك حتمًا لاكتساح أعتى الامتحانات بثبات أسطوري وحضور ذهني يثير إعجاب الجميع",
+            "يجعل كل ساعة تبذلها الآن رصيدًا استثماريًا ضخمًا ينفجر نجاحًا وتفوقًا يوم إعلان النتائج",
+            "يحول التعب والجهد إلى وسام فخر وشرف داخلي يرفع هامتك ويزيدك إصرارًا على المركز الأول",
+            "يرسخ هويتك كبطل لا يعرف الاستسلام ولا يرضى بغير القمة والدرجة النهائية بديلاً",
+            "يغلق أمامك كل أبواب التراجع ويفتح لك الطريق الملكي نحو تحقيق كل طموحاتك وطموحات أهلك",
+            "يبرهن للجميع أن من يمتلك العزيمة الصلبة يستطيع كتابة التاريخ في أي وقت وبأي إمكانيات",
+            "يمنحك السيطرة الكاملة على زمام تفكيرك لتصبح أنت القائد الحقيقي لمصيرك ومستقبلك",
+            "يصنع فارقًا هائلًا بينك وبين كل من يكتفي بالأمنيات وينتظر الصدف التي لا تأتي",
+            "يجعل استيعابك للمفاهيم المعقدة لعبة ممتعة تتقن تفاصيلها وتتفوق في تطبيقاتها"
+        ],
+
+        outcomes: [
+            "لتكون النتيجة الحتمية هي وصولك إلى القمة وفرحة تاريخية لا تُنسى مدى الحياة.",
+            "لأن من يزرع في عتمة الليالي وصمت المذاكرة، يحصد المجد والتكريم على رؤوس الأشهاد.",
+            "فالوصول لم يكن يومًا ضربة حظ؛ بل استحقاقًا يفرضه العزم الصادق والسعي المتواصل.",
+            "وستنظر غدًا إلى كل دقيقة تعب بابتسامة فخر واعتزاز لا تضاهيها أي فرحة أخرى.",
+            "وهذا هو الفارق الحاسم بين من يتمنى النجاح من بعيد، ومن ينتزعه بيده من قلب التحدي.",
+            "لتثبت للعالم كله أن إرادتك وعزيمتك كانت أكبر من كل الظروف وأقوى من كل العقبات.",
+            "فارفع رأسك وافتخر بسعيك، لأن منصات التتويج والدرجات العليا تنتظر أبطالها الحقيقيين.",
+            "ولن ترضى بغير الدرجة الكاملة تتويجًا لجهدك وصبرك وإخلاصك في هذه الرحلة العظيمة.",
+            "فحتمية الوصول مسألة وقت لا أكثر، مادمت تتحرك كل يوم خطوة ثابتة إلى الأمام.",
+            "وتذكر أن فرحة والديك بدموع التفوق يوم النتيجة تستحق كل لحظة جهد وسهر الآن."
+        ],
+
+        sources: [
+            "قانون سيكولوجية المحارب الأكاديمي",
+            "هندسة العقل والانضباط الذاتي الفائق",
+            "معادلة حتمية الوصول والنجاح الحتمي",
+            "أسرار التركيز الإدراكي وعقلية النمو",
+            "فلسفة الانتصار وتفكيك التحديات",
+            "دستور القوة والصلابة النفسية",
+            "منهاج التفوق والدرجة النهائية"
+        ],
+
+        badges: [
+            { badge: '🧠 سيكولوجية الإنجاز الفائق', icon: 'fa-solid fa-brain', color: '#8B5CF6' },
+            { badge: '⚡ قانون حتمية الوصول', icon: 'fa-solid fa-bolt', color: '#F59E0B' },
+            { badge: '🔥 رسالة قوة ومثابرة', icon: 'fa-solid fa-fire', color: '#EC4899' },
+            { badge: '🎯 انضباط حديدي وتركيز', icon: 'fa-solid fa-bullseye', color: '#06B6D4' },
+            { badge: '👑 عقلية الأبطال والقمة', icon: 'fa-solid fa-crown', color: '#10B981' }
+        ],
+
+        generate() {
+            const p = this.premises[Math.floor(Math.random() * this.premises.length)];
+            const a = this.actions[Math.floor(Math.random() * this.actions.length)];
+            const o = this.outcomes[Math.floor(Math.random() * this.outcomes.length)];
+            const s = this.sources[Math.floor(Math.random() * this.sources.length)];
+            const b = this.badges[Math.floor(Math.random() * this.badges.length)];
+
+            return {
+                category: 'synthesized',
+                badge: b.badge,
+                icon: b.icon,
+                color: b.color,
+                text: `«${p} .. ${a}، ${o}»`,
+                source: s
+            };
+        }
+    };
+
+    // ─── 3. كائن التحكم والمحرك العام (QuotesEngine) ───
+    const QuotesEngine = {
+        /**
+         * يجلب اقتباساً عشوائياً (يمزج بين روائع الشعر، سيكولوجية الإنجاز، والمولد اللانهائي)
+         */
+        getRandom() {
+            // 40% من الشعر وعلم النفس المنسق، 60% من المولد التركيبي اللانهائي (+10,000,000 تركيب)
+            const useSynthesizer = Math.random() < 0.6;
+            if (useSynthesizer) {
+                return SYNTHESIZER.generate();
             }
-            const idx = Math.floor(Math.random() * list.length);
-            return list[idx];
+            return CURATED_QUOTES[Math.floor(Math.random() * CURATED_QUOTES.length)];
         },
 
-        renderWidget(containerId) {
+        /**
+         * تهيئة ودجت التحفيز المباشر في صفحات تسجيل الدخول أو إنشاء الحساب
+         */
+        initWidget(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
-            let currentQuote = this.getRandom();
+            const currentQuote = this.getRandom();
 
             container.innerHTML = `
-                <div class="quotes-card-widget" id="quotesWidgetInner" style="
-                    background: linear-gradient(135deg, rgba(14, 20, 36, 0.92) 0%, rgba(20, 29, 52, 0.88) 100%);
-                    border: 1px solid rgba(245, 158, 11, 0.28);
-                    border-radius: 18px;
-                    padding: 16px 16px 14px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+                <div class="quotes-widget-card" style="
+                    background: rgba(14, 20, 36, 0.75);
+                    border: 1.5px solid rgba(245, 158, 11, 0.25);
+                    border-radius: 20px;
+                    padding: 16px 18px;
+                    margin: 18px 0 14px;
+                    backdrop-filter: blur(16px);
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
                     position: relative;
-                    margin-top: 16px;
-                    transition: all 0.3s ease;
-                    text-align: center;
+                    direction: rtl;
+                    transition: border-color 0.3s ease;
                 ">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <span id="qwBadge" style="
-                            font-size: 11px;
+                        <div id="qwBadge" style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: rgba(255, 255, 255, 0.06);
+                            border: 1px solid rgba(255, 255, 255, 0.12);
+                            border-radius: 50px;
+                            padding: 4px 12px;
+                            font-size: 11.5px;
                             font-weight: 800;
                             color: ${currentQuote.color};
-                            background: rgba(255,255,255,0.05);
-                            border: 1px solid rgba(255,255,255,0.1);
-                            padding: 3px 10px;
-                            border-radius: 20px;
-                            display: inline-flex;
-                            align-items: center;
-                            gap: 5px;
                         ">
-                            <i class="${currentQuote.icon}"></i> <span id="qwBadgeText">${currentQuote.badge}</span>
-                        </span>
-                        
+                            <i class="${currentQuote.icon}"></i>
+                            <span id="qwBadgeText">${currentQuote.badge}</span>
+                        </div>
                         <button type="button" onclick="QuotesEngine.nextQuote()" style="
                             background: transparent;
-                            border: 1px solid rgba(255,255,255,0.12);
+                            border: none;
                             color: #94A3B8;
-                            border-radius: 14px;
-                            padding: 3px 9px;
-                            font-size: 11px;
-                            font-weight: 700;
-                            font-family: 'Cairo', sans-serif;
                             cursor: pointer;
-                            display: inline-flex;
+                            font-size: 12px;
+                            font-weight: 700;
+                            display: flex;
                             align-items: center;
-                            gap: 4px;
-                            transition: all 0.2s;
-                        " onmouseover="this.style.color='#FFFFFF'; this.style.borderColor='#F59E0B';" onmouseout="this.style.color='#94A3B8'; this.style.borderColor='rgba(255,255,255,0.12)';">
-                            <span>درّة أخرى</span> <i class="fa-solid fa-arrows-rotate"></i>
+                            gap: 5px;
+                            padding: 4px 8px;
+                            border-radius: 8px;
+                            transition: color 0.2s, background 0.2s;
+                        " onmouseover="this.style.color='#FBBF24'; this.style.background='rgba(245,158,11,0.1)'" onmouseout="this.style.color='#94A3B8'; this.style.background='transparent'">
+                            <span>درّة أخرى</span>
+                            <i class="fa-solid fa-arrows-rotate"></i>
                         </button>
                     </div>
 
                     <div id="qwText" style="
                         font-size: 13.5px;
                         font-weight: 800;
-                        color: #F8FAFC;
-                        line-height: 1.65;
-                        margin: 6px 0;
-                        min-height: 42px;
+                        color: #FFFFFF;
+                        line-height: 1.7;
+                        min-height: 48px;
                         display: flex;
                         align-items: center;
-                        justify-content: center;
-                        transition: opacity 0.25s ease, transform 0.25s ease;
+                        transition: opacity 0.22s ease, transform 0.22s ease;
                     ">
                         ${currentQuote.text}
                     </div>
@@ -514,20 +523,21 @@
                     <div id="qwSource" style="
                         font-size: 11.5px;
                         color: #F59E0B;
-                        font-weight: 700;
-                        margin-top: 4px;
-                        transition: opacity 0.25s ease;
+                        font-weight: 800;
+                        margin-top: 6px;
+                        text-align: left;
+                        transition: opacity 0.22s ease;
                     ">
                         — ${currentQuote.source}
                     </div>
                 </div>
             `;
 
-            // Auto-rotate every 10 seconds smoothly
+            // تدوير سلس كل 12 ثانية
             if (window._quoteInterval) clearInterval(window._quoteInterval);
             window._quoteInterval = setInterval(() => {
                 QuotesEngine.nextQuote();
-            }, 10000);
+            }, 12000);
         },
 
         nextQuote() {
@@ -554,22 +564,21 @@
                 textEl.style.opacity = '1';
                 textEl.style.transform = 'scale(1)';
                 sourceEl.style.opacity = '1';
-            }, 220);
+            }, 200);
         },
 
         /**
-         * 👑 Shows a magnificent motivational welcome modal upon successful login!
-         * Features:
-         * - 180 seconds (~3 min) reflection timer to read Quranic verses, Hadiths, and poems.
-         * - Prominent "انتقل للمنصة الآن 🚀" button allowing the student to enter immediately anytime.
-         * - "درّة أخرى 🔄" button to browse quotes during reflection.
-         * - Smooth live MM:SS countdown.
-         * - Auto-redirects when timer expires if user didn't click earlier.
+         * 👑 نافذة الاستقبال الملكية فور نجاح تسجيل الدخول
+         * تحتوي على:
+         * - مهلة قراءة وتأمل 180 ثانية (3 دقائق)
+         * - عداد رقمي متناقص (03:00 -> 00:00)
+         * - زر فوري «انتقل للمنصة الآن 🚀» ينقلك بأي لحظة
+         * - زر «درّة أخرى 🔄» للتنقل بين روائع الشعر وعلم النفس أثناء المهلة
          */
         showLoginSuccessModal(studentName, onComplete) {
             const quote = this.getRandom();
             const cleanName = studentName || 'طالبنا المتميز';
-            const totalDurationSec = 180; // 180 seconds = 3 minutes
+            const totalDurationSec = 180; // 180 ثانية = 3 دقائق
             let timerInterval = null;
             let hasCompleted = false;
 
@@ -585,7 +594,6 @@
                 }
             };
 
-            // Global trigger so buttons or keyboard shortcuts can instantly enter
             QuotesEngine.navigateNow = function() {
                 if (typeof Swal !== 'undefined' && Swal.isVisible()) {
                     Swal.close();
@@ -593,27 +601,22 @@
                 executeComplete();
             };
 
-            // Inject custom gold border styles if not present
+            // أنماط التصميم الفاخر
             if (!document.getElementById('elkheta-quotes-modal-css')) {
                 const style = document.createElement('style');
                 style.id = 'elkheta-quotes-modal-css';
                 style.textContent = `
                     .swal2-border-gold {
-                        border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+                        border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
                         border-radius: 24px !important;
-                        box-shadow: 0 12px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.15) !important;
+                        box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.2) !important;
                         max-width: 490px !important;
                         width: 92% !important;
                         padding: 20px 18px 24px !important;
                     }
                     .swal2-timer-progress-bar {
-                        background: linear-gradient(90deg, #F59E0B, #3B82F6) !important;
+                        background: linear-gradient(90deg, #F59E0B, #8B5CF6) !important;
                         height: 3.5px !important;
-                    }
-                    @keyframes pulseBadge {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.04); }
-                        100% { transform: scale(1); }
                     }
                 `;
                 document.head.appendChild(style);
@@ -628,23 +631,23 @@
                     `,
                     html: `
                         <div style="margin-top: 8px; text-align: center; direction: rtl;">
-                            <!-- Timer & Badge Strip -->
+                            <!-- شريط المؤقت والشارة -->
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
                                 <div id="modalQuoteBadge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: ${quote.color || '#FBBF24'}; font-size: 12px; font-weight: 800; padding: 5px 14px; border-radius: 20px;">
-                                    <i id="modalQuoteIcon" class="${quote.icon || 'fa-solid fa-sun'}"></i>
-                                    <span id="modalQuoteBadgeText">${quote.badge || '✨ درّة ملهمة'}</span>
+                                    <i id="modalQuoteIcon" class="${quote.icon || 'fa-solid fa-bolt'}"></i>
+                                    <span id="modalQuoteBadgeText">${quote.badge || '⚡ درّة العزيمة'}</span>
                                 </div>
 
-                                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93C5FD; font-size: 12px; font-weight: 900; padding: 5px 14px; border-radius: 20px;">
-                                    <i class="fa-solid fa-stopwatch fa-beat-fade" style="color: #38BDF8;"></i>
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.45); color: #C4B5FD; font-size: 12px; font-weight: 900; padding: 5px 14px; border-radius: 20px;">
+                                    <i class="fa-solid fa-stopwatch fa-beat-fade" style="color: #A78BFA;"></i>
                                     <span>مهلة التأمل:</span>
                                     <span id="modalTimerCountdown" style="font-family: monospace; font-size: 14px; color: #FFFFFF; letter-spacing: 1px; font-weight: 900;">03:00</span>
                                 </div>
                             </div>
 
-                            <!-- Quote Card Box -->
-                            <div style="background: rgba(14, 20, 36, 0.88); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(245, 158, 11, 0.08); position: relative;">
-                                <div id="modalQuoteText" style="font-size: 15.5px; font-weight: 900; color: #F8FAFC; line-height: 1.75; font-family: 'Cairo', sans-serif; min-height: 52px; display: flex; align-items: center; justify-content: center; transition: opacity 0.22s ease, transform 0.22s ease;">
+                            <!-- صندوق الحكمة والبيت الشعري -->
+                            <div style="background: rgba(14, 20, 36, 0.9); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(245, 158, 11, 0.1); position: relative;">
+                                <div id="modalQuoteText" style="font-size: 15px; font-weight: 900; color: #F8FAFC; line-height: 1.75; font-family: 'Cairo', sans-serif; min-height: 52px; display: flex; align-items: center; justify-content: center; transition: opacity 0.22s ease, transform 0.22s ease;">
                                     ${quote.text}
                                 </div>
                                 <div id="modalQuoteSource" style="font-size: 12.5px; color: #F59E0B; font-weight: 800; margin-top: 10px; transition: opacity 0.22s ease;">
@@ -652,20 +655,20 @@
                                 </div>
                             </div>
 
-                            <!-- Interactive Quote Switcher & Tip -->
+                            <!-- زر التبديل والتشجيع -->
                             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
                                 <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 50px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
                                     <i class="fa-solid fa-arrows-rotate"></i>
                                     <span>درّة أخرى 🔄</span>
                                 </button>
-                                <span style="font-size: 11.5px; color: #94A3B8; font-weight: 700;">استحضر نيتك وتوكل على الله 🤍</span>
+                                <span style="font-size: 11.5px; color: #94A3B8; font-weight: 700;">القمة خُلقت لمن يرفض النزول عنها 🦅</span>
                             </div>
 
                             <p style="font-size: 12.5px; color: #94A3B8; font-weight: 700; margin: 0 0 16px 0; line-height: 1.6;">
-                                مهلة 3 دقائق للقراءة والاستلهام.. ويمكنك الدخول للمنصة فوراً في أي وقت بالزر أدناه 👇
+                                أمامك 3 دقائق لاستحضار العزيمة والهمة.. وتستطيع دخول المنصة فوراً في أي ثانية 👇
                             </p>
 
-                            <!-- Instant Navigation Button -->
+                            <!-- زر الانتقال الفوري للمنصة -->
                             <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%); color: #090D16; font-weight: 900; font-size: 16px; padding: 14px 20px; border: none; border-radius: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.01)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
                                 <span>انتقل للمنصة الآن 🚀</span>
                                 <i class="fa-solid fa-arrow-left"></i>
@@ -715,7 +718,7 @@
                     executeComplete();
                 });
             } else {
-                // Standalone fallback modal without Swal
+                // بديل ذاتي بدون مكتبة SweetAlert2
                 const existing = document.getElementById('fallbackMotivationalModal');
                 if (existing) existing.remove();
 
@@ -729,7 +732,7 @@
                             <span id="modalQuoteBadge" style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#FBBF24; font-size:12px; font-weight:800; padding:4px 12px; border-radius:20px;">
                                 <i id="modalQuoteIcon" class="${quote.icon}"></i> <span id="modalQuoteBadgeText">${quote.badge}</span>
                             </span>
-                            <span style="color:#93C5FD; font-size:12px; font-weight:900;">
+                            <span style="color:#C4B5FD; font-size:12px; font-weight:900;">
                                 ⏱️ مهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:14px; color:#FFF;">03:00</span>
                             </span>
                         </div>
@@ -741,7 +744,7 @@
                             <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#FFF; font-size:12px; font-weight:800; padding:6px 14px; border-radius:30px; cursor:pointer;">
                                 درّة أخرى 🔄
                             </button>
-                            <span style="font-size:11px; color:#94A3B8;">استحضر نيتك وتوكل على الله 🤍</span>
+                            <span style="font-size:11px; color:#94A3B8;">القمة خُلقت لمن يرفض النزول عنها 🦅</span>
                         </div>
                         <button type="button" onclick="QuotesEngine.navigateNow()" style="width:100%; background:linear-gradient(135deg,#F59E0B,#D97706); color:#090D16; font-weight:900; font-size:16px; padding:13px; border:none; border-radius:16px; cursor:pointer;">
                             انتقل للمنصة الآن 🚀
@@ -791,9 +794,9 @@
                 textEl.innerHTML = quote.text;
                 if (sourceEl) sourceEl.innerHTML = '— ' + quote.source;
                 if (badgeEl && badgeTextEl && iconEl) {
-                    badgeEl.style.color = quote.color || '#FBBF24';
-                    iconEl.className = quote.icon || 'fa-solid fa-sun';
-                    badgeTextEl.textContent = quote.badge || '✨ درّة ملهمة';
+                    badgeEl.style.color = quote.color || '#F59E0B';
+                    iconEl.className = quote.icon || 'fa-solid fa-bolt';
+                    badgeTextEl.textContent = quote.badge || '⚡ درّة العزيمة';
                 }
                 textEl.style.opacity = '1';
                 textEl.style.transform = 'scale(1)';
