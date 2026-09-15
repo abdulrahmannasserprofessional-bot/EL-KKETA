@@ -3803,6 +3803,7 @@
 
         let currentLectureIndex = -1;
         let currentLectureData = null;
+        // currentLectureTitle already declared at top
         let currentLectureKey = '';
         let qaUnsubscribe = null;
         let qaVoiceMediaRecorder = null;
@@ -3851,47 +3852,14 @@
         function openLectureDetails(index) {
             const lesson = allLessons[index];
             if (!lesson) return;
-            openVideoPlayer(lesson.videoUrl || '', lesson.title, index);
+            openLectureModal(index, lesson.title);
         }
 
         function openLectureQA(index) {
             const lesson = allLessons[index];
             if (!lesson) return;
-            openVideoPlayer(lesson.videoUrl || '', lesson.title, index);
+            openLectureModal(index, lesson.title);
             switchPlayerTab('qa');
-        }
-
-        function openPdfFromModal() {
-            if (currentLectureData && currentLectureData.pdfUrl) {
-                openPdf(currentLectureData.pdfUrl, currentLectureData.title, currentLectureIndex);
-            } else {
-                showToast("ملخص هذه المحاضرة غير متوفر حالياً 📄", "warning");
-            }
-        }
-
-        function openExamFromModal() {
-            if (currentLectureData && (currentLectureData.jsonCode || currentLectureData.hasQuiz || currentLectureData.isStandaloneExam)) {
-                startExam(currentLectureData.title, currentLectureData.id);
-            } else {
-                showToast("لا يوجد امتحان مرفق لهذه المحاضرة بعد 📝", "warning");
-            }
-        }
-
-        function openAudioFromModal() {
-            if (currentLectureData && currentLectureData.audioUrl) {
-                // Pause video if currently playing
-                if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                    try { ytPlayer.pauseVideo(); } catch(e){}
-                } else if (currentVideoMode === 'mp4') {
-                    const directPlayer = document.getElementById('customVideoPlayer');
-                    if (directPlayer) directPlayer.pause();
-                }
-                updatePlayBtn(false);
-
-                openAudioPlayer(currentLectureData.audioUrl, currentLectureData.title, currentLectureIndex, Boolean(currentLectureData.allowAudioDownload));
-            } else {
-                showToast("الملخص الصوتي لهذه المحاضرة غير متوفر حالياً 🎙️", "warning");
-            }
         }
 
         let isVideoPlayRequested = false;
@@ -3941,116 +3909,89 @@
                     if (countBadge) countBadge.innerText = '0';
                     messagesList.innerHTML = `
                         <div style="text-align: center; padding: 35px 15px; background: #FFFFFF; border-radius: 16px; border: 1.5px dashed #CBD5E1;">
-                            <div style="font-size: 32px; margin-bottom: 6px;">💡</div>
-                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">لا توجد تساؤلات مطروحة بعد</h4>
-                            <p style="font-size: 12px; color: #64748B; margin-top: 4px;">كن أول من يطرح سؤاله حول هذه المحاضرة ليستفيد زملاؤك!</p>
+                            <i class="fa-solid fa-comments" style="font-size: 32px; color: #94A3B8; margin-bottom: 8px;"></i>
+                            <div style="font-size: 13px; font-weight: 800; color: #475569;">لا توجد أسئلة بعد في هذه المحاضرة</div>
+                            <div style="font-size: 11px; color: #64748B; margin-top: 4px;">كن أول من يسأل أستاذك أو يشارك زملاءه!</div>
                         </div>
                     `;
                     return;
                 }
 
-                let count = 0;
-                snap.forEach(child => {
-                    count++;
-                    const msg = child.val();
-                    const msgId = child.key;
-                    const isAdmin = Boolean(msg.isAdmin);
-                    const isMine = user && (user.studentCode === msg.senderCode || user.code === msg.senderCode);
+                const data = snap.val();
+                const entries = Object.entries(data);
+                if (countBadge) countBadge.innerText = entries.length;
 
-                    let timeStr = '';
-                    if (msg.timestamp) {
-                        try {
-                            const d = new Date(msg.timestamp);
-                            timeStr = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                        } catch(e){}
-                    }
+                entries.forEach(([msgId, item]) => {
+                    const isAdmin = Boolean(item.isAdmin);
+                    const isSelf = user && (item.senderCode === user.studentCode);
+                    const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
 
                     let mediaHtml = '';
-                    if (msg.type === 'image' && msg.mediaUrl) {
+                    if (item.type === 'audio' && item.mediaUrl) {
                         mediaHtml = `
                             <div style="margin-top: 8px;">
-                                <img src="${msg.mediaUrl}" style="max-width: 100%; max-height: 220px; border-radius: 10px; cursor: pointer; border: 1px solid #E2E8F0;" onclick="window.open('${msg.mediaUrl}', '_blank')" alt="صورة السؤال">
+                                <audio controls src="${item.mediaUrl}" style="width: 100%; height: 36px; border-radius: 20px; outline: none;"></audio>
                             </div>
                         `;
-                    } else if (msg.type === 'audio' && msg.mediaUrl) {
+                    } else if (item.type === 'image' && item.mediaUrl) {
                         mediaHtml = `
-                            <div style="margin-top: 8px; background: #F1F5F9; padding: 8px 12px; border-radius: 10px; border: 1px solid #E2E8F0;">
-                                <div style="font-size: 11px; color: #2563EB; font-weight: bold; margin-bottom: 4px;">🎙️ تسجيل صوتي:</div>
-                                <audio controls src="${msg.mediaUrl}" style="width: 100%; height: 36px;"></audio>
+                            <div style="margin-top: 8px; cursor: pointer;" onclick="window.open('${item.mediaUrl}', '_blank')">
+                                <img src="${item.mediaUrl}" style="max-width: 100%; max-height: 200px; border-radius: 10px; border: 1px solid #E2E8F0; object-fit: cover;" />
                             </div>
                         `;
                     }
 
-                    let senderBadge = '';
-                    if (isAdmin) {
-                        const adminRoleTitle = msg.adminRoleTitle || (msg.adminRole === 'master' ? '👑 المسؤول العام' : '🛡️ المشرف');
-                        senderBadge = `<span style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 900;">${adminRoleTitle}</span>`;
-                    } else {
-                        senderBadge = `<span style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-family: monospace; font-weight: 700;">${msg.senderCode || 'طالب'}</span>`;
-                    }
-
-                    let bubbleBg = isAdmin 
-                        ? 'background: #FFFBEB; border: 1.5px solid #FCD34D;' 
-                        : (isMine ? 'background: #EEF2FF; border: 1.5px solid #93C5FD;' : 'background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0,0,0,0.02);');
-
-                    let repliesHtml = '';
-                    if (msg.replies && typeof msg.replies === 'object') {
-                        Object.values(msg.replies).forEach(rep => {
-                            const repIsAdmin = Boolean(rep.isAdmin);
-                            const repRoleTitle = rep.adminRoleTitle || 'رد الإدارة';
-                            let repMedia = '';
-                            if (rep.type === 'image' && rep.mediaUrl) repMedia = `<img src="${rep.mediaUrl}" style="max-width:100%; border-radius:8px; margin-top:6px; cursor:pointer;" onclick="window.open('${rep.mediaUrl}')">`;
-                            if (rep.type === 'audio' && rep.mediaUrl) repMedia = `<audio controls src="${rep.mediaUrl}" style="width:100%; height:32px; margin-top:6px;"></audio>`;
-
-                            repliesHtml += `
-                                <div style="margin-top: 10px; background: #FFFDF5; border-right: 3px solid #F59E0B; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                        <span style="font-size: 11px; font-weight: 900; color: #B45309;">👑 ${rep.senderName || 'الإدارة'} (${repRoleTitle})</span>
-                                        <span style="font-size: 10px; color: #94A3B8;">${rep.timestamp ? new Date(rep.timestamp).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : ''}</span>
-                                    </div>
-                                    ${rep.text ? `<div style="font-size: 13px; color: #78350F; font-weight: 700; line-height: 1.5;">${rep.text}</div>` : ''}
-                                    ${repMedia}
-                                </div>
-                            `;
-                        });
-                    }
-
-                    messagesList.innerHTML += `
-                        <div style="${bubbleBg} border-radius: 16px; padding: 14px 16px; position: relative;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="font-size: 13px; font-weight: 800; color: #1E293B;">${msg.senderName || 'طالب'}</span>
-                                    ${senderBadge}
-                                </div>
-                                <span style="font-size: 11px; color: #94A3B8; font-weight: 600;">${timeStr}</span>
-                            </div>
-                            ${msg.text ? `<div style="font-size: 14px; color: #1E293B; line-height: 1.6; white-space: pre-wrap; font-weight: 600;">${msg.text}</div>` : ''}
-                            ${mediaHtml}
-                            ${repliesHtml}
-                        </div>
+                    const card = document.createElement('div');
+                    card.style.cssText = `
+                        background: ${isAdmin ? '#F0FDF4' : (isSelf ? '#EFF6FF' : '#FFFFFF')};
+                        border: 1px solid ${isAdmin ? '#BBF7D0' : (isSelf ? '#BFDBFE' : '#E2E8F0')};
+                        border-radius: 14px;
+                        padding: 12px 14px;
+                        margin-bottom: 10px;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
                     `;
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="width: 24px; height: 24px; border-radius: 50%; background: ${isAdmin ? '#16A34A' : '#3B82F6'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;">
+                                    ${isAdmin ? 'م' : 'ط'}
+                                </div>
+                                <span style="font-weight: 800; font-size: 12px; color: ${isAdmin ? '#15803D' : '#1E293B'};">${item.senderName || 'مستخدم'}</span>
+                                ${isAdmin ? '<span style="background: #DCFCE7; color: #166534; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 800;">إدارة المنصة</span>' : ''}
+                            </div>
+                            <span style="font-size: 10px; color: #94A3B8;">${timeStr}</span>
+                        </div>
+                        ${item.text ? `<div style="font-size: 12.5px; color: #334155; line-height: 1.5; word-break: break-word;">${item.text}</div>` : ''}
+                        ${mediaHtml}
+                    `;
+                    messagesList.appendChild(card);
                 });
 
-                if (countBadge) countBadge.innerText = count;
                 messagesList.scrollTop = messagesList.scrollHeight;
             });
         }
 
-        // Voice Recording for Students
-        async function startVoiceRecording() {
-            try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    showToast("متصفحك لا يدعم تسجيل الصوت المباشر 🎙️", "warning");
-                    return;
-                }
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                qaVoiceMediaRecorder = new MediaRecorder(stream);
-                qaAudioChunks = [];
-                
-                qaVoiceMediaRecorder.ondataavailable = e => {
-                    if (e.data && e.data.size > 0) qaAudioChunks.push(e.data);
-                };
+        function triggerQAVoiceRecording() {
+            const btn = document.getElementById('qaVoiceRecordBtn');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast("متصفحك لا يدعم تسجيل الصوت 🎙️", "warning");
+                return;
+            }
 
+            if (qaVoiceMediaRecorder && qaVoiceMediaRecorder.state === 'recording') {
+                qaVoiceMediaRecorder.stop();
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                clearInterval(qaRecordingTimer);
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                qaAudioChunks = [];
+                qaVoiceMediaRecorder = new MediaRecorder(stream);
+                qaVoiceMediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) qaAudioChunks.push(e.data);
+                };
                 qaVoiceMediaRecorder.onstop = () => {
                     const audioBlob = new Blob(qaAudioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
@@ -4061,52 +4002,25 @@
                     reader.readAsDataURL(audioBlob);
                     stream.getTracks().forEach(track => track.stop());
                 };
-
                 qaVoiceMediaRecorder.start();
-                qaRecordingSeconds = 0;
-                document.getElementById('qaVoiceRecordingBar').style.display = 'flex';
-                document.getElementById('qaNormalInputControls').style.display = 'none';
-
-                clearInterval(qaRecordingTimer);
-                qaRecordingTimer = setInterval(() => {
-                    qaRecordingSeconds++;
-                    const m = Math.floor(qaRecordingSeconds / 60);
-                    const s = qaRecordingSeconds % 60;
-                    document.getElementById('qaRecordingTimer').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-                }, 1000);
-
-            } catch(err) {
-                console.error("Mic error:", err);
-                showToast("تعذر الوصول للميكروفون: يرجى السماح بالإذن في المتصفح 🎙️", "error");
-            }
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-stop" style="color: #DC2626;"></i>';
+                showToast("جاري تسجيل صوتك الآن... اضغط مجدداً للإنهاء 🎙️", "info");
+            }).catch(err => {
+                console.error("Microphone access denied:", err);
+                showToast("يرجى إعطاء الإذن لاستخدام الميكروفون", "warning");
+            });
         }
 
-        function stopVoiceRecording() {
-            clearInterval(qaRecordingTimer);
-            if (qaVoiceMediaRecorder && qaVoiceMediaRecorder.state !== 'inactive') {
-                qaVoiceMediaRecorder.stop();
-            }
-            document.getElementById('qaVoiceRecordingBar').style.display = 'none';
-            document.getElementById('qaNormalInputControls').style.display = 'flex';
+        function triggerQAImageUpload() {
+            const fileInput = document.getElementById('qaImageFileInput');
+            if (fileInput) fileInput.click();
         }
 
-        function cancelVoiceRecording() {
-            clearInterval(qaRecordingTimer);
-            if (qaVoiceMediaRecorder && qaVoiceMediaRecorder.state !== 'inactive') {
-                qaVoiceMediaRecorder.stop();
-            }
-            qaAudioChunks = [];
-            pendingAudioBase64 = null;
-            document.getElementById('qaVoiceRecordingBar').style.display = 'none';
-            document.getElementById('qaNormalInputControls').style.display = 'flex';
-        }
-
-        // Image Attachment for Students
-        function handleQAImageSelected(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            if (file.size > 5 * 1024 * 1024) {
-                showToast("حجم الصورة كبير جداً، يرجى اختيار صورة أقل من 5 ميجابايت", "warning");
+        function handleQAImageSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 3 * 1024 * 1024) {
+                showToast("الحد الأقصى لحجم الصورة هو 3 ميجابايت", "warning");
                 return;
             }
             const reader = new FileReader();
@@ -4119,27 +4033,20 @@
 
         function showQAMediaPreview(type, dataUrl) {
             const box = document.getElementById('qaMediaPreviewBox');
-            const content = document.getElementById('qaMediaPreviewContent');
-            if (!box || !content) return;
-            
-            if (type === 'image') {
-                content.innerHTML = `
-                    <img src="${dataUrl}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #6366F1;">
-                    <span style="font-size: 12px; color: #A5B4FC; font-weight: bold;">📷 صورة مرفقة مع السؤال</span>
-                `;
-            } else if (type === 'audio') {
-                content.innerHTML = `
-                    <span style="font-size: 16px;">🎙️</span>
-                    <audio controls src="${dataUrl}" style="height: 32px; max-width: 200px;"></audio>
-                    <span style="font-size: 12px; color: #A5B4FC; font-weight: bold;">تسجيل صوتي</span>
-                `;
+            const previewContainer = document.getElementById('qaMediaPreviewContainer');
+            if (!box || !previewContainer) return;
+
+            if (type === 'audio') {
+                previewContainer.innerHTML = `<audio controls src="${dataUrl}" style="height: 32px; width: 100%;"></audio>`;
+            } else if (type === 'image') {
+                previewContainer.innerHTML = `<img src="${dataUrl}" style="height: 60px; border-radius: 8px; border: 1px solid #CBD5E1;" />`;
             }
             box.style.display = 'flex';
         }
 
         function clearQAMediaAttachment() {
-            pendingImageBase64 = null;
             pendingAudioBase64 = null;
+            pendingImageBase64 = null;
             const fileInput = document.getElementById('qaImageFileInput');
             if (fileInput) fileInput.value = '';
             const box = document.getElementById('qaMediaPreviewBox');
@@ -4204,17 +4111,12 @@
             });
         }
 
-        
-        let currentLectureIndex = 0;
-        let currentLectureData = null;
-        let currentLectureTitle = '';
-        let currentLectureKey = '';
-
         function openVideoPlayer(videoUrl, title, index) {
             openLectureModal(index, title);
         }
 
         function openLectureRoadmap(index) { openLectureModal(index); }
+
         function openLectureModal(index, title) {
             const lesson = (index !== undefined && allLessons[index]) ? allLessons[index] : null;
             if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
@@ -4227,7 +4129,9 @@
             currentLectureTitle = title || (currentLectureData ? currentLectureData.title : 'المحاضرة');
             currentLectureKey = (currentLectureData && currentLectureData.id) ? currentLectureData.id : currentLectureTitle;
 
-            document.getElementById('modalVideoTitle').innerText = currentLectureTitle;
+            const titleEl = document.getElementById('modalVideoTitle');
+            if (titleEl) titleEl.innerText = currentLectureTitle;
+
             const subtitleEl = document.getElementById('modalLectureSubtitle');
             if (subtitleEl) {
                 subtitleEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> <span>' + ((currentLectureData && currentLectureData.chapter) ? (currentLectureData.chapter + ' • ') : '') + 'هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>';
@@ -4240,10 +4144,12 @@
                     pdfBtn.innerText = 'عرض الملف 📄';
                     pdfBtn.style.opacity = '1';
                     pdfBtn.style.cursor = 'pointer';
+                    pdfBtn.onclick = openPdfFromModal;
                 } else {
                     pdfBtn.innerText = 'غير متوفر';
                     pdfBtn.style.opacity = '0.5';
                     pdfBtn.style.cursor = 'not-allowed';
+                    pdfBtn.onclick = null;
                 }
             }
 
@@ -4254,10 +4160,12 @@
                     videoBtn.innerText = 'مشاهدة الفيديو 📺';
                     videoBtn.style.opacity = '1';
                     videoBtn.style.cursor = 'pointer';
+                    videoBtn.onclick = goToVideoFromModal;
                 } else {
                     videoBtn.innerText = 'غير متوفر';
                     videoBtn.style.opacity = '0.5';
                     videoBtn.style.cursor = 'not-allowed';
+                    videoBtn.onclick = null;
                 }
             }
 
@@ -4268,10 +4176,12 @@
                     examBtn.innerText = 'بدء الامتحان 🚀';
                     examBtn.style.opacity = '1';
                     examBtn.style.cursor = 'pointer';
+                    examBtn.onclick = openExamFromModal;
                 } else {
                     examBtn.innerText = 'غير متوفر';
                     examBtn.style.opacity = '0.5';
                     examBtn.style.cursor = 'not-allowed';
+                    examBtn.onclick = null;
                 }
             }
 
@@ -4282,10 +4192,12 @@
                     audioBtn.innerText = 'استماع 🎙️';
                     audioBtn.style.opacity = '1';
                     audioBtn.style.cursor = 'pointer';
+                    audioBtn.onclick = openAudioFromModal;
                 } else {
                     audioBtn.innerText = 'غير متوفر';
                     audioBtn.style.opacity = '0.5';
                     audioBtn.style.cursor = 'not-allowed';
+                    audioBtn.onclick = null;
                 }
             }
 
@@ -4300,7 +4212,11 @@
 
         function goToVideoFromModal() {
             if (!currentLectureData || !currentLectureData.videoUrl) {
-                alert('فيديو المحاضرة قيد التجهيز من قبل الإدارة.');
+                if (typeof showToast === 'function') {
+                    showToast('فيديو المحاضرة قيد التجهيز من قبل الإدارة', 'warning');
+                } else {
+                    alert('فيديو المحاضرة قيد التجهيز من قبل الإدارة');
+                }
                 return;
             }
             const safeSub = subject || '';
@@ -4311,7 +4227,11 @@
 
         function openPdfFromModal() {
             if (!currentLectureData || !currentLectureData.pdfUrl) {
-                alert('ملخص السبورة غير متوفر لهذه المحاضرة.');
+                if (typeof showToast === 'function') {
+                    showToast('ملخص السبورة غير متوفر لهذه المحاضرة 📄', 'warning');
+                } else {
+                    alert('ملخص السبورة غير متوفر لهذه المحاضرة.');
+                }
                 return;
             }
             closeVideoPlayer();
@@ -4320,7 +4240,11 @@
 
         function openExamFromModal() {
             if (!currentLectureData || (!currentLectureData.jsonCode && !currentLectureData.hasQuiz && !currentLectureData.isStandaloneExam)) {
-                alert('الامتحان التدريبي غير متوفر لهذه المحاضرة.');
+                if (typeof showToast === 'function') {
+                    showToast('الامتحان التدريبي غير متوفر لهذه المحاضرة 📝', 'warning');
+                } else {
+                    alert('الامتحان التدريبي غير متوفر لهذه المحاضرة.');
+                }
                 return;
             }
             closeVideoPlayer();
@@ -4329,49 +4253,31 @@
 
         function openAudioFromModal() {
             if (!currentLectureData || !currentLectureData.audioUrl) {
-                alert('الشرح الصوتي غير متوفر لهذه المحاضرة.');
+                if (typeof showToast === 'function') {
+                    showToast('الشرح الصوتي غير متوفر لهذه المحاضرة 🎙️', 'warning');
+                } else {
+                    alert('الشرح الصوتي غير متوفر لهذه المحاضرة.');
+                }
                 return;
             }
             closeVideoPlayer();
             openAudioPlayer(currentLectureData.audioUrl, currentLectureTitle, currentLectureIndex, Boolean(currentLectureData.allowAudioDownload));
         }
- catch(e) {}
-            }
-            if (ytTarget) ytTarget.innerHTML = '';
-            if (ytShield) ytShield.style.display = 'none';
-            if (ytTopMask) ytTopMask.style.display = 'none';
-            if (ytBottomMask) ytBottomMask.style.display = 'none';
-            if (ytMaskL) ytMaskL.style.display = 'none';
-            if (ytMaskR) ytMaskR.style.display = 'none';
-            if (directPlayer) {
-                directPlayer.pause();
-                directPlayer.src = '';
-            }
-            if (driveFrame) driveFrame.src = '';
-            if (qaUnsubscribe && currentLectureKey) {
-                database.ref(`Community/${subject}/${currentLectureKey}`).off('value', qaUnsubscribe);
-            }
-            const videoBanner = document.getElementById('videoFixedBanner');
-            if (videoBanner) {
-                videoBanner.style.display = 'none';
-                videoBanner.style.opacity = '1';
-            }
-            isVideoPlayRequested = false;
-            document.getElementById('playerModal').classList.remove('active');
-        }
+
+        // Attach modal functions to window for guaranteed global reachability
+        window.openLectureModal = openLectureModal;
+        window.openVideoPlayer = openVideoPlayer;
+        window.openLectureRoadmap = openLectureRoadmap;
+        window.closeVideoPlayer = closeVideoPlayer;
+        window.goToVideoFromModal = goToVideoFromModal;
+        window.openPdfFromModal = openPdfFromModal;
+        window.openExamFromModal = openExamFromModal;
+        window.openAudioFromModal = openAudioFromModal;
 
         // Anti-Screen Recording & Anti-Tab Switch Guard
         document.addEventListener('visibilitychange', function() {
             const modal = document.getElementById('playerModal');
             if (document.hidden) {
-                if (currentVideoMode === 'youtube' && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                    try { ytPlayer.pauseVideo(); } catch(e){}
-                    updatePlayBtn(false);
-                } else if (currentVideoMode === 'mp4') {
-                    const directPlayer = document.getElementById('customVideoPlayer');
-                    if (directPlayer) directPlayer.pause();
-                    updatePlayBtn(false);
-                }
                 if (modal && modal.classList.contains('active')) {
                     modal.style.filter = 'blur(28px)';
                 }
@@ -4444,7 +4350,7 @@
                 window.location.href = `quiz.html?subject=${encodeURIComponent(subject)}`;
             });
         }
-                                        
+        
         loadLessons();
     </script>
 <script src="custom-dialogs.js?v=2027"></script>
