@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>إنشاء حساب جديد | ELKHETA Premium Registration</title>
+    <title>إنشاء حساب جديد | ELKHETA</title>
     <meta name="theme-color" content="#090D16">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -14,20 +14,18 @@
     <style>
         :root {
             --bg-base: #090D16;
-            --bg-surface: #0E1424;
-            --card-bg: rgba(14, 20, 36, 0.78);
+            --card-bg: rgba(14, 20, 36, 0.88);
             --gold-primary: #F59E0B;
             --gold-light: #FBBF24;
             --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-            --royal-blue: #2563EB;
-            --royal-gradient: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #2563EB 100%);
-            --btn-premium: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+            --btn-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+            --blue-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
             --text-main: #FFFFFF;
             --text-sub: #94A3B8;
             --text-dim: #64748B;
             --border-glass: rgba(255, 255, 255, 0.08);
-            --border-gold: rgba(245, 158, 11, 0.35);
-            --input-bg: rgba(255, 255, 255, 0.04);
+            --border-gold: rgba(245, 158, 11, 0.3);
+            --input-bg: rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -45,838 +43,564 @@
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
+            justify-content: flex-start;
+            padding: 12px 14px 40px;
+            overflow-y: auto;
             overflow-x: hidden;
             position: relative;
             background-image: 
-                radial-gradient(circle at 50% -20%, rgba(37, 99, 235, 0.22) 0%, transparent 60%),
+                radial-gradient(circle at 50% -15%, rgba(37, 99, 235, 0.22) 0%, transparent 60%),
                 radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 0% 80%, rgba(30, 58, 138, 0.18) 0%, transparent 50%);
+                radial-gradient(circle at 0% 80%, rgba(30, 58, 138, 0.15) 0%, transparent 50%);
         }
 
-        /* Ambient Glowing Background Orbs */
         .ambient-glow-top {
             position: fixed;
-            top: -120px;
-            right: -80px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(14, 20, 36, 0) 70%);
+            top: -100px;
+            right: -60px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 70%);
             z-index: 0;
             pointer-events: none;
-            filter: blur(60px);
-            animation: pulseGlow 9s ease-in-out infinite alternate;
+            filter: blur(50px);
         }
 
         .ambient-glow-bottom {
             position: fixed;
-            bottom: -140px;
-            left: -100px;
-            width: 520px;
-            height: 520px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, rgba(14, 20, 36, 0) 70%);
+            bottom: -100px;
+            left: -60px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
             z-index: 0;
             pointer-events: none;
-            filter: blur(65px);
-            animation: pulseGlow 11s ease-in-out infinite alternate-reverse;
+            filter: blur(50px);
         }
 
-        @keyframes pulseGlow {
-            0% { transform: scale(0.92) translate(0, 0); opacity: 0.65; }
-            100% { transform: scale(1.12) translate(25px, 20px); opacity: 1; }
-        }
-
-        .bg-grid-mesh {
-            position: fixed;
-            inset: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 32px 32px;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ─── Top Brand Header ─── */
-        .premium-header {
+        /* ─── Compact Top Header ─── */
+        .app-header {
             width: 100%;
-            max-width: 1100px;
-            padding: 24px 24px 10px;
+            max-width: 440px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 6px 4px 16px;
             position: relative;
-            z-index: 20;
+            z-index: 10;
         }
 
         .brand-link {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
             color: #FFFFFF;
-            transition: transform 0.2s;
         }
-        .brand-link:hover { transform: scale(1.02); }
 
         .brand-crest {
-            width: 46px;
-            height: 46px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
             border: 1.5px solid var(--border-gold);
-            border-radius: 14px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 18px;
             color: var(--gold-light);
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .brand-crest::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), transparent);
-        }
-
-        .brand-text-group {
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
         }
 
         .brand-title {
-            font-size: 21px;
+            font-size: 18px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: #FFFFFF;
             line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 10.5px;
+            color: var(--gold-light);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .header-action-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #F1F5F9;
+            padding: 7px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .header-action-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFFFFF;
+        }
+
+        /* ─── Luxury Auth Card ─── */
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-gold);
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card-top-badge {
+            align-self: flex-start;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--gold-light);
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .auth-hero-title {
+            font-size: 21px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-hero-subtitle {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.55;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: #E2E8F0;
             display: flex;
             align-items: center;
             gap: 6px;
         }
+        .form-label i { color: var(--gold-light); font-size: 13px; }
 
-        .brand-title span.crown {
-            color: var(--gold-light);
-            font-size: 14px;
-        }
-
-        .brand-tagline {
-            font-size: 11px;
-            color: var(--gold-light);
-            font-weight: 800;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-pill {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #F1F5F9;
-            padding: 8px 18px;
-            border-radius: 24px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s ease;
-            backdrop-filter: blur(12px);
-        }
-
-        .header-pill:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #FFFFFF;
-            border-color: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-        }
-
-        .header-pill.gold {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.25));
-            border-color: var(--border-gold);
-            color: var(--gold-light);
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.18);
-        }
-
-        .header-pill.gold:hover {
-            background: var(--gold-gradient);
-            color: #000000;
-            border-color: var(--gold-light);
-        }
-
-        /* ─── Main Content Container (Mobile-First) ─── */
-        .main-wrapper {
-            width: 100%;
-            max-width: 480px;
-            padding: 24px 18px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .input-wrapper {
             position: relative;
-            z-index: 10;
-            margin: auto 0;
-        }
-
-        /* 👑 Hero Personality Statement 👑 */
-        .hero-statement {
-            text-align: center;
-            margin-bottom: 22px;
             width: 100%;
         }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: rgba(245, 158, 11, 0.12);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 900;
-            color: var(--gold-light);
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
-        }
-
-        .hero-title {
-            font-size: 20px;
-            font-weight: 900;
-            color: #FFFFFF;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
-
-        .hero-quote {
-            font-size: 13.5px;
-            color: #94A3B8;
-            font-weight: 700;
-            line-height: 1.6;
-            max-width: 420px;
-            margin: 0 auto;
-        }
-
-        .hero-quote span.accent {
-            color: var(--gold-light);
-            font-weight: 800;
-        }
-
-        /* ─── Luxury Registration Glass Card ─── */
-        .premium-card {
+        .form-input {
             width: 100%;
-            background: var(--card-bg);
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
-            border-top: 2px solid var(--gold-primary);
-            border-radius: 28px;
-            padding: 34px 28px;
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.65),
-                        0 0 35px rgba(245, 158, 11, 0.08);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            position: relative;
-            animation: cardFadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes cardFadeUp {
-            from { opacity: 0; transform: translateY(18px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .card-header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        }
-
-        .card-header-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-header-title h2 {
-            font-size: 19px;
-            font-weight: 900;
-            color: #FFFFFF;
-            letter-spacing: -0.3px;
-        }
-
-        .step-badge {
-            background: rgba(37, 99, 235, 0.18);
-            color: #60A5FA;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        /* Form Inputs */
-        .form-group {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            color: #E2E8F0;
-            margin-bottom: 9px;
-        }
-
-        .form-label i {
-            color: var(--gold-light);
-            font-size: 13px;
-        }
-
-        .input-field-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-field-icon {
-            position: absolute;
-            right: 18px;
-            color: #64748B;
-            font-size: 16px;
-            pointer-events: none;
-            transition: color 0.3s;
-        }
-
-        .input-field-wrapper input {
-            width: 100%;
-            padding: 15px 50px 15px 18px;
+            height: 48px;
             background: var(--input-bg);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 700;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 0 42px 0 14px;
             color: #FFFFFF;
+            font-size: 14.5px;
+            font-weight: 700;
             outline: none;
-            transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: inherit;
+            transition: all 0.25s ease;
         }
-
-        .input-field-wrapper input::placeholder {
-            color: #64748B;
-            font-size: 13px;
+        .form-input::placeholder {
+            color: var(--text-dim);
+            font-size: 12.5px;
             font-weight: 600;
         }
-
-        .input-field-wrapper input:focus {
+        .form-input:focus {
             border-color: var(--gold-primary);
             background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
         }
 
-        .input-field-wrapper input:focus + .input-field-icon {
-            color: var(--gold-light);
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 15px;
+            transition: color 0.25s;
+            pointer-events: none;
         }
+        .form-input:focus + .input-icon { color: var(--gold-light); }
 
-        /* 🛡️ Compact Security Card (Instead of long boring text) 🛡️ */
-        .security-policy-card {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(14, 20, 36, 0.4) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 16px;
-            padding: 13px 16px;
-            margin-bottom: 20px;
+        /* Privacy Checkbox */
+        .privacy-row {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            text-align: right;
+            gap: 10px;
+            margin: 10px 0 18px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-
-        .security-policy-card .sec-icon {
-            color: #60A5FA;
-            font-size: 18px;
+        .privacy-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--gold-primary);
             margin-top: 2px;
+            cursor: pointer;
             flex-shrink: 0;
         }
-
-        .security-policy-card .sec-text {
-            font-size: 11.5px;
+        .privacy-label {
+            font-size: 12px;
             color: #CBD5E1;
-            font-weight: 600;
-            line-height: 1.6;
+            line-height: 1.5;
+            cursor: pointer;
+            font-weight: 700;
         }
-
-        .security-policy-card .sec-text strong {
-            color: #FFFFFF;
+        .privacy-label a {
+            color: var(--gold-light);
+            text-decoration: underline;
             font-weight: 800;
         }
 
-        /* Agreement Checkbox */
-        .agreement-row {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            background: var(--btn-gradient);
+            border: none;
             border-radius: 14px;
-            padding: 12px 14px;
-            margin-bottom: 24px;
+            color: #FFFFFF;
+            font-size: 15.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(245, 158, 11, 0.35);
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-align: right;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
         }
-
-        .agreement-checkbox {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--gold-primary);
-            cursor: pointer;
-            border-radius: 6px;
-            flex-shrink: 0;
+        .btn-submit:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 12px 28px rgba(245, 158, 11, 0.45);
         }
+        .btn-submit:active { transform: scale(0.98); }
 
-        .agreement-text {
-            font-size: 12.5px;
+        /* Motivational Note */
+        .motivational-box {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 12px;
             color: #CBD5E1;
             font-weight: 700;
             line-height: 1.5;
         }
 
-        .policy-trigger {
-            color: var(--gold-light);
-            font-weight: 800;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .policy-trigger:hover { color: #FFFFFF; }
-
-        /* 👑 High-Impact Premium Registration Button 👑 */
-        .btn-register-submit {
-            width: 100%;
-            padding: 16px;
-            background: var(--btn-premium);
-            color: #111827;
-            border: none;
-            border-radius: 18px;
-            font-size: 16px;
-            font-weight: 900;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 0.3px;
-        }
-
-        .btn-register-submit::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-
-        .btn-register-submit:hover::before { left: 100%; }
-        .btn-register-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 32px rgba(245, 158, 11, 0.5);
-            color: #000000;
-        }
-        .btn-register-submit:active { transform: translateY(0); }
-
-        /* Navigation Footnotes */
+        /* Bottom Links */
         .card-footer-links {
-            margin-top: 22px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding-top: 18px;
-            text-align: center;
+            align-items: center;
+            gap: 10px;
         }
 
-        .link-to-login {
-            color: var(--gold-light);
-            font-size: 13.5px;
+        .switch-auth-link {
+            color: #93C5FD;
+            font-size: 13px;
             font-weight: 800;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        .link-to-login:hover {
-            color: #FFFFFF;
-            text-decoration: underline;
-        }
-
-        .link-admin-gate {
-            color: var(--text-dim);
-            font-size: 12px;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             gap: 6px;
             transition: color 0.2s;
         }
-        .link-admin-gate:hover { color: #94A3B8; }
+        .switch-auth-link:hover { color: #FFFFFF; text-decoration: underline; }
 
-        /* Minimal Bottom Bar */
-        .bottom-bar {
-            width: 100%;
-            max-width: 1100px;
-            padding: 16px 24px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-size: 12px;
-            color: var(--text-dim);
-            font-weight: 700;
-            position: relative;
-            z-index: 20;
-        }
-
-        /* Live Chat Floating Button */
+        /* Floating Support Button */
         .floating-chat-btn {
             position: fixed;
-            bottom: 24px;
-            left: 24px;
-            z-index: 99990;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%);
-            color: #FFFFFF !important;
+            gap: 8px;
+            background: var(--blue-gradient);
+            color: #FFFFFF;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: 50px;
-            box-shadow: 0 10px 28px -6px rgba(37, 99, 235, 0.45);
-            cursor: pointer;
-            font-family: 'Cairo', sans-serif;
-            font-size: 13.5px;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45);
+            font-size: 13px;
             font-weight: 800;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            user-select: none;
+            transition: all 0.25s;
         }
         .floating-chat-btn:hover {
-            transform: translateY(-3px) scale(1.04);
-            box-shadow: 0 14px 34px -6px rgba(37, 99, 235, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.6);
         }
-        .floating-chat-btn:active { transform: scale(0.95); }
-
-        .chat-indicator-dot {
-            width: 9px;
-            height: 9px;
+        .floating-chat-btn .dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #10B981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
-            animation: dotPulse 2s infinite;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
         }
-        @keyframes dotPulse {
-            0% { transform: scale(0.95); }
-            50% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); }
+
+        /* Privacy Modal */
+        .privacy-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .privacy-modal.active { display: flex; }
+        .privacy-card {
+            background: #0E1424;
+            border: 1.5px solid var(--border-gold);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            color: #FFFFFF;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .privacy-body {
+            overflow-y: auto;
+            padding: 12px 6px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #CBD5E1;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px 12px 36px; }
+            .auth-card { padding: 20px 16px; border-radius: 20px; }
+            .auth-hero-title { font-size: 19px; }
+            .auth-hero-subtitle { font-size: 12.5px; }
+            .form-input { height: 46px; font-size: 14px; }
+            .btn-submit { height: 48px; font-size: 15px; }
+            .floating-chat-btn { bottom: 14px; left: 14px; padding: 8px 14px; font-size: 12px; }
         }
 
         /* Toast */
         #toast {
             visibility: hidden;
             min-width: 280px;
+            max-width: 90%;
             background: rgba(14, 20, 36, 0.96);
             backdrop-filter: blur(14px);
             color: #FFF;
             text-align: center;
-            border-radius: 16px;
-            padding: 14px 20px;
+            border-radius: 14px;
+            padding: 12px 18px;
             position: fixed;
             z-index: 999999;
-            bottom: 30px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             opacity: 0;
-            transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-size: 14px;
+            transition: all 0.3s ease;
+            font-size: 13.5px;
             font-weight: 800;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-bottom: 4px solid var(--gold-primary);
         }
         #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* Privacy Policy Modal */
-        .privacy-modal {
-            position: fixed; inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(12px);
-            z-index: 99999;
-            display: none; align-items: center; justify-content: center;
-            padding: 20px;
-        }
-        .privacy-modal.active { display: flex; }
-        .privacy-content {
-            background: #0F172A;
-            border: 1.5px solid rgba(245, 158, 11, 0.3);
-            border-radius: 24px; width: 100%; max-width: 520px;
-            max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-        }
-        .privacy-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            background: rgba(14, 20, 36, 0.9);
-        }
-        .privacy-header h3 { color: #FFFFFF; font-size: 18px; font-weight: 800; }
-        .privacy-body {
-            padding: 24px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.7; color: #CBD5E1; text-align: right;
-        }
-        .privacy-footer {
-            padding: 18px 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; justify-content: center;
-            background: rgba(14, 20, 36, 0.9);
-        }
-        .btn-agree {
-            background: var(--btn-premium);
-            color: #111827; padding: 14px 30px; border: none;
-            border-radius: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%; font-size: 15px;
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
-            font-family: inherit;
-        }
-        .btn-agree:disabled { background: #334155; color: #64748B; cursor: not-allowed; opacity: 0.6; box-shadow: none; }
-
-        .section-box { margin-bottom: 22px; }
-        .section-title { color: var(--gold-light); font-size: 15.5px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .privacy-body p { font-size: 13.5px; color: #94A3B8; margin-bottom: 10px; }
-        .privacy-body ul { padding-right: 20px; margin-bottom: 15px; }
-        .privacy-body li { font-size: 13.5px; color: #CBD5E1; margin-bottom: 6px; }
-
-        @media (max-width: 640px) {
-            .premium-header { padding: 16px 18px 6px; }
-            .header-actions .header-pill:not(.gold) { display: none; }
-            .premium-card { padding: 28px 20px; border-radius: 24px; }
-            .hero-title { font-size: 18px; }
-            .bottom-bar { justify-content: center; text-align: center; }
-            .floating-chat-btn { bottom: 18px; left: 18px; padding: 10px 16px; font-size: 12.5px; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Background Orbs -->
     <div class="ambient-glow-top"></div>
     <div class="ambient-glow-bottom"></div>
-    <div class="bg-grid-mesh"></div>
 
-    <!-- Top Brand Header -->
-    <header class="premium-header">
+    <!-- Header Navbar -->
+    <header class="app-header">
         <a href="index.html" class="brand-link">
             <div class="brand-crest">
                 <i class="fa-solid fa-crown"></i>
             </div>
-            <div class="brand-text-group">
-                <div class="brand-title">
-                    ELKHETA
-                    <span class="crown">👑</span>
-                </div>
-                <div class="brand-tagline">منصة الخطة التعليمية</div>
+            <div>
+                <div class="brand-title">ELKHETA</div>
+                <div class="brand-subtitle">منصة الخطة التعليمية</div>
             </div>
         </a>
 
-        <div class="header-actions">
-            <a href="index.html" class="header-pill">
-                <i class="fa-solid fa-house"></i>
-                <span>الرئيسية</span>
-            </a>
-            <a href="login.html" class="header-pill gold">
-                <i class="fa-solid fa-key"></i>
-                <span>تسجيل الدخول</span>
-            </a>
-        </div>
+        <a href="login.html" class="header-action-btn">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span>تسجيل الدخول</span>
+        </a>
     </header>
 
-    <!-- Main Registration Wrapper -->
-    <main class="main-wrapper">
+    <!-- Main Card -->
+    <main class="auth-card">
         
-        <!-- 👑 Hero Personality Statement 👑 -->
-        <div class="hero-statement">
-            <div class="hero-badge">
-                <i class="fa-solid fa-certificate"></i>
-                <span>ELKHETA • PREMIUM REGISTRATION</span>
-            </div>
-            <h1 class="hero-title">YOUR ACADEMIC JOURNEY STARTS HERE</h1>
-            <p class="hero-quote">
-                "أنت لا تُنشئ حساباً في موقع... <span class="accent">أنت تبدأ حسابك في منظومتك التعليمية المتكاملة</span>"
-            </p>
+        <div class="card-top-badge">
+            <i class="fa-solid fa-star"></i>
+            <span>خطوتك الأولى نحو التميز</span>
         </div>
 
-        <!-- 👑 The Glass Registration Card 👑 -->
-        <div class="premium-card">
-            
-            <div class="card-header-bar">
-                <div class="card-header-title">
-                    <span style="font-size: 20px;">🎓</span>
-                    <h2>بيانات الانضمام للمنظومة</h2>
-                </div>
-                <span class="step-badge">تسجيل معتمد ✅</span>
+        <h1 class="auth-hero-title">
+            <span>انضم لأبطال الخطة</span>
+            <span style="color: var(--gold-light); font-size: 20px;">👑</span>
+        </h1>
+
+        <p class="auth-hero-subtitle">
+            سجّل بياناتك في ثوانٍ واحصل على كودك الدراسي فوراً لتبدأ رحلة النجاح وصناعة مستقبلك ✨
+        </p>
+
+        <!-- Full Name Input -->
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fa-solid fa-user"></i>
+                <span>الاسم الثلاثي للطالب</span>
+            </label>
+            <div class="input-wrapper">
+                <input type="text" id="fullName" class="form-input" placeholder="اكتب اسمك كما تحب في شهادة التكريم 🏅" autofocus autocomplete="name">
+                <i class="fa-solid fa-id-card input-icon"></i>
             </div>
+        </div>
 
-            <!-- Full Name Input -->
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fa-solid fa-user"></i>
-                    <span>الاسم الثلاثي للطالب</span>
-                </label>
-                <div class="input-field-wrapper">
-                    <input type="text" id="fullName" placeholder="أدخل اسمك الثلاثي لشهادات التقدير" autofocus autocomplete="name">
-                    <i class="fa-solid fa-id-card input-field-icon"></i>
-                </div>
+        <!-- WhatsApp Input -->
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>رقم الواتساب للتواصل</span>
+            </label>
+            <div class="input-wrapper">
+                <input type="tel" id="whatsapp" class="form-input" placeholder="01xxxxxxxxx (لتصلك المواد والامتحانات) 📲" maxlength="11" dir="ltr" style="text-align: right;" autocomplete="tel">
+                <i class="fa-brands fa-whatsapp input-icon"></i>
             </div>
+        </div>
 
-            <!-- WhatsApp Input -->
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    <span>رقم الواتساب للتواصل</span>
-                </label>
-                <div class="input-field-wrapper">
-                    <input type="tel" id="whatsapp" placeholder="01xxxxxxxxx" maxlength="11" dir="ltr" style="text-align: right;" autocomplete="tel">
-                    <i class="fa-solid fa-phone input-field-icon"></i>
-                </div>
+        <!-- Email Input -->
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fa-solid fa-envelope"></i>
+                <span>البريد الإلكتروني (اختياري)</span>
+            </label>
+            <div class="input-wrapper">
+                <input type="email" id="email" class="form-input" placeholder="لحفظ حسابك وسهولة استرجاع كودك 🔒" dir="ltr" style="text-align: right;" autocomplete="email">
+                <i class="fa-solid fa-at input-icon"></i>
             </div>
+        </div>
 
-            <!-- Email Input (Optional) -->
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>البريد الإلكتروني (اختياري)</span>
-                </label>
-                <div class="input-field-wrapper">
-                    <input type="email" id="email" placeholder="example@gmail.com" dir="ltr" style="text-align: right;" autocomplete="email">
-                    <i class="fa-solid fa-at input-field-icon"></i>
-                </div>
-            </div>
+        <!-- Privacy Row -->
+        <div class="privacy-row">
+            <input type="checkbox" id="privacyCheck">
+            <label class="privacy-label" for="privacyCheck">
+                أوافق على <a href="javascript:void(0)" onclick="openPrivacyModal()">سياسة المنصة</a> ومستعد لرحلة الالتزام والاجتهاد والتفوق 🤝
+            </label>
+        </div>
 
-            <!-- 🛡️ Smart Security Card 🛡️ -->
-            <div class="security-policy-card">
-                <div class="sec-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="sec-text">
-                    <strong>حماية الحساب الأكاديمي:</strong> الحساب يتم اقترانه بجهازين فقط معتمدين لمنع المشاركة والحفاظ على درجاتك وتفوقك.
-                </div>
-            </div>
+        <!-- Submit Button -->
+        <button class="btn-submit" id="submitBtn" onclick="register()">
+            <span>اصنع حسابك وابدأ الآن مجاناً</span>
+            <i class="fa-solid fa-sparkles"></i>
+        </button>
 
-            <!-- Privacy Policy Agreement -->
-            <div class="agreement-row">
-                <input type="checkbox" id="privacyCheck" class="agreement-checkbox" checked>
-                <label class="agreement-text" for="privacyCheck">
-                    أوافق على <span class="policy-trigger" onclick="openPrivacyModal()">سياسة الخصوصية وقوانين الأمان المعتمدة</span>
-                </label>
-            </div>
+        <!-- Motivational Note -->
+        <div class="motivational-box">
+            🛡️ "منظومة تعليمية متكاملة تدعمك وترافقك خطوة بخطوة حتى يوم الامتحان"
+        </div>
 
-            <!-- Submit Button -->
-            <button class="btn-register-submit" id="submitBtn" onclick="register()">
-                <span>بدء الرحلة وإنشاء الحساب الآن</span>
-                <i class="fa-solid fa-rocket"></i>
-            </button>
-
-            <!-- Bottom Navigation Links -->
-            <div class="card-footer-links">
-                <a href="login.html" class="link-to-login">
-                    <span>لديك كود طالب بالفعل؟ سجل دخولك من هنا 🔑</span>
-                    <i class="fa-solid fa-arrow-left" style="font-size: 11px;"></i>
-                </a>
-                <a href="admin-gate.html" class="link-admin-gate">
-                    <i class="fa-solid fa-lock"></i>
-                    <span>بوابة دخول الإدارة والمشرفين</span>
-                </a>
-            </div>
-
+        <!-- Footer Links -->
+        <div class="card-footer-links">
+            <a href="login.html" class="switch-auth-link">
+                <span>لديك كود طالب بالفعل؟ سجّل دخولك من هنا</span>
+                <span>👈</span>
+            </a>
         </div>
 
     </main>
 
-    <!-- Bottom Footer Bar -->
-    <footer class="bottom-bar">
-        <div>منصة الخطة التعليمية © 2027 • تحت إشراف ودعم فريق منصة الخطة</div>
-        <a href="chat.html" class="floating-chat-btn" title="تواصل مع إدارة المنصة (مكتب الدعم المباشر)">
-            <span class="chat-indicator-dot"></span>
-            <i class="fa-solid fa-comments"></i>
-            <span>تواصل مع الإدارة</span>
-        </a>
-    </footer>
+    <!-- Floating Live Support Button -->
+    <a href="chat.html" class="floating-chat-btn" title="تواصل مع إدارة المنصة والمساعدين">
+        <span class="dot"></span>
+        <i class="fa-solid fa-headset"></i>
+        <span>الدعم الأكاديمي</span>
+    </a>
 
-    <!-- Toast Container -->
-    <div id="toast"></div>
-
-    <!-- Privacy Policy Modal -->
-    <div class="privacy-modal" id="privacyModal">
-        <div class="privacy-content">
-            <div class="privacy-header">
-                <h3>📜 ميثاق الأمان وقوانين منصة الخطة</h3>
+    <!-- Privacy Modal -->
+    <div class="privacy-modal" id="privacyModal" onclick="if(event.target===this) this.classList.remove('active')">
+        <div class="privacy-card" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:12px;">
+                <h3 style="font-size:16px; font-weight:800; color:var(--gold-light);">📜 سياسة المنصة والالتزام التعليمي</h3>
+                <button onclick="document.getElementById('privacyModal').classList.remove('active')" style="background:transparent; border:none; color:#94A3B8; font-size:18px; cursor:pointer;">✕</button>
             </div>
             <div class="privacy-body" id="privacyBody" onscroll="checkPrivacyScroll()">
-                <div class="section-box">
-                    <h4 class="section-title">1️⃣ الخطوة الأولى: تسجيل البيانات</h4>
-                    <p>يتم تسجيل اسمك الثلاثي لظهور شهادات التقدير وبطاقات الأداء الأكاديمي باسمك الدقيق، ورقم الواتساب لربط التنبيهات.</p>
-                </div>
-
-                <div class="section-box">
-                    <h4 class="section-title">2️⃣ الخطوة الثانية: كود الطالب الفريد</h4>
-                    <p>فور إتمام التسجيل، يتم إصدار "كود الطالب الأكاديمي" (مثال: S1234). يرجى الاحتفاظ بهذا الكود لأنه مفتاح دخولك الدائم للمنصة.</p>
-                </div>
-
-                <div class="section-box">
-                    <h4 class="section-title">🛡️ منظومة حماية الحسابات</h4>
-                    <p>منظومة الخطة مؤمنة بنظام ذكي لمنع مشاركة الحسابات وحماية خصوصية الطلاب:</p>
-                    <ul>
-                        <li>يُسمح بالدخول من جهازين فقط (مثلاً: الهاتف الشخصي وجهاز الكمبيوتر).</li>
-                        <li>ممنوع تداول الكود مع أي طرف آخر لضمان عدم حظر الحساب تلقائياً.</li>
-                    </ul>
-                </div>
+                <p style="margin-bottom:10px;">أهلاً بك في منصة الخطة التعليمية. نهدف إلى تقديم بيئة تعليمية راقية ومتميزة لكل طالب مجتهد.</p>
+                <p style="margin-bottom:10px;">1. يُمنع مشاركة كود الطالب الخاص بك مع أي شخص آخر لضمان سرية تقدمك وتقاريرك الأكاديمية.</p>
+                <p style="margin-bottom:10px;">2. كافة المحتويات والمحاضرات والامتحانات والملخصات هي حقوق ملكية فكرية مخصصة للطلاب المشتركين.</p>
+                <p style="margin-bottom:10px;">3. الالتزام بالأخلاق والآداب العامة أثناء التواصل مع المشرفين أو المعلمين عبر المنصة.</p>
+                <p>4. نحن نحترم خصوصيتك وبياناتك ولا يتم مشاركة أي رقم أو بريد إلكتروني مع أي أطراف خارجية.</p>
             </div>
-            <div class="privacy-footer">
-                <button class="btn-agree" id="btnAgree" onclick="acceptPrivacy()">أوافق وأتعهد بالالتزام بالتعليمات 🤝</button>
-            </div>
+            <button id="btnAgree" onclick="acceptPrivacy()" style="margin-top:14px; width:100%; height:44px; background:var(--gold-primary); color:#000; border:none; border-radius:12px; font-weight:900; font-size:14px; cursor:pointer;">
+                موافق وأتعهد بالالتزام 👍
+            </button>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
         function showToast(message, type = "info") {
             const toast = document.getElementById("toast");
+            if (!toast) return;
             toast.innerHTML = message;
             if (type === 'success') toast.style.borderBottomColor = '#10B981';
             else if (type === 'error') toast.style.borderBottomColor = '#EF4444';
             else if (type === 'warning') toast.style.borderBottomColor = '#F59E0B';
             else toast.style.borderBottomColor = '#3B82F6';
             toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
+            if (window._toastTimeout) clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -889,17 +613,17 @@
             const privacyChecked = document.getElementById('privacyCheck').checked;
 
             if (!name || phone.length < 10) {
-                showToast("يرجى إدخال الاسم الثلاثي ورقم الواتساب الصحيح ⚠️", "warning");
+                showToast("يرجى إدخال اسمك الكريم ورقم الواتساب الصحيح ⚠️", "warning");
                 return;
             }
             
             if (!privacyChecked) {
-                showToast("يجب قراءة سياسة الخصوصية والموافقة عليها أولاً ⚠️", "error");
+                showToast("يرجى الموافقة على سياسة المنصة والالتزام أولاً ⚠️", "error");
                 return;
             }
 
             const btn = document.getElementById('submitBtn');
-            btn.innerHTML = `<span>جاري إنشاء الحساب الأكاديمي...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
+            btn.innerHTML = '<span>جاري إنشاء الحساب الأكاديمي...</span> <i class="fa-solid fa-spinner fa-spin"></i>';
             btn.disabled = true;
             btn.style.opacity = "0.75";
 
@@ -929,7 +653,7 @@
             }).catch((err) => {
                 console.error(err);
                 showToast("حدث خطأ أثناء إنشاء الحساب، يرجى المحاولة لاحقاً ⚠️", "error");
-                btn.innerHTML = `<span>بدء الرحلة وإنشاء الحساب الآن</span> <i class="fa-solid fa-rocket"></i>`;
+                btn.innerHTML = '<span>اصنع حسابك وابدأ الآن مجاناً</span> <i class="fa-solid fa-sparkles"></i>';
                 btn.disabled = false;
                 btn.style.opacity = "1";
             });

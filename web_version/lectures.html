@@ -4133,6 +4133,32 @@
             });
         }
 
+        function showToast(msg, type = 'info') {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.style.cssText = 'position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.95);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:700;z-index:999999;box-shadow:0 10px 25px rgba(0,0,0,0.3);transition:all 0.3s ease;pointer-events:none;font-family:Cairo,sans-serif;border:1px solid rgba(255,255,255,0.1);max-width:90%;text-align:center;';
+                document.body.appendChild(toast);
+            }
+            const colors = {
+                success: '#10B981',
+                warning: '#F59E0B',
+                error: '#EF4444',
+                info: '#3B82F6'
+            };
+            toast.style.borderBottom = `4px solid ${colors[type] || '#3B82F6'}`;
+            toast.innerHTML = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            if (window._toastTimeout) clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(10px)';
+            }, 3200);
+        }
+        window.showToast = showToast;
+
         function openVideoPlayer(videoUrl, title, index) {
             openLectureModal(index, title);
         }
@@ -4141,23 +4167,31 @@
 
         function openLectureModal(indexOrId, title) {
             let lesson = null;
+            let numericIndex = 0;
             if (typeof indexOrId === 'object' && indexOrId !== null) {
                 lesson = indexOrId;
+                numericIndex = Array.isArray(allLessons) ? allLessons.indexOf(lesson) : 0;
+                if (numericIndex < 0) numericIndex = 0;
             } else if (typeof indexOrId === 'string') {
-                lesson = allLessons.find(l => l.id === indexOrId || l.title === indexOrId) || null;
+                numericIndex = Array.isArray(allLessons) ? allLessons.findIndex(l => l.id === indexOrId || l.title === indexOrId) : 0;
+                lesson = numericIndex >= 0 ? allLessons[numericIndex] : null;
+                if (numericIndex < 0) numericIndex = 0;
             } else if (typeof indexOrId === 'number') {
-                lesson = allLessons[indexOrId] || null;
+                numericIndex = indexOrId;
+                lesson = Array.isArray(allLessons) ? (allLessons[numericIndex] || null) : null;
             }
-            if (!lesson && indexOrId !== undefined) {
-                lesson = allLessons.find(l => l.id === indexOrId || l.title === title) || allLessons[0] || null;
+            if (!lesson && indexOrId !== undefined && Array.isArray(allLessons)) {
+                numericIndex = allLessons.findIndex(l => l.id === indexOrId || l.title === title);
+                lesson = numericIndex >= 0 ? allLessons[numericIndex] : (allLessons[0] || null);
+                if (numericIndex < 0) numericIndex = 0;
             }
             if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
                 showLockedModal(lesson);
                 return;
             }
 
-            currentLectureIndex = (index !== undefined) ? index : 0;
-            currentLectureData = lesson || (allLessons[currentLectureIndex] || null);
+            currentLectureIndex = numericIndex;
+            currentLectureData = lesson || (Array.isArray(allLessons) ? (allLessons[currentLectureIndex] || null) : null);
             currentLectureTitle = title || (currentLectureData ? currentLectureData.title : 'المحاضرة');
             currentLectureKey = (currentLectureData && currentLectureData.id) ? currentLectureData.id : currentLectureTitle;
 
@@ -4173,7 +4207,7 @@
             const pdfBtn = document.getElementById('modalRoadmapPdfBtn');
             if (pdfBtn) {
                 const hasPdf = Boolean(currentLectureData && (currentLectureData.pdfUrl || currentLectureData.pdf || currentLectureData.pdf_url || currentLectureData.summaryUrl || currentLectureData.boardUrl || currentLectureData.fileUrl));
-            if (hasPdf) {
+                if (hasPdf) {
                     pdfBtn.innerText = 'عرض الملف 📄';
                     pdfBtn.style.opacity = '1';
                     pdfBtn.style.cursor = 'pointer';
@@ -4235,12 +4269,18 @@
             }
 
             const modal = document.getElementById('playerModal');
-            if (modal) modal.classList.add('active');
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+            }
         }
 
         function closeVideoPlayer() {
             const modal = document.getElementById('playerModal');
-            if (modal) modal.classList.remove('active');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
         }
 
         function goToVideoFromModal() {
