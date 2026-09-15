@@ -559,58 +559,246 @@
 
         /**
          * 👑 Shows a magnificent motivational welcome modal upon successful login!
+         * Features:
+         * - 180 seconds (~3 min) reflection timer to read Quranic verses, Hadiths, and poems.
+         * - Prominent "انتقل للمنصة الآن 🚀" button allowing the student to enter immediately anytime.
+         * - "درّة أخرى 🔄" button to browse quotes during reflection.
+         * - Smooth live MM:SS countdown.
+         * - Auto-redirects when timer expires if user didn't click earlier.
          */
         showLoginSuccessModal(studentName, onComplete) {
             const quote = this.getRandom();
             const cleanName = studentName || 'طالبنا المتميز';
+            const totalDurationSec = 180; // 180 seconds = 3 minutes
+            let timerInterval = null;
+            let hasCompleted = false;
+
+            const executeComplete = () => {
+                if (hasCompleted) return;
+                hasCompleted = true;
+                if (timerInterval) clearInterval(timerInterval);
+                QuotesEngine._activeNavigateNow = null;
+                const fallbackEl = document.getElementById('fallbackMotivationalModal');
+                if (fallbackEl) fallbackEl.remove();
+                if (typeof onComplete === 'function') {
+                    onComplete();
+                }
+            };
+
+            // Global trigger so buttons or keyboard shortcuts can instantly enter
+            QuotesEngine.navigateNow = function() {
+                if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                    Swal.close();
+                }
+                executeComplete();
+            };
+
+            // Inject custom gold border styles if not present
+            if (!document.getElementById('elkheta-quotes-modal-css')) {
+                const style = document.createElement('style');
+                style.id = 'elkheta-quotes-modal-css';
+                style.textContent = `
+                    .swal2-border-gold {
+                        border: 1.5px solid rgba(245, 158, 11, 0.4) !important;
+                        border-radius: 24px !important;
+                        box-shadow: 0 12px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.15) !important;
+                        max-width: 490px !important;
+                        width: 92% !important;
+                        padding: 20px 18px 24px !important;
+                    }
+                    .swal2-timer-progress-bar {
+                        background: linear-gradient(90deg, #F59E0B, #3B82F6) !important;
+                        height: 3.5px !important;
+                    }
+                    @keyframes pulseBadge {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.04); }
+                        100% { transform: scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
 
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
-                    title: `<div style="font-size: 19px; font-weight: 900; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <span>مرحباً بك يا ${cleanName}</span> 🌟
-                            </div>`,
+                    title: `
+                        <div style="font-size: 19px; font-weight: 900; color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px; padding-top: 4px;">
+                            <span>مرحباً بك يا ${cleanName}</span> 🌟
+                        </div>
+                    `,
                     html: `
                         <div style="margin-top: 8px; text-align: center; direction: rtl;">
-                            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #FBBF24; font-size: 11.5px; font-weight: 800; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px;">
-                                <i class="${quote.icon}"></i> <span>${quote.badge}</span>
+                            <!-- Timer & Badge Strip -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+                                <div id="modalQuoteBadge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: ${quote.color || '#FBBF24'}; font-size: 12px; font-weight: 800; padding: 5px 14px; border-radius: 20px;">
+                                    <i id="modalQuoteIcon" class="${quote.icon || 'fa-solid fa-sun'}"></i>
+                                    <span id="modalQuoteBadgeText">${quote.badge || '✨ درّة ملهمة'}</span>
+                                </div>
+
+                                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.45); color: #93C5FD; font-size: 12px; font-weight: 900; padding: 5px 14px; border-radius: 20px;">
+                                    <i class="fa-solid fa-stopwatch fa-beat-fade" style="color: #38BDF8;"></i>
+                                    <span>مهلة التأمل:</span>
+                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 14px; color: #FFFFFF; letter-spacing: 1px; font-weight: 900;">03:00</span>
+                                </div>
                             </div>
 
-                            <div style="background: rgba(14, 20, 36, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px 14px; margin-bottom: 12px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);">
-                                <div style="font-size: 15px; font-weight: 900; color: #F8FAFC; line-height: 1.7; font-family: 'Cairo', sans-serif;">
+                            <!-- Quote Card Box -->
+                            <div style="background: rgba(14, 20, 36, 0.88); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 18px; padding: 18px 16px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(245, 158, 11, 0.08); position: relative;">
+                                <div id="modalQuoteText" style="font-size: 15.5px; font-weight: 900; color: #F8FAFC; line-height: 1.75; font-family: 'Cairo', sans-serif; min-height: 52px; display: flex; align-items: center; justify-content: center; transition: opacity 0.22s ease, transform 0.22s ease;">
                                     ${quote.text}
                                 </div>
-                                <div style="font-size: 12px; color: #F59E0B; font-weight: 800; margin-top: 8px;">
+                                <div id="modalQuoteSource" style="font-size: 12.5px; color: #F59E0B; font-weight: 800; margin-top: 10px; transition: opacity 0.22s ease;">
                                     — ${quote.source}
                                 </div>
                             </div>
 
-                            <p style="font-size: 13px; color: #94A3B8; font-weight: 700; margin: 0 0 14px 0; line-height: 1.6;">
-                                خطوتك الأولى لصناعة مستقبلك تبدأ الآن.. نسأل الله لك التوفيق والسداد والدرجات العلا دائماً 🚀
+                            <!-- Interactive Quote Switcher & Tip -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                                <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 50px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.16)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                    <span>درّة أخرى 🔄</span>
+                                </button>
+                                <span style="font-size: 11.5px; color: #94A3B8; font-weight: 700;">استحضر نيتك وتوكل على الله 🤍</span>
+                            </div>
+
+                            <p style="font-size: 12.5px; color: #94A3B8; font-weight: 700; margin: 0 0 16px 0; line-height: 1.6;">
+                                مهلة 3 دقائق للقراءة والاستلهام.. ويمكنك الدخول للمنصة فوراً في أي وقت بالزر أدناه 👇
                             </p>
 
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: #38BDF8; font-weight: 800;">
-                                <i class="fa-solid fa-circle-notch fa-spin"></i>
-                                <span>جاري نقلك للمنصة التعليمية...</span>
-                            </div>
+                            <!-- Instant Navigation Button -->
+                            <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%); color: #090D16; font-weight: 900; font-size: 16px; padding: 14px 20px; border: none; border-radius: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45); transition: transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px) scale(1.01)'" onmouseout="this.style.transform='translateY(0) scale(1)'">
+                                <span>انتقل للمنصة الآن 🚀</span>
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
                         </div>
                     `,
                     background: '#090D16',
                     color: '#FFFFFF',
-                    showConfirmButton: true,
-                    confirmButtonText: 'انطلق الآن 🚀',
-                    confirmButtonColor: '#F59E0B',
-                    timer: 3200,
-                    timerProgressBar: true,
+                    showConfirmButton: false,
                     allowOutsideClick: false,
+                    allowEscapeKey: true,
+                    timer: 180000,
+                    timerProgressBar: true,
                     customClass: {
                         popup: 'swal2-border-gold'
+                    },
+                    didOpen: () => {
+                        const countdownEl = document.getElementById('modalTimerCountdown');
+                        const startTime = Date.now();
+                        const durationMs = 180 * 1000;
+
+                        timerInterval = setInterval(() => {
+                            const elapsed = Date.now() - startTime;
+                            const remainMs = Math.max(0, durationMs - elapsed);
+                            const totalSec = Math.ceil(remainMs / 1000);
+
+                            const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+                            const secs = (totalSec % 60).toString().padStart(2, '0');
+
+                            if (countdownEl) {
+                                countdownEl.textContent = `${mins}:${secs}`;
+                            }
+
+                            if (remainMs <= 0) {
+                                clearInterval(timerInterval);
+                                if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                                    Swal.close();
+                                }
+                                executeComplete();
+                            }
+                        }, 500);
+                    },
+                    willClose: () => {
+                        if (timerInterval) clearInterval(timerInterval);
                     }
                 }).then(() => {
-                    if (typeof onComplete === 'function') onComplete();
+                    executeComplete();
                 });
             } else {
-                if (typeof onComplete === 'function') onComplete();
+                // Standalone fallback modal without Swal
+                const existing = document.getElementById('fallbackMotivationalModal');
+                if (existing) existing.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'fallbackMotivationalModal';
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9,13,22,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Cairo,sans-serif;';
+                overlay.innerHTML = `
+                    <div style="background:#090D16; border:1.5px solid rgba(245,158,11,0.4); border-radius:24px; max-width:480px; width:100%; padding:22px; box-shadow:0 12px 40px rgba(0,0,0,0.8); text-align:center; color:#FFF;">
+                        <div style="font-size:19px; font-weight:900; margin-bottom:12px;">مرحباً بك يا ${cleanName} 🌟</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <span id="modalQuoteBadge" style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#FBBF24; font-size:12px; font-weight:800; padding:4px 12px; border-radius:20px;">
+                                <i id="modalQuoteIcon" class="${quote.icon}"></i> <span id="modalQuoteBadgeText">${quote.badge}</span>
+                            </span>
+                            <span style="color:#93C5FD; font-size:12px; font-weight:900;">
+                                ⏱️ مهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:14px; color:#FFF;">03:00</span>
+                            </span>
+                        </div>
+                        <div style="background:rgba(14,20,36,0.88); border:1px solid rgba(245,158,11,0.3); border-radius:18px; padding:16px; margin-bottom:12px;">
+                            <div id="modalQuoteText" style="font-size:15px; font-weight:900; line-height:1.7;">${quote.text}</div>
+                            <div id="modalQuoteSource" style="font-size:12px; color:#F59E0B; font-weight:800; margin-top:8px;">— ${quote.source}</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                            <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#FFF; font-size:12px; font-weight:800; padding:6px 14px; border-radius:30px; cursor:pointer;">
+                                درّة أخرى 🔄
+                            </button>
+                            <span style="font-size:11px; color:#94A3B8;">استحضر نيتك وتوكل على الله 🤍</span>
+                        </div>
+                        <button type="button" onclick="QuotesEngine.navigateNow()" style="width:100%; background:linear-gradient(135deg,#F59E0B,#D97706); color:#090D16; font-weight:900; font-size:16px; padding:13px; border:none; border-radius:16px; cursor:pointer;">
+                            انتقل للمنصة الآن 🚀
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                const countdownEl = document.getElementById('modalTimerCountdown');
+                const startTime = Date.now();
+                const durationMs = 180 * 1000;
+
+                timerInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const remainMs = Math.max(0, durationMs - elapsed);
+                    const totalSec = Math.ceil(remainMs / 1000);
+
+                    const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+                    const secs = (totalSec % 60).toString().padStart(2, '0');
+
+                    if (countdownEl) {
+                        countdownEl.textContent = `${mins}:${secs}`;
+                    }
+
+                    if (remainMs <= 0) {
+                        clearInterval(timerInterval);
+                        executeComplete();
+                    }
+                }, 500);
             }
+        },
+
+        nextModalQuote() {
+            const quote = this.getRandom();
+            const textEl = document.getElementById('modalQuoteText');
+            const sourceEl = document.getElementById('modalQuoteSource');
+            const iconEl = document.getElementById('modalQuoteIcon');
+            const badgeTextEl = document.getElementById('modalQuoteBadgeText');
+            const badgeEl = document.getElementById('modalQuoteBadge');
+
+            if (!textEl) return;
+            textEl.style.opacity = '0';
+            textEl.style.transform = 'scale(0.96)';
+            if (sourceEl) sourceEl.style.opacity = '0';
+
+            setTimeout(() => {
+                textEl.innerHTML = quote.text;
+                if (sourceEl) sourceEl.innerHTML = '— ' + quote.source;
+                if (badgeEl && badgeTextEl && iconEl) {
+                    badgeEl.style.color = quote.color || '#FBBF24';
+                    iconEl.className = quote.icon || 'fa-solid fa-sun';
+                    badgeTextEl.textContent = quote.badge || '✨ درّة ملهمة';
+                }
+                textEl.style.opacity = '1';
+                textEl.style.transform = 'scale(1)';
+                if (sourceEl) sourceEl.style.opacity = '1';
+            }, 200);
         }
     };
 
