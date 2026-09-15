@@ -533,11 +533,11 @@
                 </div>
             `;
 
-            // تدوير سلس كل 12 ثانية
+            // تدوير سلس كل 50 ثانية
             if (window._quoteInterval) clearInterval(window._quoteInterval);
             window._quoteInterval = setInterval(() => {
                 QuotesEngine.nextQuote();
-            }, 12000);
+            }, 50000);
         },
 
         nextQuote() {
@@ -580,12 +580,14 @@
             const cleanName = studentName || 'طالبنا المتميز';
             const totalDurationSec = 180; // 180 ثانية = 3 دقائق
             let timerInterval = null;
+            let quoteAutoInterval = null;
             let hasCompleted = false;
 
             const executeComplete = () => {
                 if (hasCompleted) return;
                 hasCompleted = true;
                 if (timerInterval) clearInterval(timerInterval);
+                if (quoteAutoInterval) clearInterval(quoteAutoInterval);
                 QuotesEngine._activeNavigateNow = null;
                 const fallbackEl = document.getElementById('fallbackMotivationalModal');
                 if (fallbackEl) fallbackEl.remove();
@@ -726,15 +728,22 @@
 
                             if (remainMs <= 0) {
                                 clearInterval(timerInterval);
+                                if (quoteAutoInterval) clearInterval(quoteAutoInterval);
                                 if (typeof Swal !== 'undefined' && Swal.isVisible()) {
                                     Swal.close();
                                 }
                                 executeComplete();
                             }
                         }, 500);
+
+                        // تدوير درر الحكمة كل 50 ثانية داخل النافذة
+                        quoteAutoInterval = setInterval(() => {
+                            QuotesEngine.nextModalQuote();
+                        }, 50000);
                     },
                     willClose: () => {
                         if (timerInterval) clearInterval(timerInterval);
+                        if (quoteAutoInterval) clearInterval(quoteAutoInterval);
                     }
                 }).then(() => {
                     executeComplete();
@@ -794,9 +803,15 @@
 
                     if (remainMs <= 0) {
                         clearInterval(timerInterval);
+                        if (quoteAutoInterval) clearInterval(quoteAutoInterval);
                         executeComplete();
                     }
                 }, 500);
+
+                // تدوير درر الحكمة كل 50 ثانية في البديل
+                quoteAutoInterval = setInterval(() => {
+                    QuotesEngine.nextModalQuote();
+                }, 50000);
             }
         },
 
