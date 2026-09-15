@@ -1081,40 +1081,71 @@
             color: #FBBF24;
         }
 
-        /* Video Player Modal (Light & Clean Platform Theme) */
+        /* Video Player Modal (Light & Clean Platform Theme - Compact Desktop & Mobile Sizing) */
         .player-modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(10px);
             z-index: 99999;
             display: none;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         .player-modal.active { display: flex; }
         .player-content {
             background: #F8FAFC;
             width: 100%;
-            height: 100vh;
+            max-width: 840px;
+            max-height: 90vh;
+            border-radius: 24px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             color: #1E293B;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: modalFadePop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalFadePop {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .video-container {
             width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 380px;
             background: #000;
             position: relative;
-            height: 0;
-            padding-bottom: 56.25%; 
             flex-shrink: 0;
+            overflow: hidden;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
         }
         .video-container video,
-        .video-container iframe {
+        .video-container iframe,
+        .video-container #youtubePlayerTarget {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             border: none;
+        }
+        @media (max-width: 768px) {
+            .player-modal {
+                padding: 0;
+                align-items: flex-start;
+            }
+            .player-content {
+                max-width: 100%;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            .video-container {
+                max-height: 230px;
+                border-radius: 0;
+            }
         }
         .player-body {
             padding: 20px 18px 40px;
@@ -2267,34 +2298,8 @@
                 ? `المحاضرة ${arabicOrdinals[featuredIndex]}`
                 : `المحاضرة ${featuredIndex + 1}`;
 
-            const title = featured ? (featured.title || `محاضرات ${sub}`) : `محاضرات ${sub}`;
-            const desc = (featured && featured.description && featured.description.trim())
-                ? featured.description
-                : `تتناول هذه المحاضرة شرح وتدريب شامل ومفصل لمنهج ${sub}، لتطوير مهارات الطالب والتميز الأكاديمي.`;
-
-            const lecDuration = (featured && (featured.duration || featured.time))
-                ? (featured.duration || featured.time)
-                : "45 دقيقة";
-
-            const escTitle = featured ? (featured.title || '').replace(/'/g, "\\'") : '';
-            const escVideo = featured ? (featured.videoUrl || '').replace(/'/g, "\\'") : '';
-            const escAudio = featured ? (featured.audioUrl || '').replace(/'/g, "\\'") : '';
-            const escPdf = featured ? (featured.pdfUrl || '').replace(/'/g, "\\'") : '';
-
-            let playAction = '';
-            if (featured) {
-                if (featured.unlockTime && Date.now() < featured.unlockTime) {
-                    playAction = `showLockedModalByIndex(${featuredIndex})`;
-                } else if (featured.videoUrl) {
-                    playAction = `openVideoPlayer('${escVideo}', '${escTitle}', ${featuredIndex})`;
-                } else if (featured.audioUrl) {
-                    playAction = `openAudioPlayer('${escAudio}', '${escTitle}', ${featuredIndex}, ${Boolean(featured.allowAudioDownload)})`;
-                } else if (featured.pdfUrl) {
-                    playAction = `openPdf('${escPdf}', '${escTitle}', ${featuredIndex})`;
-                } else {
-                    playAction = `startExam('${escTitle}', '${featured.id || ''}')`;
-                }
-            }
+            const title = `محاضرات ${sub}`;
+            const desc = `تتناول هذه المحاضرة شروحات تفاعلية وتدريبات شاملة ومفصلة لمنهج ${sub} لتطوير مهارات الطالب والتميز الأكاديمي، هذا العمل تحت إشراف ودعم فريق منصة الخطة.`;
 
             bannerContainer.innerHTML = `
                 <div class="lecture-banner">
@@ -2305,6 +2310,10 @@
                                     <i class="fa-solid fa-users"></i>
                                     <span>مادة: ${sub}</span>
                                 </span>
+                                <span class="banner-badge-lec-num" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>معتمد رسمياً</span>
+                                </span>
                             </div>
 
                             <h1>${title}</h1>
@@ -2312,17 +2321,15 @@
                             <p>${desc}</p>
 
                             <div class="banner-actions-row">
-                                ${featured ? `
-                                    <button class="btn-banner-glow-play" onclick="${playAction}">
-                                        <i class="fa-solid fa-play"></i>
-                                        <span>تشغيل المحاضرة</span>
-                                        <i class="fa-solid fa-chevron-left" style="font-size:12px; margin-right:4px;"></i>
-                                    </button>
-                                ` : ''}
+                                <button class="btn-banner-glow-play" onclick="scrollToLessons()">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    <span>استعراض المحاضرات والدروس</span>
+                                    <i class="fa-solid fa-chevron-left" style="font-size:12px; margin-right:4px;"></i>
+                                </button>
 
-                                <button class="btn-banner-glass-browse" onclick="scrollToLessons()">
+                                <button class="btn-banner-glass-browse" onclick="location.href='courses.html'">
                                     <i class="fa-solid fa-book-open"></i>
-                                    <span>محاضرات المادة</span>
+                                    <span>قائمة المواد الدراسية</span>
                                     <i class="fa-solid fa-chevron-left" style="font-size:11px; margin-right:4px;"></i>
                                 </button>
                             </div>
@@ -2334,13 +2341,13 @@
                     </div>
 
                     <div class="banner-bottom-stats-strip">
-                        <div class="stat-strip-item">
-                            <div class="stat-strip-icon-box">
-                                <i class="fa-regular fa-clock"></i>
+                        <div class="stat-strip-item" style="flex: 1.5;">
+                            <div class="stat-strip-icon-box" style="background: rgba(37, 99, 235, 0.12); color: #2563EB;">
+                                <i class="fa-solid fa-shield-halved"></i>
                             </div>
                             <div class="stat-strip-text">
-                                <span class="stat-strip-label">مدة المحاضرة</span>
-                                <span class="stat-strip-val">${lecDuration}</span>
+                                <span class="stat-strip-label">إشراف واعتماد</span>
+                                <span class="stat-strip-val" style="font-size: 11.5px; font-weight: 800; color: #1E293B; white-space: normal; line-height: 1.3;">هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>
                             </div>
                         </div>
 
@@ -2651,7 +2658,7 @@
                                         <div class="lesson-info">
                                             <h4 style="cursor:pointer;">${lesson.title}</h4>
                                             <div class="lesson-meta-badges">
-                                                <span class="meta-pill"><i class="fa-regular fa-clock"></i> ${lesson.duration || 'متاحة الآن'}</span>
+                                                <span class="meta-pill" style="background: rgba(16, 185, 129, 0.1); color: #059669; font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> تحت إشراف ودعم فريق منصة الخطة</span>
                                                 ${badgesHTML}
                                             </div>
                                             ${descHTML}
@@ -2695,7 +2702,7 @@
                                                 <h4>${lesson.title}</h4>
                                                 <div class="lesson-meta-badges">
                                                     <span class="meta-pill meta-pill-video"><i class="fa-solid fa-circle-play"></i> فيديو المحاضرة</span>
-                                                    <span class="meta-pill"><i class="fa-regular fa-clock"></i> ${lesson.duration || 'متاحة الآن'}</span>
+                                                    <span class="meta-pill" style="background: rgba(16, 185, 129, 0.1); color: #059669; font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> تحت إشراف ودعم فريق منصة الخطة</span>
                                                     ${lesson.chapter ? `<span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter}</span>` : ''}
                                                 </div>
                                             </div>
@@ -2750,7 +2757,7 @@
                                                     <span class="meta-pill meta-pill-audio"><i class="fa-solid fa-headphones"></i> تسجيل صوتي عالي الدقة</span>
                                                     ${doneBadge}
                                                     <span class="meta-pill"><i class="fa-solid fa-bookmark"></i> ${lesson.chapter || 'محاضرة معتمدة'}</span>
-                                                    ${lesson.duration ? `<span class="meta-pill"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : ''}
+                                                    <span class="meta-pill" style="background: rgba(16, 185, 129, 0.1); color: #059669; font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> تحت إشراف ودعم فريق منصة الخطة</span>
                                                 </div>
                                                 ${descHTML}
                                             </div>
@@ -4276,7 +4283,7 @@
 
             document.getElementById('modalVideoTitle').innerText = currentLectureTitle;
             const subtitleEl = document.getElementById('modalLectureSubtitle');
-            if (subtitleEl) subtitleEl.innerText = (currentLectureData && currentLectureData.chapter) ? currentLectureData.chapter : 'منهج الفرقة الرابعة خدمة اجتماعية';
+            if (subtitleEl) subtitleEl.innerText = (currentLectureData && currentLectureData.chapter) ? `${currentLectureData.chapter} • هذا العمل تحت إشراف ودعم فريق منصة الخطة` : 'هذا العمل تحت إشراف ودعم فريق منصة الخطة';
 
             // Populate Roadmap buttons
             const pdfBtn = document.getElementById('modalRoadmapPdfBtn');
@@ -4292,7 +4299,7 @@
 
             const durationEl = document.getElementById('modalRoadmapVideoDuration');
             if (durationEl) {
-                durationEl.innerText = currentLectureData.duration ? (`⏱️ مدة الشرح: ${currentLectureData.duration}`) : 'مشاهدة الشرح بجودة عالية وبدون إعلانات';
+                durationEl.innerText = 'هذا العمل تحت إشراف ودعم فريق منصة الخطة';
             }
 
             const examBtn = document.getElementById('modalRoadmapExamBtn');
@@ -4359,7 +4366,7 @@
             document.getElementById('customProgressBar').value = 0;
             updatePlayBtn(false);
 
-            isVideoPlayRequested = false;
+            isVideoPlayRequested = true;
             let youtubeId = extractYouTubeId(videoUrl);
             let driveFileId = null;
             if (!youtubeId && videoUrl) {
@@ -4367,31 +4374,11 @@
                 if (driveMatch) driveFileId = driveMatch[1];
             }
 
-            // Fixed Video Cover Banner (Dynamic Subject & Elkheta Branding)
+            // Hide cover banner to play directly without intermediate click
             const videoBanner = document.getElementById('videoFixedBanner');
             if (videoBanner) {
-                if (youtubeId || driveFileId || (videoUrl && videoUrl !== 'undefined' && videoUrl !== 'null')) {
-                    const bSub = document.getElementById('videoBannerSubjectName');
-                    const bLec = document.getElementById('videoBannerLectureName');
-                    const bDesc = document.getElementById('videoBannerDesc');
-                    if (bSub) bSub.innerText = subject || 'المادة الدراسية';
-                    if (bLec) bLec.innerText = currentLectureTitle || 'محاضرة';
-                    if (bDesc) {
-                        if (currentLectureData && currentLectureData.description && currentLectureData.description.trim()) {
-                            bDesc.innerText = currentLectureData.description;
-                        } else {
-                            bDesc.innerText = 'اضغط على زر التشغيل لبدء مشاهدة المحاضرة بأعلى جودة وبدون إعلانات';
-                        }
-                    }
-                    videoBanner.style.transition = 'none';
-                    videoBanner.style.opacity = '1';
-                    videoBanner.style.display = 'flex';
-                } else {
-                    videoBanner.style.display = 'none';
-                }
+                videoBanner.style.display = 'none';
             }
-
-
 
             if (youtubeId) {
                 // 100% White-Label YouTube Player (controls=0, no branding, no copy-link, top & bottom mobile masks)
@@ -4410,9 +4397,9 @@
                 ytTarget.style.display = 'block';
                 ytTarget.innerHTML = '<div id="ytPlayerEmbed" style="width:100%;height:100%;"></div>';
 
-                vc.style.height = '0';
+                vc.style.height = 'auto';
                 vc.style.minHeight = '0';
-                vc.style.paddingBottom = '56.25%';
+                vc.style.paddingBottom = '0';
 
                 const savedTime = parseFloat(localStorage.getItem(`video_progress_${user ? user.studentCode : 'guest'}_${currentLectureTitle}`) || '0');
 
@@ -4477,12 +4464,14 @@
                 controlsBar.style.display = 'none';
                 vc.style.paddingBottom = '0';
                 
+                vc.style.height = 'auto';
+                vc.style.minHeight = '0';
+                vc.style.paddingBottom = '0';
+
                 if (window.innerWidth <= 768) {
                     driveFrame.style.display = 'block';
                     driveFrame.src = `https://drive.google.com/file/d/${driveFileId}/preview`;
                     mobileFallback.style.display = 'flex';
-                    vc.style.height = '35vh';
-                    vc.style.minHeight = '250px';
                     
                     btnOpenDrive.onclick = () => {
                         mobileFallback.style.display = 'none';
@@ -4494,8 +4483,6 @@
                     mobileFallback.style.display = 'none';
                     driveFrame.style.display = 'block';
                     driveFrame.src = `https://drive.google.com/file/d/${driveFileId}/preview`;
-                    vc.style.height = '50vh';
-                    vc.style.minHeight = '400px'; 
                 }
             } else if (videoUrl && videoUrl !== 'undefined' && videoUrl !== 'null') {
                 // Direct Video file (MP4, WebM, etc.)
@@ -4512,9 +4499,9 @@
                 directPlayer.style.display = 'block';
                 controlsBar.style.display = 'flex';
                 
-                vc.style.height = '0';
+                vc.style.height = 'auto';
                 vc.style.minHeight = '0';
-                vc.style.paddingBottom = '56.25%';
+                vc.style.paddingBottom = '0';
                 
                 directPlayer.src = videoUrl;
 
