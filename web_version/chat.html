@@ -679,8 +679,9 @@
 
         // ─── Firebase Database Setup ───
         const db = firebase.database();
-        const chatMessagesRef = db.ref('DirectChats/' + studentCode + '/messages');
-        const chatMetaRef = db.ref('DirectChats/' + studentCode + '/meta');
+        const safeCode = String(studentCode).replace(/[.#$\[\]]/g, '_');
+        const chatMessagesRef = db.ref('DirectChats/' + safeCode + '/messages');
+        const chatMetaRef = db.ref('DirectChats/' + safeCode + '/meta');
 
         // Admin availability status listener
         db.ref('AdminSupport/Status').on('value', snap => {

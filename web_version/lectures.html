@@ -1761,10 +1761,11 @@
         </div>
 
         <!-- Lessons & Content List -->
-        <main id="lessonsList" style="padding: 0 0 30px;">
-            <div style="text-align: center; padding: 50px; color: #94A3B8; background: #FFFFFF; border-radius: 20px; border: 1.5px dashed var(--border-color);">
-                <div style="font-size: 36px; margin-bottom: 8px;">⏳</div>
-                <div style="font-weight: 700; font-size: 15px;">جاري تحميل المحاضرات والملخصات...</div>
+        <main id="lessonsList" style="padding: 0 0 30px; min-height: 200px;">
+            <!-- Modern subtle skeleton / instant render -->
+            <div id="lessonsLoadingSkeleton" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="height: 85px; border-radius: 18px; background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border: 1px solid #E2E8F0;"></div>
+                <div style="height: 85px; border-radius: 18px; background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border: 1px solid #E2E8F0; opacity: 0.6;"></div>
             </div>
         </main>
     </div>
@@ -2085,6 +2086,17 @@
         }
 
         function loadLessons() {
+            const cacheKey = 'lectures_cache_' + (subject || '');
+            try {
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        allLessons = parsed;
+                        renderLessons(allLessons);
+                    }
+                }
+            } catch(e){}
             // Real-time multi-node query (Lectures + Content + Exams) with smart fuzzy subject matching
             const lecturesPromise = database.ref('Lectures').once('value');
             const contentPromise = database.ref('Content').once('value');
