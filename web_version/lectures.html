@@ -1568,6 +1568,35 @@
             justify-content: center;
         }
     
+
+        .player-modal {
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(15, 23, 42, 0.75) !important;
+            backdrop-filter: blur(8px) !important;
+            z-index: 99999 !important;
+            display: none;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding: 30px 16px !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+        }
+        .player-modal.active {
+            display: flex !important;
+        }
+        .player-modal .player-content {
+            max-width: 560px !important;
+            width: 100% !important;
+            margin: auto !important;
+            padding: 24px !important;
+            border-radius: 24px !important;
+            background: #FFFFFF !important;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35) !important;
+            border: 1.5px solid #E2E8F0 !important;
+            box-sizing: border-box !important;
+        }
+
 </style>
 </head>
 <body>
@@ -1632,18 +1661,86 @@
 
         <!-- Dynamic Automated Lecture Banner Component -->
         <div id="lectureBannerContainer">
-            <section class="subject-hero">
-                <div class="hero-top-badge">
-                    <i class="fa-solid fa-graduation-cap"></i> الفرقة الرابعة - خدمة اجتماعية 2027
+            <div class="lecture-banner">
+                <div class="banner-top-body">
+                    <div class="banner-content">
+                        <div class="banner-badges-row">
+                            <span class="banner-badge-subject">
+                                <i class="fa-solid fa-users"></i>
+                                <span id="bannerSubName">المادة الدراسية</span>
+                            </span>
+                            <span class="banner-badge-lec-num" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>
+                            </span>
+                        </div>
+
+                        <h1 id="bannerMainTitle">محاضرات المادة الدراسية</h1>
+
+                        <p id="bannerMainDesc">تتناول هذه المحاضرات شروحات تفاعلية وتدريبات شاملة ومفصلة للمنهج لتطوير مهارات الطالب والتميز الأكاديمي، هذا العمل تحت إشراف ودعم فريق منصة الخطة.</p>
+
+                        <div class="banner-actions-row">
+                            <button class="btn-banner-glow-play" onclick="scrollToLessons()">
+                                <i class="fa-solid fa-layer-group"></i>
+                                <span>استعراض المحاضرات والدروس</span>
+                                <i class="fa-solid fa-chevron-left" style="font-size:12px; margin-right:4px;"></i>
+                            </button>
+
+                            <button class="btn-banner-glass-browse" onclick="location.href='courses.html'">
+                                <i class="fa-solid fa-book-open"></i>
+                                <span>قائمة المواد الدراسية</span>
+                                <i class="fa-solid fa-chevron-left" style="font-size:11px; margin-right:4px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="banner-visual-art">
+                        <img src="banner-illustration.png?v=2.5" alt="منصة الخطة التعليمية" loading="eager">
+                    </div>
                 </div>
-                <h1 id="subjectTitle">المادة الدراسية</h1>
-                <p>تصفح المحاضرات، حمل ملخصات السبورة، وقيّم مستواك بالامتحانات التدريبية.</p>
-                <div style="display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
-                    <span class="hero-top-badge" id="heroLecCountBadge" style="background: rgba(255,255,255,0.18);">
-                        <i class="fa-solid fa-book-open"></i> جاري فحص المحتوى...
-                    </span>
+
+                <div class="banner-bottom-stats-strip">
+                    <div class="stat-strip-item" style="flex: 1.5;">
+                        <div class="stat-strip-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #10B981;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="stat-strip-text">
+                            <span class="stat-strip-label">إشراف واعتماد</span>
+                            <span class="stat-strip-val" style="font-size: 11.5px; font-weight: 800; color: #1E293B;">هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-strip-item">
+                        <div class="stat-strip-icon-box">
+                            <i class="fa-regular fa-file-video"></i>
+                        </div>
+                        <div class="stat-strip-text">
+                            <span class="stat-strip-label">المحاضرات</span>
+                            <span class="stat-strip-val" id="statVideoCount">محاضرات معتمدة</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-strip-item">
+                        <div class="stat-strip-icon-box">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+                        <div class="stat-strip-text">
+                            <span class="stat-strip-label">الملخصات</span>
+                            <span class="stat-strip-val" id="statPdfCount">متوفرة</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-strip-item">
+                        <div class="stat-strip-icon-box">
+                            <i class="fa-regular fa-circle-check"></i>
+                        </div>
+                        <div class="stat-strip-text">
+                            <span class="stat-strip-label">الاختبارات</span>
+                            <span class="stat-strip-val" id="statExamCount">شاملة</span>
+                        </div>
+                    </div>
                 </div>
-            </section>
+            </div>
         </div>
 
         <!-- Category Filter Tabs -->
@@ -1947,7 +2044,7 @@
         document.title = subject + " - ELKHETA";
         
         // Immediate Luxury Banner Display (0ms lag before async DB queries)
-        try { renderLectureBanner(null, subject); } catch(e){}
+        
 
         let currentLectureTitle = "";
         let notesTimeout = null;
@@ -1982,6 +2079,8 @@
                 let parsed = JSON.parse(cachedLec);
                 allLessons = parsed;
                 if (allLessons.length > 0) renderLessons(allLessons);
+                try { renderLectureBanner(allLessons[0], subject); } catch(e){}
+
             } catch(e){}
         }
 
