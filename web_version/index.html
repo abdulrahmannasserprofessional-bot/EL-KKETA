@@ -224,26 +224,85 @@
             box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
         }
 
-        /* ─── Returning Student Welcome Ribbon ─── */
-        #returningUserBar {
-            display: none;
+        /* ─── Dynamic 10M+ Motivation & Knowledge Ribbon ─── */
+        .motivational-ribbon-container {
             max-width: 1200px;
             margin: 18px auto 0;
             padding: 0 20px;
             position: relative;
             z-index: 10;
         }
-        .welcome-ribbon {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.15));
-            border: 1.5px solid rgba(52, 211, 153, 0.45);
+
+        .wisdom-ribbon {
+            background: linear-gradient(135deg, rgba(14, 20, 36, 0.92) 0%, rgba(20, 29, 52, 0.88) 50%, rgba(15, 23, 42, 0.92) 100%);
+            border: 1.5px solid rgba(245, 158, 11, 0.35);
             border-radius: 20px;
-            padding: 12px 22px;
+            padding: 14px 22px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .wisdom-ribbon-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
+            gap: 10px;
+        }
+
+        .wisdom-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #FBBF24;
+            transition: all 0.25s ease;
+        }
+
+        .btn-refresh-wisdom {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #CBD5E1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-refresh-wisdom:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #FBBF24;
+            transform: scale(1.03);
+        }
+
+        .wisdom-quote-text {
+            font-size: 14px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.7;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .wisdom-quote-source {
+            font-size: 11.5px;
+            color: #F59E0B;
+            font-weight: 800;
+            text-align: left;
+            transition: opacity 0.2s ease;
         }
 
         /* ─── Hero Section (القسم الرئيسي التفاعلي) ─── */
@@ -780,32 +839,30 @@
                 gap: 5px;
             }
 
-            /* Returning User Ribbon */
-            #returningUserBar {
+            /* Dynamic 10M+ Motivation Ribbon Mobile */
+            .motivational-ribbon-container {
                 margin: 10px auto 0;
                 padding: 0 10px;
             }
 
-            .welcome-ribbon {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-                gap: 10px;
+            .wisdom-ribbon {
                 padding: 12px 14px;
                 border-radius: 16px;
-            }
-
-            .welcome-ribbon-user {
-                flex-direction: column;
-                text-align: center;
                 gap: 6px;
             }
 
-            .welcome-ribbon .btn-pill {
-                width: 100%;
-                justify-content: center;
-                padding: 9px 16px;
+            .wisdom-quote-text {
                 font-size: 13px;
+                line-height: 1.6;
+            }
+
+            .wisdom-quote-source {
+                font-size: 11px;
+            }
+
+            .wisdom-badge, .btn-refresh-wisdom {
+                font-size: 10.5px;
+                padding: 3px 9px;
             }
 
             /* Hero Section */
@@ -1106,20 +1163,25 @@
         </header>
     </div>
 
-    <!-- ─── Returning Student Welcome Ribbon (لو الطالب مسجل بالفعل) ─── -->
-    <div id="returningUserBar">
-        <div class="welcome-ribbon">
-            <div class="welcome-ribbon-user" style="display:flex; align-items:center; gap:12px;">
-                <span style="font-size:24px;">👋</span>
-                <div>
-                    <strong id="returningUserName" style="font-size:15px; color:#FFFFFF;">أهلاً بعودتك!</strong>
-                    <div style="font-size:12.5px; color:#A7F3D0; font-weight:700;">حسابك متصل وجاهز، استكمل مذاكرتك ومحاضراتك الآن.</div>
+    <!-- ─── Dynamic 10M+ Motivation & Knowledge Ribbon (شريط درر العلم وقوانين العزيمة والمثابرة) ─── -->
+    <div id="motivationalRibbonBar" class="motivational-ribbon-container">
+        <div class="wisdom-ribbon">
+            <div class="wisdom-ribbon-header">
+                <div id="landingQuoteBadge" class="wisdom-badge">
+                    <i id="landingQuoteIcon" class="fa-solid fa-brain"></i>
+                    <span id="landingQuoteBadgeText">سيكولوجية الإنجاز الفائق</span>
                 </div>
+                <button type="button" onclick="refreshLandingQuote()" class="btn-refresh-wisdom" title="توليد درّة وحكمة جديدة من بين ملايين التركيبات">
+                    <span>درّة أخرى</span>
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
             </div>
-            <a href="home.html" class="btn-pill" style="background:#10B981; color:white; font-weight:900; font-size:13.5px; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
-                <span>متابعة الدراسة 📚</span>
-                <i class="fa-solid fa-chevron-left" style="font-size:11px;"></i>
-            </a>
+            <div id="landingQuoteText" class="wisdom-quote-text">
+                جاري استدعاء قبس العزيمة...
+            </div>
+            <div id="landingQuoteSource" class="wisdom-quote-source">
+                — سيكولوجية المحارب الأكاديمي
+            </div>
         </div>
     </div>
 
@@ -1347,24 +1409,38 @@
         </div>
     </footer>
 
+    <script src="motivational-quotes.js"></script>
     <script>
-        // Check if user is already logged in
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const uStr = localStorage.getItem('user');
-                if (uStr) {
-                    const u = JSON.parse(uStr);
-                    if (u && (u.fullName || u.name || u.studentCode)) {
-                        const name = u.fullName || u.name || 'طالبنا العزيز';
-                        const bar = document.getElementById('returningUserBar');
-                        const nameEl = document.getElementById('returningUserName');
-                        if (bar && nameEl) {
-                            nameEl.textContent = `أهلاً بعودتك يا ${name}! 🌟`;
-                            bar.style.display = 'block';
-                        }
-                    }
+        // Dynamic 10M+ Motivational & Knowledge Wisdom Ribbon
+        function refreshLandingQuote() {
+            if (!window.QuotesEngine) return;
+            const quote = QuotesEngine.getRandom();
+            const textEl = document.getElementById('landingQuoteText');
+            const sourceEl = document.getElementById('landingQuoteSource');
+            const badgeEl = document.getElementById('landingQuoteBadge');
+            const badgeTextEl = document.getElementById('landingQuoteBadgeText');
+            const iconEl = document.getElementById('landingQuoteIcon');
+            if (!textEl) return;
+            textEl.style.opacity = '0';
+            textEl.style.transform = 'scale(0.98)';
+            if (sourceEl) sourceEl.style.opacity = '0';
+            setTimeout(() => {
+                textEl.innerHTML = quote.text;
+                if (sourceEl) sourceEl.innerHTML = '— ' + quote.source;
+                if (badgeEl && badgeTextEl && iconEl) {
+                    badgeEl.style.color = quote.color || '#FBBF24';
+                    iconEl.className = quote.icon || 'fa-solid fa-bolt';
+                    badgeTextEl.textContent = quote.badge || '⚡ درّة العزيمة';
                 }
-            } catch(e) {}
+                textEl.style.opacity = '1';
+                textEl.style.transform = 'scale(1)';
+                if (sourceEl) sourceEl.style.opacity = '1';
+            }, 180);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshLandingQuote();
+            setInterval(refreshLandingQuote, 12000);
         });
 
         // PWA Install Prompt Handler
