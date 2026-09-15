@@ -540,10 +540,8 @@
             <i class="fa-solid fa-sparkles"></i>
         </button>
 
-        <!-- Motivational Note -->
-        <div class="motivational-box">
-            🛡️ "منظومة تعليمية متكاملة تدعمك وترافقك خطوة بخطوة حتى يوم الامتحان"
-        </div>
+        <!-- Motivational Wisdom & Quotes Widget -->
+        <div id="motivationalQuotesWidget"></div>
 
         <!-- Footer Links -->
         <div class="card-footer-links">
@@ -588,7 +586,9 @@
     <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="firebase-config.js"></script>
+    <script src="motivational-quotes.js"></script>
     <script>
         function showToast(message, type = "info") {
             const toast = document.getElementById("toast");
@@ -602,6 +602,12 @@
             if (window._toastTimeout) clearTimeout(window._toastTimeout);
             window._toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.QuotesEngine) {
+                QuotesEngine.renderWidget('motivationalQuotesWidget');
+            }
+        });
 
         const urlParams = new URLSearchParams(window.location.search);
         const preCode = urlParams.get('code');
@@ -648,8 +654,12 @@
                 localStorage.setItem('user', JSON.stringify(userData));
                 localStorage.setItem('studentCode', studentCode);
                 
-                showToast("تم إنشاء الحساب بنجاح! جاري التوجيه... 🎉", "success");
-                setTimeout(() => location.href = "display-code.html", 1200);
+                if (window.QuotesEngine) {
+                    QuotesEngine.showLoginSuccessModal(name, () => location.href = "display-code.html");
+                } else {
+                    showToast("تم إنشاء الحساب بنجاح! جاري التوجيه... 🎉", "success");
+                    setTimeout(() => location.href = "display-code.html", 1200);
+                }
             }).catch((err) => {
                 console.error(err);
                 showToast("حدث خطأ أثناء إنشاء الحساب، يرجى المحاولة لاحقاً ⚠️", "error");

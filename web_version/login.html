@@ -496,10 +496,8 @@
             <i class="fa-solid fa-rocket"></i>
         </button>
 
-        <!-- Motivational Note -->
-        <div class="motivational-box">
-            💡 "لكل مجتهد نصيب.. وأنت تستحق الوصول لأعلى الدرجات والقمة دائماً"
-        </div>
+        <!-- Motivational Wisdom & Quotes Widget -->
+        <div id="motivationalQuotesWidget"></div>
 
         <!-- Footer Links -->
         <div class="card-footer-links">
@@ -533,6 +531,7 @@
     <script src="firebase-config.js"></script>
     <script src="security-validator.js"></script>
     <script src="api-client.js"></script>
+    <script src="motivational-quotes.js"></script>
     <script>
         function showToast(message, type = "info") {
             const toast = document.getElementById("toast");
@@ -547,8 +546,11 @@
             window._toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
         }
 
-        // Auto-detect returning student
+        // Auto-detect returning student & Initialize Motivational Quotes
         window.addEventListener('DOMContentLoaded', () => {
+            if (window.QuotesEngine) {
+                QuotesEngine.renderWidget('motivationalQuotesWidget');
+            }
             const savedCode = localStorage.getItem('studentCode');
             let savedUser = null;
             try {
@@ -664,8 +666,12 @@
                     sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'super_admin');
-                    showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
-                    setTimeout(() => location.href = "admin-dashboard.html", 800);
+                    if (window.QuotesEngine) {
+                        QuotesEngine.showLoginSuccessModal("المدير العام", () => location.href = "admin-dashboard.html");
+                    } else {
+                        showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
+                        setTimeout(() => location.href = "admin-dashboard.html", 800);
+                    }
                     return;
                 }
 
@@ -674,8 +680,12 @@
                     sessionStorage.setItem('isAdmin', 'true');
                     localStorage.setItem('isAdmin', 'true');
                     sessionStorage.setItem('adminRole', 'super_admin');
-                    showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
-                    setTimeout(() => location.href = "admin-dashboard.html", 800);
+                    if (window.QuotesEngine) {
+                        QuotesEngine.showLoginSuccessModal("المدير العام", () => location.href = "admin-dashboard.html");
+                    } else {
+                        showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
+                        setTimeout(() => location.href = "admin-dashboard.html", 800);
+                    }
                     return;
                 }
 
@@ -690,8 +700,12 @@
                         sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
                         sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
                         sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
-                        showToast('أهلاً بك يا ' + foundSup.name + ' 🛡️', "success");
-                        setTimeout(() => location.href = "admin-panel.html", 800);
+                        if (window.QuotesEngine) {
+                            QuotesEngine.showLoginSuccessModal(foundSup.name, () => location.href = "admin-panel.html");
+                        } else {
+                            showToast('أهلاً بك يا ' + foundSup.name + ' 🛡️', "success");
+                            setTimeout(() => location.href = "admin-panel.html", 800);
+                        }
                         return;
                     }
                 } catch (e) {
@@ -721,8 +735,12 @@
                         sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
                         sessionStorage.setItem('adminRoleTitle', foundSup.roleTitle || 'مشرف المنصة');
                         sessionStorage.setItem('adminPermissions', JSON.stringify(foundSup.permissions || {}));
-                        showToast('أهلاً بك يا ' + foundSup.name + ' 🛡️', "success");
-                        setTimeout(() => location.href = "admin-panel.html", 800);
+                        if (window.QuotesEngine) {
+                            QuotesEngine.showLoginSuccessModal(foundSup.name, () => location.href = "admin-panel.html");
+                        } else {
+                            showToast('أهلاً بك يا ' + foundSup.name + ' 🛡️', "success");
+                            setTimeout(() => location.href = "admin-panel.html", 800);
+                        }
                         return;
                     }
                 } catch (e) {
@@ -753,8 +771,12 @@
                             localStorage.setItem('user', JSON.stringify(sqlStudent));
                             localStorage.setItem('studentCode', upperCode);
                             ElkhetaAPI.logActivity(upperCode, sqlStudent.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', 'دخول ناجح للمنصة');
-                            showToast("تم تسجيل الدخول بنجاح 🎉", "success");
-                            setTimeout(() => location.href = "home.html", 800);
+                            if (window.QuotesEngine) {
+                                QuotesEngine.showLoginSuccessModal(sqlStudent.full_name, () => location.href = "home.html");
+                            } else {
+                                showToast("تم تسجيل الدخول بنجاح 🎉", "success");
+                                setTimeout(() => location.href = "home.html", 800);
+                            }
                             return;
                         }
                     }
@@ -783,8 +805,12 @@
                         logActivity(upperCode, studentData.fullName || 'طالب', 'تسجيل الدخول للمنصة');
                         studentData.code = upperCode;
                         localStorage.setItem('studentCode', upperCode);
-                        showToast("تم تسجيل الدخول بنجاح 🎉", "success");
-                        setTimeout(() => location.href = "home.html", 800);
+                        if (window.QuotesEngine) {
+                            QuotesEngine.showLoginSuccessModal(studentData.fullName, () => location.href = "home.html");
+                        } else {
+                            showToast("تم تسجيل الدخول بنجاح 🎉", "success");
+                            setTimeout(() => location.href = "home.html", 800);
+                        }
                         return;
                     }
                 } catch(e) {
