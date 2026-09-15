@@ -555,7 +555,7 @@
         <!-- ─── Header ─── -->
         <header class="chat-header">
             <div class="header-profile-section">
-                <a href="home.html" class="btn-back-home" title="العودة للصفحة الرئيسية">
+                <a href="javascript:void(0)" onclick="if(document.referrer && !document.referrer.includes('chat.html')){location.href=document.referrer;}else{location.href='home.html';}" class="btn-back-home" title="العودة">
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
                 <div class="avatar-wrap">
@@ -643,14 +643,24 @@
             document.documentElement.setAttribute('data-theme', 'light');
         }
 
-        // Student Auth Guard
+        // Student Auth Guard (Supports registered students & guest inquiries)
         let user = null;
         try {
             user = JSON.parse(localStorage.getItem('user'));
         } catch(e) {}
 
+        let isGuest = false;
+        let guestCode = localStorage.getItem('guest_chat_code');
+        if (!guestCode) {
+            guestCode = 'GUEST_' + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('guest_chat_code', guestCode);
+        }
+
+        const studentCode = (user && user.studentCode) ? String(user.studentCode).trim() : guestCode;
+        const studentName = (user && (user.fullName || user.name)) || (localStorage.getItem('guest_chat_name') || 'طالب جديد / زائر');
+        const studentPhone = (user && user.phone) || (localStorage.getItem('guest_chat_phone') || '');
         if (!user || !user.studentCode) {
-            window.location.href = "index.html";
+            isGuest = true;
         }
 
         const studentCode = String(user.studentCode).trim();

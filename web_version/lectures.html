@@ -1561,6 +1561,13 @@
             color: #CBD5E1 !important;
             border-color: #334155 !important;
         }
+
+        #lectureRoadmapModal.active {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+    
 </style>
 </head>
 <body>
@@ -2586,7 +2593,7 @@
                             `;
                         } else {
                             if (lesson.videoUrl) {
-                                cardClickAction = `openVideoPlayer('${escVideoUrl}', '${escTitle}', ${index})`;
+                                cardClickAction = `openLectureRoadmap(${index})`;
                             } else if (escAudioUrl) {
                                 cardClickAction = `openAudioPlayer('${escAudioUrl}', '${escTitle}', ${index}, ${Boolean(lesson.allowAudioDownload)})`;
                             } else if (escPdfUrl) {
@@ -4693,5 +4700,83 @@
         setTimeout(removeOldBugBtn, 2000);
     })();
 </script>
+
+    <!-- Dedicated 4-Option Lecture Roadmap Modal (Media Mockup) -->
+    <div class="player-modal" id="lectureRoadmapModal" style="display:none;" onclick="if(event.target === this) closeRoadmapModal()">
+        <div class="player-content" style="max-width: 580px; padding: 24px; border-radius: 24px;" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; border-bottom: 1px solid #E2E8F0; padding-bottom: 14px;">
+                <div>
+                    <h3 id="roadmapModalTitle" style="margin: 0; color: #1E293B; font-size: 19px; font-weight: 900; line-height: 1.4;">عنوان المحاضرة</h3>
+                    <div id="roadmapModalSubtitle" style="font-size: 12px; color: #059669; margin-top: 5px; font-weight: 800;">
+                        <i class="fa-solid fa-shield-halved"></i> هذا العمل تحت إشراف ودعم فريق منصة الخطة
+                    </div>
+                </div>
+                <button onclick="closeRoadmapModal()" style="padding: 6px 14px; background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; border-radius: 12px; font-size: 12px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">إغلاق ✖</button>
+            </div>
+
+            <!-- The 4 Options (الـ 4 عناصر المعتمدة) -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                
+                <!-- 1. السبورة والملخصات -->
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(245,158,11,0.3);">1</div>
+                        <div>
+                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📄 السبورة والملخصات</h4>
+                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">تصفح وتحميل ملف PDF والشرح المكتوب</div>
+                        </div>
+                    </div>
+                    <button id="modalRoadmapPdfBtn" style="background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                        عرض الملف 📄
+                    </button>
+                </div>
+
+                <!-- 2. فيديو المحاضرة -->
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #3B82F6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">2</div>
+                        <div>
+                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📺 شرح المحاضرة (الفيديو)</h4>
+                            <div style="font-size: 11px; color: #059669; margin-top: 2px; font-weight: 700;">هذا العمل تحت إشراف ودعم فريق منصة الخطة</div>
+                        </div>
+                    </div>
+                    <button id="modalRoadmapVideoBtn" style="background: #EEF2FF; color: #2563EB; border: 1px solid #C7D2FE; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                        مشاهدة الفيديو 📺
+                    </button>
+                </div>
+
+                <!-- 3. الامتحان التدريبي -->
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">3</div>
+                        <div>
+                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📝 الامتحان والتقييم التدريبي</h4>
+                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">حل أسئلة المحاضرة وتقييم فوري لمستواك</div>
+                        </div>
+                    </div>
+                    <button id="modalRoadmapExamBtn" style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                        بدء الامتحان 🚀
+                    </button>
+                </div>
+
+                <!-- 4. ملخص صوتي -->
+                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(139,92,246,0.3);">4</div>
+                        <div>
+                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">🎙️ ملخص صوتي</h4>
+                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">الاستماع إلى ملخص وشرح صوتي سريع للمحاضرة</div>
+                        </div>
+                    </div>
+                    <button id="modalRoadmapAudioBtn" style="background: #EDE9FE; color: #7C3AED; border: 1px solid #DDD6FE; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
+                        استماع 🎙️
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
