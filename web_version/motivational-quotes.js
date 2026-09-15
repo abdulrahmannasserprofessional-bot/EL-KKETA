@@ -578,6 +578,9 @@
         showLoginSuccessModal(studentName, onComplete) {
             const quote = this.getRandom();
             const cleanName = studentName || 'طالبنا المتميز';
+            const isManager = cleanName.includes('المدير') || cleanName.includes('مشرف') || cleanName.includes('إدارة');
+            const titleHeader = isManager ? '👑 مرحباً بك في لوحة القيادة 👑' : '🌟 مرحباً بك يا بطل 🌟';
+            const targetPlatformText = isManager ? 'انتقل للوحة الإدارة الآن 🚀' : 'انتقل للمنصة الآن 🚀';
             const totalDurationSec = 180; // 180 ثانية = 3 دقائق
             let timerInterval = null;
             let quoteAutoInterval = null;
@@ -603,26 +606,42 @@
                 executeComplete();
             };
 
-            // أنماط التصميم الفاخر المخصص للموبايل
+            // أنماط التصميم الفاخر المتناسق تماماً للكمبيوتر والموبايل
             if (!document.getElementById('elkheta-quotes-modal-css')) {
                 const style = document.createElement('style');
                 style.id = 'elkheta-quotes-modal-css';
                 style.textContent = `
                     .swal2-container {
                         z-index: 1000000 !important;
-                        padding: 8px !important;
+                        padding: 10px !important;
                     }
                     .swal2-popup.swal2-border-gold {
                         border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
-                        border-radius: 20px !important;
-                        box-shadow: 0 12px 45px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.15) !important;
-                        max-width: 360px !important;
-                        width: 92% !important;
-                        padding: 14px 12px 16px !important;
+                        border-radius: 22px !important;
+                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(245, 158, 11, 0.2) !important;
+                        width: 530px !important;
+                        max-width: 95vw !important;
+                        padding: 20px 24px 18px !important;
                         margin: auto !important;
-                        max-height: 90vh !important;
-                        max-height: 90dvh !important;
+                        max-height: 92vh !important;
+                        max-height: 92dvh !important;
+                        display: flex !important;
+                        flex-direction: column !important;
                         overflow-y: auto !important;
+                        scrollbar-width: none !important;
+                        -ms-overflow-style: none !important;
+                    }
+                    .swal2-popup.swal2-border-gold::-webkit-scrollbar {
+                        display: none !important;
+                        width: 0 !important;
+                        height: 0 !important;
+                    }
+                    @media (max-width: 580px) {
+                        .swal2-popup.swal2-border-gold {
+                            width: 94% !important;
+                            max-width: 385px !important;
+                            padding: 14px 14px 16px !important;
+                        }
                     }
                     .swal2-timer-progress-bar {
                         background: linear-gradient(90deg, #F59E0B, #8B5CF6) !important;
@@ -645,57 +664,57 @@
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     html: `
-                        <div style="text-align: center; direction: rtl;">
-                            <!-- ترويسة الاسم المدمجة للموبايل -->
-                            <div style="text-align: center; margin-bottom: 8px;">
-                                <div style="font-size: 12.5px; font-weight: 800; color: #94A3B8; margin-bottom: 2px;">
-                                    🌟 مرحباً بك يا بطل 🌟
+                        <div style="text-align: center; direction: rtl; display: flex; flex-direction: column; width: 100%;">
+                            <!-- ترويسة الاسم المدمجة -->
+                            <div style="text-align: center; margin-bottom: 6px;">
+                                <div style="font-size: 13px; font-weight: 800; color: #94A3B8; margin-bottom: 2px;">
+                                    ${titleHeader}
                                 </div>
-                                <div style="font-size: 16.5px; font-weight: 900; color: #FFFFFF; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 290px; margin: 0 auto;">
+                                <div style="font-size: 17.5px; font-weight: 900; color: #FFFFFF; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; margin: 0 auto;">
                                     ${cleanName}
                                 </div>
                             </div>
 
                             <!-- شريط المؤقت والشارة -->
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;">
-                                <div id="modalQuoteBadge" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.35); color: ${quote.color || '#FBBF24'}; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                <div id="modalQuoteBadge" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.35); color: ${quote.color || '#FBBF24'}; font-size: 11.5px; font-weight: 800; padding: 4px 12px; border-radius: 20px; white-space: nowrap;">
                                     <i id="modalQuoteIcon" class="${quote.icon || 'fa-solid fa-bolt'}" style="font-size: 10.5px;"></i>
                                     <span id="modalQuoteBadgeText">${quote.badge || '⚡ درّة العزيمة'}</span>
                                 </div>
 
-                                <div style="display: inline-flex; align-items: center; gap: 5px; background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.4); color: #C4B5FD; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">
+                                <div style="display: inline-flex; align-items: center; gap: 5px; background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.4); color: #C4B5FD; font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 20px; white-space: nowrap;">
                                     <i class="fa-solid fa-stopwatch" style="color: #A78BFA; font-size: 11px;"></i>
                                     <span>مهلة التأمل:</span>
-                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 12.5px; color: #FFFFFF; font-weight: 900;">03:00</span>
+                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 13px; color: #FFFFFF; font-weight: 900;">03:00</span>
                                 </div>
                             </div>
 
                             <!-- صندوق الحكمة والبيت الشعري -->
-                            <div style="background: rgba(14, 20, 36, 0.92); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 12px 12px; margin-bottom: 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(245, 158, 11, 0.08); position: relative;">
-                                <div id="modalQuoteText" style="font-size: 13px; font-weight: 900; color: #F8FAFC; line-height: 1.65; font-family: 'Cairo', sans-serif; min-height: 42px; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s ease, transform 0.2s ease;">
+                            <div style="background: rgba(14, 20, 36, 0.92); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px 16px; margin-bottom: 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(245, 158, 11, 0.08); max-height: 220px; overflow-y: auto; scrollbar-width: none;">
+                                <div id="modalQuoteText" style="font-size: 13.5px; font-weight: 900; color: #F8FAFC; line-height: 1.7; font-family: 'Cairo', sans-serif; min-height: 42px; display: flex; align-items: center; justify-content: center; text-align: center; transition: opacity 0.2s ease, transform 0.2s ease;">
                                     ${quote.text}
                                 </div>
-                                <div id="modalQuoteSource" style="font-size: 11px; color: #F59E0B; font-weight: 800; margin-top: 6px; transition: opacity 0.2s ease;">
+                                <div id="modalQuoteSource" style="font-size: 11.5px; color: #F59E0B; font-weight: 800; margin-top: 6px; text-align: left; transition: opacity 0.2s ease;">
                                     — ${quote.source}
                                 </div>
                             </div>
 
                             <!-- سطر الإجراء المدمج -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px;">
-                                <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #E2E8F0; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px;">
+                                <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.22); color: #E2E8F0; font-size: 11.5px; font-weight: 800; padding: 4px 14px; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;">
                                     <i class="fa-solid fa-arrows-rotate" style="font-size: 10px;"></i>
                                     <span>حكمة أخرى</span>
                                 </button>
-                                <span style="font-size: 10.5px; color: #94A3B8; font-weight: 700; white-space: nowrap;">القمة خُلقت لمن لا يتراجع 🦅</span>
+                                <span style="font-size: 11px; color: #94A3B8; font-weight: 700; white-space: nowrap;">القمة خُلقت لمن لا يتراجع 🦅</span>
                             </div>
 
-                            <p style="font-size: 11px; color: #64748B; font-weight: 700; margin: 0 0 10px 0; line-height: 1.4;">
+                            <p style="font-size: 11px; color: #64748B; font-weight: 700; margin: 0 0 8px 0; line-height: 1.4;">
                                 تستطيع استكمال القراءة أو الدخول فوراً بالزر أدناه 👇
                             </p>
 
-                            <!-- زر الانتقال الفوري للمنصة بسطر واحد ثابت -->
-                            <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; height: 46px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #090D16; font-weight: 900; font-size: 15px; padding: 0 14px; border: none; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transition: transform 0.15s ease;">
-                                <span>انتقل للمنصة الآن 🚀</span>
+                            <!-- زر الانتقال الفوري للمنصة بسطر واحد ثابت وبارز دائماً -->
+                            <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; height: 46px; min-height: 46px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #090D16; font-weight: 900; font-size: 15px; padding: 0 14px; border: none; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transition: transform 0.15s ease;">
+                                <span>${targetPlatformText}</span>
                             </button>
                         </div>
                     `,
@@ -757,29 +776,29 @@
                 overlay.id = 'fallbackMotivationalModal';
                 overlay.style.cssText = 'position:fixed;inset:0;background:rgba(9,13,22,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:12px;direction:rtl;font-family:Cairo,sans-serif;';
                 overlay.innerHTML = `
-                    <div style="background:#090D16; border:1.5px solid rgba(245,158,11,0.45); border-radius:20px; max-width:360px; width:92%; padding:14px 12px 16px; box-shadow:0 12px 40px rgba(0,0,0,0.8); text-align:center; color:#FFF;">
-                        <div style="font-size:12px; color:#94A3B8; font-weight:700; margin-bottom:2px;">🌟 مرحباً بك يا بطل 🌟</div>
-                        <div style="font-size:16px; font-weight:900; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cleanName}</div>
-                        <div style="display:flex; justify-content:center; gap:6px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
-                            <span id="modalQuoteBadge" style="background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.3); color:#FBBF24; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px;">
+                    <div style="background:#090D16; border:1.5px solid rgba(245,158,11,0.45); border-radius:22px; width:520px; max-width:94vw; padding:18px 20px; box-shadow:0 16px 50px rgba(0,0,0,0.9); text-align:center; color:#FFF; box-sizing:border-box;">
+                        <div style="font-size:13px; color:#94A3B8; font-weight:800; margin-bottom:2px;">${titleHeader}</div>
+                        <div style="font-size:17.5px; font-weight:900; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cleanName}</div>
+                        <div style="display:flex; justify-content:center; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+                            <span id="modalQuoteBadge" style="background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.35); color:#FBBF24; font-size:11.5px; font-weight:800; padding:4px 12px; border-radius:20px;">
                                 <i id="modalQuoteIcon" class="${quote.icon}"></i> <span id="modalQuoteBadgeText">${quote.badge}</span>
                             </span>
-                            <span style="color:#C4B5FD; font-size:11px; font-weight:900; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); padding:4px 10px; border-radius:20px;">
-                                ⏱️ المهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:12.5px; color:#FFF;">03:00</span>
+                            <span style="color:#C4B5FD; font-size:11.5px; font-weight:900; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); padding:4px 12px; border-radius:20px;">
+                                ⏱️ المهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:13px; color:#FFF;">03:00</span>
                             </span>
                         </div>
-                        <div style="background:rgba(14,20,36,0.92); border:1px solid rgba(245,158,11,0.3); border-radius:16px; padding:12px; margin-bottom:8px;">
-                            <div id="modalQuoteText" style="font-size:13px; font-weight:900; line-height:1.65;">${quote.text}</div>
-                            <div id="modalQuoteSource" style="font-size:11px; color:#F59E0B; font-weight:800; margin-top:6px;">— ${quote.source}</div>
+                        <div style="background:rgba(14,20,36,0.92); border:1.5px solid rgba(245,158,11,0.35); border-radius:16px; padding:14px 16px; margin-bottom:8px; max-height:220px; overflow-y:auto;">
+                            <div id="modalQuoteText" style="font-size:13.5px; font-weight:900; line-height:1.7;">${quote.text}</div>
+                            <div id="modalQuoteSource" style="font-size:11.5px; color:#F59E0B; font-weight:800; margin-top:6px; text-align:left;">— ${quote.source}</div>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#FFF; font-size:11px; font-weight:800; padding:4px 12px; border-radius:30px; cursor:pointer;">
+                            <button type="button" onclick="QuotesEngine.nextModalQuote()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#FFF; font-size:11.5px; font-weight:800; padding:4px 14px; border-radius:30px; cursor:pointer;">
                                 حكمة أخرى 🔄
                             </button>
-                            <span style="font-size:10.5px; color:#94A3B8;">القمة خُلقت لمن لا يتراجع 🦅</span>
+                            <span style="font-size:11px; color:#94A3B8; font-weight:700;">القمة خُلقت لمن لا يتراجع 🦅</span>
                         </div>
                         <button type="button" onclick="QuotesEngine.navigateNow()" style="width:100%; height:46px; background:linear-gradient(135deg,#F59E0B,#D97706); color:#090D16; font-weight:900; font-size:15px; border:none; border-radius:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                            <span>انتقل للمنصة الآن 🚀</span>
+                            <span>${targetPlatformText}</span>
                         </button>
                     </div>
                 `;
