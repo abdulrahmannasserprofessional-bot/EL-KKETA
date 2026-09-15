@@ -3867,11 +3867,21 @@
             openLectureModal(index, lesson.title);
         }
 
-        function openLectureQA(index) {
-            const lesson = allLessons[index];
+        function openLectureQA(indexOrId) {
+            let lesson = null;
+            if (typeof indexOrId === 'object' && indexOrId !== null) {
+                lesson = indexOrId;
+            } else if (typeof indexOrId === 'string') {
+                lesson = allLessons.find(l => l.id === indexOrId || l.title === indexOrId) || null;
+            } else if (typeof indexOrId === 'number') {
+                lesson = allLessons[indexOrId] || null;
+            }
             if (!lesson) return;
-            openLectureModal(index, lesson.title);
-            switchPlayerTab('qa');
+            const safeSub = subject || '';
+            const safeTitle = lesson.title || '';
+            const safeId = lesson.id || '';
+            const idx = allLessons.indexOf(lesson);
+            window.location.href = 'video.html?subject=' + encodeURIComponent(safeSub) + '&title=' + encodeURIComponent(safeTitle) + '&id=' + encodeURIComponent(safeId) + '&index=' + (idx >= 0 ? idx : 0) + '&tab=qa';
         }
 
         let isVideoPlayRequested = false;
@@ -4129,8 +4139,18 @@
 
         function openLectureRoadmap(index) { openLectureModal(index); }
 
-        function openLectureModal(index, title) {
-            const lesson = (index !== undefined && allLessons[index]) ? allLessons[index] : null;
+        function openLectureModal(indexOrId, title) {
+            let lesson = null;
+            if (typeof indexOrId === 'object' && indexOrId !== null) {
+                lesson = indexOrId;
+            } else if (typeof indexOrId === 'string') {
+                lesson = allLessons.find(l => l.id === indexOrId || l.title === indexOrId) || null;
+            } else if (typeof indexOrId === 'number') {
+                lesson = allLessons[indexOrId] || null;
+            }
+            if (!lesson && indexOrId !== undefined) {
+                lesson = allLessons.find(l => l.id === indexOrId || l.title === title) || allLessons[0] || null;
+            }
             if (lesson && lesson.unlockTime && Date.now() < lesson.unlockTime) {
                 showLockedModal(lesson);
                 return;
@@ -4152,7 +4172,8 @@
             // 1. السبورة
             const pdfBtn = document.getElementById('modalRoadmapPdfBtn');
             if (pdfBtn) {
-                if (currentLectureData && currentLectureData.pdfUrl) {
+                const hasPdf = Boolean(currentLectureData && (currentLectureData.pdfUrl || currentLectureData.pdf || currentLectureData.pdf_url || currentLectureData.summaryUrl || currentLectureData.boardUrl || currentLectureData.fileUrl));
+            if (hasPdf) {
                     pdfBtn.innerText = 'عرض الملف 📄';
                     pdfBtn.style.opacity = '1';
                     pdfBtn.style.cursor = 'pointer';
@@ -4227,7 +4248,7 @@
                 if (typeof showToast === 'function') {
                     showToast('فيديو المحاضرة قيد التجهيز من قبل الإدارة', 'warning');
                 } else {
-                    alert('فيديو المحاضرة قيد التجهيز من قبل الإدارة');
+                    Swal.fire({ title: 'فيديو المحاضرة قيد التجهيز', text: 'فيديو المحاضرة قيد التجهيز والرفع من قبل الإدارة.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
                 return;
             }
@@ -4238,16 +4259,17 @@
         }
 
         function openPdfFromModal() {
-            if (!currentLectureData || !currentLectureData.pdfUrl) {
+            const pdf = currentLectureData && (currentLectureData.pdfUrl || currentLectureData.pdf || currentLectureData.pdf_url || currentLectureData.summaryUrl || currentLectureData.boardUrl || currentLectureData.fileUrl);
+            if (!pdf) {
                 if (typeof showToast === 'function') {
                     showToast('ملخص السبورة غير متوفر لهذه المحاضرة 📄', 'warning');
                 } else {
-                    alert('ملخص السبورة غير متوفر لهذه المحاضرة.');
+                    Swal.fire({ title: 'ملخص السبورة غير متوفر', text: 'عذراً، ملخص وسبورة هذه المحاضرة غير متوفر حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
                 return;
             }
             closeVideoPlayer();
-            openPdf(currentLectureData.pdfUrl, currentLectureTitle, currentLectureIndex);
+            openPdf(pdf, currentLectureTitle, currentLectureIndex);
         }
 
         function openExamFromModal() {
@@ -4255,7 +4277,7 @@
                 if (typeof showToast === 'function') {
                     showToast('الامتحان التدريبي غير متوفر لهذه المحاضرة 📝', 'warning');
                 } else {
-                    alert('الامتحان التدريبي غير متوفر لهذه المحاضرة.');
+                    Swal.fire({ title: 'الامتحان غير متوفر', text: 'الامتحان والتقييم التدريبي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
                 return;
             }
@@ -4268,7 +4290,7 @@
                 if (typeof showToast === 'function') {
                     showToast('الشرح الصوتي غير متوفر لهذه المحاضرة 🎙️', 'warning');
                 } else {
-                    alert('الشرح الصوتي غير متوفر لهذه المحاضرة.');
+                    Swal.fire({ title: 'الشرح الصوتي غير متوفر', text: 'الشرح الصوتي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
                 return;
             }
@@ -4389,56 +4411,6 @@
 </script>
 
     
-                    <button id="modalRoadmapPdfBtn" style="background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
-                        عرض الملف 📄
-                    </button>
-                </div>
-
-                <!-- 2. فيديو المحاضرة -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #2563EB, #3B82F6); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">2</div>
-                        <div>
-                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📺 شرح المحاضرة (الفيديو)</h4>
-                            <div style="font-size: 11px; color: #059669; margin-top: 2px; font-weight: 700;">هذا العمل تحت إشراف ودعم فريق منصة الخطة</div>
-                        </div>
-                    </div>
-                    <button id="modalRoadmapVideoBtn" style="background: #EEF2FF; color: #2563EB; border: 1px solid #C7D2FE; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
-                        مشاهدة الفيديو 📺
-                    </button>
-                </div>
-
-                <!-- 3. الامتحان التدريبي -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">3</div>
-                        <div>
-                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">📝 الامتحان والتقييم التدريبي</h4>
-                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">حل أسئلة المحاضرة وتقييم فوري لمستواك</div>
-                        </div>
-                    </div>
-                    <button id="modalRoadmapExamBtn" style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
-                        بدء الامتحان 🚀
-                    </button>
-                </div>
-
-                <!-- 4. ملخص صوتي -->
-                <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; box-shadow: 0 4px 10px rgba(139,92,246,0.3);">4</div>
-                        <div>
-                            <h4 style="margin: 0; color: #1E293B; font-size: 14px; font-weight: 800;">🎙️ ملخص صوتي</h4>
-                            <div style="font-size: 11px; color: #64748B; margin-top: 2px;">الاستماع إلى ملخص وشرح صوتي سريع للمحاضرة</div>
-                        </div>
-                    </div>
-                    <button id="modalRoadmapAudioBtn" style="background: #EDE9FE; color: #7C3AED; border: 1px solid #DDD6FE; padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 12px; font-family: 'Cairo'; cursor: pointer;">
-                        استماع 🎙️
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
+                    
 </body>
 </html>

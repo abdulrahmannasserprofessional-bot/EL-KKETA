@@ -644,7 +644,70 @@
             transition: 0.2s;
         }
         .btn-qa-send:hover { transform: scale(1.04); }
+    
+        /* ─── Floating Support Button ─── */
+        .support-float-btn {
+            position: fixed !important;
+            bottom: 24px !important;
+            left: 24px !important;
+            z-index: 99990 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            padding: 12px 20px !important;
+            border-radius: 50px !important;
+            box-shadow: 0 10px 28px -6px rgba(37, 99, 235, 0.5), 0 0 20px rgba(56, 189, 248, 0.25) !important;
+            cursor: pointer !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 13.5px !important;
+            font-weight: 800 !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            user-select: none !important;
+        }
+        .support-float-btn:hover {
+            transform: translateY(-3px) scale(1.04) !important;
+            box-shadow: 0 14px 34px -6px rgba(37, 99, 235, 0.65) !important;
+            color: #FFFFFF !important;
+        }
+        @media (max-width: 640px) {
+            .support-float-btn {
+                bottom: 20px !important;
+                left: 16px !important;
+                padding: 10px 16px !important;
+                font-size: 12px !important;
+            }
+        }
+
+        /* ─── YouTube Logo Shields (Full Coverage) ─── */
+        .yt-shield-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #000000;
+            z-index: 12;
+            pointer-events: none;
+            display: none;
+        }
+        .yt-shield-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 54px;
+            background: #000000;
+            z-index: 12;
+            pointer-events: none;
+            display: none;
+        }
+
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -675,8 +738,8 @@
                 <div id="ytClickShield" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: none;" onclick="toggleCustomPlay()"></div>
 
                 <!-- Anti-Logo Masks for YouTube Player -->
-                <div id="ytTopMask" style="position: absolute; top: 0; left: 0; right: 0; height: 55px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
-                <div id="ytBottomRightMask" style="position: absolute; bottom: 0; right: 0; width: 90px; height: 50px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+                <div id="ytTopMask" class="yt-shield-top"></div>
+                <div id="ytBottomMask" class="yt-shield-bottom"></div>
                 <div id="ytShortsMaskLeft" style="position: absolute; bottom: 0; left: 0; width: 320px; max-width: 38%; height: 110px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
                 <div id="ytShortsMaskRight" style="position: absolute; bottom: 0; right: 0; width: 85px; max-width: 25%; height: 150px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
 
@@ -878,7 +941,22 @@
                 }
             } catch(e){}
 
-            function applyLesson(lesson) {
+            // Check QA deep-link
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlP = new URLSearchParams(window.location.search);
+            if (urlP.get('tab') === 'qa') {
+                setTimeout(() => {
+                    const qaSec = document.getElementById('lectureQASheet') || document.getElementById('modalQAMessagesList');
+                    if (qaSec) {
+                        qaSec.scrollIntoView({ behavior: 'smooth' });
+                        const input = document.getElementById('qaTextInput');
+                        if (input) input.focus();
+                    }
+                }, 600);
+            }
+        });
+
+        function applyLesson(lesson) {
                 currentLecture = lesson;
                 const title = lesson.title || targetTitle || 'المحاضرة';
                 document.title = `${title} - منصة الخطة`;
@@ -887,17 +965,18 @@
                 document.getElementById('displayLectureTitle').innerText = title;
 
                 // Configure other 3 buttons
+                const pdfUrl = lesson.pdfUrl || lesson.pdf || lesson.pdf_url || lesson.summaryUrl || lesson.boardUrl || lesson.fileUrl;
                 const pdfBtn = document.getElementById('btnRelatedPdf');
-                if (lesson.pdfUrl) {
+                if (pdfUrl) {
                     pdfBtn.onclick = () => {
-                        window.open(lesson.pdfUrl, '_blank');
+                        window.open(pdfUrl, '_blank');
                     };
                     document.getElementById('pdfStatusTag').innerText = 'تصفح 📄';
                     pdfBtn.style.opacity = '1';
                 } else {
                     document.getElementById('pdfStatusTag').innerText = 'غير متوفر';
                     pdfBtn.style.opacity = '0.5';
-                    pdfBtn.onclick = () => alert('ملخص السبورة غير متوفر لهذه المحاضرة');
+                    pdfBtn.onclick = () => Swal.fire({ title: 'ملخص السبورة غير متوفر', text: 'ملخص السبورة غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
 
                 const examBtn = document.getElementById('btnRelatedExam');
@@ -910,7 +989,7 @@
                 } else {
                     document.getElementById('examStatusTag').innerText = 'غير متوفر';
                     examBtn.style.opacity = '0.5';
-                    examBtn.onclick = () => alert('الامتحان التدريبي غير متوفر لهذه المحاضرة');
+                    examBtn.onclick = () => Swal.fire({ title: 'الامتحان غير متوفر', text: 'الامتحان والتقييم التدريبي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
 
                 const audioBtn = document.getElementById('btnRelatedAudio');
@@ -923,7 +1002,7 @@
                 } else {
                     document.getElementById('audioStatusTag').innerText = 'غير متوفر';
                     audioBtn.style.opacity = '0.5';
-                    audioBtn.onclick = () => alert('الشرح الصوتي غير متوفر لهذه المحاضرة');
+                    audioBtn.onclick = () => Swal.fire({ title: 'الشرح الصوتي غير متوفر', text: 'الشرح الصوتي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
 
                 setupQA(title, lesson.id || title);
@@ -983,7 +1062,7 @@
             startWatermark();
 
             if (!currentLecture || !currentLecture.videoUrl) {
-                alert('عذراً، فيديو المحاضرة قيد الرفع والتجهيز من قبل الإدارة.');
+                Swal.fire({ title: 'فيديو المحاضرة غير متوفر', text: 'عذراً، فيديو هذه المحاضرة قيد التجهيز والرفع من قبل الإدارة.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 return;
             }
 
@@ -1000,7 +1079,7 @@
             const ytTarget = document.getElementById('youtubePlayerTarget');
             const ytShield = document.getElementById('ytClickShield');
             const ytTopMask = document.getElementById('ytTopMask');
-            const ytBottomMask = document.getElementById('ytBottomRightMask');
+            const ytBottomMask = document.getElementById('ytBottomMask');
             const controlsBar = document.getElementById('customControlsBar');
 
             if (ytId) {
