@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>تسجيل الدخول - ELKHETA | منصة الخطة التعليمية</title>
-    <meta name="theme-color" content="#1E1B4B">
+    <title>تسجيل الدخول | منصة الخطة التعليمية</title>
+    <meta name="theme-color" content="#0B0F19">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="motion-fx.css?v=2.0">
     <script src="mysql-api.js"></script>
     <script src="security-validator.js"></script>
@@ -20,9 +20,12 @@
             --primary-dark: #1D4ED8;
             --accent: #818CF8;
             --bg-dark: #0B0F19;
-            --card-bg: #FFFFFF;
+            --card-bg: rgba(17, 24, 39, 0.82);
+            --border-color: rgba(255, 255, 255, 0.12);
             --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -40,51 +43,50 @@
 
         /* Ambient Glowing Backdrop Blobs */
         .ambient-glow-1 {
-            position: absolute;
-            top: -120px;
-            right: -80px;
+            position: fixed;
+            top: -140px;
+            right: -100px;
             width: 550px;
             height: 550px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(30, 27, 75, 0) 70%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, rgba(30, 27, 75, 0) 70%);
             z-index: 0;
             pointer-events: none;
-            filter: blur(40px);
+            filter: blur(50px);
             animation: pulseGlow 8s ease-in-out infinite alternate;
         }
 
         .ambient-glow-2 {
-            position: absolute;
-            bottom: -100px;
-            left: -100px;
+            position: fixed;
+            bottom: -120px;
+            left: -120px;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(15, 23, 42, 0) 70%);
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(15, 23, 42, 0) 70%);
             z-index: 0;
             pointer-events: none;
-            filter: blur(50px);
+            filter: blur(55px);
             animation: pulseGlow 10s ease-in-out infinite alternate-reverse;
         }
 
         @keyframes pulseGlow {
-            0% { transform: scale(0.9) translate(0, 0); opacity: 0.7; }
+            0% { transform: scale(0.92) translate(0, 0); opacity: 0.7; }
             100% { transform: scale(1.15) translate(30px, 20px); opacity: 1; }
         }
 
-        /* Subtle grid lines */
         .bg-grid-pattern {
-            position: absolute;
+            position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
             background-size: 28px 28px;
             z-index: 0;
             pointer-events: none;
         }
 
         /* Top Navbar */
-        .landing-navbar {
+        .auth-navbar {
             width: 100%;
-            max-width: 1240px;
-            padding: 24px 24px 10px;
+            max-width: 1100px;
+            padding: 22px 24px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -98,23 +100,27 @@
             gap: 12px;
             color: white;
             text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .brand-logo-wrap:hover {
+            transform: scale(1.02);
         }
 
         .brand-logo-icon {
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
             background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
             border: 1.5px solid rgba(255, 255, 255, 0.25);
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
         }
 
         .brand-name-text {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 900;
             color: #FFFFFF;
             letter-spacing: 0.5px;
@@ -126,24 +132,24 @@
             font-weight: 700;
         }
 
-        .nav-actions-desktop {
+        .nav-actions-wrap {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .nav-pill-btn {
             background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #F1F5F9;
-            padding: 8px 18px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 22px;
             text-decoration: none;
             font-size: 13px;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             transition: all 0.25s ease;
             backdrop-filter: blur(10px);
         }
@@ -162,598 +168,359 @@
             box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
         }
 
-        .nav-menu-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-            backdrop-filter: blur(8px);
-            transition: all 0.2s;
-        }
-        .nav-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Main Showcase 2-Column Grid */
-        .landing-main-grid {
+        /* Centered Auth Main Container */
+        .auth-main-container {
             width: 100%;
-            max-width: 1240px;
-            padding: 30px 24px;
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 50px;
+            max-width: 470px;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             position: relative;
             z-index: 10;
             margin: auto 0;
         }
 
-        /* Hero Showcase Column */
-        .hero-showcase-col {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            text-align: right;
-        }
-
-        .hero-badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid rgba(96, 165, 250, 0.35);
-            color: #93C5FD;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 12.5px;
-            font-weight: 800;
-            width: fit-content;
-            backdrop-filter: blur(10px);
-        }
-
-        .hero-title {
-            font-size: 38px;
-            font-weight: 900;
-            line-height: 1.35;
-            color: #FFFFFF;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #38BDF8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
-
-        .hero-description {
-            font-size: 16px;
-            color: #94A3B8;
-            line-height: 1.7;
-            font-weight: 600;
-            max-width: 580px;
-        }
-
-        /* Quick Stats 4-Grid */
-        .hero-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            margin-top: 5px;
-        }
-
-        .hero-stat-card {
-            background: rgba(15, 23, 42, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            padding: 16px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transition: all 0.25s ease;
-        }
-        .hero-stat-card:hover {
-            border-color: rgba(99, 102, 241, 0.4);
-            transform: translateY(-3px);
-            background: rgba(30, 41, 59, 0.75);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-icon-wrap {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .stat-num {
-            font-size: 16px;
-            font-weight: 900;
-            color: #FFFFFF;
-        }
-        .stat-label {
-            font-size: 11.5px;
-            color: #94A3B8;
-            font-weight: 700;
-        }
-
-        /* Features Highlights List */
-        .hero-features-strip {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .hero-feature-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13.5px;
-            color: #CBD5E1;
-            font-weight: 700;
-        }
-        .hero-feature-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #38BDF8;
-            box-shadow: 0 0 10px #38BDF8;
-        }
-
-        /* Login Card Column */
-        .login-card-col {
-            display: flex;
-            justify-content: center;
+        /* Glassmorphic Luxury Auth Card */
+        .auth-card {
             width: 100%;
-        }
-
-        .login-card {
-            background: #FFFFFF;
-            width: 100%;
-            max-width: 440px;
-            border-radius: 30px;
-            padding: 40px 32px 30px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 38px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(59, 130, 246, 0.12);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             text-align: center;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            animation: cardAppear 0.6s cubic-bezier(0.34, 1.2, 0.64, 1);
-            color: #1E293B;
+            animation: cardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes cardAppear {
-            from { opacity: 0; transform: translateY(25px) scale(0.96); }
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .card-logo-badge {
-            width: 78px;
-            height: 78px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+        .auth-badge-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(139, 92, 246, 0.2));
+            border: 2px solid rgba(147, 197, 253, 0.3);
             border-radius: 24px;
-            margin: -74px auto 18px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
-            border: 4px solid #FFFFFF;
+            font-size: 32px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
         }
 
-        .login-card h2 {
-            font-size: 24px;
+        .auth-card h2 {
+            font-size: 23px;
             font-weight: 900;
-            color: #0F172A;
+            color: #FFFFFF;
             margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }
 
-        .login-card p {
-            color: #64748B;
+        .auth-card p.auth-subtitle {
             font-size: 13.5px;
+            color: var(--text-muted);
             font-weight: 600;
-            margin-bottom: 22px;
             line-height: 1.5;
+            margin-bottom: 24px;
         }
 
-        /* Recent Account Fast Login Chip */
+        /* Recent Account Chip */
         .recent-account-chip {
-            background: #EEF2FF;
-            border: 1.5px dashed #818CF8;
-            border-radius: 14px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 16px;
             padding: 10px 14px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             display: none;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             text-align: right;
         }
         .recent-account-chip:hover {
-            background: #E0E7FF;
-            transform: translateY(-2px);
-            border-color: #6366F1;
+            background: rgba(37, 99, 235, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-1px);
         }
 
+        /* Input Field Wrap */
         .input-wrap {
             position: relative;
             margin-bottom: 18px;
+            text-align: right;
         }
+
         .input-icon {
             position: absolute;
-            top: 50%;
             right: 18px;
+            top: 50%;
             transform: translateY(-50%);
             color: #94A3B8;
             font-size: 18px;
+            pointer-events: none;
+            transition: color 0.3s;
         }
 
         .student-code-input {
             width: 100%;
-            padding: 16px 48px 16px 16px;
-            border: 2px solid #E2E8F0;
-            border-radius: 16px;
-            background: #F8FAFC;
-            font-family: 'Cairo', sans-serif;
-            text-align: center;
+            padding: 16px 52px 16px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            color: #FFFFFF;
             font-size: 17px;
             font-weight: 800;
-            color: #1E293B;
             outline: none;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
-        .student-code-input:focus {
-            border-color: #3B82F6;
-            background: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+
+        .student-code-input::placeholder {
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: normal;
+            text-transform: none;
         }
 
+        .student-code-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .student-code-input:focus ~ .input-icon {
+            color: #60A5FA;
+        }
+
+        /* Glow Submit Button */
         .btn-login-submit {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            color: #FFFFFF;
+            padding: 16px;
+            background: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
             border: none;
-            border-radius: 16px;
-            font-weight: 900;
-            font-size: 17px;
-            font-family: 'Cairo', sans-serif;
+            border-radius: 18px;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 800;
+            font-family: inherit;
             cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .btn-login-submit::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-login-submit:hover::before {
+            left: 100%;
+        }
+
         .btn-login-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.45);
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.55);
         }
-        .btn-login-submit:active { transform: translateY(0); }
 
+        .btn-login-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Action Links */
         .links-row {
+            margin-top: 24px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 20px;
         }
 
         .register-link {
-            color: #2563EB;
-            font-weight: 800;
-            text-decoration: none;
+            color: #93C5FD;
             font-size: 14px;
-            transition: color 0.2s;
-            display: inline-block;
-        }
-        .register-link:hover { color: #1D4ED8; text-decoration: underline; }
-
-        .admin-link-pill {
-            color: #64748B;
-            font-size: 12.5px;
             font-weight: 800;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 8px 16px;
-            background: #F1F5F9;
-            border-radius: 12px;
-            transition: all 0.2s;
-            margin: 0 auto;
+            transition: color 0.2s;
         }
-        .admin-link-pill:hover {
-            color: #1E293B;
-            background: #E2E8F0;
+        .register-link:hover {
+            color: #FFFFFF;
+            text-decoration: underline;
         }
 
-        /* In-Card PWA Section */
+        .admin-link-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #94A3B8;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s;
+        }
+        .admin-link-pill:hover {
+            color: #E2E8F0;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Integrated PWA Prompt Box */
         .pwa-integrated-box {
-            margin-top: 22px;
-            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-            border: 1px solid rgba(129, 140, 248, 0.3);
-            border-radius: 18px;
+            margin-top: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
             padding: 12px 14px;
-            color: white;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            text-align: right;
             cursor: pointer;
             transition: all 0.2s;
+            text-align: right;
         }
         .pwa-integrated-box:hover {
-            transform: translateY(-2px);
-            border-color: #818CF8;
-            box-shadow: 0 8px 20px rgba(49, 46, 129, 0.4);
-        }
-        .pwa-install-btn {
-            background: #FFFFFF;
-            color: #312E81;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 900;
-            font-family: 'Cairo';
-            cursor: pointer;
-            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.4);
         }
 
-        /* Footer Info */
-        .landing-footer {
+        .pwa-install-btn {
+            background: #2563EB;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Minimal Footer */
+        .auth-footer {
             width: 100%;
-            max-width: 1240px;
-            padding: 20px 24px;
+            max-width: 1100px;
+            padding: 16px 24px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            color: #64748B;
-            font-size: 12.5px;
-            font-weight: 700;
-            position: relative;
-            z-index: 10;
             flex-wrap: wrap;
             gap: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 12.5px;
+            color: #64748B;
+            font-weight: 600;
+            position: relative;
+            z-index: 20;
         }
 
         .support-float-btn {
-            background: rgba(37, 211, 102, 0.15);
-            border: 1px solid rgba(37, 211, 102, 0.3);
+            background: rgba(37, 211, 102, 0.12);
             color: #25D366;
-            padding: 7px 16px;
+            border: 1px solid rgba(37, 211, 102, 0.25);
+            padding: 8px 16px;
             border-radius: 20px;
             text-decoration: none;
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             transition: all 0.2s;
         }
         .support-float-btn:hover {
             background: #25D366;
-            color: white;
+            color: #FFFFFF;
             transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 211, 102, 0.35);
         }
 
-        /* Responsive Mobile Tuning */
-        @media (max-width: 991px) {
-            .nav-actions-desktop {
-                display: none;
-            }
-            .nav-menu-btn {
-                display: flex;
-            }
-            .landing-main-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-                padding: 20px 16px 30px;
-                margin: 10px 0;
-            }
-            .login-card-col {
-                order: 1;
-            }
-            .hero-showcase-col {
-                order: 2;
-                text-align: center;
-                align-items: center;
-            }
-            .hero-title {
-                font-size: 28px;
-            }
-            .hero-description {
-                font-size: 14px;
-            }
-            .hero-stats-grid {
-                width: 100%;
-            }
-            .hero-features-strip {
-                align-items: center;
-            }
-        }
-
-        @media (max-width: 520px) {
-            .landing-navbar {
-                padding: 16px 16px 0;
-            }
-            .brand-logo-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-                border-radius: 12px;
-            }
-            .brand-name-text {
-                font-size: 18px;
-            }
-            .brand-sub-text {
-                font-size: 10px;
-            }
-            .nav-menu-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-                border-radius: 12px;
-            }
-            .login-card {
-                padding: 32px 18px 22px;
-                border-radius: 24px;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            }
-            .card-logo-badge {
-                width: 66px;
-                height: 66px;
-                font-size: 30px;
-                margin: -58px auto 14px;
-                border-radius: 20px;
-                border-width: 3px;
-            }
-            .login-card h2 {
-                font-size: 21px;
-            }
-            .login-card p {
-                font-size: 12.5px;
-                margin-bottom: 18px;
-            }
-            .student-code-input {
-                font-size: 15px;
-                padding: 14px 42px 14px 12px;
-                border-radius: 14px;
-            }
-            .btn-login-submit {
-                font-size: 16px;
-                padding: 14px;
-                border-radius: 14px;
-            }
-            .hero-stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .landing-footer {
-                padding: 14px 16px 20px;
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-                font-size: 11px;
-            }
         /* Toast */
         #toast {
             visibility: hidden;
-            min-width: 260px;
-            background: #1E293B;
-            color: #FFFFFF;
+            min-width: 280px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            color: #FFF;
             text-align: center;
             border-radius: 16px;
             padding: 14px 20px;
             position: fixed;
-            z-index: 99999;
+            z-index: 9999;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             opacity: 0;
-            transition: all 0.35s cubic-bezier(0.68,-0.55,0.265,1.55);
-            font-family: 'Cairo', sans-serif;
+            transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             font-size: 14px;
             font-weight: 800;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-            border: 1px solid #475569;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 4px solid var(--primary);
         }
         #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* Drawer Styling */
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -320px;
-            width: 300px;
-            height: 100%;
-            background: white;
-            z-index: 50000;
-            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #EEF2FF;
-            overflow-y: auto;
-            direction: rtl;
+        @media (max-width: 640px) {
+            .auth-navbar { padding: 16px 18px 8px; }
+            .nav-actions-wrap .nav-pill-btn:not(.primary) { display: none; }
+            .auth-card { padding: 30px 22px; border-radius: 24px; }
+            .auth-footer { justify-content: center; text-align: center; }
         }
-        .drawer.active { right: 0; }
-
-        .drawer-header {
-            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 100%);
-            padding: 30px 20px 20px;
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            border-radius: 0 0 25px 25px;
-            margin-bottom: 10px;
-        }
-
-        .drawer-item {
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #2D3436;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin: 4px 12px;
-            border-radius: 12px;
-        }
-        .drawer-item:hover {
-            background: #F0F4FF;
-            color: #0984E3;
-            transform: translateX(-4px);
-        }
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 40000;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
-        .overlay.active { display: block; }
-
     </style>
 </head>
 <body>
 
-    <!-- Ambient Glowing Blobs & Grid -->
+    <!-- Ambient Glow Blobs -->
     <div class="ambient-glow-1"></div>
     <div class="ambient-glow-2"></div>
     <div class="bg-grid-pattern"></div>
-    
-    <!-- Navbar Header -->
-    <header class="landing-navbar">
-        <div class="brand-logo-wrap">
-            <div class="brand-logo-icon">🎓</div>
+
+    <!-- Clean Header Navbar -->
+    <header class="auth-navbar">
+        <a href="index.html" class="brand-logo-wrap">
+            <div class="brand-logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
             <div>
                 <div class="brand-name-text">ELKHETA</div>
-                <div class="brand-sub-text">منصة الخطة التعليمية الذكية</div>
+                <div class="brand-sub-text">منصة الخطة التعليمية</div>
             </div>
-        </div>
+        </a>
 
-        <!-- Desktop Quick Navigation -->
-        <div class="nav-actions-desktop">
+        <div class="nav-actions-wrap">
             <a href="index.html" class="nav-pill-btn">
                 <i class="fa-solid fa-house"></i>
                 <span>الرئيسية</span>
@@ -762,182 +529,79 @@
                 <i class="fa-solid fa-user-plus"></i>
                 <span>إنشاء حساب جديد</span>
             </a>
-            <a href="https://wa.me/201158210358" target="_blank" class="nav-pill-btn">
-                <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i>
-                <span>تواصل مع الإدارة</span>
-            </a>
             <a href="admin-gate.html" class="nav-pill-btn">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>بوابة الإدارة</span>
+                <span>الإدارة</span>
             </a>
         </div>
-
-        <!-- Mobile Drawer Toggle -->
-        <button id="openDrawer" class="nav-menu-btn" title="القائمة">
-            <i class="fa-solid fa-bars"></i>
-        </button>
     </header>
 
-    <!-- Main Split Showcase & Login Container -->
-    <main class="landing-main-grid">
-        
-        <!-- Left / Right Hero Showcase Column -->
-        <section class="hero-showcase-col">
-            <div class="hero-badge-pill">
-                <span>✨</span>
-                <span>المنصة التعليمية الأولى والذكية 2027</span>
+    <!-- Main Centered Auth Form -->
+    <main class="auth-main-container">
+        <div class="auth-card">
+            <div class="auth-badge-icon">🎓</div>
+            <h2>تسجيل الدخول</h2>
+            <p class="auth-subtitle">أدخل كود حسابك للمتابعة والوصول لمحاضراتك واختباراتك</p>
+
+            <!-- Quick Auto-detect Returning Account Chip -->
+            <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">👤</span>
+                    <div>
+                        <div style="font-size: 12.5px; font-weight: 800; color: #93C5FD;" id="recentAccountName">مرحباً بعودتك!</div>
+                        <div style="font-size: 11px; color: #60A5FA;" id="recentAccountCode">الكود: ---</div>
+                    </div>
+                </div>
+                <span style="font-size: 11.5px; font-weight: 900; color: #38BDF8;">دخول سريع ⬅️</span>
             </div>
 
-            <h1 class="hero-title">
-                طريقك للتفوق و<span class="gradient-text">الدرجة النهائية</span> يبدأ من هنا 🚀
-            </h1>
-
-            <p class="hero-description">
-                تعلم بذكاء مع أحدث تقنيات التعليم التفاعلي، شروحات شاملة، بنوك أسئلة ذكية، وتقارير فورية بالذكاء الاصطناعي لتحليل نقاط قوتك وتطوير مستواك.
-            </p>
-
-            <!-- 4 Quick Stats Grid -->
-            <div class="hero-stats-grid">
-                <div class="hero-stat-card">
-                    <div class="stat-icon-wrap" style="color:#60A5FA;">👨‍🎓</div>
-                    <div>
-                        <div class="stat-num" id="metricStudents">+150</div>
-                        <div class="stat-label">طالب مسجل بالمنصة</div>
-                    </div>
-                </div>
-
-                <div class="hero-stat-card">
-                    <div class="stat-icon-wrap" style="color:#34D399;">📚</div>
-                    <div>
-                        <div class="stat-num" id="metricLectures">+60</div>
-                        <div class="stat-label">محاضرة وشرح تفصيلي</div>
-                    </div>
-                </div>
-
-                <div class="hero-stat-card">
-                    <div class="stat-icon-wrap" style="color:#A78BFA;">🧠</div>
-                    <div>
-                        <div class="stat-num" id="metricAI">تحليل فوري ⚡</div>
-                        <div class="stat-label">تقرير نقاط القوة والضعف (AI)</div>
-                    </div>
-                </div>
-
-                <div class="hero-stat-card">
-                    <div class="stat-icon-wrap" style="color:#FBBF24;">📝</div>
-                    <div>
-                        <div class="stat-num" id="metricExams">+30</div>
-                        <div class="stat-label">بنوك أسئلة وامتحانات</div>
-                    </div>
-                </div>
+            <!-- Student Code Input -->
+            <div class="input-wrap">
+                <input type="text" id="studentCode" class="student-code-input" placeholder="كود الطالب (مثال: KH1234)"
+                       autofocus autocomplete="off" onkeypress="if(event.key==='Enter') login()">
+                <i class="fa-solid fa-key input-icon"></i>
             </div>
 
-            <!-- Features Highlights List -->
-            <div class="hero-features-strip">
-                <div class="hero-feature-item">
-                    <span class="hero-feature-dot"></span>
-                    <span>🏆 <strong>لوحة شرف الأوائل</strong> وتحديات تحفيزية مستمرة للطلاب المتفوقين.</span>
-                </div>
-                <div class="hero-feature-item">
-                    <span class="hero-feature-dot"></span>
-                    <span>💬 <strong>مجتمع تفاعلي متكامل</strong> لطرح تساؤلاتك وتلقّي إجابات المعلمين فوراً.</span>
-                </div>
-                <div class="hero-feature-item">
-                    <span class="hero-feature-dot"></span>
-                    <span>📝 <strong>سجل ذكي للأخطاء</strong> لمراجعة الأسئلة الصعبة قبل الامتحانات.</span>
-                </div>
+            <!-- Login Button -->
+            <button class="btn-login-submit" id="btnLogin" onclick="login()">
+                <span>دخول للمنصة</span>
+                <i class="fa-solid fa-rocket"></i>
+            </button>
+            
+            <!-- Secondary Links -->
+            <div class="links-row">
+                <a href="register.html" class="register-link">
+                    <span>لا تملك كود؟ اشترك وسجل حساباً جديداً</span>
+                    <i class="fa-solid fa-arrow-left" style="font-size: 12px;"></i>
+                </a>
+                <a href="admin-gate.html" class="admin-link-pill">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>بوابة دخول الإدارة والمشرفين</span>
+                </a>
             </div>
-        </section>
 
-        <!-- Right / Left Login Card Column -->
-        <section class="login-card-col">
-            <div class="login-card">
-                <div class="card-logo-badge">🎓</div>
-                <h2>تسجيل الدخول</h2>
-                <p>أدخل كود حسابك للمتابعة والوصول لمحاضراتك</p>
-
-                <!-- Quick Auto-detect Account Chip -->
-                <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 18px;">👤</span>
-                        <div>
-                            <div style="font-size: 12.5px; font-weight: 800; color: #3730A3;" id="recentAccountName">مرحباً بعودتك!</div>
-                            <div style="font-size: 11px; color: #6366F1;" id="recentAccountCode">الكود: ---</div>
-                        </div>
+            <!-- Integrated PWA Widget -->
+            <div class="pwa-integrated-box pwa-card-widget" onclick="installPWA()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📲</span>
+                    <div>
+                        <div style="font-weight: 900; font-size: 12px; color: #E2E8F0;">تثبيت تطبيق الخطة على جهازك</div>
+                        <div style="font-size: 10.5px; color: #94A3B8;">وصول أسرع وتجربة تطبيق متكاملة</div>
                     </div>
-                    <span style="font-size: 11.5px; font-weight: 900; color: #4F46E5;">دخول سريع ⬅️</span>
                 </div>
-
-                <div class="input-wrap">
-                    <i class="fa-solid fa-key input-icon"></i>
-                    <input type="text" id="studentCode" class="student-code-input" placeholder="كود الطالب (مثال: KH1234)"
-                           onkeypress="if(event.key==='Enter') login()">
-                </div>
-
-                <button class="btn-login-submit" id="btnLogin" onclick="login()">
-                    <span>دخول للمنصة</span>
-                    <i class="fa-solid fa-rocket"></i>
-                </button>
-                
-                <div class="links-row">
-                    <a href="register.html" class="register-link">لا تملك كود؟ اشترك وسجل حساباً جديداً 📝</a>
-                    <a href="admin-gate.html" class="admin-link-pill">
-                        <i class="fa-solid fa-lock"></i>
-                        <span>بوابة دخول الإدارة والمشرفين</span>
-                    </a>
-                </div>
-
-                <!-- In-Card Integrated PWA Widget -->
-                <div class="pwa-integrated-box pwa-card-widget" onclick="installPWA()">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 20px;">📲</span>
-                        <div>
-                            <div style="font-weight: 900; font-size: 12px;">تثبيت تطبيق الخطة على جهازك</div>
-                            <div style="font-size: 10.5px; opacity: 0.85;">وصول أسرع وتجربة تطبيق متكاملة</div>
-                        </div>
-                    </div>
-                    <button class="pwa-install-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
-                </div>
+                <button class="pwa-install-btn" onclick="event.stopPropagation(); installPWA();">تثبيت ➕</button>
             </div>
-        </section>
-
+        </div>
     </main>
 
     <!-- Bottom Footer -->
-    <footer class="landing-footer">
-        <div>ELKHETA Educational Platform © 2027 • جميع الحقوق محفوظة</div>
+    <footer class="auth-footer">
+        <div>منصة الخطة التعليمية © 2027 • جميع الحقوق محفوظة</div>
         <a href="https://wa.me/201158210358" target="_blank" class="support-float-btn">
             <i class="fa-brands fa-whatsapp"></i>
             <span>تواصل مع الإدارة</span>
         </a>
     </footer>
-
-    <!-- Drawer HTML -->
-    <div id="drawer" class="drawer">
-        <div class="drawer-header">
-            <div style="font-size: 40px; margin-bottom: 4px;">🎓</div>
-            <div style="font-weight: 900; font-size: 18px;">منصة الخطة التعليمية</div>
-            <div style="font-size: 12px; opacity: 0.9;">بوابتك الذكية للتعلم والتفوق</div>
-        </div>
-        <div class="drawer-item" onclick="location.href='register.html'" style="color:#059669; font-weight:800; background:#ECFDF5; border-radius:12px; margin-bottom:6px;">
-            <span>📝</span> إنشاء حساب جديد
-        </div>
-        <div class="drawer-item" onclick="location.href='admin-gate.html'" style="color:#2563EB; font-weight:800; background:#EFF6FF; border-radius:12px; margin-bottom:6px;">
-            <span>🔐</span> لوحة الإدارة والمشرفين
-        </div>
-        <div class="drawer-item" onclick="installPWA()" style="color:#7C3AED; font-weight:800; background:#F5F3FF; border-radius:12px; margin-bottom:6px;">
-            <span>📲</span> تثبيت التطبيق على جهازك
-        </div>
-        <div class="drawer-item" onclick="window.open('https://wa.me/201158210358')">
-            <span>📞</span> تواصل مع الإدارة
-        </div>
-        <div class="drawer-item" onclick="location.href='community.html'">
-            <span>💬</span> مجتمع وتساؤلات الطلاب
-        </div>
-        <div class="drawer-item" onclick="location.href='privacy.html'">
-            <span>📜</span> سياسة الخصوصية
-        </div>
-    </div>
-    <div id="overlay" class="overlay"></div>
 
     <div id="toast"></div>
 
@@ -946,25 +610,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        // Drawer Logic
-        const drawer = document.getElementById('drawer');
-        const overlay = document.getElementById('overlay');
-        document.getElementById('openDrawer').onclick = () => {
-            drawer.classList.add('active');
-            overlay.classList.add('active');
-        };
-        overlay.onclick = () => {
-            drawer.classList.remove('active');
-            overlay.classList.remove('active');
-        };
-
         function showToast(message, type = "info") {
             const toast = document.getElementById("toast");
             toast.innerHTML = message;
-            if (type === 'success') toast.style.borderBottomColor = '#00B894';
-            else if (type === 'error') toast.style.borderBottomColor = '#D63031';
-            else if (type === 'warning') toast.style.borderBottomColor = '#FDCB6E';
-            else toast.style.borderBottomColor = '#0984E3';
+            if (type === 'success') toast.style.borderBottomColor = '#10B981';
+            else if (type === 'error') toast.style.borderBottomColor = '#EF4444';
+            else if (type === 'warning') toast.style.borderBottomColor = '#F59E0B';
+            else toast.style.borderBottomColor = '#3B82F6';
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
@@ -998,39 +650,7 @@
             }
         }
 
-        // Live Real Metrics Loading
-        async function loadLiveMetrics() {
-            try {
-                database.ref('Students').once('value').then(snap => {
-                    if (snap.exists()) {
-                        const count = snap.numChildren();
-                        const el = document.getElementById('metricStudents');
-                        if (el && count > 0) el.textContent = `+${count}`;
-                    }
-                }).catch(()=>{});
-
-                database.ref('Lectures').once('value').then(snap => {
-                    if (snap.exists()) {
-                        let total = 0;
-                        snap.forEach(sub => total += sub.numChildren());
-                        const el = document.getElementById('metricLectures');
-                        if (el && total > 0) el.textContent = `+${total}`;
-                    }
-                }).catch(()=>{});
-
-                database.ref('Exams').once('value').then(snap => {
-                    if (snap.exists()) {
-                        let total = 0;
-                        snap.forEach(sub => total += sub.numChildren());
-                        const el = document.getElementById('metricExams');
-                        if (el && total > 0) el.textContent = `+${total}`;
-                    }
-                }).catch(()=>{});
-            } catch(e){}
-        }
-        loadLiveMetrics();
-
-        // Push Notifications Logic (Background silent token sync if permitted)
+        // Push Notifications Logic
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/firebase-messaging-sw.js?v=3').then((registration) => {
@@ -1049,6 +669,7 @@
                 }).catch(()=>{});
             });
         }
+
         function generateDeviceId() {
             if (!localStorage.getItem('deviceId')) {
                 localStorage.setItem('deviceId', 'device_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
@@ -1086,27 +707,27 @@
             const code = normalizeDigits(rawCode);
             if (!code) { showToast("يرجى إدخال كود الطالب أو المشرف أولاً 🔑", "warning"); return; }
 
-            const btn = document.querySelector('button');
-            btn.textContent = "جاري التحقق... ⏳";
+            const btn = document.getElementById('btnLogin');
+            btn.innerHTML = '<span>جاري التحقق... ⏳</span>';
             btn.style.opacity = "0.75";
             btn.disabled = true;
 
             const resetBtn = () => {
-                btn.textContent = "دخول للمنصة 🚀";
+                btn.innerHTML = '<span>دخول للمنصة</span> <i class="fa-solid fa-rocket"></i>';
                 btn.style.opacity = "1";
                 btn.disabled = false;
             };
 
             try {
-                // [SECURITY] فحص Brute Force
+                // 1. Brute Force Security Check
                 const bruteCheck = SecurityValidator.isLoginBlocked('index_login');
                 if (bruteCheck.blocked) {
                     resetBtn();
-                    showToast(`🔒 تم قفل الحساب. حاول بعد ${bruteCheck.lockoutSeconds} ثانية.`, 'error');
+                    showToast(`🔒 تم قفل الحساب مؤقتاً. حاول بعد ${bruteCheck.lockoutSeconds} ثانية.`, 'error');
                     return;
                 }
 
-                // [SECURITY] جلب الـ PIN فقط من Firebase — لا hardcoded passwords
+                // 2. Check Master Admin PIN from Firebase
                 let masterPin = null;
                 try {
                     const snapM = await database.ref('Settings/adminPin').once('value');
@@ -1127,7 +748,7 @@
                     return;
                 }
 
-                // 2. Check Supervisors Table via Backend API
+                // 3. Check Supervisors Table via Backend API
                 try {
                     const supRes = await ElkhetaAPI.verifySupervisorPin(code);
                     if (supRes && supRes.success && supRes.supervisor) {
@@ -1177,17 +798,10 @@
                     console.warn("Supervisor check error:", e);
                 }
 
-                // 3. Check Maintenance Mode
-                if (document.getElementById('elkhetaMaintenanceOverlay')) {
-                    resetBtn();
-                    showToast("⚠️ المنصة قيد الصيانة والعد التنازلي حالياً.", "error");
-                    return;
-                }
-
                 // 4. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
 
-                // فحص قاعدة بيانات MySQL أولاً بسرعة
+                // Check MySQL first
                 try {
                     const dataSql = await ElkhetaAPI.getStudents(upperCode);
                     if (dataSql && dataSql.success && dataSql.students && dataSql.students.length > 0) {
@@ -1217,7 +831,7 @@
                     console.warn("MySQL student check error:", e);
                 }
 
-                // فحص قاعدة بيانات Firebase
+                // Check Firebase database
                 try {
                     const snapStudent = await database.ref('Students/' + upperCode).once('value');
                     if (snapStudent && snapStudent.exists()) {
@@ -1246,7 +860,7 @@
                     console.warn("Firebase student check error:", e);
                 }
 
-                // 4. Check Activation Codes via Backend API first
+                // 5. Check Activation Codes via Backend API first
                 try {
                     const actRes = await ElkhetaAPI.checkActivationCode(upperCode);
                     if (actRes && actRes.success && actRes.exists) {
@@ -1272,7 +886,7 @@
                     console.warn("ActivationCodes check error:", e);
                 }
 
-                // Not found — [SECURITY] تسجيل محاولة فاشلة
+                // Not found
                 SecurityValidator.recordFailedLogin('index_login');
                 resetBtn();
                 showToast("⚠️ الكود المدخل غير صحيح أو غير مسجل", "error");
@@ -1290,8 +904,3 @@
     <script src="student-guard.js"></script>
 </body>
 </html>
-
-
-
-
-

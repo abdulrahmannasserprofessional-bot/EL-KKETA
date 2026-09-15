@@ -2,18 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>إنشاء حساب جديد | منصة الخطة التعليمية</title>
+    <meta name="theme-color" content="#0B0F19">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --bg-dark: #0B0F19;
-            --card-bg: rgba(17, 24, 39, 0.75);
-            --primary: #6366F1;
-            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #3730A3 100%);
+            --card-bg: rgba(17, 24, 39, 0.82);
+            --primary: #3B82F6;
+            --primary-gradient: linear-gradient(135deg, #2563EB 0%, #4F46E5 100%);
             --text-main: #F9FAFB;
-            --text-muted: #9CA3AF;
+            --text-muted: #94A3B8;
             --border-color: rgba(255, 255, 255, 0.12);
             --input-bg: rgba(255, 255, 255, 0.05);
         }
@@ -25,124 +28,203 @@
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            position: relative;
             overflow-x: hidden;
+            position: relative;
         }
 
         /* Ambient Glowing Background Orbs */
-        .bg-orb {
+        .ambient-glow-1 {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(90px);
+            top: -140px;
+            right: -100px;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, rgba(30, 27, 75, 0) 70%);
             z-index: 0;
             pointer-events: none;
-            opacity: 0.5;
-        }
-        .bg-orb-1 {
-            width: 400px; height: 400px;
-            background: #4F46E5;
-            top: -100px; right: -100px;
-            animation: pulse 8s ease-in-out infinite alternate;
-        }
-        .bg-orb-2 {
-            width: 350px; height: 350px;
-            background: #9333EA;
-            bottom: -100px; left: -100px;
-            animation: pulse 10s ease-in-out infinite alternate;
-        }
-        .bg-orb-3 {
-            width: 250px; height: 250px;
-            background: #06B6D4;
-            top: 40%; left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.2;
+            filter: blur(50px);
+            animation: pulseGlow 8s ease-in-out infinite alternate;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.15) translate(20px, 20px); }
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: -120px;
+            left: -120px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(55px);
+            animation: pulseGlow 10s ease-in-out infinite alternate-reverse;
         }
 
-        .register-wrapper {
+        @keyframes pulseGlow {
+            0% { transform: scale(0.92) translate(0, 0); opacity: 0.7; }
+            100% { transform: scale(1.15) translate(30px, 20px); opacity: 1; }
+        }
+
+        .bg-grid-pattern {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+            background-size: 28px 28px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Top Navbar */
+        .auth-navbar {
             width: 100%;
-            max-width: 440px;
+            max-width: 1100px;
+            padding: 22px 24px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 20;
+        }
+
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .brand-logo-wrap:hover { transform: scale(1.02); }
+
+        .brand-logo-icon {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        .brand-name-text {
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+        .brand-sub-text {
+            font-size: 11px;
+            color: #94A3B8;
+            font-weight: 700;
+        }
+
+        .nav-actions-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-pill-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #F1F5F9;
+            padding: 8px 16px;
+            border-radius: 22px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+        }
+        .nav-pill-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .nav-pill-btn.primary {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            border: none;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+        }
+
+        /* Centered Auth Main Container */
+        .auth-main-container {
+            width: 100%;
+            max-width: 470px;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             position: relative;
             z-index: 10;
-            margin: auto;
+            margin: auto 0;
         }
 
-        /* Top Brand Header */
-        .brand-header {
+        /* Glassmorphic Luxury Auth Card */
+        .auth-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 36px 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(59, 130, 246, 0.12);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             text-align: center;
-            margin-bottom: 24px;
+            position: relative;
+            animation: cardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .brand-logo-badge {
-            width: 72px; height: 72px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(147, 51, 234, 0.2));
-            border: 2px solid rgba(165, 180, 252, 0.3);
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-badge-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(139, 92, 246, 0.2));
+            border: 2px solid rgba(147, 197, 253, 0.3);
             border-radius: 24px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            color: #A5B4FC;
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-            margin-bottom: 12px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+            margin-bottom: 16px;
             backdrop-filter: blur(10px);
         }
 
-        .brand-title {
-            font-size: 26px;
+        .auth-card h2 {
+            font-size: 23px;
             font-weight: 900;
-            background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }
 
-        .brand-subtitle {
+        .auth-card p.auth-subtitle {
             font-size: 13.5px;
             color: var(--text-muted);
             font-weight: 600;
-            margin-top: 4px;
-        }
-
-        /* Glassmorphic Register Card */
-        .register-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--border-color);
-            border-radius: 28px;
-            padding: 32px 28px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                        0 0 40px rgba(99, 102, 241, 0.12);
-        }
-
-        .card-header {
-            text-align: center;
+            line-height: 1.5;
             margin-bottom: 24px;
-        }
-
-        .card-header h2 {
-            font-size: 20px;
-            font-weight: 800;
-            color: #FFF;
-        }
-
-        .card-header p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 4px;
         }
 
         /* Input Form Groups */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             text-align: right;
         }
 
@@ -157,7 +239,7 @@
         }
 
         .input-group label i {
-            color: #818CF8;
+            color: #60A5FA;
             font-size: 14px;
         }
 
@@ -187,21 +269,23 @@
             color: #FFF;
             outline: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
         }
 
         .input-wrapper input::placeholder {
             color: #64748B;
             font-weight: 600;
+            font-size: 13.5px;
         }
 
         .input-wrapper input:focus {
             border-color: var(--primary);
             background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
         }
 
         .input-wrapper input:focus + .input-icon {
-            color: #818CF8;
+            color: #60A5FA;
         }
 
         /* Checkbox & Privacy Policy */
@@ -209,40 +293,38 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
+            padding: 12px 14px;
+            margin-bottom: 22px;
             display: flex;
             align-items: center;
             gap: 12px;
+            text-align: right;
         }
 
         .custom-checkbox {
-            width: 22px;
-            height: 22px;
-            accent-color: #6366F1;
+            width: 20px;
+            height: 20px;
+            accent-color: #2563EB;
             cursor: pointer;
             border-radius: 6px;
             flex-shrink: 0;
         }
 
         .privacy-label {
-            font-size: 13px;
+            font-size: 12.5px;
             color: #CBD5E1;
             font-weight: 600;
             line-height: 1.5;
         }
 
         .privacy-link {
-            color: #A5B4FC;
+            color: #93C5FD;
             font-weight: 800;
             text-decoration: underline;
             cursor: pointer;
             transition: color 0.2s;
         }
-
-        .privacy-link:hover {
-            color: #C7D2FE;
-        }
+        .privacy-link:hover { color: #FFFFFF; }
 
         /* Luxury Submit Button */
         .submit-btn {
@@ -254,9 +336,10 @@
             border-radius: 18px;
             font-size: 16px;
             font-weight: 800;
+            font-family: inherit;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -274,47 +357,103 @@
             transition: 0.5s;
         }
 
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-
+        .submit-btn:hover::before { left: 100%; }
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.5);
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.55);
         }
+        .submit-btn:active { transform: translateY(0); }
 
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Footer Link */
-        .footer-link-box {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 16px;
+        /* Action Links */
+        .links-row {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 18px;
         }
 
         .login-link {
-            color: #A5B4FC;
+            color: #93C5FD;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 6px;
             transition: color 0.2s;
         }
-
         .login-link:hover {
-            color: #FFF;
+            color: #FFFFFF;
+            text-decoration: underline;
         }
 
-        /* Toast Notifications */
+        .admin-link-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            color: #94A3B8;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s;
+        }
+        .admin-link-pill:hover {
+            color: #E2E8F0;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Minimal Footer */
+        .auth-footer {
+            width: 100%;
+            max-width: 1100px;
+            padding: 16px 24px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12.5px;
+            color: #64748B;
+            font-weight: 600;
+            position: relative;
+            z-index: 20;
+        }
+
+        .support-float-btn {
+            background: rgba(37, 211, 102, 0.12);
+            color: #25D366;
+            border: 1px solid rgba(37, 211, 102, 0.25);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .support-float-btn:hover {
+            background: #25D366;
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 211, 102, 0.35);
+        }
+
+        /* Toast */
         #toast {
             visibility: hidden;
             min-width: 280px;
-            background: rgba(17, 24, 39, 0.95);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
             color: #FFF;
             text-align: center;
@@ -328,9 +467,10 @@
             opacity: 0;
             transition: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 4px solid var(--primary);
         }
         #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -359,7 +499,7 @@
         }
         .privacy-header h3 { color: #F8FAFC; font-size: 18px; font-weight: 800; }
         .privacy-body {
-            padding: 24px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.7; color: #CBD5E1;
+            padding: 24px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.7; color: #CBD5E1; text-align: right;
         }
         .privacy-footer {
             padding: 18px 24px;
@@ -371,64 +511,88 @@
             background: var(--primary-gradient);
             color: white; padding: 14px 30px; border: none;
             border-radius: 14px; font-weight: 800; cursor: pointer; transition: 0.3s; width: 100%; font-size: 15px;
-            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+            font-family: inherit;
         }
         .btn-agree:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; box-shadow: none; }
 
         .section-box { margin-bottom: 22px; }
-        .section-title { color: #818CF8; font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .section-title { color: #93C5FD; font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .privacy-body p { font-size: 13.5px; color: #94A3B8; margin-bottom: 10px; }
         .privacy-body ul { padding-right: 20px; margin-bottom: 15px; }
         .privacy-body li { font-size: 13.5px; color: #CBD5E1; margin-bottom: 6px; }
-        .alert-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 12px; color: #FCA5A5; font-weight: 700; margin-top: 15px; font-size: 13px; }
-        .success-box { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; color: #6EE7B7; font-weight: 700; margin-top: 15px; font-size: 13px; }
+
+        @media (max-width: 640px) {
+            .auth-navbar { padding: 16px 18px 8px; }
+            .nav-actions-wrap .nav-pill-btn:not(.primary) { display: none; }
+            .auth-card { padding: 30px 22px; border-radius: 24px; }
+            .auth-footer { justify-content: center; text-align: center; }
+        }
     </style>
 </head>
 <body>
 
     <!-- Ambient Glowing Background Orbs -->
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+    <div class="bg-grid-pattern"></div>
 
-    <div class="register-wrapper">
-        <!-- Brand Header -->
-        <div class="brand-header">
-            <div class="brand-logo-badge">
-                <i class="fas fa-graduation-cap"></i>
+    <!-- Clean Header Navbar -->
+    <header class="auth-navbar">
+        <a href="index.html" class="brand-logo-wrap">
+            <div class="brand-logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
             </div>
-            <h1 class="brand-title">منصة الخطة التعليمية</h1>
-            <p class="brand-subtitle">انضم لأكثر من 50,000 طالب وطالبة وابدأ رحلة التفوق 🚀</p>
+            <div>
+                <div class="brand-name-text">ELKHETA</div>
+                <div class="brand-sub-text">منصة الخطة التعليمية</div>
+            </div>
+        </a>
+
+        <div class="nav-actions-wrap">
+            <a href="index.html" class="nav-pill-btn">
+                <i class="fa-solid fa-house"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="login.html" class="nav-pill-btn primary">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>تسجيل الدخول</span>
+            </a>
+            <a href="admin-gate.html" class="nav-pill-btn">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>الإدارة</span>
+            </a>
         </div>
+    </header>
 
-        <!-- Glass Register Card -->
-        <div class="register-card">
-            <div class="card-header">
-                <h2>إنشاء حساب جديد</h2>
-                <p>قم بتعبئة بياناتك للوصول المباشر للم المنصة</p>
-            </div>
+    <!-- Main Centered Register Card -->
+    <main class="auth-main-container">
+        <div class="auth-card">
+            <div class="auth-badge-icon">📝</div>
+            <h2>إنشاء حساب جديد</h2>
+            <p class="auth-subtitle">قم بتعبئة بياناتك للوصول المباشر للمنصة والمحاضرات</p>
 
             <div class="input-group">
-                <label><i class="fas fa-user"></i> الاسم بالكامل</label>
+                <label><i class="fa-solid fa-user"></i> الاسم بالكامل</label>
                 <div class="input-wrapper">
-                    <input type="text" id="fullName" placeholder="أدخل اسمك الثلاثي لشهادات التقدير">
-                    <i class="fas fa-user-tag input-icon"></i>
+                    <input type="text" id="fullName" placeholder="أدخل اسمك الثلاثي لشهادات التقدير" autofocus>
+                    <i class="fa-solid fa-user-tag input-icon"></i>
                 </div>
             </div>
 
             <div class="input-group">
-                <label><i class="fab fa-whatsapp"></i> رقم الواتساب</label>
+                <label><i class="fa-brands fa-whatsapp"></i> رقم الواتساب</label>
                 <div class="input-wrapper">
                     <input type="tel" id="whatsapp" placeholder="01xxxxxxxxx" maxlength="11" dir="ltr" style="text-align: right;">
-                    <i class="fas fa-phone-alt input-icon"></i>
+                    <i class="fa-solid fa-phone-flip input-icon"></i>
                 </div>
             </div>
 
             <div class="input-group">
-                <label><i class="fas fa-envelope"></i> البريد الإلكتروني (اختياري)</label>
+                <label><i class="fa-solid fa-envelope"></i> البريد الإلكتروني (اختياري)</label>
                 <div class="input-wrapper">
                     <input type="email" id="email" placeholder="example@gmail.com" dir="ltr" style="text-align: right;">
-                    <i class="fas fa-at input-icon"></i>
+                    <i class="fa-solid fa-at input-icon"></i>
                 </div>
             </div>
 
@@ -441,19 +605,64 @@
 
             <button class="submit-btn" id="submitBtn" onclick="register()">
                 <span>إنشاء الحساب والبدء الآن</span>
-                <i class="fas fa-rocket"></i>
+                <i class="fa-solid fa-rocket"></i>
             </button>
 
-            <div class="footer-link-box">
+            <div class="links-row">
                 <a href="login.html" class="login-link">
-                    <i class="fas fa-sign-in-alt"></i>
                     <span>لديك حساب بالفعل؟ سجل دخولك من هنا</span>
+                    <i class="fa-solid fa-arrow-left" style="font-size: 12px;"></i>
+                </a>
+                <a href="admin-gate.html" class="admin-link-pill">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>بوابة دخول الإدارة والمشرفين</span>
                 </a>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Bottom Footer -->
+    <footer class="auth-footer">
+        <div>منصة الخطة التعليمية © 2027 • جميع الحقوق محفوظة</div>
+        <a href="https://wa.me/201158210358" target="_blank" class="support-float-btn">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>تواصل مع الإدارة</span>
+        </a>
+    </footer>
 
     <div id="toast"></div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="privacy-modal" id="privacyModal">
+        <div class="privacy-content">
+            <div class="privacy-header">
+                <h3>📜 سياسة الخصوصية وقوانين الأمان</h3>
+            </div>
+            <div class="privacy-body" id="privacyBody" onscroll="checkPrivacyScroll()">
+                <div class="section-box">
+                    <h4 class="section-title">1️⃣ الخطوة الأولى: إنشاء حساب جديد</h4>
+                    <p>أدخل اسمك الثلاثي لكي تظهر شهادات التقدير باسمك بشكل صحيح، ورقم الواتساب للتواصل مع الإدارة.</p>
+                </div>
+
+                <div class="section-box">
+                    <h4 class="section-title">2️⃣ الخطوة الثانية: كود الطالب</h4>
+                    <p>بعد التسجيل، يظهر لك "كود الطالب" (مثال: S1234). احفظ الكود جيداً لتسجيل الدخول به دائماً.</p>
+                </div>
+
+                <div class="section-box">
+                    <h4 class="section-title">🚨 قوانين حماية الحساب والأمان</h4>
+                    <p>المنصة محمية بنظام حماية ذكي لمنع مشاركة الحسابات:</p>
+                    <ul>
+                        <li>يُسمح بالدخول من جهازين فقط (مثلاً: موبايل ولاب توب).</li>
+                        <li>ممنوع مشاركة الكود مع أي شخص آخر؛ النظام يرصد الأجهزة تلقائياً.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="privacy-footer">
+                <button class="btn-agree" id="btnAgree" onclick="acceptPrivacy()">أوافق وأتعهد بالالتزام بالتعليمات 🤝</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -465,7 +674,7 @@
             if (type === 'success') toast.style.borderBottomColor = '#10B981';
             else if (type === 'error') toast.style.borderBottomColor = '#EF4444';
             else if (type === 'warning') toast.style.borderBottomColor = '#F59E0B';
-            else toast.style.borderBottomColor = '#6366F1';
+            else toast.style.borderBottomColor = '#3B82F6';
             toast.className = "show";
             setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
         }
@@ -490,7 +699,7 @@
             }
 
             const btn = document.getElementById('submitBtn');
-            btn.innerHTML = `<span>جاري إنشاء الحساب...</span> <i class="fas fa-spinner fa-spin"></i>`;
+            btn.innerHTML = `<span>جاري إنشاء الحساب...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
             btn.disabled = true;
             btn.style.opacity = "0.75";
 
@@ -513,13 +722,14 @@
                     });
                 }
                 localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('studentCode', studentCode);
                 
                 showToast("تم إنشاء الحساب بنجاح! جاري التوجيه... 🎉", "success");
                 setTimeout(() => location.href = "display-code.html", 1200);
             }).catch((err) => {
                 console.error(err);
                 showToast("حدث خطأ أثناء إنشاء الحساب، يرجى المحاولة لاحقاً ⚠️", "error");
-                btn.innerHTML = `<span>إنشاء الحساب والبدء الآن</span> <i class="fas fa-rocket"></i>`;
+                btn.innerHTML = `<span>إنشاء الحساب والبدء الآن</span> <i class="fa-solid fa-rocket"></i>`;
                 btn.disabled = false;
                 btn.style.opacity = "1";
             });
@@ -550,44 +760,5 @@
             chk.checked = true;
         }
     </script>
-
-    <!-- Privacy Modal -->
-    <div class="privacy-modal" id="privacyModal">
-        <div class="privacy-content">
-            <div class="privacy-header">
-                <h3>📜 سياسة الخصوصية وقوانين الأمان</h3>
-            </div>
-            <div class="privacy-body" id="privacyBody" onscroll="checkPrivacyScroll()">
-                <div class="section-box">
-                    <h4 class="section-title">1️⃣ الخطوة الأولى: إنشاء حساب جديد</h4>
-                    <p>أدخل اسمك الثلاثي لكي تظهر شهادات التقدير باسمك بشكل صحيح، ورقم الواتساب للتواصل مع الإدارة.</p>
-                </div>
-
-                <div class="section-box">
-                    <h4 class="section-title">2️⃣ الخطوة الثانية: كود الطالب</h4>
-                    <p>بعد التسجيل، يظهر لك "كود الطالب" (مثال: S1234). احفظ الكود جيداً لتسجيل الدخول به دائماً.</p>
-                </div>
-
-                <div class="section-box">
-                    <h4 class="section-title">🚨 قوانين حماية الحساب والأمان</h4>
-                    <p>المنصة محمية بنظام حماية ذكي لمنع مشاركة الحسابات:</p>
-                    <ul>
-                        <li>يُسمح بالدخول من جهازين فقط (مثلاً: موبايل ولاب توب).</li>
-                        <li>ممنوع استخدام برامج تصوير الشاشة (Screen Recorders).</li>
-                        <li>التزام بالآداب والأخلاق في قسم المجتمع الطلابي.</li>
-                    </ul>
-                </div>
-
-                <div class="success-box">
-                    <span>✅ أتعهد بالالتزام بسياسة الخصوصية وقوانين المنصة للمحافظة على استمرارية حسابي.</span>
-                </div>
-            </div>
-            <div class="privacy-footer">
-                <button class="btn-agree" id="btnAgree" onclick="acceptPrivacy()">قرأت وأوافق على الشروط</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="student-guard.js"></script>
 </body>
 </html>
