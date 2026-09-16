@@ -494,12 +494,12 @@
 
         .slide-canvas-wrapper {
             width: 100%;
-            max-width: 820px;
+            max-width: var(--canvas-max-w, 1060px);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             transform-origin: top center;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.3s ease;
         }
 
         .slide-header-bar {
@@ -561,80 +561,96 @@
         /* Canvas Floating Zoom Bar */
         .canvas-zoom-bar {
             position: fixed;
-            bottom: 16px;
-            left: 20px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
+            bottom: 22px;
+            left: 28px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            padding: 4px 10px;
+            border-radius: 30px;
+            padding: 6px 14px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(37, 99, 235, 0.2);
             z-index: 100;
         }
         .btn-zoom {
-            background: transparent;
-            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: #CBD5E1;
-            width: 26px;
-            height: 26px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             transition: all 0.2s;
         }
         .btn-zoom:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(37, 99, 235, 0.4);
             color: #FFFFFF;
+            border-color: #3B82F6;
+            transform: scale(1.1);
         }
         .zoom-val {
-            font-size: 11.5px;
+            font-size: 13px;
             font-weight: 800;
             color: #60A5FA;
-            min-width: 38px;
+            min-width: 44px;
             text-align: center;
             user-select: none;
         }
-        .btn-zoom-fit {
-            background: rgba(37, 99, 235, 0.2);
-            color: #93C5FD;
-            border: 1px solid rgba(59, 130, 246, 0.35);
-            padding: 4px 10px;
+        .width-select-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #F8FAFC;
+            font-size: 11.5px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            padding: 4px 8px;
             border-radius: 12px;
-            font-size: 11px;
+            outline: none;
+            cursor: pointer;
+        }
+        .btn-zoom-fit {
+            background: rgba(37, 99, 235, 0.25);
+            color: #93C5FD;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 11.5px;
             font-weight: 800;
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.2s;
         }
         .btn-zoom-fit:hover {
             background: #2563EB;
             color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
         }
 
         /* ─── Media Queries for Responsive Screens & Laptops ─── */
-        @media (max-height: 850px) {
-            .app-header { height: 50px; padding: 0 12px; }
-            .workspace-grid { height: calc(100vh - 50px); }
-            .slide-frame { min-height: 330px; padding: 20px 24px; font-size: 14px; }
-            .stage-container { padding: 10px 14px 50px; }
-            .slide-canvas-wrapper { max-width: 740px; gap: 8px; }
-            .slide-title-input { font-size: 12.5px; padding: 4px 10px; }
+        @media (min-width: 1600px) {
+            .workspace-grid { grid-template-columns: 260px 1fr; }
+            .slide-canvas-wrapper { max-width: var(--canvas-max-w, 1140px); }
         }
-
+        @media (max-height: 850px) {
+            .app-header { height: 52px; padding: 0 14px; }
+            .workspace-grid { height: calc(100vh - 52px); }
+            .slide-frame { min-height: 380px; padding: 24px 30px; font-size: 15px; }
+            .stage-container { padding: 12px 16px 60px; }
+        }
         @media (max-width: 1100px) {
-            .workspace-grid { grid-template-columns: 190px 1fr; }
+            .workspace-grid { grid-template-columns: 200px 1fr; }
             .slide-canvas-wrapper { max-width: 100%; }
         }
-
         @media (max-width: 768px) {
             .workspace-grid { grid-template-columns: 1fr; }
             .slides-sidebar { display: none; }
@@ -2082,51 +2098,93 @@
 
                 </div>
 
-                <!-- Floating Canvas Zoom Bar -->
+                <!-- Floating Canvas Zoom & View Engine Bar -->
                 <div class="canvas-zoom-bar">
-                    <button class="btn-zoom" onclick="changeCanvasZoom(-0.1)" title="تصغير الشريحة"><i class="fa-solid fa-minus"></i></button>
-                    <span id="canvasZoomLabel" class="zoom-val">100%</span>
-                    <button class="btn-zoom" onclick="changeCanvasZoom(0.1)" title="تكبير الشريحة"><i class="fa-solid fa-plus"></i></button>
-                    <button class="btn-zoom-fit" onclick="fitCanvasToScreen()" title="تناسب تلقائي مع مقاس الشاشة"><i class="fa-solid fa-expand"></i> <span>تناسب الشاشة</span></button>
+                    <button class="btn-zoom" onclick="changeCanvasZoom(-0.1)" title="تصغير الشريحة (Ctrl -)"><i class="fa-solid fa-minus"></i></button>
+                    <span id="canvasZoomLabel" class="zoom-val" onclick="resetCanvasZoom()" title="إعادة التعيين لـ 100%" style="cursor:pointer;">100%</span>
+                    <button class="btn-zoom" onclick="changeCanvasZoom(0.1)" title="تكبير الشريحة (Ctrl +)"><i class="fa-solid fa-plus"></i></button>
+                    
+                    <span style="color:rgba(255,255,255,0.2);">|</span>
+
+                    <select id="canvasWidthSelect" class="width-select-pill" onchange="changeCanvasWidth(this.value)" title="مقاس وعرض الشاشة">
+                        <option value="1060px">📐 عريض (1060px)</option>
+                        <option value="1220px">🖥️ فائق الاتساع (1220px)</option>
+                        <option value="94%">📱 ملء الشاشة (94%)</option>
+                        <option value="880px">📄 قياسي (880px)</option>
+                    </select>
+
+                    <button class="btn-zoom-fit" onclick="fitCanvasToScreen()" title="تناسب تلقائي مع مقاس شاشتك"><i class="fa-solid fa-expand"></i> <span>ملاءمة الشاشة</span></button>
                 </div>
             </div>
-
         </main>
     </div>
 
     <!-- Script Logic -->
     <script>
         let currentCanvasZoom = parseFloat(localStorage.getItem('elkheta_notes_builder_zoom')) || 1.0;
+        let currentCanvasWidth = localStorage.getItem('elkheta_notes_builder_width') || '1060px';
 
         function updateZoomUI() {
             const wrapper = document.querySelector('.slide-canvas-wrapper');
             const label = document.getElementById('canvasZoomLabel');
+            const widthSelect = document.getElementById('canvasWidthSelect');
             if (wrapper) {
                 wrapper.style.transform = `scale(${currentCanvasZoom})`;
+                wrapper.style.setProperty('--canvas-max-w', currentCanvasWidth);
             }
             if (label) {
                 label.innerText = `${Math.round(currentCanvasZoom * 100)}%`;
             }
-            try { localStorage.setItem('elkheta_notes_builder_zoom', currentCanvasZoom); } catch(e){}
+            if (widthSelect) {
+                widthSelect.value = currentCanvasWidth;
+            }
+            try { 
+                localStorage.setItem('elkheta_notes_builder_zoom', currentCanvasZoom);
+                localStorage.setItem('elkheta_notes_builder_width', currentCanvasWidth);
+            } catch(e){}
         }
 
         function changeCanvasZoom(delta) {
-            currentCanvasZoom = Math.min(Math.max(0.55, Math.round((currentCanvasZoom + delta) * 10) / 10), 1.3);
+            currentCanvasZoom = Math.min(Math.max(0.55, Math.round((currentCanvasZoom + delta) * 10) / 10), 1.75);
+            updateZoomUI();
+        }
+
+        function resetCanvasZoom() {
+            currentCanvasZoom = 1.0;
+            updateZoomUI();
+        }
+
+        function changeCanvasWidth(val) {
+            currentCanvasWidth = val;
             updateZoomUI();
         }
 
         function fitCanvasToScreen() {
             const container = document.getElementById('stageContainer');
             if (!container) return;
-            const availableHeight = container.clientHeight - 40;
-            const baseHeight = 540;
-            if (availableHeight < baseHeight) {
-                currentCanvasZoom = Math.max(0.6, Math.round((availableHeight / baseHeight) * 10) / 10);
+            const availableWidth = container.clientWidth - 80;
+            const targetWidth = parseInt(currentCanvasWidth) || 1060;
+            if (availableWidth < targetWidth) {
+                currentCanvasZoom = Math.max(0.65, Math.round((availableWidth / targetWidth) * 10) / 10);
             } else {
                 currentCanvasZoom = 1.0;
             }
             updateZoomUI();
         }
+
+        // Keyboard zoom shortcuts
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+                e.preventDefault();
+                changeCanvasZoom(0.1);
+            } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+                e.preventDefault();
+                changeCanvasZoom(-0.1);
+            } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+                e.preventDefault();
+                resetCanvasZoom();
+            }
+        });
         
         function goBackToLessons() {
             if (subjectParam) {
