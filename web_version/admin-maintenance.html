@@ -467,8 +467,9 @@
         }
         .textarea-dark {
             width: 100%;
-            height: 95px;
-            padding: 12px 14px;
+            min-height: 130px;
+            max-height: 320px;
+            padding: 12px 14px 28px 14px;
             background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border-glass);
             border-radius: 14px;
@@ -477,7 +478,7 @@
             font-weight: 700;
             line-height: 1.6;
             outline: none;
-            resize: none;
+            resize: vertical;
             transition: var(--spring);
         }
         .textarea-dark:focus {
@@ -489,10 +490,12 @@
             left: 10px; bottom: 8px;
             font-size: 11px;
             font-weight: 800;
-            color: var(--text-dim);
-            background: rgba(15, 23, 42, 0.8);
-            padding: 2px 6px;
+            color: #38BDF8;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 8px;
             border-radius: 6px;
+            pointer-events: none;
         }
 
         /* Theme Cards */
@@ -791,18 +794,42 @@
 
                 <label class="form-label">اختر قالباً جاهزاً:</label>
                 <select id="maintTemplateSelect" class="template-dropdown" onchange="applyTemplatePreset(this.value)">
-                    <option value="updates">🚀 تحديثات وتحسينات المنظومة</option>
-                    <option value="periodic">🔧 صيانة دورية مجدولة</option>
-                    <option value="important">🚨 تحديث سيرفرات هام</option>
-                    <option value="performance">⚡ تحسين السرعة والأداء</option>
-                    <option value="security">🛡️ ترقية وتحديث أمني شامل</option>
-                    <option value="custom">✨ رسالة مخصصة</option>
+                    <optgroup label="🚀 التحديثات والتطوير">
+                        <option value="updates">🚀 تحديث شامل وترقية المنظومة</option>
+                        <option value="new_design">🎨 إطلاق التصميم الجديد للمنصة (نسخة 2027)</option>
+                        <option value="ai_tools">🤖 تفعيل وتحديث المساعد الذكي والكشكول</option>
+                        <option value="app_release">📱 إطلاق تحديث تطبيق الهاتف المحمول</option>
+                    </optgroup>
+                    <optgroup label="🔧 الصيانة والسيرفرات">
+                        <option value="periodic">🔧 صيانة دورية مجدولة ومنتظمة</option>
+                        <option value="emergency">🚨 صيانة طارئة وسريعة للسيرفرات</option>
+                        <option value="performance">⚡ تحسين السرعة وتخفيف ضغط السيرفرات</option>
+                        <option value="security">🛡️ ترقية وتحديث أمني شامل للحسابات</option>
+                        <option value="video_servers">🎬 صيانة سيرفرات بث الفيديوهات السحابية</option>
+                        <option value="database_sync">🗄️ صيانة وترقية قاعدة البيانات السحابية</option>
+                        <option value="network_upgrade">📡 صيانة خطوط الربط ومزودي الاستضافة</option>
+                        <option value="anti_piracy">🔒 فحص الحماية ومكافحة تسريب المحاضرات</option>
+                    </optgroup>
+                    <optgroup label="📚 الشؤون الأكاديمية والامتحانات">
+                        <option value="courses_upload">📚 تجهيز ورفع مقررات وفصول جديدة</option>
+                        <option value="exams_prep">🏆 تجهيز ماراثون الامتحانات وبنوك الأسئلة</option>
+                        <option value="results_processing">📊 استخراج وتدقيق نتائج الامتحانات والشهادات</option>
+                        <option value="licensing">🔑 معايرة نظام التراخيص وأكواد التفعيل</option>
+                    </optgroup>
+                    <optgroup label="🌙 المناسبات والإجازات الرسمية">
+                        <option value="midterm_break">🏖️ إجازة وعطلة منتصف العام الدراسي</option>
+                        <option value="ramadan">🌙 تهنئة بمناسبة شهر رمضان المبارك</option>
+                        <option value="eid">🌟 تهنئة بمناسبة عيد الفطر / الأضحى المبارك</option>
+                    </optgroup>
+                    <optgroup label="✍️ تخصيص حر">
+                        <option value="custom">✨ رسالة مخصصة (اكتب حتى 5000 حرف بحرية)</option>
+                    </optgroup>
                 </select>
 
                 <label class="form-label">نص الرسالة التي ستظهر للطلاب:</label>
                 <div class="textarea-editor-wrap">
-                    <textarea id="maintMessageInput" class="textarea-dark" maxlength="500" oninput="updateCharCounter(this.value)">نقوم حالياً ببعض التحديثات والتحسينات لتقديم تجربة أفضل لكم. نعتذر عن الإزعاج، وسنعود إليكم قريباً.</textarea>
-                    <span class="char-counter-tag" id="charCounterTag">92 / 500</span>
+                    <textarea id="maintMessageInput" class="textarea-dark" maxlength="5000" placeholder="اكتب رسالة وتفاصيل الصيانة للطلاب هنا (حتى 5000 حرف)..." oninput="updateCharCounter(this.value)">نقوم حالياً بإجراء تحديثات جذرية وترقية شاملة لمنظومة الخطة التعليمية لإضافة ميزات استثنائية جديدة وتحسين تجربة التعلم لكافة الطلاب. نعتذر عن فترة التوقف المؤقتة وسنعود إليكم بكامل طاقتنا قريباً جداً.</textarea>
+                    <span class="char-counter-tag" id="charCounterTag">198 / 5000</span>
                 </div>
             </div>
 
@@ -924,11 +951,25 @@
         let remainingClockTimer = null;
 
         const TEMPLATE_PRESETS = {
-            updates: "نقوم حالياً ببعض التحديثات والتحسينات لتقديم تجربة أفضل لكم. نعتذر عن الإزعاج، وسنعود إليكم قريباً.",
-            periodic: "نقوم حالياً بأعمال صيانة دورية للحفاظ على استقرار وكفاءة أداء المنصة. شكراً لتفهمكم.",
-            important: "المنصة متوقفة مؤقتاً لإجراء تحديثات هامة على السيرفرات وقواعد البيانات. سنعود إليكم بأسرع وقت.",
-            performance: "نعمل الآن على تعزيز سرعة استجابة المنصة وتحسين كفاءة تشغيل المحاضرات والفيديوهات التعليمية ⚡",
-            security: "نجري حالياً بعض التحديثات الأمنية لتعزيز حماية حسابات وبيانات الطلاب. نراكم قريباً 🛡️",
+            updates: "نقوم حالياً بإجراء تحديثات جذرية وترقية شاملة لمنظومة الخطة التعليمية لإضافة ميزات استثنائية جديدة وتحسين تجربة التعلم لكافة الطلاب. نعتذر عن فترة التوقف المؤقتة وسنعود إليكم بكامل طاقتنا قريباً جداً 🚀",
+            new_design: "انتظرونا! نضع اللمسات الأخيرة لإطلاق واجهة المنصة الجديدة كلياً بتصميم سينمائي فاخر وتجربة استخدام غير مسبوقة تليق بأبطال دفعة 2027 👑🎨",
+            ai_tools: "يتم الآن تحديث أدوات الذكاء الاصطناعي التوليدي، وتوسيع مكتبة قوالب الملاحظات الذكية لتوفير أفضل تجربة تلخيص ومذاكرة تفاعلية 🤖✨",
+            app_release: "نعمل على مزامنة المنظومة تمهيداً لإطلاق التحديث الجديد لتطبيق الهاتف المحمول، مع تحسين استلام الإشعارات الفورية وسرعة التصفح 📱⚡",
+            periodic: "نقوم حالياً بأعمال الصيانة الدورية المجدولة لتفقد كفاءة السيرفرات وضمان استقرار وسلاسة تصفح المحاضرات دون أي انقطاع. شكراً لتفهمكم وصبركم 🔧",
+            emergency: "تخضع المنصة حالياً لفحص طارئ وسريع لمعالجة مشكلة تقنية مفاجئة في السيرفرات السحابية لضمان عمل كافة الدروس بأعلى جودة. فريق الدعم الفني يعمل على إنهائها في أسرع وقت 🚨",
+            performance: "نعمل الآن على مضاعفة سعة استيعاب الخوادم وتسريع تحميل الفيديوهات التعليمية وكراسات الملاحظات لتجربة فائقة السرعة بدون أي تأخير ⚡",
+            security: "نجري حالياً ترقيات وتحديثات أمنية رفيعة المستوى لتعزيز حماية حسابات الطلاب، وتشفير البيانات، ومكافحة أي محاولات وصول غير مصرح بها. حساباتكم في أمان تام 🛡️",
+            video_servers: "نقوم حالياً بترقية مشغلات الفيديو السحابية لدعم دقات متعددة وتقليل استهلاك باقة الإنترنت أثناء مشاهدة الشروحات التعليمية 🎬🍿",
+            database_sync: "نقوم حالياً بعملية مزامنة وأرشفة سحابية شاملة لقواعد البيانات وضمان حفظ كافة إجابات الطلاب وسجلات الحضور والدرجات بنسبة 100% 🗄️💾",
+            network_upgrade: "تجري الشركة المزودة لخدمات الاستضافة السحابية ترقية للبنية التحتية لشبكات الاتصال لزيادة موثوقية وثبات المنصة لجميع الطلاب 📡🌐",
+            anti_piracy: "نقوم بتحديث خوارزميات العلامة المائية الرقمية وبصمة الجهاز لمنع تسريب المحتوى وحماية المجهود التعليمي لطلابنا المشتركين 🔒🛡️",
+            courses_upload: "نعمل حالياً على رفع وجدولة مجموعة جديدة من المحاضرات، بنوك الأسئلة، وملخصات الـ PDF عالية الجودة للدفعة. ترقبوا المحتوى الجديد فور انتهاء الصيانة 📚✨",
+            exams_prep: "تتوقف المنصة مؤقتاً لضبط بنوك الأسئلة، ومعايرة منظومة التصحيح التلقائي، وتجهيز لوحة الشرف لامتحانات الفصل الدراسي القادمة. بالتوفيق لجميع أبطالنا 🏆📝",
+            results_processing: "جاري مراجعة وتدقيق درجات الامتحانات واستخراج شهادات التقدير الملكية ولوحة الشرف لأوائل الدفعة. ستكون النتائج متاحة فور فتح المنصة 📊🏅",
+            licensing: "يتم الآن تحديث خوارزميات توليد وتفعيل أكواد الاشتراك والتراخيص لضمان وصول سريع وخالي من أي عقبات لكل طالب 🔑⚡",
+            midterm_break: "إجازة سعيدة لكافة طلابنا الأعزاء! تجرى حالياً أعمال تحسين المنصة استعداداً لانطلاق محاضرات النصف الثاني من العام الدراسي. استمتعوا بإجازتكم 🏖️🎒",
+            ramadan: "رمضان كريم وكل عام وأنتم بخير! تخضع المنصة لأعمال صيانة خفيفة مع تعديل مواعيد المحاضرات والبث المباشر بما يتناسب مع الشهر الفضيل. تقبل الله منا ومنكم 🌙✨",
+            eid: "عيدكم مبارك وكل عام وأنتم بخير وسعادة! المنصة في فترة راحة قصيرة للتحديثات الدورية وستعود بكامل خدماتها فور انتهاء أيام العيد المبارك 🌟🎉",
             custom: ""
         };
 
@@ -968,7 +1009,17 @@
 
         function updateCharCounter(val) {
             const counter = document.getElementById('charCounterTag');
-            if (counter) counter.innerText = `${val.length} / 500`;
+            const len = (val || '').length;
+            if (counter) {
+                counter.innerText = `${len} / 5000 حرف`;
+                if (len > 4500) {
+                    counter.style.color = '#F43F5E';
+                    counter.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+                } else {
+                    counter.style.color = '#38BDF8';
+                    counter.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+                }
+            }
         }
 
         // ─── 3. Theme Selector ───
