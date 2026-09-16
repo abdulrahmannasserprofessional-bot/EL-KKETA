@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>منشئ كراسة الخطة التفاعلية (PowerPoint Notes Builder) | منصة الخطة</title>
     
     <!-- Fonts -->
@@ -43,6 +43,20 @@
             margin: 0;
             padding: 0;
             user-select: none;
+        }
+
+        
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -1790,7 +1804,147 @@
 }
 .slide-frame.theme-dark .elk-timeline-title { color: #F8FAFC; }
 
-</style>
+
+        /* ─── Ultra Responsive Mobile Screen Optimization ─── */
+        @media (max-width: 768px) {
+            .app-header {
+                height: auto !important;
+                min-height: 48px;
+                padding: 6px 10px !important;
+                gap: 6px !important;
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+            }
+            .header-brand {
+                gap: 6px !important;
+                min-width: 0 !important;
+                flex: 1 !important;
+            }
+            .back-btn {
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+                border-radius: 8px !important;
+                flex-shrink: 0 !important;
+            }
+            .back-btn span {
+                display: none !important;
+            }
+            .deck-info-box {
+                min-width: 0 !important;
+                flex: 1 !important;
+            }
+            .deck-title-input {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 12.5px !important;
+                padding: 2px 4px !important;
+            }
+            .deck-meta-tag {
+                font-size: 9.5px !important;
+                gap: 4px !important;
+            }
+            .header-actions {
+                gap: 4px !important;
+                flex-shrink: 0 !important;
+            }
+            .btn-action-top {
+                padding: 6px 9px !important;
+                font-size: 11px !important;
+                border-radius: 8px !important;
+            }
+            .btn-preview span, .btn-save-publish span {
+                display: none !important;
+            }
+            .save-status-pill {
+                padding: 4px 7px !important;
+                font-size: 10px !important;
+            }
+            .save-status-pill span {
+                display: none !important;
+            }
+            .workspace-grid {
+                grid-template-columns: 1fr !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: calc(100vh - 48px) !important;
+                box-sizing: border-box !important;
+            }
+            .slides-sidebar {
+                display: none !important;
+            }
+            .editor-main {
+                width: 100vw !important;
+                max-width: 100vw !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .toolbar-ribbon {
+                max-width: 100vw !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 5px 8px !important;
+            }
+            .stage-container {
+                padding: 10px 8px 75px !important;
+                width: 100% !important;
+                max-width: 100vw !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+            }
+            .slide-canvas-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                transform: none !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                box-sizing: border-box !important;
+            }
+            .slide-header-bar {
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .slide-title-input {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 12.5px !important;
+                box-sizing: border-box !important;
+            }
+            .slide-frame {
+                padding: 16px 12px !important;
+                min-height: 280px !important;
+                font-size: 14.5px !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+                word-break: break-word !important;
+            }
+            .canvas-zoom-bar {
+                bottom: 12px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                padding: 4px 10px !important;
+                gap: 5px !important;
+                border-radius: 20px !important;
+                max-width: 94vw !important;
+            }
+            .width-select-pill {
+                display: none !important;
+            }
+            .btn-zoom-fit span {
+                display: none !important;
+            }
+            .elk-block, .elk-table, .elk-steps {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: auto !important;
+            }
+        }
+
+    </style>
 </head>
 <body>
     <script>
@@ -2128,12 +2282,19 @@
             const wrapper = document.querySelector('.slide-canvas-wrapper');
             const label = document.getElementById('canvasZoomLabel');
             const widthSelect = document.getElementById('canvasWidthSelect');
+            const isMobile = window.innerWidth <= 768;
+
             if (wrapper) {
-                wrapper.style.transform = `scale(${currentCanvasZoom})`;
-                wrapper.style.setProperty('--canvas-max-w', currentCanvasWidth);
+                if (isMobile) {
+                    wrapper.style.transform = 'none';
+                    wrapper.style.setProperty('--canvas-max-w', '100%');
+                } else {
+                    wrapper.style.transform = `scale(${currentCanvasZoom})`;
+                    wrapper.style.setProperty('--canvas-max-w', currentCanvasWidth);
+                }
             }
             if (label) {
-                label.innerText = `${Math.round(currentCanvasZoom * 100)}%`;
+                label.innerText = `${Math.round((isMobile ? 1.0 : currentCanvasZoom) * 100)}%`;
             }
             if (widthSelect) {
                 widthSelect.value = currentCanvasWidth;
@@ -2147,6 +2308,11 @@
         function changeCanvasZoom(delta) {
             currentCanvasZoom = Math.min(Math.max(0.55, Math.round((currentCanvasZoom + delta) * 10) / 10), 1.75);
             updateZoomUI();
+        
+        window.addEventListener('resize', () => {
+            updateZoomUI();
+        });
+
         }
 
         function resetCanvasZoom() {
