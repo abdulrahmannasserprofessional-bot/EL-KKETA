@@ -15,25 +15,38 @@
             caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="motion-fx.css?v=2.5">
     <link rel="stylesheet" href="live-chat.css?v=2.0">
     <link rel="manifest" href="manifest.json">
     <script src="mysql-api.js"></script>
     <script src="motion-fx.js?v=2.5" defer></script>
-    <meta name="theme-color" content="#1E3A8A">
+    <meta name="theme-color" content="#0B132B">
     <link rel="apple-touch-icon" href="icons/icon.svg">
     <style>
         :root {
             --primary: #2563EB;
             --primary-dark: #1D4ED8;
+            --primary-glow: rgba(37, 99, 235, 0.4);
             --accent: #6366F1;
-            --bg-body: #F1F5F9;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
+            --accent-glow: rgba(99, 102, 241, 0.35);
+            --emerald: #10B981;
+            --amber: #F59E0B;
+            --purple: #8B5CF6;
+            --rose: #F43F5E;
+            --cyan: #06B6D4;
+            --bg-body: #070D1E;
+            --surface-1: #0F1A36;
+            --surface-2: #162447;
+            --surface-card: rgba(18, 30, 60, 0.75);
+            --border-glow: rgba(59, 130, 246, 0.25);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-sub: #64748B;
         }
 
         * {
@@ -44,11 +57,15 @@
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
+            font-family: 'Cairo', 'Alexandria', sans-serif;
             background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 60%);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
             direction: rtl;
             overflow-x: hidden;
         }
@@ -56,24 +73,26 @@
         /* Container Layout for Desktop & Mobile */
         .home-app-wrapper {
             width: 100%;
-            max-width: 1160px;
+            max-width: 1180px;
             margin: 0 auto;
             padding: 16px 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
         }
 
         /* Modern Top Navigation Bar */
         .home-topbar {
-            background: #FFFFFF;
-            border-radius: 22px;
-            padding: 12px 20px;
+            background: rgba(15, 26, 54, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 12px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 99, 235, 0.15);
+            border: 1px solid var(--border-glow);
             position: sticky;
             top: 12px;
             z-index: 100;
@@ -90,25 +109,27 @@
         .brand-logo-badge {
             width: 44px;
             height: 44px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            background: linear-gradient(135deg, #2563EB 0%, #6366F1 100%);
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 20px;
-            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .brand-text-wrap h1 {
             font-size: 18px;
             font-weight: 900;
             line-height: 1.2;
-            color: #0F172A;
+            color: #FFFFFF;
+            letter-spacing: -0.3px;
         }
         .brand-text-wrap span {
             font-size: 11px;
-            color: var(--text-muted);
+            color: #93C5FD;
             font-weight: 700;
         }
 
@@ -116,7 +137,11 @@
         .desktop-nav-links {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            background: rgba(7, 13, 30, 0.6);
+            padding: 4px 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
         }
 
         .nav-link-btn {
@@ -129,18 +154,19 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
         .nav-link-btn:hover {
-            color: var(--primary);
-            background: #EFF6FF;
+            color: #FFFFFF;
+            background: rgba(37, 99, 235, 0.2);
         }
         .nav-link-btn.active {
-            color: var(--primary);
-            background: #EEF2FF;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
-        /* User Profile & Action Controls */
+        /* Topbar User Action Controls */
         .topbar-actions {
             display: flex;
             align-items: center;
@@ -151,24 +177,25 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            padding: 6px 14px 6px 8px;
+            background: rgba(22, 36, 71, 0.8);
+            border: 1px solid var(--border-glow);
+            padding: 5px 14px 5px 6px;
             border-radius: 30px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s;
             text-decoration: none;
             color: inherit;
         }
         .user-quick-chip:hover {
-            background: #EEF2FF;
-            border-color: #C7D2FE;
+            background: rgba(37, 99, 235, 0.25);
+            border-color: #60A5FA;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
         }
 
         .user-avatar-circle {
             width: 34px;
             height: 34px;
-            background: linear-gradient(135deg, #3B82F6, #818CF8);
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -176,12 +203,13 @@
             color: white;
             font-size: 14px;
             font-weight: 900;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .user-name-short {
             font-size: 13px;
             font-weight: 800;
-            color: #1E293B;
+            color: #F8FAFC;
             max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
@@ -191,57 +219,61 @@
         .btn-top-icon {
             width: 40px;
             height: 40px;
-            border-radius: 12px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
-            color: #475569;
+            border-radius: 14px;
+            background: rgba(22, 36, 71, 0.8);
+            border: 1px solid var(--border-glow);
+            color: #CBD5E1;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
         }
         .btn-top-icon:hover {
-            background: #EEF2FF;
-            color: var(--primary);
-            border-color: #C7D2FE;
+            background: rgba(37, 99, 235, 0.3);
+            color: #FFFFFF;
+            border-color: #60A5FA;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px);
         }
         .btn-top-icon.logout:hover {
-            background: #FEE2E2;
-            color: #DC2626;
-            border-color: #FCA5A5;
+            background: rgba(239, 68, 68, 0.25);
+            color: #FCA5A5;
+            border-color: #EF4444;
         }
 
-        /* Hero Welcome & Stats Card */
+        /* 🌟 Ultra-Luxe Hero Showcase Card */
         .home-hero-card {
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #4F46E5 100%);
+            background: linear-gradient(135deg, rgba(15, 26, 54, 0.95) 0%, rgba(22, 36, 71, 0.85) 50%, rgba(30, 27, 75, 0.9) 100%);
             border-radius: 28px;
-            padding: 32px 30px 26px;
+            padding: 32px 32px 28px;
             color: #FFFFFF;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(37, 99, 235, 0.2);
+            border: 1.5px solid var(--border-glow);
         }
 
         .hero-decor-orb-1 {
             position: absolute;
-            top: -60px;
+            top: -70px;
             left: -50px;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.35) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
 
         .hero-decor-orb-2 {
             position: absolute;
-            bottom: -70px;
-            right: 20%;
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.3) 0%, rgba(255,255,255,0) 70%);
+            bottom: -80px;
+            right: 15%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -259,71 +291,105 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.16);
-            backdrop-filter: blur(8px);
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 12.5px;
+            background: rgba(37, 99, 235, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
             font-weight: 800;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            margin-bottom: 12px;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            color: #93C5FD;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
         }
 
         .hero-title {
-            font-size: 26px;
+            font-size: clamp(22px, 3.2vw, 32px);
             font-weight: 900;
             line-height: 1.3;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            color: #FFFFFF;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
         .hero-subtitle {
-            font-size: 14px;
-            color: #E0E7FF;
+            font-size: 14.5px;
+            color: #CBD5E1;
             font-weight: 600;
-            max-width: 550px;
+            max-width: 580px;
+            line-height: 1.6;
         }
 
-        .hero-icon-mascot {
-            font-size: 54px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+        .hero-flame-stat-box {
+            background: rgba(10, 18, 38, 0.7);
+            border: 1.5px solid rgba(245, 158, 11, 0.4);
+            border-radius: 22px;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+            backdrop-filter: blur(10px);
         }
 
-        /* Gamification Stats Strip */
+        .flame-circle-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #F59E0B, #EA580C);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: white;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+            animation: flamePulse 2s infinite ease-in-out;
+        }
+
+        @keyframes flamePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+            50% { transform: scale(1.06); box-shadow: 0 0 28px rgba(234, 88, 12, 0.8); }
+        }
+
+        /* 3-Pillar Gamification Stat Strip */
         .gamification-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 24px;
+            gap: 14px;
+            margin-top: 26px;
             position: relative;
             z-index: 2;
         }
 
         .gamify-card {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            padding: 14px 16px;
+            background: rgba(15, 26, 54, 0.6);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 16px 18px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
+            gap: 14px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .gamify-card:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+            background: rgba(37, 99, 235, 0.15);
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(37, 99, 235, 0.2);
         }
 
         .gamify-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 22px;
             flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .gamify-info {
@@ -331,224 +397,315 @@
             flex-direction: column;
         }
         .gamify-label {
-            font-size: 11.5px;
-            color: #E0E7FF;
+            font-size: 12px;
+            color: #94A3B8;
             font-weight: 700;
         }
         .gamify-value {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 900;
             color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+        }
+
+        /* 🚀 Bento Grid Dashboard Section */
+        .section-header-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .bento-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+
+        /* Generic Bento Card */
+        .bento-card {
+            background: var(--surface-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(37, 99, 235, 0.25);
+            border-color: var(--border-glow);
+        }
+
+        /* Specific Grid Spans for Bento */
+        .bento-span-8 { grid-column: span 8; }
+        .bento-span-4 { grid-column: span 4; }
+        .bento-span-6 { grid-column: span 6; }
+        .bento-span-12 { grid-column: span 12; }
+
+        /* Card Elements */
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-icon-bubble {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .bento-card:hover .card-icon-bubble {
+            transform: scale(1.12) rotate(-4deg);
+        }
+
+        .card-tag-pill {
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+        }
+
+        .card-body-content h3 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+        .card-body-content p {
+            font-size: 13px;
+            color: #94A3B8;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .card-bottom-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            font-weight: 800;
+            color: #93C5FD;
+            transition: color 0.2s;
+        }
+        .bento-card:hover .card-bottom-action {
+            color: #FFFFFF;
+        }
+        .card-bottom-action i {
+            transition: transform 0.25s;
+        }
+        .bento-card:hover .card-bottom-action i {
+            transform: translateX(-4px);
+        }
+
+        /* Color Themes for Bento Cards */
+        .theme-courses {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(37, 99, 235, 0.3);
+        }
+        .theme-courses .card-icon-bubble { background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #FFF; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .theme-courses .card-tag-pill { background: rgba(37, 99, 235, 0.2); color: #93C5FD; border-color: rgba(37, 99, 235, 0.4); }
+
+        .theme-notes {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        .theme-notes .card-icon-bubble { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #FFF; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
+        .theme-notes .card-tag-pill { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; border-color: rgba(139, 92, 246, 0.4); }
+
+        .theme-ai {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+        .theme-ai .card-icon-bubble { background: linear-gradient(135deg, #EC4899, #BE185D); color: #FFF; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4); }
+        .theme-ai .card-tag-pill { background: rgba(236, 72, 153, 0.2); color: #F472B6; border-color: rgba(236, 72, 153, 0.4); }
+
+        .theme-mistakes {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .theme-mistakes .card-icon-bubble { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+        .theme-mistakes .card-tag-pill { background: rgba(245, 158, 11, 0.2); color: #FDE68A; border-color: rgba(245, 158, 11, 0.4); }
+
+        .theme-rank {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .theme-rank .card-icon-bubble { background: linear-gradient(135deg, #10B981, #059669); color: #FFF; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .theme-rank .card-tag-pill { background: rgba(16, 185, 129, 0.2); color: #86EFAC; border-color: rgba(16, 185, 129, 0.4); }
+
+        .theme-community {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 26, 54, 0.85) 100%);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+        .theme-community .card-icon-bubble { background: linear-gradient(135deg, #06B6D4, #0891B2); color: #FFF; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); }
+        .theme-community .card-tag-pill { background: rgba(6, 182, 212, 0.2); color: #67E8F9; border-color: rgba(6, 182, 212, 0.4); }
+
+        /* Notice Banner */
+        .notice-pill-bar {
+            background: rgba(15, 26, 54, 0.8);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 13.5px;
+            color: #E2E8F0;
+            font-weight: 700;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+        }
+        .notice-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.2);
+            color: #FBBF24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         /* Resume Learning Floating Strip */
         .resume-learning-card {
-            background: #FFFFFF;
-            border: 1.5px solid #C7D2FE;
-            border-radius: 20px;
-            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.25) 0%, rgba(15, 26, 54, 0.9) 100%);
+            border: 1.5px solid rgba(96, 165, 250, 0.4);
+            border-radius: 22px;
+            padding: 18px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.08);
-            transition: all 0.25s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(37, 99, 235, 0.2);
+            transition: all 0.3s ease;
         }
         .resume-learning-card:hover {
             transform: translateY(-3px);
-            border-color: #818CF8;
-            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+            border-color: #93C5FD;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 35px rgba(37, 99, 235, 0.35);
         }
 
         .resume-left {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
         .resume-play-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-            color: var(--primary);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563EB 0%, #6366F1 100%);
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
         }
         .resume-tag {
-            font-size: 11px;
-            color: var(--primary);
+            font-size: 11.5px;
+            color: #93C5FD;
             font-weight: 800;
-            text-transform: uppercase;
         }
         .resume-title-text {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 900;
-            color: #1E293B;
+            color: #FFFFFF;
             margin-top: 2px;
         }
 
         .resume-action-btn {
             background: linear-gradient(135deg, #2563EB, #3B82F6);
             color: white;
-            padding: 9px 18px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 800;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: 900;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
         }
 
-        /* Notice Banner */
-        .notice-pill-bar {
-            background: #FFFFFF;
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13.5px;
-            color: #334155;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
-        .notice-icon-box {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: #FEF3C7;
-            color: #D97706;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            flex-shrink: 0;
+        /* Honor Roll Section */
+        .honor-roll-card-custom {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 75, 0.95) 100%);
+            border: 1.5px solid rgba(245, 158, 11, 0.4);
+            border-radius: 24px;
+            padding: 20px 22px;
+            color: white;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
         }
 
-        /* Section Heading */
-        .section-header-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 5px;
-        }
-        .section-title {
-            font-size: 19px;
-            font-weight: 900;
-            color: #0F172A;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* 6-Card Dashboard Grid */
-        .dashboard-main-grid {
+        /* Achievements Badges Showcase */
+        .badges-showcase-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
         }
 
-        .dash-card-box {
-            background: #FFFFFF;
-            border-radius: 22px;
-            padding: 22px 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 16px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dash-card-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            border-color: #CBD5E1;
-        }
-
-        .card-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .dash-card-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: transform 0.3s ease;
-        }
-        .dash-card-box:hover .dash-card-icon {
-            transform: scale(1.1) rotate(-4deg);
-        }
-
-        .card-badge-pill {
-            font-size: 11px;
-            font-weight: 800;
-            padding: 4px 10px;
+        .badge-item-card {
+            background: var(--surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
             border-radius: 20px;
+            padding: 16px 14px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s;
         }
-
-        .card-text-body h3 {
-            font-size: 17px;
-            font-weight: 900;
-            color: #0F172A;
-            margin-bottom: 4px;
+        .badge-item-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glow);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         }
-        .card-text-body p {
-            font-size: 12.5px;
-            color: var(--text-muted);
-            font-weight: 600;
-            line-height: 1.5;
-        }
-
-        .card-arrow-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12.5px;
-            font-weight: 800;
-            color: var(--primary);
-            padding-top: 10px;
-            border-top: 1px solid #F1F5F9;
-        }
-
-        /* Card Color Schemes */
-        .card-theme-courses .dash-card-icon { background: #EEF2FF; color: #4F46E5; }
-        .card-theme-courses .card-badge-pill { background: #EEF2FF; color: #4338CA; }
-
-        .card-theme-ai .dash-card-icon { background: #F5F3FF; color: #7C3AED; }
-        .card-theme-ai .card-badge-pill { background: #F5F3FF; color: #6D28D9; }
-
-        .card-theme-rank .dash-card-icon { background: #FEFCE8; color: #CA8A04; }
-        .card-theme-rank .card-badge-pill { background: #FEFCE8; color: #A16207; }
-
-        .card-theme-mistakes .dash-card-icon { background: #FEF2F2; color: #DC2626; }
-        .card-theme-mistakes .card-badge-pill { background: #FEF2F2; color: #B91C1C; }
-
-        .card-theme-community .dash-card-icon { background: #ECFDF5; color: #059669; }
-        .card-theme-community .card-badge-pill { background: #ECFDF5; color: #047857; }
-
-        .card-theme-profile .dash-card-icon { background: #F0FDF4; color: #16A34A; }
-        .card-theme-profile .card-badge-pill { background: #F0FDF4; color: #15803D; }
 
         /* Mobile Bottom Nav Bar */
         .mobile-bottom-nav {
@@ -557,15 +714,15 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid #E2E8F0;
-            height: 68px;
+            background: rgba(11, 19, 43, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-glow);
+            height: 70px;
             align-items: center;
             justify-content: space-around;
             z-index: 1000;
-            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .bottom-nav-item {
@@ -586,95 +743,32 @@
             font-size: 18px;
         }
         .bottom-nav-item.active {
-            color: var(--primary);
+            color: #60A5FA;
         }
 
         /* Responsive Breakpoints */
         @media (max-width: 991px) {
-            .desktop-nav-links {
-                display: none;
-            }
-            .dashboard-main-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .mobile-bottom-nav {
-                display: flex;
-            }
-            .home-hero-card {
-                padding: 24px 20px 20px;
-            }
+            .desktop-nav-links { display: none; }
+            .mobile-bottom-nav { display: flex; }
+            .bento-span-8, .bento-span-4, .bento-span-6 { grid-column: span 12; }
+            .badges-showcase-grid { grid-template-columns: repeat(2, 1fr); }
+            .home-hero-card { padding: 24px 20px 20px; }
             .hero-title { font-size: 22px; }
-            .hero-icon-mascot { font-size: 42px; }
         }
 
         @media (max-width: 640px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100% !important;
-                max-width: 100vw !important;
-            }
-            .home-app-wrapper {
-                padding: 10px 12px !important;
-                gap: 12px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .home-topbar {
-                border-radius: 16px !important;
-                padding: 10px 12px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .brand-logo-badge {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 16px !important;
-                border-radius: 10px !important;
-            }
+            .home-app-wrapper { padding: 10px 12px !important; gap: 14px !important; }
+            .home-topbar { padding: 10px 14px !important; border-radius: 18px !important; }
+            .brand-logo-badge { width: 38px !important; height: 38px !important; font-size: 16px !important; }
             .brand-text-wrap h1 { font-size: 15px !important; }
             .brand-text-wrap span { display: none !important; }
             .user-name-short { display: none !important; }
             .user-quick-chip { padding: 4px !important; border-radius: 50% !important; }
-            .btn-top-icon { width: 34px !important; height: 34px !important; font-size: 14px !important; border-radius: 10px !important; }
-            .home-hero-card {
-                padding: 18px 14px !important;
-                border-radius: 20px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .hero-title { font-size: 19px !important; }
-            .hero-subtitle { font-size: 12px !important; }
-            .hero-icon-mascot { display: none !important; }
-            .gamification-strip {
-                grid-template-columns: 1fr !important;
-                gap: 8px !important;
-                width: 100% !important;
-            }
-            .gamify-card {
-                padding: 10px 12px !important;
-                border-radius: 14px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .dashboard-main-grid {
-                grid-template-columns: 1fr !important;
-                gap: 10px !important;
-                width: 100% !important;
-            }
-            .dash-card-box {
-                padding: 16px 14px !important;
-                border-radius: 18px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .resume-learning-card {
-                padding: 12px 14px !important;
-                border-radius: 16px !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
+            .btn-top-icon { width: 36px !important; height: 36px !important; font-size: 14px !important; }
+            .gamification-strip { grid-template-columns: 1fr !important; gap: 8px !important; }
+            .hero-top-row { flex-direction: column-reverse; align-items: stretch; text-align: right; }
+            .hero-flame-stat-box { justify-content: space-between; margin-bottom: 14px; }
+            .badges-showcase-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
             .resume-action-btn span { display: none !important; }
         }
     </style>
@@ -703,7 +797,7 @@
                 </a>
                 <a href="courses.html" class="nav-link-btn">
                     <i class="fas fa-book-open"></i>
-                    <span>المواد</span>
+                    <span>المواد والمناهج</span>
                 </a>
                 <a href="ai-report.html" class="nav-link-btn">
                     <i class="fas fa-brain"></i>
@@ -711,7 +805,7 @@
                 </a>
                 <a href="leaderboard.html" class="nav-link-btn">
                     <i class="fas fa-trophy"></i>
-                    <span>الأوائل</span>
+                    <span>لوحة الأوائل</span>
                 </a>
                 <a href="profile.html" class="nav-link-btn">
                     <i class="fas fa-user-circle"></i>
@@ -721,9 +815,9 @@
 
             <!-- User Chip & Buttons -->
             <div class="topbar-actions">
-                <a href="notifications.html" class="btn-top-icon" title="مركز الرسائل والتنبيهات" style="position:relative; text-decoration:none;">
+                <a href="notifications.html" class="btn-top-icon" title="مركز الرسائل والتنبيهات" style="position:relative;">
                     <i class="fas fa-bell"></i>
-                    <span id="homeUnreadNotifBadge" style="position:absolute; top:-3px; right:-3px; background:#EF4444; color:white; font-size:10px; font-weight:900; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; border:2px solid #FFFFFF;">0</span>
+                    <span id="homeUnreadNotifBadge" style="position:absolute; top:-3px; right:-3px; background:#EF4444; color:white; font-size:10px; font-weight:900; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; border:2px solid #070D1E;">0</span>
                 </a>
                 <a href="profile.html" class="user-quick-chip" title="عرض الحساب">
                     <div class="user-avatar-circle" id="userInitial">🎓</div>
@@ -738,29 +832,35 @@
             </div>
         </header>
 
-        <!-- Hero Greeting & Gamification Card -->
+        <!-- 🌟 Hero Showcase Card -->
         <section class="home-hero-card">
             <div class="hero-decor-orb-1"></div>
             <div class="hero-decor-orb-2"></div>
 
             <div class="hero-top-row">
                 <div>
-                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-                        <div class="hero-greeting-pill" id="greetingPill">
-                            <span id="greetingIcon">☀️</span>
-                            <span id="greetingText">صباح الخير والنشاط!</span>
-                        </div>
+                    <div class="hero-greeting-pill" id="greetingPill">
+                        <span id="greetingIcon">☀️</span>
+                        <span id="greetingText">صباح التميز والنشاط!</span>
                     </div>
-                    <h2 class="hero-title" id="userName">أهلاً بك يا طالب</h2>
-                    <p class="hero-subtitle">جاهز لمواصلة رحلة التفوق والتعلم؟ لديك بنوك أسئلة ومحاضرات جديدة في انتظارك.</p>
+                    <h2 class="hero-title" id="userName">أهلاً بك يا بطل الخطة 👋</h2>
+                    <p class="hero-subtitle">جاهز لمواصلة رحلة التفوق الأكاديمي؟ جميع الشروحات التفاعلية، كشاكيل الشرح، وبنوك الأسئلة الذكية بانتظارك اليوم.</p>
                 </div>
-                <div class="hero-icon-mascot motion-float-gentle" style="font-size: 52px; display: flex; align-items: center; justify-content: center;">🚀</div>
+
+                <!-- Glowing Flame Streak Box -->
+                <div class="hero-flame-stat-box">
+                    <div class="flame-circle-icon">🔥</div>
+                    <div>
+                        <div style="font-size: 11px; color: #FDE68A; font-weight: 800;">شعلة الالتزام اليومي</div>
+                        <div style="font-size: 19px; font-weight: 900; color: #FFFFFF; font-family:'Alexandria', 'Cairo';" id="heroStreakDays">1 يوم متواصل</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Gamification Stats -->
+            <!-- Gamification Stats Strip -->
             <div class="gamification-strip">
                 <div class="gamify-card">
-                    <div class="gamify-icon motion-float-gentle">🔥</div>
+                    <div class="gamify-icon" style="color: #F59E0B;">🔥</div>
                     <div class="gamify-info">
                         <span class="gamify-label">أيام الالتزام</span>
                         <span class="gamify-value" id="streakDays">1 يوم</span>
@@ -768,7 +868,7 @@
                 </div>
 
                 <div class="gamify-card">
-                    <div class="gamify-icon motion-3d-trophy">🏆</div>
+                    <div class="gamify-icon" style="color: #10B981;">🏆</div>
                     <div class="gamify-info">
                         <span class="gamify-label">مجموع النقاط</span>
                         <span class="gamify-value" id="userPoints">0</span>
@@ -776,7 +876,7 @@
                 </div>
 
                 <div class="gamify-card">
-                    <div class="gamify-icon motion-float-gentle">⭐</div>
+                    <div class="gamify-icon" style="color: #8B5CF6;">⭐</div>
                     <div class="gamify-info">
                         <span class="gamify-label">المستوى التعليمي</span>
                         <span class="gamify-value" id="userLevel">مستوى 1</span>
@@ -786,49 +886,47 @@
         </section>
 
         <!-- Personal Admin Message Banner (If Available) -->
-        <div id="personalNoticeBar" class="notice-pill-bar" style="display: none; background: #EEF2FF; border-color: #818CF8; color: #1E1B4B;">
+        <div id="personalNoticeBar" class="notice-pill-bar" style="display: none; background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #E0E7FF;">
             <div class="notice-icon-box" style="background: #6366F1; color: white;">
                 <i class="fas fa-bullhorn"></i>
             </div>
             <div style="flex: 1;">
-                <div style="font-size: 11px; color: #4F46E5; font-weight: 800;">رسالة خاصة من إدارة المنصة:</div>
+                <div style="font-size: 11px; color: #818CF8; font-weight: 800;">رسالة خاصة من إدارة المنصة:</div>
                 <div id="personalNoticeText" style="font-weight: 800; font-size: 13.5px; margin-top: 2px;"></div>
             </div>
             <button onclick="dismissPersonalNotice()" style="background: #4F46E5; border: none; color: white; padding: 6px 14px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 12px; font-family: 'Cairo';">تم ✔️</button>
         </div>
 
-
-
-        <!-- Resume Learning Banner (If accessed before) -->
+        <!-- Resume Learning Floating Banner (If accessed before) -->
         <div id="resumeWidget" class="resume-learning-card" style="display: none;" onclick="resumeLastLesson()">
             <div class="resume-left">
                 <div class="resume-play-icon">
                     <i class="fas fa-play"></i>
                 </div>
                 <div>
-                    <div class="resume-tag">متابعة من حيث توقفت ⏯️</div>
+                    <div class="resume-tag">استكمال المحطة السابقة ⏯️</div>
                     <div class="resume-title-text" id="resumeTitle">عنوان المحاضرة</div>
                 </div>
             </div>
             <div class="resume-action-btn">
-                <span>متابعة الدرس</span>
+                <span>متابعة الدرس الآن</span>
                 <i class="fas fa-arrow-left"></i>
             </div>
         </div>
 
         <!-- Honor Roll Leaderboard Widget (Live from Firebase) -->
-        <div id="honorRollSection" style="display: none; background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%); border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: 22px; padding: 18px 20px; color: white; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); margin-bottom: 14px;">
+        <div id="honorRollSection" class="honor-roll-card-custom" style="display: none; margin-bottom: 4px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 38px; height: 38px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏆</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏆</div>
                     <div>
                         <h3 style="font-size: 16px; font-weight: 900; color: #FBBF24; margin: 0;">لوحة الشرف — أوائل دفعة 2027 🎓</h3>
-                        <span style="font-size: 11.5px; color: #CBD5E1; font-weight: 700;">المتفوقون وأصحاب أعلى الدرجات في الامتحانات</span>
+                        <span style="font-size: 11.5px; color: #94A3B8; font-weight: 700;">المتفوقون وأصحاب أعلى الدرجات في الامتحانات</span>
                     </div>
                 </div>
-                <span style="background: rgba(245, 158, 11, 0.2); color: #FDE68A; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.4);">معتمد 👑</span>
+                <span style="background: rgba(245, 158, 11, 0.2); color: #FDE68A; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.4);">معتمد 👑</span>
             </div>
-            <div id="honorRollStudentsGrid" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch;">
+            <div id="honorRollStudentsGrid" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch;">
                 <!-- Populated dynamically -->
             </div>
         </div>
@@ -839,125 +937,137 @@
                 <i class="fas fa-bell"></i>
             </div>
             <div style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <span id="latestNotice">جاري تحميل آخر التنبيهات...</span>
+                <span id="latestNotice">جاري تحميل آخر التنبيهات من إدارة المنصة...</span>
             </div>
         </div>
 
         <!-- Section Title -->
         <div class="section-header-wrap">
             <h2 class="section-title">
-                <i class="fas fa-th-large" style="color: var(--primary);"></i>
-                <span>الأقسام والخدمات التعليمية</span>
+                <i class="fas fa-th-large" style="color: #60A5FA;"></i>
+                <span>الأقسام والخدمات التعليمية التفاعلية</span>
             </h2>
         </div>
 
-        <!-- Main Dashboard 6-Grid -->
-        <div class="dashboard-main-grid">
+        <!-- ▦ Bento Grid Main Dashboard -->
+        <div class="bento-dashboard-grid">
 
-            <!-- 1. Courses -->
-            <a href="courses.html" class="dash-card-box card-theme-courses">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-book-open"></i>
+            <!-- Bento 1: Courses & Lectures (Wide 8 Columns) -->
+            <a href="courses.html" class="bento-card bento-span-8 theme-courses">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <span class="card-tag-pill">المناهج المعتمدة 📚</span>
                     </div>
-                    <span class="card-badge-pill">الدروس والشروحات</span>
+                    <div class="card-body-content">
+                        <h3>المواد والمناهج الدراسية</h3>
+                        <p>استكشف المواد التعليمية الكاملة مع مسارات التعلم التفاعلية وشروحات الفيديو وبنوك التقييم.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>المواد الدراسية</h3>
-                    <p>استكشف المواد التعليمية والمحاضرات وبنوك الأسئلة مع شريط الإنجاز.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>دخول المواد</span>
+                <div class="card-bottom-action">
+                    <span>دخول المواد واستعراض المحاضرات</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
 
-            <!-- 2. AI Diagnostic Report -->
-            <a href="ai-report.html" class="dash-card-box card-theme-ai">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-brain"></i>
+            <!-- Bento 2: Interactive Notebooks (4 Columns) -->
+            <a href="courses.html" class="bento-card bento-span-4 theme-notes">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-book-bookmark"></i>
+                        </div>
+                        <span class="card-tag-pill">كشكول المحاضرة 📓</span>
                     </div>
-                    <span class="card-badge-pill">الذكاء الاصطناعي ✨</span>
+                    <div class="card-body-content">
+                        <h3>كشاكيل ونوتس الشرح</h3>
+                        <p>تصفح شرائح المحاضرات تفاعلياً مع أدوات التلوين والملاحظات الذكية.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>التقرير والتحليل الذكي</h3>
-                    <p>تقرير تفاعلي يشخص نقاط قوتك وضعفك في كل فصل مع توصيات فورية.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>عرض التقرير</span>
+                <div class="card-bottom-action">
+                    <span>فتح الكشاكيل</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
 
-            <!-- 3. Leaderboard -->
-            <a href="leaderboard.html" class="dash-card-box card-theme-rank">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-trophy"></i>
+            <!-- Bento 3: AI Diagnostic Report (6 Columns) -->
+            <a href="ai-report.html" class="bento-card bento-span-6 theme-ai">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span class="card-tag-pill">الذكاء الاصطناعي ✨</span>
                     </div>
-                    <span class="card-badge-pill">المتصدرون 👑</span>
+                    <div class="card-body-content">
+                        <h3>التقرير والتشخيص الذكي</h3>
+                        <p>تحليل فوري لمستواك في كل مادة مع تحديد نقاط القوة وخطة علاجية للثغرات قبل الامتحانات.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>أوائل المنصة</h3>
-                    <p>تنافس مع زملائك واكتشف ترتيبك الحالي ودرجاتك بين المتميزين.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>لوحة الشرف</span>
+                <div class="card-bottom-action">
+                    <span>عرض التقرير التفاعلي</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
 
-            <!-- 4. Mistakes Bank -->
-            <a href="mistakes.html" class="dash-card-box card-theme-mistakes">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-clipboard-check"></i>
+            <!-- Bento 4: Mistakes Bank (6 Columns) -->
+            <a href="mistakes.html" class="bento-card bento-span-6 theme-mistakes">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <span class="card-tag-pill">بنك المراجعة 🎯</span>
                     </div>
-                    <span class="card-badge-pill">سجل التعلم</span>
+                    <div class="card-body-content">
+                        <h3>بنك الأخطاء الذكي</h3>
+                        <p>سجل مخصص لكل سؤال أخطأت به لتعيد تدريب نفسك عليه وتضمن العلامة الكاملة.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>بنك الأخطاء والمراجعة</h3>
-                    <p>راجع إجاباتك السابقة والأسئلة الصعبة التي تحتاج لإعادة تدريب.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>مراجعة الأخطاء</span>
+                <div class="card-bottom-action">
+                    <span>بدء مراجعة الأخطاء</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
 
-            <!-- 5. Community Discussions -->
-            <a href="community.html" class="dash-card-box card-theme-community">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-comments"></i>
+            <!-- Bento 5: Leaderboard (6 Columns) -->
+            <a href="leaderboard.html" class="bento-card bento-span-6 theme-rank">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <span class="card-tag-pill">لوحة الشرف 👑</span>
                     </div>
-                    <span class="card-badge-pill">الاستفسارات</span>
+                    <div class="card-body-content">
+                        <h3>أوائل ومتميزو المنصة</h3>
+                        <p>تنافس مع زملائك على مستوى الجمهورية واكتشف ترتيبك الحالي ودرجاتك بين المتميزين.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>أسئلة ومجتمع الطلاب</h3>
-                    <p>اطرح استفساراتك حول المنهج وتلقّ إجابات وشروحات من المعلمين.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>فتح المجتمع</span>
+                <div class="card-bottom-action">
+                    <span>مشاهدة لوحة الأوائل</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
 
-            <!-- 6. Profile & Settings -->
-            <a href="profile.html" class="dash-card-box card-theme-profile">
-                <div class="card-header-row">
-                    <div class="dash-card-icon">
-                        <i class="fas fa-user-graduate"></i>
+            <!-- Bento 6: Community Discussions (6 Columns) -->
+            <a href="community.html" class="bento-card bento-span-6 theme-community">
+                <div>
+                    <div class="card-top-row">
+                        <div class="card-icon-bubble">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <span class="card-tag-pill">مجتمع الطلاب 💬</span>
                     </div>
-                    <span class="card-badge-pill">حسابي</span>
+                    <div class="card-body-content">
+                        <h3>أسئلة ومجتمع الطلاب</h3>
+                        <p>اطرح استفساراتك حول المنهج وتلقّ إجابات وشروحات فورية من المعلمين والمساعدين.</p>
+                    </div>
                 </div>
-                <div class="card-text-body">
-                    <h3>الملف الشخصي والإعدادات</h3>
-                    <p>استعرض بياناتك، الكود الخاص بك، وتفاصيل اشتراكك في المنصة.</p>
-                </div>
-                <div class="card-arrow-row">
-                    <span>تعديل الحساب</span>
+                <div class="card-bottom-action">
+                    <span>دخول المجتمع التفاعلي</span>
                     <i class="fas fa-arrow-left"></i>
                 </div>
             </a>
@@ -968,37 +1078,37 @@
         <div class="section-header-wrap" style="margin-top: 24px;">
             <h2 class="section-title">
                 <i class="fas fa-award" style="color: #F59E0B;"></i>
-                <span>أوسمة وإنجازات التفوق</span>
+                <span>أوسمة وإنجازات التفوق التفاعلية</span>
             </h2>
         </div>
 
-        <div class="badges-showcase-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-            <div class="badge-item-card" style="background: white; border: 1px solid #E2E8F0; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                <div style="font-size: 32px; margin-bottom: 6px;">🏅</div>
-                <div style="font-size: 13px; font-weight: 900; color: #0F172A;">البداية القوية</div>
-                <div style="font-size: 11px; color: #64748B; font-weight: 700;">أول امتحان مكتمل</div>
-                <span style="display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; background: #DEF7EC; color: #03543F;">مكتمل ✔️</span>
+        <div class="badges-showcase-grid">
+            <div class="badge-item-card">
+                <div style="font-size: 34px; margin-bottom: 6px;">🏅</div>
+                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">البداية القوية</div>
+                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">أول امتحان مكتمل</div>
+                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3);">مكتمل ✔️</span>
             </div>
 
-            <div class="badge-item-card" style="background: white; border: 1px solid #E2E8F0; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                <div style="font-size: 32px; margin-bottom: 6px;">🔥</div>
-                <div style="font-size: 13px; font-weight: 900; color: #0F172A;">شعلة الالتزام</div>
-                <div style="font-size: 11px; color: #64748B; font-weight: 700;">7 أيام متتالية</div>
-                <span style="display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; background: #FEF3C7; color: #92400E;">جاري التقدم ⏳</span>
+            <div class="badge-item-card">
+                <div style="font-size: 34px; margin-bottom: 6px;">🔥</div>
+                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">شعلة الالتزام</div>
+                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">7 أيام متتالية</div>
+                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3);">جاري التقدم ⏳</span>
             </div>
 
-            <div class="badge-item-card" style="background: white; border: 1px solid #E2E8F0; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                <div style="font-size: 32px; margin-bottom: 6px;">💯</div>
-                <div style="font-size: 13px; font-weight: 900; color: #0F172A;">العلامة الكاملة</div>
-                <div style="font-size: 11px; color: #64748B; font-weight: 700;">100% في امتحان</div>
-                <span style="display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; background: #DEF7EC; color: #03543F;">مكتمل ✔️</span>
+            <div class="badge-item-card">
+                <div style="font-size: 34px; margin-bottom: 6px;">💯</div>
+                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">العلامة الكاملة</div>
+                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">100% في اختبار</div>
+                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3);">مكتمل ✔️</span>
             </div>
 
-            <div class="badge-item-card" style="background: white; border: 1px solid #E2E8F0; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                <div style="font-size: 32px; margin-bottom: 6px;">🏆</div>
-                <div style="font-size: 13px; font-weight: 900; color: #0F172A;">نجم الأوائل</div>
-                <div style="font-size: 11px; color: #64748B; font-weight: 700;">ضمن الـ Top 10</div>
-                <span style="display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; background: #E0E7FF; color: #3730A3;">أبطال الخطة 🌟</span>
+            <div class="badge-item-card">
+                <div style="font-size: 34px; margin-bottom: 6px;">🏆</div>
+                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">نجم الأوائل</div>
+                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">ضمن الـ Top 10</div>
+                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.3);">أبطال الخطة 🌟</span>
             </div>
         </div>
 
@@ -1039,9 +1149,21 @@
             if (raw) user = JSON.parse(raw);
         } catch(e) {}
 
-        const isAdmin = localStorage.getItem('isAdmin') === 'true' || Boolean(localStorage.getItem('adminRole'));
+        const isActualAdmin = (sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true' || Boolean(localStorage.getItem('adminRole')));
+        const isStudentAccount = user && (user.student_code || user.studentCode || user.code) && (user.studentCode !== 'ADMIN_PREVIEW' && user.code !== 'ADMIN_PREVIEW') && user.role !== 'admin';
 
-        if (!user && isAdmin) {
+        if (isStudentAccount) {
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('adminRole');
+            localStorage.removeItem('isMysqlAdmin');
+            sessionStorage.removeItem('isAdmin');
+            sessionStorage.removeItem('adminRole');
+            sessionStorage.removeItem('adminPreviewMode');
+        }
+
+        const isAdminPreview = !isStudentAccount && (isActualAdmin || (user && user.studentCode === 'ADMIN_PREVIEW') || sessionStorage.getItem('adminPreviewMode') === 'true');
+
+        if (!user && isAdminPreview) {
             user = {
                 fullName: 'معاينة الإدارة (المدير العام)',
                 studentCode: 'ADMIN_PREVIEW',
@@ -1079,26 +1201,6 @@
                 ElkhetaAPI.logActivity(studentCode, studentFullName, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
             }
 
-            // Show Admin Preview Banner if in admin mode
-            if (isAdmin) {
-                const prevBanner = document.createElement('div');
-                prevBanner.style.cssText = `
-                    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-                    color: #E2E8F0; border: 1px solid rgba(99, 102, 241, 0.45);
-                    padding: 8px 16px; border-radius: 16px; font-size: 12px; font-weight: 800;
-                    display: flex; align-items: center; justify-content: space-between;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-                `;
-                prevBanner.innerHTML = `
-                    <span>👁️ أنت الآن في وضع معاينة الطالب (حساب المسؤول)</span>
-                    <a href="admin-panel.html" style="color: #38BDF8; font-weight: 900; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                        <span>العودة للوحة القيادة ⬅️</span>
-                    </a>
-                `;
-                const wrapper = document.querySelector('.home-app-wrapper');
-                if (wrapper) wrapper.insertBefore(prevBanner, wrapper.firstChild);
-            }
-
             // Dynamic Time Greeting
             const hour = new Date().getHours();
             const gTextEl = document.getElementById('greetingText');
@@ -1116,7 +1218,6 @@
 
             // Listen for personal message from admin
             if (studentCode && studentCode !== 'ADMIN_PREVIEW') {
-                // Realtime Presence & Activity Tracking
                 try {
                     const stRef = database.ref('Students/' + studentCode);
                     stRef.child('lastActive').set(Date.now());
@@ -1137,7 +1238,6 @@
                     }
                 });
 
-                // Listen for ban status in real time
                 database.ref('Students/' + studentCode + '/isBanned').on('value', (snap) => {
                     if (snap.val() === true) {
                         alert('⚠️ تم إيقاف هذا الحساب من قبل إدارة المنصة.');
@@ -1145,14 +1245,12 @@
                     }
                 });
 
-                // Load user points & stats from Firebase
                 database.ref('Students/' + studentCode + '/stats').on('value', (snap) => {
                     const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
                     const points = stats.totalScore || 0;
                     const pEl = document.getElementById('userPoints');
                     if (pEl) pEl.innerText = points;
 
-                    // Level calculation
                     const level = Math.floor(points / 200) + 1;
                     const lEl = document.getElementById('userLevel');
                     if (lEl) lEl.innerText = `مستوى ${level}`;
@@ -1208,7 +1306,6 @@
             document.getElementById('personalNoticeBar').style.display = 'none';
         }
 
-        // Drawer Logic
         const drawerBtn = document.getElementById('openDrawer');
         if (drawerBtn) {
             drawerBtn.onclick = () => {
@@ -1246,7 +1343,6 @@
                 location.href = `lectures.html?subject=${encodeURIComponent(lastSubject)}`;
             }
         }
-
     </script>
     <script src="custom-dialogs.js"></script>
     <script src="pwa-installer.js"></script>
@@ -1256,7 +1352,3 @@
     <script src="live-chat.js?v=2.0"></script>
 </body>
 </html>
-
-
-
-

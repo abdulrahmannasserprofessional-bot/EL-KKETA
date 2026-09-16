@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المنصة تحت الصيانة والتطوير | EL KHETA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900;1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #070913;
+            --surface-card: rgba(15, 23, 42, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.12);
+            --primary-neon: #38BDF8;
+            --primary-glow: rgba(56, 189, 248, 0.35);
+            --indigo-neon: #6366F1;
+            --emerald-neon: #10B981;
+            --gold-neon: #F59E0B;
+            --rose-neon: #F43F5E;
+            --text-main: #FFFFFF;
+            --text-sub: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow-x: hidden;
+            padding: 24px 20px;
+            direction: rtl;
+        }
+
+        /* Ambient Glowing Background Orbs */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.28;
+            animation: floatGlow 12s ease-in-out infinite alternate;
+        }
+        .glow-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #38BDF8 0%, #6366F1 70%, transparent 100%);
+            top: -120px; right: -100px;
+        }
+        .glow-2 {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, #818CF8 0%, #C084FC 70%, transparent 100%);
+            bottom: -100px; left: -100px;
+            animation-delay: -6s;
+        }
+        .glow-3 {
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, #38BDF8 0%, transparent 70%);
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.15;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.15) translate(30px, 40px); }
+        }
+
+        /* Header Navigation */
+        .maint-header {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 14px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
+        }
+        .brand-logo-wrap:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
+        }
+        .brand-logo-wrap:active {
+            transform: scale(0.97);
+        }
+
+        .brand-icon-box {
+            width: 42px; height: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+            border: 1.5px solid rgba(245, 158, 11, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #F59E0B;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.25);
+        }
+
+        .brand-text-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-main-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brand-sub-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94A3B8;
+        }
+
+        .header-badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #F87171;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+        }
+        .badge-pulse-dot {
+            width: 8px; height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #EF4444;
+            animation: pulseRed 1.8s infinite;
+        }
+        @keyframes pulseRed {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.2); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Center Main Stage */
+        .maint-stage {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            margin: 28px 0;
+        }
+
+        /* 3D Rotating Tech Orb Icon */
+        .tech-orb-wrap {
+            position: relative;
+            width: 140px; height: 140px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .tech-ring-outer {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px dashed rgba(56, 189, 248, 0.45);
+            animation: rotateClockwise 20s linear infinite;
+        }
+        .tech-ring-mid {
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: #38BDF8;
+            border-bottom-color: #818CF8;
+            animation: rotateCounterClockwise 12s linear infinite;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6));
+        }
+        .tech-ring-glow {
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(99, 102, 241, 0.15) 70%, transparent 100%);
+            animation: pulseGlow 3s ease-in-out infinite alternate;
+        }
+        .tech-icon-center {
+            position: relative;
+            width: 84px; height: 84px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            color: #38BDF8; font-size: 38px;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.35);
+            animation: floatIcon 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes rotateClockwise { 100% { transform: rotate(360deg); } }
+        @keyframes rotateCounterClockwise { 100% { transform: rotate(-360deg); } }
+        @keyframes pulseGlow { 0% { transform: scale(0.9); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
+        @keyframes floatIcon { 0% { transform: translateY(0); } 100% { transform: translateY(-6px); } }
+
+        /* Titles & Description */
+        .maint-title-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .maint-heading {
+            font-size: 32px;
+            font-weight: 1000;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .maint-heading-icon {
+            color: #38BDF8;
+            font-size: 28px;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
+        }
+
+        .maint-desc {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-sub);
+            max-width: 580px;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        /* ─── Grand Live Countdown Matrix ─── */
+        .countdown-matrix {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 34px;
+            flex-wrap: wrap;
+        }
+
+        .time-brick {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 22px;
+            padding: 16px 20px;
+            min-width: 105px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+        .time-brick::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+        }
+        .time-brick:hover {
+            transform: translateY(-3px);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .time-number {
+            font-size: 38px;
+            font-weight: 1000;
+            color: #FFFFFF;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 14px rgba(56, 189, 248, 0.4);
+        }
+        .time-unit {
+            font-size: 12px;
+            font-weight: 800;
+            color: #38BDF8;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .time-separator {
+            font-size: 28px;
+            font-weight: 900;
+            color: rgba(56, 189, 248, 0.5);
+            user-select: none;
+            margin-top: -12px;
+        }
+
+        /* 3 Confidence Badges */
+        .confidence-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #E2E8F0;
+            font-size: 13px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+        }
+        .badge-pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+            transform: translateY(-2px);
+        }
+        .badge-pill i {
+            color: #38BDF8;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .maint-footer {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 18px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .footer-heart {
+            color: #FB7185;
+            display: inline-block;
+            animation: pulseHeart 1.5s infinite;
+        }
+        @keyframes pulseHeart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .footer-support-link {
+            color: #38BDF8;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            transition: all 0.2s ease;
+        }
+        .footer-support-link:hover {
+            background: rgba(56, 189, 248, 0.16);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #FFFFFF;
+        }
+
+        /* ─── Secret Admin Portal Modal (Triggered by 3 Clicks on Logo) ─── */
+        .secret-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 9, 19, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .secret-modal-backdrop.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .secret-modal-card {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 28px;
+            padding: 34px 28px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.9) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px; left: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #94A3B8;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .modal-close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .secret-shield-icon {
+            width: 70px; height: 70px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #312E81, #4F46E5);
+            border: 2px solid rgba(129, 140, 248, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            color: #FFFFFF; font-size: 30px;
+            margin: 0 auto 18px;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        .secret-modal-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+        .secret-modal-sub {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94A3B8;
+            margin-bottom: 22px;
+        }
+
+        .secret-input-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .secret-input {
+            width: 100%;
+            padding: 14px 44px 14px 44px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 4px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .secret-input:focus {
+            border-color: #38BDF8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .input-icon-start {
+            position: absolute;
+            right: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 16px;
+        }
+        .input-icon-eye {
+            position: absolute;
+            left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: #64748B;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .input-icon-eye:hover { color: #38BDF8; }
+
+        .btn-secret-submit {
+            width: 100%;
+            padding: 13px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s ease;
+        }
+        .btn-secret-submit:hover {
+            background: linear-gradient(135deg, #1D4ED8, #1E40AF);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.55);
+        }
+
+        .secret-footer-notice {
+            margin-top: 14px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #F59E0B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* ─── Styles Variation Classes ─── */
+        /* Style 01 - Royal (Default Luxury) */
+        body.style-royal {
+            --bg-base: #070913;
+        }
+
+        /* Style 02 - Minimal */
+        body.style-minimal {
+            --bg-base: #0B1120;
+        }
+        body.style-minimal .ambient-glow { display: none; }
+        body.style-minimal .time-brick { background: rgba(30, 41, 59, 0.5); border-radius: 14px; }
+
+        /* Style 03 - Cyber */
+        body.style-cyber {
+            --bg-base: #030712;
+            --primary-neon: #06B6D4;
+        }
+        body.style-cyber .tech-ring-mid { border-top-color: #06B6D4; border-bottom-color: #F43F5E; }
+        body.style-cyber .time-brick { border-color: rgba(6, 182, 212, 0.3); }
+
+        /* Style 04 - Premium */
+        body.style-premium {
+            --bg-base: #090D1A;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 640px) {
+            .maint-heading { font-size: 24px; }
+            .maint-heading-icon { font-size: 22px; }
+            .maint-desc { font-size: 13.5px; margin-bottom: 22px; }
+            .time-brick { min-width: 78px; padding: 12px 10px; border-radius: 16px; }
+            .time-number { font-size: 28px; }
+            .time-unit { font-size: 11px; }
+            .time-separator { font-size: 20px; }
+            .tech-orb-wrap { width: 110px; height: 110px; margin-bottom: 18px; }
+            .tech-icon-center { width: 68px; height: 68px; font-size: 30px; border-radius: 20px; }
+            .confidence-strip { gap: 8px; }
+            .badge-pill { padding: 6px 12px; font-size: 11.5px; }
+            .maint-footer { flex-direction: column; text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body class="style-royal">
+
+    <!-- Ambient Glow Orbs -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- ─── Header ─── -->
+    <header class="maint-header">
+        <!-- Brand Logo with Secret 3-Click Admin Trigger -->
+        <div class="brand-logo-wrap" id="brandLogoTrigger" title="منصة الخطة التعليمية" onclick="handleSecretLogoClick()">
+            <div class="brand-icon-box">🎓</div>
+            <div class="brand-text-col">
+                <span class="brand-main-title">EL KHETA</span>
+                <span class="brand-sub-title">منصة الخطة التعليمية</span>
+            </div>
+        </div>
+
+        <!-- Live Status Pill -->
+        <div class="header-badge-live">
+            <span class="badge-pulse-dot"></span>
+            <span>وضع الصيانة والتطوير الفني</span>
+        </div>
+    </header>
+
+    <!-- ─── Center Stage ─── -->
+    <main class="maint-stage">
+        <!-- 3D Tech Gear -->
+        <div class="tech-orb-wrap">
+            <div class="tech-ring-outer"></div>
+            <div class="tech-ring-mid"></div>
+            <div class="tech-ring-glow"></div>
+            <div class="tech-icon-center">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+        </div>
+
+        <!-- Main Title -->
+        <div class="maint-title-wrap">
+            <h1 class="maint-heading" id="displayTitle">المنصة تحت الصيانة</h1>
+            <span class="maint-heading-icon">🔧</span>
+        </div>
+
+        <!-- Description / Reason -->
+        <p class="maint-desc" id="displayReason">
+            نقوم حالياً ببعض التحديثات والتحسينات لتقديم تجربة أفضل لكم.<br>
+            نعتذر عن الإزعاج، وسنعود إليكم قريباً بأعلى سرعة وكفاءة 🚀
+        </p>
+
+        <!-- Live Countdown Timer Matrix -->
+        <div class="countdown-matrix" id="countdownContainer">
+            <!-- Days (Dynamic) -->
+            <div class="time-brick" id="brickDays" style="display: none;">
+                <span class="time-number" id="valDays">00</span>
+                <span class="time-unit">يوم</span>
+            </div>
+            <span class="time-separator" id="sepDays" style="display: none;">:</span>
+
+            <!-- Hours -->
+            <div class="time-brick">
+                <span class="time-number" id="valHours">01</span>
+                <span class="time-unit">ساعة</span>
+            </div>
+            <span class="time-separator">:</span>
+
+            <!-- Minutes -->
+            <div class="time-brick">
+                <span class="time-number" id="valMinutes">42</span>
+                <span class="time-unit">دقيقة</span>
+            </div>
+            <span class="time-separator">:</span>
+
+            <!-- Seconds -->
+            <div class="time-brick">
+                <span class="time-number" id="valSeconds">18</span>
+                <span class="time-unit">ثانية</span>
+            </div>
+        </div>
+
+        <!-- 3 Pillars of Confidence -->
+        <div class="confidence-strip">
+            <div class="badge-pill">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>أمان أكبر 🛡️</span>
+            </div>
+            <div class="badge-pill">
+                <i class="fa-solid fa-bolt-lightning"></i>
+                <span>أداء أسرع ⚡</span>
+            </div>
+            <div class="badge-pill">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>تجربة أفضل ✨</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- ─── Footer ─── -->
+    <footer class="maint-footer">
+        <div>
+            <span>معاً نحو مستقبل تعليمي أفضل <span class="footer-heart">❤️</span></span>
+        </div>
+        <div>
+            <span>EL KHETA © 2026-2027 — جميع الحقوق محفوظة</span>
+        </div>
+        <div>
+            <a href="chat.html" class="footer-support-link" title="تواصل مع الإدارة عبر الشات">
+                <i class="fa-solid fa-headset"></i>
+                <span>مكتب الدعم والشات المباشر</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- ─── Secret Admin Portal Modal (Triggered by 3 Clicks on Logo) ─── -->
+    <div class="secret-modal-backdrop" id="secretAdminModal">
+        <div class="secret-modal-card">
+            <button class="modal-close-btn" onclick="closeSecretModal()" title="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="secret-shield-icon">
+                <i class="fa-solid fa-shield-cat"></i>
+            </div>
+
+            <h3 class="secret-modal-title">الدخول إلى لوحة التحكم</h3>
+            <p class="secret-modal-sub">يرجى إدخال رمز الإدارة السري للمتابعة إلى مركز التحكم</p>
+
+            <form onsubmit="handleSecretAdminLogin(event)">
+                <div class="secret-input-wrap">
+                    <i class="fa-solid fa-lock input-icon-start"></i>
+                    <input type="password" id="secretPinInput" class="secret-input" placeholder="••••••" maxlength="12" autocomplete="off" required>
+                    <i class="fa-solid fa-eye input-icon-eye" id="toggleSecretEye" onclick="toggleSecretPasswordVisibility()"></i>
+                </div>
+
+                <button type="submit" class="btn-secret-submit" id="btnSecretSubmit">
+                    <span>دخول آمن للوحة الإدارة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </form>
+
+            <div class="secret-footer-notice">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>هذه البوابة مخصصة للإدارة العليا والمشرفين فقط 🛡️</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // ─── State & Timers ───
+        let targetEndTime = Date.now() + (102 * 60 * 1000); // Default fallback: ~1h 42m
+        let countdownTimerInterval = null;
+        let secretClickCount = 0;
+        let secretClickResetTimer = null;
+
+        // ─── 1. Triple-Click Secret Admin Access Trigger ───
+        function handleSecretLogoClick() {
+            secretClickCount++;
+            clearTimeout(secretClickResetTimer);
+
+            // Subtle feedback on rapid clicks
+            const logoEl = document.getElementById('brandLogoTrigger');
+            if (logoEl) {
+                logoEl.style.transform = `scale(${1 + (secretClickCount * 0.04)})`;
+                setTimeout(() => { logoEl.style.transform = ''; }, 150);
+            }
+
+            if (secretClickCount >= 3) {
+                secretClickCount = 0;
+                openSecretModal();
+                return;
+            }
+
+            secretClickResetTimer = setTimeout(() => {
+                secretClickCount = 0;
+            }, 1200);
+        }
+
+        function openSecretModal() {
+            const modal = document.getElementById('secretAdminModal');
+            if (modal) {
+                modal.classList.add('active');
+                setTimeout(() => {
+                    const inp = document.getElementById('secretPinInput');
+                    if (inp) inp.focus();
+                }, 100);
+            }
+        }
+
+        function closeSecretModal() {
+            const modal = document.getElementById('secretAdminModal');
+            if (modal) modal.classList.remove('active');
+            const inp = document.getElementById('secretPinInput');
+            if (inp) inp.value = '';
+        }
+
+        function toggleSecretPasswordVisibility() {
+            const inp = document.getElementById('secretPinInput');
+            const eye = document.getElementById('toggleSecretEye');
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                eye.className = 'fa-solid fa-eye-slash input-icon-eye';
+            } else {
+                inp.type = 'password';
+                eye.className = 'fa-solid fa-eye input-icon-eye';
+            }
+        }
+
+        async function handleSecretAdminLogin(e) {
+            e.preventDefault();
+            const pinInput = document.getElementById('secretPinInput');
+            const btn = document.getElementById('btnSecretSubmit');
+            const pin = (pinInput ? pinInput.value.trim() : '');
+
+            if (!pin) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>جاري التحقق...</span>';
+
+            try {
+                let isAuthorized = false;
+                let adminName = 'المدير العام';
+
+                // Check default PINs
+                if (pin === '011124' || pin === '7777') {
+                    isAuthorized = true;
+                }
+
+                // Check Firebase Settings/adminPin
+                if (!isAuthorized && typeof database !== 'undefined') {
+                    try {
+                        const snapM = await database.ref('Settings/adminPin').once('value');
+                        if (snapM.exists() && String(snapM.val()).trim() === pin) {
+                            isAuthorized = true;
+                        }
+                    } catch(err){}
+                }
+
+                // Check Firebase Supervisors
+                if (!isAuthorized && typeof database !== 'undefined') {
+                    try {
+                        const snapSup = await database.ref('Supervisors').once('value');
+                        if (snapSup.exists()) {
+                            snapSup.forEach(child => {
+                                const sup = child.val();
+                                if (sup && String(sup.pin).trim() === pin && sup.isActive !== false) {
+                                    isAuthorized = true;
+                                    adminName = sup.name || 'مشرف';
+                                    sessionStorage.setItem('adminSupervisorId', child.key);
+                                    sessionStorage.setItem('adminName', adminName);
+                                    sessionStorage.setItem('adminRoleTitle', sup.roleTitle || 'مشرف المنصة');
+                                    sessionStorage.setItem('adminPermissions', JSON.stringify(sup.permissions || {}));
+                                }
+                            });
+                        }
+                    } catch(err){}
+                }
+
+                if (isAuthorized) {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    sessionStorage.setItem('adminRole', 'super_admin');
+                    localStorage.setItem('isAdmin', 'true');
+
+                    // Record Audit Log in Firebase
+                    if (typeof database !== 'undefined') {
+                        try {
+                            database.ref('MaintenanceLogs').push({
+                                action: 'دخول لوحة التحكم أثناء الصيانة 🔐',
+                                admin: adminName,
+                                details: 'تم فتح لوحة التحكم عبر بوابة الشعار السرية',
+                                timestamp: Date.now(),
+                                dateFormatted: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+                            });
+                        } catch(err){}
+                    }
+
+                    Swal.fire({
+                        title: 'تم التحقق بنجاح 👑',
+                        text: `مرحباً بك يا ${adminName}، جاري توجيهك إلى مركز الصيانة والتحكم...`,
+                        icon: 'success',
+                        timer: 1200,
+                        showConfirmButton: false,
+                        background: '#0F172A',
+                        color: '#F8FAFC'
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = 'admin-maintenance.html';
+                    }, 1200);
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>دخول آمن للوحة الإدارة</span> <i class="fa-solid fa-arrow-left"></i>';
+                    
+                    Swal.fire({
+                        title: 'رمز غير صحيح ⚠️',
+                        text: 'رمز الإدارة المدخل غير مصرح به!',
+                        icon: 'error',
+                        confirmButtonText: 'حاول مرة أخرى',
+                        confirmButtonColor: '#EF4444',
+                        background: '#0F172A',
+                        color: '#F8FAFC'
+                    });
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<span>دخول آمن للوحة الإدارة</span> <i class="fa-solid fa-arrow-left"></i>';
+                console.error(err);
+            }
+        }
+
+        // ─── 2. Realtime Countdown Engine ───
+        function updateCountdownDisplay() {
+            const now = Date.now();
+            const diff = targetEndTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('valDays').innerText = '00';
+                document.getElementById('valHours').innerText = '00';
+                document.getElementById('valMinutes').innerText = '00';
+                document.getElementById('valSeconds').innerText = '00';
+
+                // Check if maintenance is officially turned off
+                if (typeof database !== 'undefined') {
+                    database.ref('Settings/maintenance').once('value', snap => {
+                        if (!snap.val()) {
+                            celebrateAndRedirect();
+                        }
+                    });
+                }
+                return;
+            }
+
+            const totalSeconds = Math.floor(diff / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const bDays = document.getElementById('brickDays');
+            const sepDays = document.getElementById('sepDays');
+            if (days > 0) {
+                if (bDays) bDays.style.display = 'flex';
+                if (sepDays) sepDays.style.display = 'inline-block';
+                document.getElementById('valDays').innerText = String(days).padStart(2, '0');
+            } else {
+                if (bDays) bDays.style.display = 'none';
+                if (sepDays) sepDays.style.display = 'none';
+            }
+
+            document.getElementById('valHours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('valMinutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('valSeconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        function startCountdown(endTimeMs) {
+            targetEndTime = endTimeMs;
+            if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+            updateCountdownDisplay();
+            countdownTimerInterval = setInterval(updateCountdownDisplay, 1000);
+        }
+
+        function celebrateAndRedirect() {
+            try {
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                }
+            } catch(e){}
+
+            Swal.fire({
+                title: '🎉 انتهت الصيانة بنجاح!',
+                text: 'تم استئناف وتشغيل المنصة، جاري تحويلك للصفحة الرئيسية...',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#0F172A',
+                color: '#F8FAFC'
+            });
+
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 2000);
+        }
+
+        // ─── 3. Realtime Firebase Listener ───
+        function initFirebaseMaintenanceSync() {
+            if (typeof database === 'undefined') return;
+
+            database.ref('Settings').on('value', (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.val();
+                const isMaint = Boolean(data.maintenance);
+                const details = data.maintenanceDetails || {};
+
+                // If maintenance has been lifted by Admin
+                if (!isMaint) {
+                    celebrateAndRedirect();
+                    return;
+                }
+
+                // Apply dynamic Title and Reason
+                if (details.title) {
+                    const titleEl = document.getElementById('displayTitle');
+                    if (titleEl) titleEl.innerText = details.title;
+                }
+                if (details.message || details.reason) {
+                    const descEl = document.getElementById('displayReason');
+                    if (descEl) descEl.innerHTML = (details.message || details.reason).replace(/\n/g, '<br>');
+                }
+
+                // Apply Theme Style (royal, minimal, cyber, premium)
+                if (details.theme) {
+                    document.body.className = 'style-' + details.theme;
+                }
+
+                // Apply End Time
+                if (details.endAt) {
+                    startCountdown(details.endAt);
+                } else if (details.durationMinutes) {
+                    const calculatedEnd = (details.startAt || Date.now()) + (details.durationMinutes * 60 * 1000);
+                    startCountdown(calculatedEnd);
+                }
+            });
+        }
+
+        // Start initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            startCountdown(targetEndTime);
+            initFirebaseMaintenanceSync();
+        });
+    </script>
+</body>
+</html>

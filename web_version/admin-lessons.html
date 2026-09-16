@@ -714,7 +714,7 @@
             <div class="media-box">
                 <div class="media-box-title">
                     <i class="fa-solid fa-photo-film" style="color:var(--primary);"></i>
-                    <span>المرفقات الأساسية (فيديو الشرح / ملخص PDF / الشرح الصوتي 🎙️)</span>
+                    <span>المرفقات الأساسية (فيديو الشرح / ملخص PDF / كراسة الخطة 📚)</span>
                 </div>
                 <div class="media-grid">
                     <div>
@@ -731,20 +731,19 @@
                     </div>
                 </div>
 
-                <!-- 🎙️ قسم الشرح الصوتي المتقدم -->
-                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--card-border); display: grid; grid-template-columns: 2fr 1fr; gap: 12px; align-items: flex-end;">
+                <!-- 📚 قسم كراسة الخطة التفاعلية (PowerPoint Notes) -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <label class="form-label" style="font-size:12px; color:#D97706; font-weight:800;">
-                            🎙️ رابط الشرح الصوتي للمحاضرة (MP3 / M4A / Direct URL / Drive)
-                        </label>
-                        <input type="url" id="audioUrl" class="form-control" placeholder="https://.../audio-lesson.mp3" style="direction:ltr; text-align:left; border-color: rgba(245, 158, 11, 0.4);">
+                        <div style="font-size: 13.5px; font-weight: 800; color: #2563EB; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-layer-group"></i> 📚 كراسة الخطة (نوتس وسلايدز المحاضرة التفاعلية)
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">
+                            أنشئ شرائح PowerPoint تفاعلية للطلاب مع عناصر ذكية وجداول وملاحظات خاصة.
+                        </div>
                     </div>
-                    <div>
-                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:rgba(245, 158, 11, 0.08); padding:10px 14px; border-radius:12px; border:1px solid rgba(245, 158, 11, 0.25); height:46px;">
-                            <input type="checkbox" id="allowAudioDownload" style="width:18px; height:18px; accent-color:#D97706; cursor:pointer;">
-                            <span style="font-size:12px; font-weight:800; color:#D97706;">السماح للطلاب بالتحميل 📥</span>
-                        </label>
-                    </div>
+                    <button type="button" onclick="openNotesBuilderFromForm()" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: 'Cairo'; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                        <i class="fa-solid fa-pen-to-square"></i> فتح منشئ كراسة الخطة (Editor) 🚀
+                    </button>
                 </div>
             </div>
 
@@ -879,6 +878,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <script>
@@ -1277,10 +1277,10 @@
                 }
             }
 
-            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize, lesson.audioUrl, lesson.allowAudioDownload, lesson.teaserMessage);
+            startEditLesson(lesson.firebaseKey, lesson.subjectName, lesson.title, lesson.description, lesson.videoUrl, lesson.pdfUrl, examData, lesson.duration, lesson.chapter, lesson.unlockTime, lesson.pdfSize, lesson.teaserMessage);
         }
 
-        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize, audioUrl, allowAudioDownload, teaserMessage) {
+        function startEditLesson(id, subject, title, desc, video, pdf, examJson, duration, chapter, unlockTimeStr, pdfSize, teaserMessage) {
             editingLessonId = id;
             editingSubject = subject;
             
@@ -1292,8 +1292,6 @@
             document.getElementById('pdfSize').value = pdfSize && pdfSize !== 'undefined' ? pdfSize : "";
             document.getElementById('examJson').value = examJson && examJson !== 'undefined' ? examJson : "";
             document.getElementById('duration').value = duration && duration !== 'undefined' ? duration : "";
-            document.getElementById('audioUrl').value = audioUrl && audioUrl !== 'undefined' ? audioUrl : "";
-            document.getElementById('allowAudioDownload').checked = Boolean(allowAudioDownload === true || allowAudioDownload === 'true');
             
             const teaserEl = document.getElementById('lessonTeaserMessage');
             if (teaserEl) {
@@ -1413,8 +1411,6 @@
             const video = document.getElementById('videoUrl').value.trim();
             const pdf = document.getElementById('pdfUrl').value.trim();
             const pdfSize = document.getElementById('pdfSize').value.trim();
-            const audioUrl = document.getElementById('audioUrl').value.trim();
-            const allowAudioDownload = document.getElementById('allowAudioDownload').checked;
             const examJson = document.getElementById('examJson').value.trim();
             const duration = document.getElementById('duration').value.trim() || 'متوفر';
             
@@ -1435,7 +1431,7 @@
 
             if (!subject) return showToast("يرجى اختيار المادة الدراسية أولاً");
             if (!title) return showToast("يرجى كتابة عنوان المحاضرة أو الامتحان");
-            if (!video && !pdf && !examJson && !audioUrl) return showToast("يجب إضافة فيديو، أو ملخص PDF، أو شرح صوتي، أو امتحان على الأقل");
+            if (!video && !pdf && !examJson) return showToast("يجب إضافة فيديو، أو ملخص PDF، أو امتحان على الأقل");
 
             const data = {
                 title: title || "",
@@ -1443,8 +1439,6 @@
                 videoUrl: video || "",
                 pdfUrl: pdf || "",
                 pdfSize: pdfSize || "",
-                audioUrl: audioUrl || "",
-                allowAudioDownload: Boolean(allowAudioDownload),
                 jsonCode: examJson || "",
                 duration: duration || "متوفر",
                 chapter: chapter || "",
@@ -1475,8 +1469,7 @@
                 database.ref('Lectures').child(subject).child(id).set(data).then(() => {
                     const isFuture = unlockTime && unlockTime > Date.now();
                     let itemType = "محاضرة";
-                    if (examJson && !video && !pdf && !audioUrl) itemType = "امتحان";
-                    else if (audioUrl && !video && !examJson) itemType = "شرح صوتي 🎙️";
+                    if (examJson && !video && !pdf) itemType = "امتحان";
                     else if (video && !examJson) itemType = "فيديو محاضرة";
                     else if (pdf && !video && !examJson) itemType = "ملخص PDF";
 
@@ -1504,8 +1497,6 @@
             document.getElementById('videoUrl').value = "";
             document.getElementById('pdfUrl').value = "";
             document.getElementById('pdfSize').value = "";
-            document.getElementById('audioUrl').value = "";
-            document.getElementById('allowAudioDownload').checked = false;
             document.getElementById('examJson').value = "";
             document.getElementById('duration').value = "";
             document.getElementById('lessonUnlockTime').value = "";
@@ -1564,7 +1555,7 @@
                             const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
                             const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
                             const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
-                            const audioTag = lesson.audioUrl ? `<span class="meta-tag" style="background:rgba(245, 158, 11, 0.12); color:#D97706; border:1px solid rgba(245, 158, 11, 0.35); font-weight:800;"><i class="fa-solid fa-headphones"></i> صوت</span>` : '';
+                            const notesTag = (lesson.hasNotes || lesson.notesCount) ? `<span class="meta-tag" style="background:rgba(37, 99, 235, 0.12); color:#2563EB; border:1px solid rgba(37, 99, 235, 0.35); font-weight:800;" title="كراسة الخطة التفاعلية"><i class="fa-solid fa-layer-group"></i> كراسة (${lesson.notesCount || 0} ص)</span>` : '';
                             const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
                             const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
                             const scheduledTag = isScheduled ? `<span class="meta-tag" style="background:rgba(124, 58, 237, 0.12); color:#7C3AED; border:1px solid rgba(139, 92, 246, 0.35); font-weight:800;" title="موعد إتاحة المحاضرة للطلاب تلقائياً"><i class="fa-solid fa-clock"></i> ⏳ مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
@@ -1581,7 +1572,7 @@
                                             ${scheduledTag}
                                             ${videoTag}
                                             ${pdfTag}
-                                            ${audioTag}
+                                            ${notesTag}
                                             ${examTag}
                                             ${durationTag}
                                             ${lesson.chapter ? `<span class="meta-tag muted" style="color:var(--primary);">📖 ${lesson.chapter}</span>` : ''}
@@ -1593,6 +1584,9 @@
                                                 <i class="fa-solid fa-bolt"></i>
                                             </button>
                                         ` : ''}
+                                        <button class="btn-card-action" style="background:rgba(37, 99, 235, 0.1); color:#2563EB; border:1px solid rgba(37, 99, 235, 0.25);" onclick="openNotesBuilder('${escSub}', '${escKey}')" title="📚 تعديل وبناء كراسة الخطة التفاعلية (PowerPoint Slides)">
+                                            <i class="fa-solid fa-layer-group"></i>
+                                        </button>
                                         <button class="btn-card-action edit" onclick="startEditLessonByKey('${escKey}')" title="تعديل المحاضرة">
                                             <i class="fa-solid fa-pencil"></i>
                                         </button>
@@ -1701,6 +1695,28 @@
                     }).catch(() => showToast("حدث خطأ أثناء النشر ❌"));
                 }
             });
+        }
+
+        function openNotesBuilder(subject, key) {
+            window.open(`admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}`, '_blank');
+        }
+
+        function openNotesBuilderFromForm() {
+            const subject = document.getElementById('subjectSelect').value;
+            if (!subject) {
+                return showToast("يرجى اختيار المادة الدراسية أولاً ⚠️");
+            }
+            if (editingLessonId) {
+                openNotesBuilder(subject, editingLessonId);
+            } else {
+                Swal.fire({
+                    title: 'حفظ المحاضرة أولاً 💡',
+                    text: 'يرجى حفظ المحاضرة أولاً ثم الضغط على زر كراسة الخطة لتعديل الشرائح مباشرة.',
+                    icon: 'info',
+                    confirmButtonText: 'حسناً فهمت',
+                    confirmButtonColor: '#2563EB'
+                });
+            }
         }
 
         loadAllLessons();

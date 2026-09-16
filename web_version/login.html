@@ -755,6 +755,21 @@
                     console.warn("Supervisor check error:", e);
                 }
 
+                // Helper to clear admin privileges so students never inherit admin state
+                function clearAdminAuth() {
+                    sessionStorage.removeItem('isAdmin');
+                    sessionStorage.removeItem('adminRole');
+                    sessionStorage.removeItem('adminSupervisorId');
+                    sessionStorage.removeItem('adminName');
+                    sessionStorage.removeItem('adminRoleTitle');
+                    sessionStorage.removeItem('adminPermissions');
+                    sessionStorage.removeItem('isMysqlAdmin');
+                    sessionStorage.removeItem('adminPreviewMode');
+                    localStorage.removeItem('isAdmin');
+                    localStorage.removeItem('adminRole');
+                    localStorage.removeItem('isMysqlAdmin');
+                }
+
                 // 4. Check Students (MySQL & Firebase)
                 const upperCode = code.toUpperCase();
 
@@ -776,6 +791,7 @@
                                 return;
                             }
 
+                            clearAdminAuth();
                             localStorage.setItem('user', JSON.stringify(sqlStudent));
                             localStorage.setItem('studentCode', upperCode);
                             ElkhetaAPI.logActivity(upperCode, sqlStudent.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', 'دخول ناجح للمنصة');
@@ -809,6 +825,7 @@
                             return;
                         }
 
+                        clearAdminAuth();
                         localStorage.setItem('user', JSON.stringify(studentData));
                         logActivity(upperCode, studentData.fullName || 'طالب', 'تسجيل الدخول للمنصة');
                         studentData.code = upperCode;

@@ -42,9 +42,9 @@
             --text-sub: #CBD5E1;
             --text-dim: #94A3B8;
             
-            --sidebar-w: 250px;
-            --sidebar-collapsed-w: 74px;
-            --spring: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            --sidebar-w: 300px;
+            --sidebar-collapsed-w: 80px;
+            --spring: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * {
@@ -95,63 +95,80 @@
             gap: 16px;
         }
 
-        /* ─── Sleek iPadOS Sidebar Dock ─── */
+        /* ─── Modern Pro Executive Sidebar (Obsidian Glass) ─── */
         .ipad-sidebar {
-            width: var(--sidebar-w);
+            width: 280px;
             position: sticky;
             top: 14px;
             height: calc(100vh - 28px);
             flex-shrink: 0;
-            background: var(--surface-dock);
-            border: 1px solid var(--border-glass);
+            background: linear-gradient(180deg, #0F1322 0%, #090C16 100%);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 16px 12px;
+            padding: 14px 12px;
             z-index: 99;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            transition: width 0.28s cubic-bezier(0.25, 1, 0.5, 1), padding 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), padding 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
 
-        /* Collapsed Sidebar */
+        /* Ambient top edge subtle highlight */
+        .ipad-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 20px; left: 20px;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), rgba(99, 102, 241, 0.6), transparent);
+            pointer-events: none;
+        }
+
+        /* Collapsed Sidebar on Desktop */
         .ipad-sidebar.collapsed {
-            width: var(--sidebar-collapsed-w);
-            padding: 16px 8px;
+            width: 76px;
+            padding: 14px 8px;
         }
         .ipad-sidebar.collapsed .hide-collapsed {
             display: none !important;
         }
-        .ipad-sidebar.collapsed .brand-wrap {
+        .ipad-sidebar.collapsed .sidebar-header {
             justify-content: center;
-            padding-bottom: 12px;
+            padding: 4px 0 12px 0;
         }
-        .ipad-sidebar.collapsed .nav-btn {
+        .ipad-sidebar.collapsed .nav-item {
             justify-content: center;
-            padding: 11px 0;
+            padding: 0;
         }
-        .ipad-sidebar.collapsed .user-card {
+        .ipad-sidebar.collapsed .nav-item-icon {
+            margin: 0 auto;
+        }
+        .ipad-sidebar.collapsed .admin-profile-card {
             justify-content: center;
-            padding: 6px 0;
+            padding: 8px 0;
             background: transparent;
             border-color: transparent;
         }
-        .ipad-sidebar.collapsed .logout-btn {
+        .ipad-sidebar.collapsed .btn-logout-sidebar {
             justify-content: center;
-            padding: 9px 0;
+            padding: 0;
         }
 
-        /* Brand Row */
-        .brand-wrap {
+        /* Sidebar Header & Brand */
+        .sidebar-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 4px 6px 14px 6px;
-            border-bottom: 1px solid var(--border-glass);
-            margin-bottom: 12px;
+            padding: 4px 6px 12px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 8px;
+            flex-shrink: 0;
         }
 
-        .brand-link {
+        .brand-box {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -159,195 +176,370 @@
             min-width: 0;
         }
 
-        .brand-icon {
+        .brand-badge-icon {
             width: 38px; height: 38px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0284C7, #4F46E5);
+            border-radius: 11px;
+            background: linear-gradient(135deg, #0284C7 0%, #6366F1 50%, #A855F7 100%);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 18px;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+            color: #FFFFFF; font-size: 18px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
             flex-shrink: 0;
         }
 
-        .brand-texts {
+        .brand-info {
             display: flex;
             flex-direction: column;
+            gap: 2px;
             min-width: 0;
         }
 
-        .brand-title {
-            font-size: 14.5px;
+        .brand-name {
+            font-size: 15px;
             font-weight: 900;
-            color: var(--text-pure);
+            color: #FFFFFF;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
         }
 
-        .brand-sub {
-            font-size: 11px;
+        .brand-tag {
+            font-size: 10px;
             font-weight: 800;
             color: var(--apple-blue);
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 1px 7px;
+            border-radius: 5px;
+            display: inline-block;
+            align-self: flex-start;
         }
 
-        .btn-collapse {
-            width: 28px; height: 28px;
+        .btn-sidebar-collapse {
+            width: 30px; height: 30px;
             border-radius: 9px;
-            border: 1px solid var(--border-glass);
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
             color: var(--text-dim);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             transition: var(--spring);
-            font-size: 11px;
+            font-size: 12px;
+            flex-shrink: 0;
         }
-        .btn-collapse:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
+        .btn-sidebar-collapse:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: #A5B4FC;
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: scale(1.05);
         }
 
         .btn-close-mobile {
             display: none;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #F8FAFC;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            font-size: 14px;
             cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: var(--spring);
+            flex-shrink: 0;
+        }
+        .btn-close-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
-        /* Nav Container */
-        .nav-list {
+        /* Nav Menu (Scrollable) */
+        .sidebar-nav {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-right: 2px;
+            padding: 2px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+        }
+        .sidebar-nav::-webkit-scrollbar {
+            width: 3px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
         }
 
-        .nav-header-label {
-            font-size: 11px;
-            font-weight: 900;
-            color: var(--text-dim);
-            padding: 8px 8px 4px 8px;
+        .nav-group-title {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #64748B;
+            padding: 8px 8px 3px 8px;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .nav-btn {
+        /* ─── Clean Nav Item (Single-Line, Sleek) ─── */
+        .nav-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
-            border-radius: 14px;
+            gap: 10px;
+            height: 44px;
+            flex-shrink: 0;
+            padding: 0 10px;
+            border-radius: 12px;
             background: transparent;
-            color: var(--text-sub);
+            color: #CBD5E1;
             border: 1px solid transparent;
             cursor: pointer;
             text-decoration: none;
             transition: var(--spring);
+            position: relative;
+            outline: none;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        /* Neon Right Indicator */
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleY(0);
+            width: 3px;
+            height: 18px;
+            border-radius: 3px;
+            background: #38BDF8;
+            box-shadow: 0 0 8px #38BDF8;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s;
+            opacity: 0;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(-3px);
+        }
+        .nav-item:hover::before, .nav-item.active::before {
+            transform: translateY(-50%) scaleY(1);
+            opacity: 1;
+        }
+        .nav-item:active {
+            transform: scale(0.98);
+        }
+
+        /* Distinct Frosted Icon Pods */
+        .nav-item-icon {
+            width: 30px; height: 30px;
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13.5px;
+            flex-shrink: 0;
+            transition: var(--spring);
+        }
+        .nav-item:hover .nav-item-icon {
+            transform: scale(1.08);
+        }
+
+        .icon-indigo {
+            background: rgba(99, 102, 241, 0.18);
+            color: #A5B4FC;
+            border: 1px solid rgba(99, 102, 241, 0.35);
+        }
+        .icon-blue {
+            background: rgba(56, 189, 248, 0.18);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+        }
+        .icon-emerald {
+            background: rgba(52, 211, 153, 0.18);
+            color: #34D399;
+            border: 1px solid rgba(52, 211, 153, 0.35);
+        }
+        .icon-amber {
+            background: rgba(251, 191, 36, 0.18);
+            color: #FBBF24;
+            border: 1px solid rgba(251, 191, 36, 0.35);
+        }
+        .icon-rose {
+            background: rgba(244, 63, 94, 0.18);
+            color: #FB7185;
+            border: 1px solid rgba(244, 63, 94, 0.35);
+        }
+        .icon-purple {
+            background: rgba(192, 132, 252, 0.18);
+            color: #C084FC;
+            border: 1px solid rgba(192, 132, 252, 0.35);
+        }
+
+        .nav-item-label {
             font-size: 13.5px;
             font-weight: 800;
-            font-family: inherit;
-        }
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.07);
-            color: var(--text-pure);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-btn-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 0;
-        }
-
-        .nav-btn-icon {
-            font-size: 16px;
-            width: 22px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .nav-badge {
-            font-size: 10.5px;
-            font-weight: 900;
-            padding: 2px 7px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-dim);
-            border: 1px solid var(--border-glass);
-        }
-
-        /* Sidebar Footer */
-        .sidebar-bottom {
-            padding-top: 12px;
-            border-top: 1px solid var(--border-glass);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .user-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-glass);
-            padding: 8px 10px;
-            border-radius: 14px;
-        }
-
-        .user-avatar {
-            width: 36px; height: 36px;
-            border-radius: 11px;
-            background: linear-gradient(135deg, #1E1B4B, #312E81);
-            border: 1.5px solid var(--apple-gold);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 17px; color: white;
-            flex-shrink: 0;
-        }
-
-        .user-texts {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        .user-name {
-            font-size: 13px;
-            font-weight: 900;
-            color: var(--text-pure);
+            flex: 1;
+            text-align: right;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1;
         }
 
-        .user-role {
+        .nav-item-pill {
             font-size: 11px;
+            font-weight: 900;
+            padding: 2px 7.5px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #94A3B8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .pill-gold {
+            background: rgba(251, 191, 36, 0.18);
+            color: #FBBF24;
+            border-color: rgba(251, 191, 36, 0.35);
+        }
+        .pill-live {
+            background: rgba(244, 63, 94, 0.18);
+            color: #FB7185;
+            border-color: rgba(244, 63, 94, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .live-pulse {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #FB7185;
+            box-shadow: 0 0 6px #FB7185;
+            animation: pulseMaintDot 1.6s infinite;
+        }
+        @keyframes pulseMaintDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        .nav-item-arrow {
+            font-size: 11px;
+            color: #64748B;
+            flex-shrink: 0;
+        }
+
+        /* ─── Sidebar Bottom (Profile & Logout) ─── */
+        .sidebar-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+
+        .admin-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: var(--spring);
+        }
+        .admin-profile-card:hover {
+            border-color: rgba(251, 191, 36, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .admin-avatar {
+            position: relative;
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            border: 1px solid var(--apple-gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: white;
+            flex-shrink: 0;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            border: 1.5px solid #090C16;
+            box-shadow: 0 0 5px #10B981;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+            gap: 1px;
+        }
+
+        .admin-role-name {
+            font-size: 12.5px;
+            font-weight: 900;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+
+        .admin-role-badge {
+            font-size: 10.5px;
             font-weight: 800;
             color: var(--apple-gold);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 1.2;
         }
 
-        .logout-btn {
-            background: rgba(248, 113, 113, 0.12);
-            color: var(--apple-red);
-            border: 1px solid rgba(248, 113, 113, 0.25);
-            padding: 8px 12px;
-            border-radius: 12px;
+        .btn-logout-sidebar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            height: 38px;
+            border-radius: 11px;
+            background: rgba(239, 68, 68, 0.08);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
             font-size: 12.5px;
-            font-weight: 900;
+            font-weight: 800;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            gap: 7px;
             transition: var(--spring);
+            outline: none;
             font-family: inherit;
         }
-        .logout-btn:hover {
+        .btn-logout-sidebar:hover {
             background: #EF4444;
-            color: white;
+            color: #FFFFFF;
             border-color: #EF4444;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
+            transform: translateY(-1px);
+        }
+        .btn-logout-sidebar:active {
+            transform: scale(0.98);
         }
 
         /* ─── Main Content Workspace ─── */
@@ -681,12 +873,16 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(6px);
+            background: rgba(9, 13, 22, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .mobile-backdrop.active {
             display: block;
+            opacity: 1;
         }
 
         /* Responsive */
@@ -701,24 +897,61 @@
             }
             .ipad-sidebar {
                 position: fixed;
-                right: -300px;
+                right: -340px;
                 top: 0;
                 height: 100vh;
-                width: 270px !important;
-                border-radius: 0;
-                transition: right 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+                height: 100dvh;
+                width: 300px !important;
+                max-width: 88vw;
+                background: linear-gradient(180deg, rgba(14, 18, 32, 0.97) 0%, rgba(9, 12, 22, 0.99) 100%) !important;
+                backdrop-filter: blur(28px);
+                -webkit-backdrop-filter: blur(28px);
+                border: none !important;
+                border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+                border-radius: 26px 0 0 26px !important;
+                box-shadow: -20px 0 60px rgba(0, 0, 0, 0.85) !important;
+                transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
                 z-index: 10000;
+                overflow-y: auto;
+                overflow-x: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 16px 14px;
             }
             .ipad-sidebar.sidebar-open {
                 right: 0;
+            }
+            /* Override any collapsed styles on mobile so text and titles are always 100% visible */
+            .ipad-sidebar .hide-collapsed {
+                display: inline-block !important;
+            }
+            .ipad-sidebar .brand-info.hide-collapsed,
+            .ipad-sidebar .admin-details.hide-collapsed {
+                display: flex !important;
+            }
+            .ipad-sidebar .nav-item {
+                justify-content: space-between !important;
+                padding: 0 12px !important;
+            }
+            .ipad-sidebar .sidebar-header {
+                justify-content: space-between !important;
+            }
+            .ipad-sidebar .admin-profile-card {
+                justify-content: flex-start !important;
+                padding: 10px 12px !important;
+                background: rgba(255, 255, 255, 0.05) !important;
+            }
+            .ipad-sidebar .btn-logout-sidebar {
+                justify-content: center !important;
             }
             .btn-hamburger {
                 display: block;
             }
             .btn-close-mobile {
-                display: block;
+                display: flex;
             }
-            .btn-collapse {
+            .btn-sidebar-collapse {
                 display: none;
             }
             .ipad-stage {
@@ -744,93 +977,115 @@
 
     <div class="ipad-stage">
 
-        <!-- ─── Sleek iPadOS Sidebar Dock ─── -->
+        <!-- ─── Modern Pro Executive Sidebar (Obsidian Glass) ─── -->
         <aside class="ipad-sidebar" id="adminSidebar">
-            <div>
-                <!-- Brand Row -->
-                <div class="brand-wrap">
-                    <a href="admin-panel.html" class="brand-link">
-                        <div class="brand-icon">👑</div>
-                        <div class="brand-texts hide-collapsed">
-                            <span class="brand-title">منصة الخطة</span>
-                            <span class="brand-sub">iPad Pro Edition</span>
-                        </div>
-                    </a>
-                    <button class="btn-collapse" onclick="toggleDesktopSidebarCollapse()" title="طي / توسيع القائمة">
-                        <i class="fa-solid fa-angles-right" id="sidebarCollapseIcon"></i>
-                    </button>
-                    <button class="btn-close-mobile" onclick="closeMobileSidebar()" title="إغلاق">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- Nav List -->
-                <div class="nav-list">
-                    <div class="nav-header-label hide-collapsed">أقسام المنظومة</div>
-
-                    <button onclick="scrollToSector('secAcademic')" class="nav-btn" title="القطاع الأكاديمي والمحاضرات">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-graduation-cap nav-btn-icon" style="color: var(--apple-indigo);"></i>
-                            <span class="hide-collapsed">الأكاديمي والمحاضرات</span>
-                        </div>
-                        <span class="nav-badge hide-collapsed">4</span>
-                    </button>
-
-                    <button onclick="scrollToSector('secStudents')" class="nav-btn" title="قطاع الطلاب والتراخيص">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-users-gear nav-btn-icon" style="color: var(--apple-blue);"></i>
-                            <span class="hide-collapsed">الطلاب والتراخيص</span>
-                        </div>
-                        <span class="nav-badge hide-collapsed">3</span>
-                    </button>
-
-                    <button onclick="scrollToSector('secCommunity')" class="nav-btn" title="التواصل والمجتمع الطلابي">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-comments nav-btn-icon" style="color: var(--apple-emerald);"></i>
-                            <span class="hide-collapsed">المجتمع والإشعارات</span>
-                        </div>
-                        <span class="nav-badge hide-collapsed">2</span>
-                    </button>
-
-                    <button onclick="scrollToSector('secCloud')" class="nav-btn" title="السحابة والإدارة العليا">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-cloud-bolt nav-btn-icon" style="color: var(--apple-gold);"></i>
-                            <span class="hide-collapsed">السحابة والإدارة العليا</span>
-                        </div>
-                        <span class="nav-badge hide-collapsed" style="color: var(--apple-gold);">VIP</span>
-                    </button>
-
-                    <div class="nav-header-label hide-collapsed" style="margin-top: 10px;">إدارات الربط والخدمات</div>
-
-                    <a href="admin-config.html" id="sidebarNav_config" class="nav-btn" title="إعدادات المشرفين والأمان">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-sliders nav-btn-icon" style="color: #A5B4FC;"></i>
-                            <span class="hide-collapsed">إعدادات المشرفين والأمان</span>
-                        </div>
-                        <i class="fa-solid fa-angle-left nav-badge hide-collapsed" style="font-size: 10px; border:none; background:transparent;"></i>
-                    </a>
-
-                    <a href="admin-mysql.html" id="sidebarNav_mysql" class="nav-btn" title="لوحة MySQL السحابية VIP">
-                        <div class="nav-btn-content">
-                            <i class="fa-solid fa-database nav-btn-icon" style="color: var(--apple-gold);"></i>
-                            <span class="hide-collapsed">لوحة MySQL السحابية VIP</span>
-                        </div>
-                        <span class="nav-badge hide-collapsed" style="color: var(--apple-gold);">VIP</span>
-                    </a>
-                </div>
+            <!-- Brand Header -->
+            <div class="sidebar-header">
+                <a href="admin-panel.html" class="brand-box">
+                    <div class="brand-badge-icon">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div class="brand-info hide-collapsed">
+                        <span class="brand-name">منصة الخطة</span>
+                        <span class="brand-tag">لوحة القيادة 2027</span>
+                    </div>
+                </a>
+                <button class="btn-sidebar-collapse" onclick="toggleDesktopSidebarCollapse()">
+                    <i class="fa-solid fa-angles-right" id="sidebarCollapseIcon"></i>
+                </button>
+                <button class="btn-close-mobile" onclick="closeMobileSidebar()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <!-- Sidebar Bottom -->
-            <div class="sidebar-bottom">
-                <div class="user-card">
-                    <div class="user-avatar" id="adminHeaderIcon">👑</div>
-                    <div class="user-texts hide-collapsed">
-                        <div class="user-name" id="adminHeaderTitle">المدير العام</div>
-                        <div class="user-role" id="adminHeaderSub">صلاحيات كاملة 🛡️</div>
+            <!-- Nav Menu (Scrollable) -->
+            <div class="sidebar-nav">
+                <!-- Section 1 -->
+                <div class="nav-group-title hide-collapsed">
+                    <span>القطاعات الرئيسية</span>
+                </div>
+
+                <button onclick="scrollToSector('secAcademic')" class="nav-item">
+                    <div class="nav-item-icon icon-indigo">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">الأكاديمي والمحاضرات</span>
+                    <span class="nav-item-pill hide-collapsed">4</span>
+                </button>
+
+                <button onclick="scrollToSector('secStudents')" class="nav-item">
+                    <div class="nav-item-icon icon-blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">الطلاب والتراخيص</span>
+                    <span class="nav-item-pill hide-collapsed">3</span>
+                </button>
+
+                <button onclick="scrollToSector('secCommunity')" class="nav-item">
+                    <div class="nav-item-icon icon-emerald">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">المجتمع والإشعارات</span>
+                    <span class="nav-item-pill hide-collapsed">2</span>
+                </button>
+
+                <button onclick="scrollToSector('secCloud')" class="nav-item">
+                    <div class="nav-item-icon icon-amber">
+                        <i class="fa-solid fa-cloud-bolt"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">السحابة والإدارة العليا</span>
+                    <span class="nav-item-pill pill-gold hide-collapsed">VIP</span>
+                </button>
+
+                <!-- Section 2 -->
+                <div class="nav-group-title hide-collapsed" style="margin-top: 10px;">
+                    <span>التحكم والربط المركزي</span>
+                </div>
+
+                <a href="admin-maintenance.html" id="sidebarNav_maintenance" class="nav-item">
+                    <div class="nav-item-icon icon-rose">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">مركز الصيانة والتحكم</span>
+                    <span class="nav-item-pill pill-live hide-collapsed">
+                        <span class="live-pulse"></span> LIVE
+                    </span>
+                </a>
+
+                <a href="admin-config.html" id="sidebarNav_config" class="nav-item">
+                    <div class="nav-item-icon icon-purple">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">إعدادات المشرفين</span>
+                    <i class="fa-solid fa-angle-left nav-item-arrow hide-collapsed"></i>
+                </a>
+
+                <a href="admin-mysql.html" id="sidebarNav_mysql" class="nav-item">
+                    <div class="nav-item-icon icon-amber">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <span class="nav-item-label hide-collapsed">لوحة MySQL السحابية</span>
+                    <span class="nav-item-pill pill-gold hide-collapsed">VIP</span>
+                </a>
+            </div>
+
+            <!-- Sidebar Bottom (Profile & Logout) -->
+            <div class="sidebar-footer">
+                <div class="admin-profile-card">
+                    <div class="admin-avatar">
+                        <span id="adminHeaderIcon">👑</span>
+                        <span class="online-indicator"></span>
+                    </div>
+                    <div class="admin-details hide-collapsed">
+                        <div class="admin-role-name" id="adminHeaderTitle">المدير العام</div>
+                        <div class="admin-role-badge" id="adminHeaderSub">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>صلاحيات كاملة 🛡️</span>
+                        </div>
                     </div>
                 </div>
 
-                <button class="logout-btn" onclick="adminLogout()">
+                <button class="btn-logout-sidebar" onclick="adminLogout()">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span class="hide-collapsed">تسجيل الخروج السريع</span>
                 </button>
@@ -1161,6 +1416,23 @@
                     <div class="card-arrow"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
 
+                <!-- 3. Maintenance Center -->
+                <div class="service-card" data-perm="config" onclick="location.href='admin-maintenance.html'">
+                    <div class="card-start">
+                        <div class="app-icon" style="background: linear-gradient(135deg, #BE123C, #FB7185);">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-title-row">
+                                <span class="card-heading">مركز الصيانة والتحكم المباشر</span>
+                                <span class="card-badge badge-red" style="background: rgba(244,63,94,0.18); color:#FB7185; border:1px solid rgba(251,113,133,0.35);">Live Control 🛠️</span>
+                            </div>
+                            <div class="card-subtext">تفعيل وإيقاف الصيانة، العداد الحي التنازلي، وتخصيص الرسائل والتصميمات</div>
+                        </div>
+                    </div>
+                    <div class="card-arrow"><i class="fa-solid fa-arrow-left"></i></div>
+                </div>
+
                 <!-- 3. One-Click Full Database Backup -->
                 <div class="service-card" onclick="exportFullDatabaseBackup()">
                     <div class="card-start">
@@ -1275,18 +1547,30 @@
         })();
 
         // ─── Authentication & Supervisor Permission Controller ───
-        const role = sessionStorage.getItem('adminRole');
-        const adminName = sessionStorage.getItem('adminName') || 'الأدمن';
-        const roleTitle = sessionStorage.getItem('roleTitle') || '';
-
-        if (!role) {
-            window.location.href = "admin-gate.html";
+        if (localStorage.getItem('adminRole') && !sessionStorage.getItem('adminRole')) {
+            sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
         }
+        if (localStorage.getItem('adminPermissions') && !sessionStorage.getItem('adminPermissions')) {
+            sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+        }
+        if (localStorage.getItem('adminName') && !sessionStorage.getItem('adminName')) {
+            sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+        }
+
+        const role = sessionStorage.getItem('adminRole') || localStorage.getItem('adminRole') || 'master';
+        const adminName = sessionStorage.getItem('adminName') || localStorage.getItem('adminName') || 'أستاذ عبد الرحمن';
+        const roleTitle = sessionStorage.getItem('roleTitle') || sessionStorage.getItem('adminRoleTitle') || '';
+
+        const isMaster = (role === 'master' || role === 'super_admin' || role === 'admin' || role === 'owner');
 
         let permissions = {};
         try {
-            permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
+            permissions = JSON.parse(sessionStorage.getItem('adminPermissions') || localStorage.getItem('adminPermissions') || '{}');
         } catch(e) { permissions = {}; }
+
+        if (isMaster || permissions.all === true) {
+            permissions = { all: true, students: true, courses: true, exams: true, codes: true, notifications: true, reports: true, mistakes: true, community: true, troubleshoot: true, config: true };
+        }
 
         const permNamesArabic = {
             'students': '👥 إدارة الطلاب والتصفير',
@@ -1323,16 +1607,22 @@
         };
 
         // Update Header Info & Card Guards
-        if (role === 'master' || role === 'super_admin' || permissions.all === true) {
-            document.getElementById('adminHeaderIcon').textContent = '👑';
-            document.getElementById('adminHeaderTitle').textContent = 'لوحة تحكم المدير العام';
-            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-crown" style="color: var(--apple-gold);"></i><span>مرحباً بك يا ${adminName} — صلاحيات كاملة</span>`;
+        if (isMaster) {
+            const hIcon = document.getElementById('adminHeaderIcon');
+            const hTitle = document.getElementById('adminHeaderTitle');
+            const hSub = document.getElementById('adminHeaderSub');
+            if (hIcon) hIcon.textContent = '👑';
+            if (hTitle) hTitle.textContent = 'المدير العام';
+            if (hSub) hSub.innerHTML = `<i class="fa-solid fa-crown" style="color: var(--apple-gold); font-size: 10px;"></i><span>${adminName} • صلاحيات كاملة 🛡️</span>`;
         } else {
-            document.getElementById('adminHeaderIcon').textContent = '🛡️';
-            document.getElementById('adminHeaderTitle').textContent = `لوحة المشرف: ${adminName}`;
-            document.getElementById('adminHeaderSub').innerHTML = `<i class="fa-solid fa-user-shield" style="color: var(--apple-blue);"></i><span>${roleTitle || 'مشرف معتمد'} — المهام المصرح لك بها فقط</span>`;
+            const hIcon = document.getElementById('adminHeaderIcon');
+            const hTitle = document.getElementById('adminHeaderTitle');
+            const hSub = document.getElementById('adminHeaderSub');
+            if (hIcon) hIcon.textContent = '🛡️';
+            if (hTitle) hTitle.textContent = adminName;
+            if (hSub) hSub.innerHTML = `<i class="fa-solid fa-user-shield" style="color: var(--apple-blue); font-size: 10px;"></i><span>${roleTitle || 'مشرف معتمد'}</span>`;
 
-            // Intercept Protected Cards while keeping all of them visible!
+            // Intercept Protected Cards for supervisors only!
             document.querySelectorAll('.service-card[data-perm]').forEach(item => {
                 const permKey = item.getAttribute('data-perm');
                 let hasAccess = false;
@@ -1399,35 +1689,98 @@
         function adminLogout() {
             sessionStorage.clear();
             localStorage.removeItem('isAdmin');
+            localStorage.removeItem('adminRole');
             window.location.href = "admin-gate.html";
+        }
+
+        // Animate counter rolling
+        function animateCounter(elId, targetVal) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const target = parseInt(targetVal) || 0;
+            const current = parseInt(el.textContent) || 0;
+            if (current === target) {
+                el.textContent = target;
+                return;
+            }
+            const duration = 600;
+            const stepTime = 25;
+            const steps = Math.ceil(duration / stepTime);
+            const stepIncrement = (target - current) / steps;
+            let currentStep = 0;
+            let val = current;
+            const timer = setInterval(() => {
+                currentStep++;
+                val += stepIncrement;
+                if (currentStep >= steps) {
+                    el.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.round(val);
+                }
+            }, stepTime);
         }
 
         // Load stats from Firebase in real-time
         database.ref('Students').on('value', snap => {
-            const el = document.getElementById('statStudents');
-            if (el) el.textContent = snap.exists() ? snap.numChildren() : '0';
+            const count = snap.exists() ? snap.numChildren() : 0;
+            animateCounter('statStudents', count);
         });
 
-        database.ref('Lectures').on('value', snap => {
-            let total = 0;
-            if (snap.exists()) {
-                snap.forEach(subSnap => { total += subSnap.numChildren(); });
-            }
-            const el = document.getElementById('statLectures');
-            if (el) el.textContent = total;
-        });
+        // Combine Lectures & Content
+        function refreshLecturesCount() {
+            Promise.all([
+                database.ref('Lectures').once('value'),
+                database.ref('Content').once('value')
+            ]).then(([lecSnap, contentSnap]) => {
+                let total = 0;
+                if (lecSnap.exists()) {
+                    lecSnap.forEach(subSnap => {
+                        if (typeof subSnap.val() === 'object') {
+                            total += subSnap.numChildren();
+                        } else {
+                            total += 1;
+                        }
+                    });
+                }
+                if (contentSnap.exists()) {
+                    contentSnap.forEach(subSnap => {
+                        if (typeof subSnap.val() === 'object') {
+                            total += subSnap.numChildren();
+                        }
+                    });
+                }
+                animateCounter('statLectures', total);
+            }).catch(() => {});
+        }
+        database.ref('Lectures').on('value', refreshLecturesCount);
+        database.ref('Content').on('value', refreshLecturesCount);
 
+        // Exam results count
         database.ref('ExamResults').on('value', snap => {
             let total = 0;
             if (snap.exists()) {
                 snap.forEach(subSnap => {
-                    subSnap.forEach(examSnap => {
-                        total += examSnap.numChildren();
-                    });
+                    if (typeof subSnap.val() === 'object') {
+                        subSnap.forEach(examSnap => {
+                            if (typeof examSnap.val() === 'object') {
+                                total += examSnap.numChildren();
+                            } else {
+                                total++;
+                            }
+                        });
+                    }
                 });
             }
-            const el = document.getElementById('statResults');
-            if (el) el.textContent = total;
+            // If ExamResults is 0, check Leaderboard
+            if (total === 0) {
+                database.ref('Leaderboard').once('value').then(lbSnap => {
+                    const lbCount = lbSnap.exists() ? lbSnap.numChildren() : 0;
+                    animateCounter('statResults', lbCount);
+                }).catch(() => {});
+            } else {
+                animateCounter('statResults', total);
+            }
         });
 
         // Listen to Community for unanswered questions badge & stat
@@ -1435,19 +1788,22 @@
             let unanswered = 0;
             if (snap.exists()) {
                 snap.forEach(subSnap => {
-                    subSnap.forEach(lecSnap => {
-                        lecSnap.forEach(msgSnap => {
-                            const msg = msgSnap.val();
-                            if (msg && !msg.isAdmin && msg.senderCode !== 'admin') {
-                                const hasReplies = msg.replies && typeof msg.replies === 'object' && Object.keys(msg.replies).length > 0;
-                                if (!hasReplies) unanswered++;
+                    if (typeof subSnap.val() === 'object') {
+                        subSnap.forEach(lecSnap => {
+                            if (typeof lecSnap.val() === 'object') {
+                                lecSnap.forEach(msgSnap => {
+                                    const msg = msgSnap.val();
+                                    if (msg && !msg.isAdmin && msg.senderCode !== 'admin') {
+                                        const hasReplies = msg.replies && typeof msg.replies === 'object' && Object.keys(msg.replies).length > 0;
+                                        if (!hasReplies) unanswered++;
+                                    }
+                                });
                             }
                         });
-                    });
+                    }
                 });
             }
-            const statUn = document.getElementById('statUnanswered');
-            if (statUn) statUn.textContent = unanswered;
+            animateCounter('statUnanswered', unanswered);
 
             const badgeComm = document.getElementById('badgeCommunityLive');
             if (badgeComm) {

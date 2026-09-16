@@ -1,0 +1,3151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كراسة الخطة التفاعلية | منصة الخطة</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@400;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome & SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --bg-body: #0F172A;
+            --topbar-bg: #1E293B;
+            --topbar-border: rgba(255, 255, 255, 0.1);
+            --slide-bg: #FFFFFF;
+            --slide-text: #1E293B;
+            --slide-border: #E2E8F0;
+            --font-scale: 1;
+        }
+
+        /* Reading Themes */
+        body.theme-light {
+            --bg-body: #F1F5F9;
+            --topbar-bg: #FFFFFF;
+            --topbar-border: #E2E8F0;
+            --slide-bg: #FFFFFF;
+            --slide-text: #0F172A;
+            --slide-border: #E2E8F0;
+        }
+        body.theme-sepia {
+            --bg-body: #F4ECE1;
+            --topbar-bg: #EAE0D0;
+            --topbar-border: #D8CCA8;
+            --slide-bg: #FDF6E2;
+            --slide-text: #38271D;
+            --slide-border: #E4D5B7;
+        }
+        body.theme-dark {
+            --bg-body: #090E1A;
+            --topbar-bg: #131D31;
+            --topbar-border: rgba(255, 255, 255, 0.12);
+            --slide-bg: #1E293B;
+            --slide-text: #F8FAFC;
+            --slide-border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-body);
+            color: #FFFFFF;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s;
+        }
+
+        /* Top Bar */
+        .viewer-header {
+            height: 62px;
+            background: var(--topbar-bg);
+            border-bottom: 1px solid var(--topbar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 50;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .btn-viewer-back {
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-viewer-back:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .lesson-titles {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .lesson-main-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        body.theme-light .lesson-main-title { color: #1E293B; }
+        body.theme-sepia .lesson-main-title { color: #451A03; }
+        body.theme-dark .lesson-main-title { color: #60A5FA; }
+
+        .lesson-sub-meta {
+            font-size: 11.5px;
+            color: #94A3B8;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Top Center Slide Counter Pill */
+        .slide-counter-pill {
+            background: rgba(37, 99, 235, 0.15);
+            border: 1.5px solid rgba(37, 99, 235, 0.35);
+            color: #3B82F6;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .slide-counter-pill:hover {
+            background: rgba(37, 99, 235, 0.25);
+            transform: scale(1.03);
+        }
+
+        .header-tools {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-tool-icon {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #CBD5E1;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        body.theme-light .btn-tool-icon { background: #F1F5F9; border-color: #E2E8F0; color: #475569; }
+        body.theme-sepia .btn-tool-icon { background: #E4D5B7; border-color: #D8CCA8; color: #451A03; }
+
+        .btn-tool-icon:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        .btn-tool-icon.active {
+            background: var(--primary);
+            color: #FFFFFF;
+            border-color: var(--primary);
+        }
+        .btn-tool-icon.starred {
+            background: #FEF3C7;
+            color: #D97706;
+            border-color: #FDE68A;
+        }
+
+        .tool-badge-dot {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #EF4444;
+        }
+
+        /* Center Presentation Area */
+        .presentation-stage {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px 16px;
+            position: relative;
+            background: transparent;
+        }
+
+        .slide-card-container {
+            width: 100%;
+            max-width: 920px;
+            background: var(--slide-bg);
+            color: var(--slide-text);
+            border: 1.5px solid var(--slide-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            min-height: 520px;
+            padding: 38px 44px;
+            position: relative;
+            font-size: calc(16.5px * var(--font-scale));
+            line-height: 1.85;
+            transition: all 0.25s ease-out;
+            animation: fadeInSlide 0.3s ease-out;
+        }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .slide-top-floating-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 1.5px dashed var(--slide-border);
+        }
+
+        .slide-heading-text {
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-sepia .slide-heading-text { color: #854D0E; }
+        body.theme-dark .slide-heading-text { color: #60A5FA; }
+
+        .slide-quick-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-slide-action {
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-slide-action:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+        .btn-slide-action.starred {
+            background: #FEF3C7;
+            color: #B45309;
+            border-color: #FCD34D;
+        }
+
+        /* Smart Block Renderings in Viewer */
+        .elk-block {
+            margin: 18px 0;
+            border-radius: 16px;
+            padding: 16px 22px;
+        }
+        .elk-definition {
+            background: #EFF6FF;
+            border-right: 5px solid #2563EB;
+            color: #1E3A8A;
+        }
+        body.theme-dark .elk-definition { background: #172554; color: #BFDBFE; border-color: #3B82F6; }
+        .elk-definition-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #1D4ED8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        body.theme-dark .elk-definition-title { color: #93C5FD; }
+
+        .elk-golden {
+            background: #FEF3C7;
+            border-right: 5px solid #D97706;
+            color: #92400E;
+        }
+        body.theme-dark .elk-golden { background: #451A03; color: #FDE68A; border-color: #F59E0B; }
+        .elk-golden-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #B45309;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        body.theme-dark .elk-golden-title { color: #FCD34D; }
+
+        .elk-warning {
+            background: #FFE4E6;
+            border-right: 5px solid #E11D48;
+            color: #9F1239;
+        }
+        body.theme-dark .elk-warning { background: #4C0519; color: #FECDD3; border-color: #FB7185; }
+        .elk-warning-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #BE123C;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        body.theme-dark .elk-warning-title { color: #FDA4AF; }
+
+        .elk-steps {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 18px 0;
+        }
+        body.theme-dark .elk-steps { background: #052E16; border-color: #15803D; }
+        .elk-steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .elk-step-item {
+            background: #FFFFFF;
+            border: 1.5px solid #86EFAC;
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: #166534;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        body.theme-dark .elk-step-item { background: #14532D; color: #DCFCE7; border-color: #22C55E; }
+
+        .elk-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+        }
+        .elk-table th {
+            background: #2563EB;
+            color: #FFFFFF;
+            padding: 12px 16px;
+            font-weight: 800;
+            text-align: right;
+        }
+        .elk-table td {
+            border: 1px solid #E2E8F0;
+            padding: 12px 16px;
+            background: #FFFFFF;
+            color: #1E293B;
+        }
+        body.theme-dark .elk-table td { background: #1E293B; color: #F1F5F9; border-color: #334155; }
+
+        .elk-qa {
+            background: #ECFEFF;
+            border: 1.5px solid #A5F3FC;
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin: 18px 0;
+        }
+        body.theme-dark .elk-qa { background: #083344; border-color: #0E7490; }
+        .elk-qa-q {
+            font-weight: 800;
+            color: #0E7490;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        body.theme-dark .elk-qa-q { color: #67E8F9; }
+        .elk-qa-a {
+            background: #FFFFFF;
+            border: 1px dashed #67E8F9;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #155E75;
+            font-size: 14.5px;
+        }
+        body.theme-dark .elk-qa-a { background: #164E63; color: #CFFAFE; border-color: #22D3EE; }
+
+        .elk-image-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .elk-image-box img {
+            max-width: 100%;
+            max-height: 420px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .elk-image-caption {
+            font-size: 12.5px;
+            color: #64748B;
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        /* Teacher Guidance Callout */
+        .teacher-guidance-box {
+            margin-top: 28px;
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-size: 13.5px;
+            color: #2563EB;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        body.theme-dark .teacher-guidance-box { color: #93C5FD; border-color: rgba(96, 165, 250, 0.3); }
+
+        /* Student's Personal Sticky Note on the Slide */
+        .student-personal-note-box {
+            margin-top: 20px;
+            background: #FEF9C3;
+            border: 1.5px solid #FDE047;
+            border-radius: 14px;
+            padding: 14px 18px;
+            color: #713F12;
+            position: relative;
+            animation: fadeInSlide 0.2s ease-out;
+        }
+        .student-personal-note-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 13px;
+            color: #854D0E;
+            margin-bottom: 6px;
+        }
+        .student-personal-note-text {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Bottom Floating Navigation Bar */
+        .viewer-bottom-bar {
+            height: 68px;
+            background: var(--topbar-bg);
+            border-top: 1px solid var(--topbar-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 50;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            gap: 16px;
+        }
+
+        .btn-nav-step {
+            padding: 10px 24px;
+            border-radius: 14px;
+            font-size: 14.5px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-nav-step.next {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+        .btn-nav-step.next:hover {
+            transform: translateX(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        .btn-nav-step.prev {
+            background: rgba(255, 255, 255, 0.1);
+            color: #CBD5E1;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        body.theme-light .btn-nav-step.prev { background: #E2E8F0; color: #334155; border-color: #CBD5E1; }
+        body.theme-sepia .btn-nav-step.prev { background: #E4D5B7; color: #451A03; border-color: #D8CCA8; }
+
+        .btn-nav-step.prev:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #FFFFFF;
+            transform: translateX(2px);
+        }
+        .btn-nav-step:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Scrubber / Quick Page Numbers Ribbon */
+        .pages-scrubber-container {
+            flex: 1;
+            max-width: 520px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 4px 8px;
+            scrollbar-width: none;
+        }
+        .pages-scrubber-container::-webkit-scrollbar { display: none; }
+
+        .scrubber-dot {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        body.theme-light .scrubber-dot { background: #E2E8F0; color: #64748B; }
+        body.theme-sepia .scrubber-dot { background: #E4D5B7; color: #78350F; }
+
+        .scrubber-dot:hover {
+            background: rgba(37, 99, 235, 0.3);
+            color: #60A5FA;
+        }
+        .scrubber-dot.active {
+            background: #2563EB;
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+            transform: scale(1.1);
+        }
+        .scrubber-dot.bookmarked {
+            border: 1.5px solid #F59E0B;
+            color: #F59E0B;
+        }
+
+        /* Side Drawers (Bookmarks & Search & Notes) */
+        .viewer-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 340px;
+            max-width: 85vw;
+            background: #1E293B;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .viewer-drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .drawer-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .btn-close-drawer:hover { color: #FFFFFF; }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .drawer-item-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .drawer-item-card:hover {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: #3B82F6;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            display: none;
+        }
+        .drawer-backdrop.show { display: block; }
+
+        /* Print Mode */
+        @media print {
+            .viewer-header, .viewer-bottom-bar, .viewer-drawer, .drawer-backdrop, .slide-top-floating-bar, .teacher-guidance-box {
+                display: none !important;
+            }
+            body, .presentation-stage {
+                background: white !important;
+                color: black !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 !important;
+            }
+            .slide-card-container {
+                box-shadow: none !important;
+                border: none !important;
+                page-break-after: always;
+                min-height: auto !important;
+            }
+        }
+    
+        /* ─── All Educational Formula Blocks (ركز، هام، انتبه، بيجي في الامتحان، إلخ) ─── */
+        .elk-focus {
+            background: #FFF7ED;
+            border-right: 5px solid #EA580C;
+            border-left: 1px solid #FFEDD5;
+            border-top: 1px solid #FFEDD5;
+            border-bottom: 1px solid #FFEDD5;
+            color: #9A3412;
+        }
+        .elk-focus-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #C2410C;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-focus { background: #431407; color: #FED7AA; border-color: #9A3412; }
+        body.theme-dark .elk-focus-title { color: #FB923C; }
+
+        .elk-exam {
+            background: #EEF2FF;
+            border-right: 5px solid #4F46E5;
+            border-left: 1px solid #E0E7FF;
+            border-top: 1px solid #E0E7FF;
+            border-bottom: 1px solid #E0E7FF;
+            color: #3730A3;
+        }
+        .elk-exam-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #4338CA;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-exam { background: #1E1B4B; color: #E0E7FF; border-color: #4338CA; }
+        body.theme-dark .elk-exam-title { color: #818CF8; }
+
+        .elk-trap {
+            background: #FFF1F2;
+            border-right: 5px solid #E11D48;
+            border-left: 1px solid #FFE4E6;
+            border-top: 1px solid #FFE4E6;
+            border-bottom: 1px solid #FFE4E6;
+            color: #9F1239;
+        }
+        .elk-trap-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #BE123C;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .elk-trap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .elk-trap-wrong {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px dashed #F87171;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #991B1B;
+        }
+        .elk-trap-right {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px dashed #4ADE80;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #166534;
+        }
+        body.theme-dark .elk-trap { background: #4C0519; color: #FECDD3; border-color: #BE123C; }
+        body.theme-dark .elk-trap-title { color: #FB7185; }
+        body.theme-dark .elk-trap-wrong { background: rgba(239, 68, 68, 0.2); color: #FCA5A5; }
+        body.theme-dark .elk-trap-right { background: rgba(34, 197, 94, 0.2); color: #86EFAC; }
+
+        .elk-distinction {
+            background: #FAF5FF;
+            border-right: 5px solid #9333EA;
+            border-left: 1px solid #F3E8FF;
+            border-top: 1px solid #F3E8FF;
+            border-bottom: 1px solid #F3E8FF;
+            color: #581C87;
+        }
+        .elk-distinction-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #7E22CE;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .elk-distinction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .elk-distinction-col {
+            background: #FFFFFF;
+            border: 1px solid #E9D5FF;
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: 0 2px 8px rgba(147, 51, 234, 0.05);
+        }
+        body.theme-dark .elk-distinction { background: #3B0764; color: #F3E8FF; border-color: #7E22CE; }
+        body.theme-dark .elk-distinction-title { color: #C084FC; }
+        body.theme-dark .elk-distinction-col { background: #581C87; border-color: #7E22CE; color: #F3E8FF; }
+
+        .elk-key {
+            background: #ECFDF5;
+            border-right: 5px solid #059669;
+            border-left: 1px solid #D1FAE5;
+            border-top: 1px solid #D1FAE5;
+            border-bottom: 1px solid #D1FAE5;
+            color: #064E3B;
+        }
+        .elk-key-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #047857;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-key { background: #022C22; color: #A7F3D0; border-color: #047857; }
+        body.theme-dark .elk-key-title { color: #34D399; }
+
+        .elk-secret {
+            background: #F0FDFA;
+            border-right: 5px solid #0D9488;
+            border-left: 1px solid #CCFBF1;
+            border-top: 1px solid #CCFBF1;
+            border-bottom: 1px solid #CCFBF1;
+            color: #134E4A;
+        }
+        .elk-secret-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #0F766E;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-secret { background: #042F2E; color: #99F6E4; border-color: #0F766E; }
+        body.theme-dark .elk-secret-title { color: #2DD4BF; }
+
+        .elk-memory {
+            background: #F8FAFC;
+            border-right: 5px solid #3B82F6;
+            border-left: 1px solid #E2E8F0;
+            border-top: 1px solid #E2E8F0;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1E293B;
+        }
+        .elk-memory-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #1D4ED8;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-memory { background: #0F172A; color: #F1F5F9; border-color: #3B82F6; }
+        body.theme-dark .elk-memory-title { color: #60A5FA; }
+
+        .elk-zatona {
+            background: #F7FEE7;
+            border-right: 5px solid #65A30D;
+            border-left: 1px solid #ECFCCB;
+            border-top: 1px solid #ECFCCB;
+            border-bottom: 1px solid #ECFCCB;
+            color: #365314;
+        }
+        .elk-zatona-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #4D7C0F;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-zatona { background: #1A2E05; color: #D9F99D; border-color: #4D7C0F; }
+        body.theme-dark .elk-zatona-title { color: #A3E635; }
+
+        .elk-law {
+            background: #F8FAFC;
+            border-right: 5px solid #475569;
+            border-left: 1px solid #E2E8F0;
+            border-top: 1px solid #E2E8F0;
+            border-bottom: 1px solid #E2E8F0;
+            color: #334155;
+        }
+        .elk-law-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: #1E293B;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-law { background: #1E293B; color: #E2E8F0; border-color: #64748B; }
+        body.theme-dark .elk-law-title { color: #94A3B8; }
+
+        .elk-essay {
+            background: #F0F9FF;
+            border: 1.5px solid #BAE6FD;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 18px 0;
+        }
+        .elk-essay-q {
+            font-weight: 900;
+            font-size: 15.5px;
+            color: #0369A1;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .elk-essay-a {
+            background: #FFFFFF;
+            border-right: 4px solid #10B981;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #065F46;
+            font-size: 14.5px;
+            margin-top: 6px;
+        }
+        body.theme-dark .elk-essay { background: #082F49; border-color: #0284C7; }
+        body.theme-dark .elk-essay-q { color: #7DD3FC; }
+        body.theme-dark .elk-essay-a { background: #064E3B; color: #D1FAE5; border-color: #34D399; }
+
+    
+        
+        /* ─── New Advanced Academic Templates ─── */
+        /* 1. Cornell Notes */
+        .elk-cornell-container {
+            background: #FFFFFF;
+            border: 2px solid #CBD5E1;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 18px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .elk-cornell-header {
+            background: #1E293B;
+            color: #FFFFFF;
+            padding: 10px 16px;
+            font-weight: 900;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .elk-cornell-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            min-height: 180px;
+        }
+        .elk-cornell-cues {
+            background: #F8FAFC;
+            border-left: 2px dashed #CBD5E1;
+            padding: 14px;
+            font-size: 13px;
+            color: #1D4ED8;
+            font-weight: 700;
+        }
+        .elk-cornell-notes {
+            padding: 14px;
+            font-size: 14px;
+            color: #1E293B;
+            line-height: 1.7;
+        }
+        .elk-cornell-summary {
+            background: #EFF6FF;
+            border-top: 2px solid #93C5FD;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #1E40AF;
+        }
+        body.theme-dark .elk-cornell-container { background: #0F172A; border-color: #334155; }
+        body.theme-dark .elk-cornell-header { background: #1E293B; }
+        body.theme-dark .elk-cornell-cues { background: #1E293B; border-color: #475569; color: #93C5FD; }
+        body.theme-dark .elk-cornell-notes { color: #F1F5F9; }
+        body.theme-dark .elk-cornell-summary { background: #172554; border-color: #2563EB; color: #BFDBFE; }
+
+        /* 2. Mind Map */
+        .elk-mindmap-box {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            border: 2px solid #CBD5E1;
+            border-radius: 18px;
+            padding: 18px;
+            margin: 18px 0;
+            text-align: center;
+        }
+        .elk-mindmap-center {
+            display: inline-block;
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            font-weight: 900;
+            font-size: 16px;
+            padding: 10px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+            margin-bottom: 16px;
+        }
+        .elk-mindmap-branches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            text-align: right;
+        }
+        .elk-mindmap-node {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1.5px solid #E2E8F0;
+            font-size: 13px;
+        }
+        .elk-node-blue { border-top: 4px solid #3B82F6; }
+        .elk-node-green { border-top: 4px solid #10B981; }
+        .elk-node-purple { border-top: 4px solid #8B5CF6; }
+        .elk-node-amber { border-top: 4px solid #F59E0B; }
+        body.theme-dark .elk-mindmap-box { background: #0B1120; border-color: #334155; }
+        body.theme-dark .elk-mindmap-node { background: #1E293B; border-color: #475569; color: #F1F5F9; }
+
+        /* 3. Flashcard */
+        .elk-flashcard-box {
+            background: #FFFFFF;
+            border: 2px solid #E0E7FF;
+            border-radius: 18px;
+            padding: 20px;
+            margin: 18px 0;
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.08);
+        }
+        .elk-flashcard-front {
+            background: #EEF2FF;
+            border: 1px solid #C7D2FE;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #3730A3;
+            margin-bottom: 12px;
+        }
+        .elk-flashcard-back {
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 14px;
+            color: #166534;
+            line-height: 1.7;
+        }
+        body.theme-dark .elk-flashcard-box { background: #0F172A; border-color: #312E81; }
+        body.theme-dark .elk-flashcard-front { background: #1E1B4B; border-color: #4338CA; color: #C7D2FE; }
+        body.theme-dark .elk-flashcard-back { background: #052E16; border-color: #15803D; color: #BBF7D0; }
+
+        /* 4. 3-Way Matrix */
+        .elk-matrix-3way {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 18px 0;
+        }
+        .elk-matrix-col {
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 13.5px;
+        }
+        .elk-matrix-col-title {
+            font-weight: 900;
+            font-size: 14.5px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid;
+        }
+        body.theme-dark .elk-matrix-col { background: #1E293B; border-color: #334155; color: #F1F5F9; }
+
+        /* 5. Cause and Effect */
+        .elk-cause-effect-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #FFFBEB;
+            border: 1.5px solid #FDE68A;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 18px 0;
+            flex-wrap: wrap;
+        }
+        .elk-cause-item {
+            flex: 1;
+            min-width: 180px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #FCD34D;
+        }
+        body.theme-dark .elk-cause-effect-box { background: #451A03; border-color: #78350F; }
+        body.theme-dark .elk-cause-item { background: #1C1917; border-color: #78350F; color: #FEF3C7; }
+
+        /* 6. Formula Box */
+        .elk-formula-box {
+            background: #F8FAFC;
+            border: 2px solid #64748B;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 18px 0;
+            text-align: center;
+        }
+        .elk-formula-display {
+            font-family: 'Alexandria', monospace;
+            font-size: 20px;
+            font-weight: 900;
+            color: #0F172A;
+            background: #FFFFFF;
+            border: 1.5px dashed #CBD5E1;
+            padding: 10px 20px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 8px 0;
+            letter-spacing: 1px;
+        }
+        body.theme-dark .elk-formula-box { background: #0F172A; border-color: #475569; }
+        body.theme-dark .elk-formula-display { background: #1E293B; border-color: #475569; color: #38BDF8; }
+
+        /* 7. Case Study Scenario */
+        .elk-casestudy-box {
+            background: #FAF5FF;
+            border: 1.5px solid #D8B4FE;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 18px 0;
+        }
+        body.theme-dark .elk-casestudy-box { background: #2E1065; border-color: #581C87; color: #F5D0FE; }
+
+        /* 8. Pros & Cons */
+        .elk-proscons-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 18px 0;
+        }
+        .elk-pros-col {
+            background: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 14px;
+            padding: 14px;
+            color: #14532D;
+        }
+        .elk-cons-col {
+            background: #FFF1F2;
+            border: 1.5px solid #FECDD3;
+            border-radius: 14px;
+            padding: 14px;
+            color: #881337;
+        }
+        body.theme-dark .elk-pros-col { background: #052E16; border-color: #15803D; color: #BBF7D0; }
+        body.theme-dark .elk-cons-col { background: #4C0519; border-color: #9F1239; color: #FECDD3; }
+
+        /* 9. Terminology Bank */
+        .elk-terms-bank {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 18px 0;
+        }
+        .elk-term-card {
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            border-right: 4px solid #3B82F6;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+        body.theme-dark .elk-term-card { background: #1E293B; border-color: #334155; border-right-color: #3B82F6; color: #F1F5F9; }
+
+        /* 10. Exam Night Cheat Sheet */
+        .elk-cheatsheet-card {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border: 2px solid #F59E0B;
+            border-radius: 18px;
+            padding: 18px;
+            margin: 18px 0;
+            color: #78350F;
+        }
+        body.theme-dark .elk-cheatsheet-card { background: linear-gradient(135deg, #451A03 0%, #291002 100%); border-color: #D97706; color: #FEF3C7; }
+
+
+        /* ─── 500+ Themes, Backgrounds & Gradients ─── */
+        /* Light & Paper */
+        .slide-frame.theme-white, .slide-card-container.theme-white { background: #FFFFFF !important; color: #0F172A !important; }
+        .slide-frame.theme-cream, .slide-card-container.theme-cream { background: #FFFBEB !important; color: #78350F !important; }
+        .slide-frame.theme-sepia, .slide-card-container.theme-sepia { background: #FDF6E2 !important; color: #451A03 !important; }
+        .slide-frame.theme-beige, .slide-card-container.theme-beige { background: #F5F5DC !important; color: #3E2723 !important; }
+        .slide-frame.theme-pearl, .slide-card-container.theme-pearl { background: #F8FAFC !important; color: #1E293B !important; }
+        .slide-frame.theme-ivory, .slide-card-container.theme-ivory { background: #FAF9F6 !important; color: #2D3748 !important; }
+        .slide-frame.theme-linen, .slide-card-container.theme-linen { background: #FAF0E6 !important; color: #4A3B32 !important; }
+        .slide-frame.theme-vanilla, .slide-card-container.theme-vanilla { background: #FDFBF7 !important; color: #3C362A !important; }
+
+        /* Pastels */
+        .slide-frame.theme-mint, .slide-card-container.theme-mint { background: #ECFDF5 !important; color: #064E3B !important; }
+        .slide-frame.theme-rose, .slide-card-container.theme-rose { background: #FFF1F2 !important; color: #881337 !important; }
+        .slide-frame.theme-lavender, .slide-card-container.theme-lavender { background: #FAF5FF !important; color: #581C87 !important; }
+        .slide-frame.theme-sky, .slide-card-container.theme-sky { background: #F0F9FF !important; color: #0C4A6E !important; }
+        .slide-frame.theme-peach, .slide-card-container.theme-peach { background: #FFF7ED !important; color: #7C2D12 !important; }
+        .slide-frame.theme-lemon, .slide-card-container.theme-lemon { background: #FEFCE8 !important; color: #713F12 !important; }
+        .slide-frame.theme-teal, .slide-card-container.theme-teal { background: #F0FDFA !important; color: #134E4A !important; }
+        .slide-frame.theme-lime, .slide-card-container.theme-lime { background: #F7FEE7 !important; color: #365314 !important; }
+
+        /* Dark & Obsidian */
+        .slide-frame.theme-dark, .slide-card-container.theme-dark { background: #0F172A !important; color: #F8FAFC !important; }
+        .slide-frame.theme-obsidian, .slide-card-container.theme-obsidian { background: #090D16 !important; color: #F1F5F9 !important; }
+        .slide-frame.theme-charcoal, .slide-card-container.theme-charcoal { background: #18181B !important; color: #FAFAFA !important; }
+        .slide-frame.theme-navy, .slide-card-container.theme-navy { background: #0B192C !important; color: #E0E7FF !important; }
+        .slide-frame.theme-midnight, .slide-card-container.theme-midnight { background: #030712 !important; color: #F3F4F6 !important; }
+        .slide-frame.theme-chalkboard, .slide-card-container.theme-chalkboard { background: #062817 !important; color: #DCFCE7 !important; }
+        .slide-frame.theme-burgundy, .slide-card-container.theme-burgundy { background: #2A0815 !important; color: #FFE4E6 !important; }
+        .slide-frame.theme-deep-purple, .slide-card-container.theme-deep-purple { background: #1E1035 !important; color: #F3E8FF !important; }
+        .slide-frame.theme-chocolate, .slide-card-container.theme-chocolate { background: #1C140E !important; color: #FED7AA !important; }
+        .slide-frame.theme-oled, .slide-card-container.theme-oled { background: #000000 !important; color: #FFFFFF !important; }
+
+        /* Luxury Gradients */
+        .slide-frame.grad-gold, .slide-card-container.grad-gold { background: linear-gradient(135deg, #FFFBEB 0%, #FEF08A 100%) !important; color: #78350F !important; }
+        .slide-frame.grad-ocean, .slide-card-container.grad-ocean { background: linear-gradient(135deg, #EFF6FF 0%, #BAE6FD 100%) !important; color: #0C4A6E !important; }
+        .slide-frame.grad-sunset, .slide-card-container.grad-sunset { background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 50%, #FDE68A 100%) !important; color: #7C2D12 !important; }
+        .slide-frame.grad-mint, .slide-card-container.grad-mint { background: linear-gradient(135deg, #F0FDF4 0%, #BBF7D0 100%) !important; color: #064E3B !important; }
+        .slide-frame.grad-lavender, .slide-card-container.grad-lavender { background: linear-gradient(135deg, #FAF5FF 0%, #E9D5FF 100%) !important; color: #581C87 !important; }
+        .slide-frame.grad-aurora, .slide-card-container.grad-aurora { background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%) !important; color: #E0E7FF !important; }
+        .slide-frame.grad-nebula, .slide-card-container.grad-nebula { background: linear-gradient(135deg, #18181B 0%, #3B0764 100%) !important; color: #F5D0FE !important; }
+        .slide-frame.grad-sapphire, .slide-card-container.grad-sapphire { background: linear-gradient(135deg, #020617 0%, #0369A1 100%) !important; color: #E0F2FE !important; }
+        .slide-frame.grad-forest, .slide-card-container.grad-forest { background: linear-gradient(135deg, #052E16 0%, #14532D 100%) !important; color: #DCFCE7 !important; }
+
+        /* ─── 12-Step Sequential Flow Responsive Infographic ─── */
+        .elk-steps-12-container {
+            background: #F0FDF4;
+            border: 1.5px solid #86EFAC;
+            border-radius: 18px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(22, 101, 52, 0.05);
+        }
+        body.theme-dark .elk-steps-12-container, .slide-frame.theme-dark .elk-steps-12-container, .slide-frame.theme-navy .elk-steps-12-container, .slide-frame.theme-obsidian .elk-steps-12-container {
+            background: #052E16;
+            border-color: #15803D;
+        }
+        .elk-steps-12-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #86EFAC;
+        }
+        .elk-steps-12-title {
+            font-weight: 900;
+            font-size: 16.5px;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body.theme-dark .elk-steps-12-title, .slide-frame.theme-dark .elk-steps-12-title { color: #86EFAC; }
+        .elk-steps-12-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+        }
+        .elk-step-12-card {
+            background: #FFFFFF;
+            border: 1.5px solid #BBF7D0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s;
+        }
+        body.theme-dark .elk-step-12-card, .slide-frame.theme-dark .elk-step-12-card {
+            background: #14532D;
+            border-color: #22C55E;
+            color: #F0FDF4;
+        }
+        .elk-step-badge-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #16A34A, #15803D);
+            color: #FFFFFF;
+            font-weight: 900;
+            font-size: 13px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+        }
+        .elk-step-card-title {
+            font-weight: 800;
+            font-size: 14px;
+            color: #15803D;
+        }
+        body.theme-dark .elk-step-card-title, .slide-frame.theme-dark .elk-step-card-title { color: #86EFAC; }
+        .elk-step-card-desc {
+            font-size: 12px;
+            color: #4B5563;
+            line-height: 1.4;
+        }
+        body.theme-dark .elk-step-card-desc, .slide-frame.theme-dark .elk-step-card-desc { color: #D1D5DB; }
+
+    
+/* ─── REAL NOTEBOOK TEXTURES ─── */
+.slide-card-container.paper-lined, .slide-frame.paper-lined {
+    background-color: #FAFAFA !important;
+    background-image: linear-gradient(#E2E8F0 1px, transparent 1px) !important;
+    background-size: 100% 32px !important;
+    line-height: 32px !important;
+    color: #1E293B !important;
+    border-right: 5px solid #EF4444 !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12), inset 24px 0 0 -20px #EF4444 !important;
+}
+
+.slide-card-container.paper-grid, .slide-frame.paper-grid {
+    background-color: #FFFFFF !important;
+    background-image: 
+        linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+    color: #0F172A !important;
+}
+
+.slide-card-container.paper-parchment, .slide-frame.paper-parchment {
+    background: #F5EBE1 !important;
+    color: #382414 !important;
+    border: 2px solid #D8C3A5 !important;
+    box-shadow: 0 15px 45px rgba(80, 50, 20, 0.15) !important;
+}
+
+.slide-card-container.paper-dark-slate, .slide-frame.paper-dark-slate {
+    background: #0D1B2A !important;
+    color: #E0E1DD !important;
+    border: 1.5px solid #415A77 !important;
+}
+
+.slide-card-container.paper-warm-cream, .slide-frame.paper-warm-cream {
+    background: #FCF8F2 !important;
+    color: #2D2319 !important;
+    border: 1.5px solid #EDE0D4 !important;
+}
+
+/* ─── DRAWING CANVAS OVERLAY ─── */
+.canvas-drawing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 24px;
+    z-index: 25;
+    pointer-events: none;
+    cursor: crosshair;
+}
+.canvas-drawing-overlay.active {
+    pointer-events: auto;
+}
+
+/* Floating Drawing Toolbar */
+.drawing-toolbar-floating {
+    position: fixed;
+    bottom: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1E293B;
+    border: 1.5px solid #334155;
+    border-radius: 40px;
+    padding: 8px 18px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    animation: popIn 0.25s ease-out;
+}
+.drawing-toolbar-floating.show {
+    display: flex;
+}
+.draw-tool-btn {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.draw-tool-btn:hover {
+    color: #FFFFFF;
+    background: rgba(255,255,255,0.1);
+}
+.draw-tool-btn.active {
+    background: #2563EB;
+    color: #FFFFFF;
+    box-shadow: 0 2px 10px rgba(37,99,235,0.5);
+}
+.color-dot-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+.color-dot-btn:hover {
+    transform: scale(1.25);
+}
+.color-dot-btn.active {
+    border-color: #FFFFFF;
+    transform: scale(1.2);
+}
+
+/* ─── HIGHLIGHTER ACTIVE MODE ─── */
+.highlighter-mode-active ::selection {
+    background: #FEF08A !important;
+    color: #1E293B !important;
+}
+.elk-hl-yellow { background: #FEF08A; color: #1E293B; padding: 2px 4px; border-radius: 4px; }
+.elk-hl-green { background: #BBF7D0; color: #064E3B; padding: 2px 4px; border-radius: 4px; }
+.elk-hl-pink { background: #FBCFE8; color: #831843; padding: 2px 4px; border-radius: 4px; }
+.elk-hl-cyan { background: #BAE6FD; color: #0C4A6E; padding: 2px 4px; border-radius: 4px; }
+
+/* ─── STICKY NOTE DRAWER ─── */
+.sticky-notes-drawer {
+    position: fixed;
+    top: 70px;
+    left: -380px;
+    width: 360px;
+    height: calc(100vh - 90px);
+    background: #FFFBEB;
+    border: 2px solid #FCD34D;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sticky-notes-drawer.open {
+    left: 18px;
+}
+.sticky-notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border-bottom: 1.5px dashed #FCD34D;
+    padding-bottom: 10px;
+}
+.sticky-notes-textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.8;
+    color: #78350F;
+    resize: none;
+}
+
+/* ─── INTERACTIVE ACCORDION / SPOILER ─── */
+.elk-spoiler-box {
+    background: #F8FAFC;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 16px;
+    margin: 18px 0;
+    overflow: hidden;
+    transition: all 0.25s;
+    user-select: text;
+}
+body.theme-dark .elk-spoiler-box {
+    background: #1E293B;
+    border-color: #334155;
+}
+.elk-spoiler-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: rgba(0,0,0,0.02);
+}
+.elk-spoiler-header:hover {
+    background: rgba(37,99,235,0.05);
+}
+.elk-spoiler-title {
+    font-weight: 800;
+    font-size: 14.5px;
+    color: #1E293B;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+body.theme-dark .elk-spoiler-title { color: #F8FAFC; }
+.elk-spoiler-toggle-btn {
+    background: #EEF2FF;
+    color: #4F46E5;
+    border: 1px solid #C7D2FE;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+.elk-spoiler-toggle-btn:hover {
+    background: #4F46E5;
+    color: #FFFFFF;
+}
+.elk-spoiler-content {
+    display: none;
+    padding: 16px 18px;
+    border-top: 1px dashed #E2E8F0;
+    background: #FFFFFF;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.7;
+}
+body.theme-dark .elk-spoiler-content {
+    background: #0F172A;
+    color: #CBD5E1;
+    border-top-color: #334155;
+}
+.elk-spoiler-box.revealed .elk-spoiler-content {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+}
+.elk-spoiler-box.revealed .elk-spoiler-toggle-btn {
+    background: #DCFCE7;
+    color: #15803D;
+    border-color: #86EFAC;
+}
+
+/* ─── IN-SLIDE MINI QUIZ BLOCK ─── */
+.elk-quiz-box {
+    background: #F0FDF4;
+    border: 2px solid #86EFAC;
+    border-radius: 18px;
+    padding: 20px;
+    margin: 20px 0;
+    user-select: text;
+}
+body.theme-dark .elk-quiz-box {
+    background: #064E3B;
+    border-color: #10B981;
+}
+.elk-quiz-q-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: #166534;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+body.theme-dark .elk-quiz-q-title { color: #A7F3D0; }
+.elk-quiz-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.elk-quiz-opt-btn {
+    background: #FFFFFF;
+    border: 1.5px solid #BBF7D0;
+    border-radius: 12px;
+    padding: 10px 16px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1F2937;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+body.theme-dark .elk-quiz-opt-btn {
+    background: #065F46;
+    border-color: #047857;
+    color: #FFFFFF;
+}
+.elk-quiz-opt-btn:hover {
+    border-color: #16A34A;
+    background: #F0FDF4;
+    transform: translateX(-4px);
+}
+.elk-quiz-opt-btn.correct {
+    background: #10B981 !important;
+    color: #FFFFFF !important;
+    border-color: #059669 !important;
+}
+.elk-quiz-opt-btn.wrong {
+    background: #EF4444 !important;
+    color: #FFFFFF !important;
+    border-color: #DC2626 !important;
+}
+.elk-quiz-feedback {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+/* ─── INTERACTIVE TIMELINE ─── */
+.elk-timeline-container {
+    position: relative;
+    padding: 10px 24px;
+    margin: 20px 0;
+    border-right: 3px solid #3B82F6;
+}
+.elk-timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-right: 20px;
+}
+.elk-timeline-item::before {
+    content: '';
+    position: absolute;
+    right: -31px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563EB;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 0 0 2px #3B82F6;
+}
+.elk-timeline-date {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563EB;
+    margin-bottom: 2px;
+}
+.elk-timeline-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1E293B;
+}
+body.theme-dark .elk-timeline-title { color: #F8FAFC; }
+
+/* ─── CONTINUOUS SCROLL MODE ─── */
+body.mode-scroll-booklet .presentation-stage {
+    overflow-y: auto !important;
+    gap: 24px !important;
+    padding: 30px 16px 120px !important;
+}
+body.mode-scroll-booklet .slide-card-container {
+    margin-bottom: 24px;
+    animation: none !important;
+}
+body.mode-scroll-booklet .bottom-floating-controls {
+    display: none !important;
+}
+
+/* ─── PRINT & PDF STYLES ─── */
+@media print {
+    body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .viewer-header, .bottom-floating-controls, .drawing-toolbar-floating, .sticky-notes-drawer, .btn-tool-icon, .slide-counter-pill {
+        display: none !important;
+    }
+    .presentation-stage {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    .slide-card-container {
+        page-break-after: always;
+        border: 1px solid #CBD5E1 !important;
+        box-shadow: none !important;
+        min-height: auto !important;
+        padding: 30px !important;
+        margin-bottom: 40px !important;
+    }
+}
+
+    
+/* ═══════════════════════════════════════════════════════════════ */
+/* 📱 PERFECT MOBILE & TABLET RESPONSIVENESS (NO ZOOM / NO OVERFLOW) */
+/* ═══════════════════════════════════════════════════════════════ */
+
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure slide content text wraps properly and never forces wide overflow */
+.slide-body-content, #slideBodyHtml, .slide-card-container {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.slide-body-content img, #slideBodyHtml img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border-radius: 12px !important;
+}
+
+.slide-body-content table, #slideBodyHtml table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* ─── TABLET SCREEN (MAX-WIDTH: 900PX) ─── */
+@media (max-width: 900px) {
+    .viewer-header {
+        height: auto !important;
+        min-height: 56px !important;
+        padding: 8px 12px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    .header-tools {
+        overflow-x: auto !important;
+        max-width: 100% !important;
+        padding: 2px 0 !important;
+        scrollbar-width: none !important;
+    }
+    .header-tools::-webkit-scrollbar { display: none !important; }
+    
+    .presentation-stage {
+        padding: 14px 10px !important;
+    }
+    .slide-card-container {
+        padding: 24px 20px !important;
+        border-radius: 18px !important;
+    }
+}
+
+/* ─── MOBILE PHONE SCREEN (MAX-WIDTH: 640PX) ─── */
+@media (max-width: 640px) {
+    /* Header optimization */
+    .viewer-header {
+        height: auto !important;
+        padding: 8px 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+
+    .header-left {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    .btn-viewer-back {
+        padding: 5px 10px !important;
+        font-size: 11.5px !important;
+        border-radius: 8px !important;
+    }
+    .lesson-main-title {
+        font-size: 13.5px !important;
+        max-width: 170px !important;
+    }
+    .lesson-sub-meta {
+        font-size: 10.5px !important;
+    }
+    
+    .slide-counter-pill {
+        padding: 4px 10px !important;
+        font-size: 11.5px !important;
+        border-radius: 12px !important;
+    }
+
+    /* Scrollable tools toolbar */
+    .header-tools {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding: 4px 2px 2px !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+    .header-tools::-webkit-scrollbar { display: none !important; }
+
+    .btn-tool-icon {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Presentation Stage & Slide Card */
+    .presentation-stage {
+        padding: 8px 6px 90px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+
+    .slide-card-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+        font-size: calc(14.5px * var(--font-scale)) !important;
+        line-height: 1.75 !important;
+        box-sizing: border-box !important;
+    }
+
+    .slide-top-floating-bar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .slide-heading-text {
+        font-size: 15.5px !important;
+        width: 100% !important;
+    }
+
+    .slide-quick-actions {
+        display: flex !important;
+        width: 100% !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .btn-slide-action {
+        flex: 1 1 30% !important;
+        justify-content: center !important;
+        font-size: 11px !important;
+        padding: 6px 6px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Blocks and Typography in Slide */
+    .elk-block, .elk-definition, .elk-golden, .elk-warning, .elk-zatona, .elk-key, .elk-secret, .elk-memory, .elk-essay, .elk-qa, .elk-steps-12-container {
+        padding: 12px 14px !important;
+        margin: 12px 0 !important;
+        border-radius: 12px !important;
+        font-size: 13.5px !important;
+    }
+
+    .elk-steps-12-grid, .elk-steps-grid, .elk-distinction-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .elk-step-12-card, .elk-step-item, .elk-distinction-col {
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .elk-spoiler-box, .elk-quiz-box {
+        margin: 12px 0 !important;
+        border-radius: 14px !important;
+        padding: 12px !important;
+    }
+
+    .elk-spoiler-header {
+        padding: 10px 12px !important;
+    }
+    .elk-spoiler-title {
+        font-size: 13px !important;
+    }
+    .elk-spoiler-content {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+    }
+
+    .elk-quiz-q-title {
+        font-size: 14px !important;
+        margin-bottom: 10px !important;
+    }
+    .elk-quiz-opt-btn {
+        padding: 8px 12px !important;
+        font-size: 12.5px !important;
+    }
+
+    /* Bottom Navigation Bar */
+    .viewer-bottom-bar {
+        height: 56px !important;
+        padding: 0 8px !important;
+        gap: 6px !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+    }
+
+    .btn-nav-step {
+        padding: 7px 12px !important;
+        font-size: 12.5px !important;
+        border-radius: 10px !important;
+        gap: 4px !important;
+    }
+
+    .pages-scrubber-container {
+        gap: 4px !important;
+        padding: 2px 4px !important;
+    }
+
+    .scrubber-dot {
+        min-width: 28px !important;
+        height: 28px !important;
+        font-size: 11px !important;
+        border-radius: 6px !important;
+    }
+
+    /* Floating Drawing Toolbar */
+    .drawing-toolbar-floating {
+        bottom: 64px !important;
+        padding: 6px 12px !important;
+        gap: 6px !important;
+        max-width: 96vw !important;
+        overflow-x: auto !important;
+        border-radius: 25px !important;
+    }
+    .draw-tool-btn {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+    }
+    .color-dot-btn {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* Sticky notes drawer on mobile */
+    .sticky-notes-drawer {
+        width: calc(100vw - 24px) !important;
+        max-width: 100vw !important;
+        left: -100vw !important;
+        top: 60px !important;
+        height: calc(100vh - 130px) !important;
+    }
+    .sticky-notes-drawer.open {
+        left: 12px !important;
+    }
+}
+
+    </style>
+</head>
+<body class="theme-dark">
+
+    <!-- 1. Top Bar -->
+    <header class="viewer-header">
+        <div class="header-left">
+            <a href="javascript:void(0)" onclick="goBackToLectures()" class="btn-viewer-back" title="الرجوع للمحاضرات">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>رجوع</span>
+            </a>
+            <div class="lesson-titles">
+                <span id="viewerTitle" class="lesson-main-title">كراسة المحاضرة التفاعلية 📚</span>
+                <div class="lesson-sub-meta">
+                    <span id="viewerSubject">📖 مادة دراسية</span>
+                    <span>•</span>
+                    <span id="viewerLesson">المحاضرة</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Counter Indicator -->
+        <div class="slide-counter-pill" onclick="openAllSlidesModal()" title="اضغط لعرض فهرس جميع الشرائح">
+            <i class="fa-solid fa-layer-group"></i>
+            <span id="counterText">1 / 1</span>
+        </div>
+
+        <!-- Right Header Utility Tools -->
+        
+            <div class="header-tools">
+                <!-- Search -->
+                <button class="btn-tool-icon" id="btnToolSearch" onclick="openSearchModal()" title="بحث فوري داخل الكشكول (Ctrl+F)">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+                <!-- Audio TTS Reader -->
+                <button class="btn-tool-icon" id="btnToolTTS" onclick="toggleSpeechReader()" title="استمع للشريحة صوتياً (القارئ الذكي) 🔊">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+
+                <!-- Highlighter Mode -->
+                <button class="btn-tool-icon" id="btnToolHighlight" onclick="toggleHighlighterMode()" title="قلم التظليل الفسفوري 🖍️">
+                    <i class="fa-solid fa-highlighter"></i>
+                </button>
+
+                <!-- Drawing Pen Mode -->
+                <button class="btn-tool-icon" id="btnToolDraw" onclick="toggleDrawingMode()" title="سبورة الرسم والشخبطة الحرة ✏️">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <!-- Sticky Note Drawer -->
+                <button class="btn-tool-icon" id="btnToolSticky" onclick="toggleStickyNotesDrawer()" title="ملاحظاتي الخاصة السرية 📌">
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <span class="tool-badge-dot" id="stickyBadgeDot" style="display:none;"></span>
+                </button>
+
+                <!-- Flashcard Flip Mode -->
+                <button class="btn-tool-icon" id="btnToolFlashcard" onclick="toggleFlashcardMode()" title="وضع الفلاش كارد والمراجعة 🗂️">
+                    <i class="fa-solid fa-clone"></i>
+                </button>
+
+                <!-- Dual View Mode Switcher (Slides vs Continuous Booklet) -->
+                <button class="btn-tool-icon" id="btnToolViewMode" onclick="toggleViewMode()" title="تبديل وضع العرض (شرائح / ملزمة مستمرة)">
+                    <i class="fa-solid fa-scroll"></i>
+                </button>
+
+                <!-- Print / Save PDF -->
+                <button class="btn-tool-icon" id="btnToolPrint" onclick="printFullDeckPDF()" title="طباعة وتصدير الكشكول PDF 📑">
+                    <i class="fa-solid fa-print"></i>
+                </button>
+
+                <!-- Table of Contents / Bookmarks Drawer -->
+                <button class="btn-tool-icon" id="btnToolTOC" onclick="openTOCDrawer()" title="فهرس الكشكول والمفضلة 📑">
+                    <i class="fa-solid fa-list-check"></i>
+                </button>
+
+                <!-- Star / Bookmark Current Slide -->
+                <button class="btn-tool-icon" id="btnToolStar" onclick="toggleStarCurrentSlide()" title="حفظ الشريحة في المفضلة ⭐">
+                    <i class="fa-regular fa-star"></i>
+                </button>
+
+                <!-- Font Size Zoom -->
+                <button class="btn-tool-icon" onclick="adjustFontSize(0.1)" title="تكبير الخط"><i class="fa-solid fa-plus"></i></button>
+                <button class="btn-tool-icon" onclick="adjustFontSize(-0.1)" title="تصغير الخط"><i class="fa-solid fa-minus"></i></button>
+
+                <!-- Fullscreen -->
+                <button class="btn-tool-icon" onclick="toggleFullScreen()" title="شاشة كاملة"><i class="fa-solid fa-expand"></i></button>
+            </div>
+
+    </header>
+
+    <!-- 2. Presentation Stage -->
+    <main class="presentation-stage" id="presentationStage">
+        <div class="slide-card-container" id="slideCardContainer">
+            
+            <!-- Floating Top Toolbar inside Slide -->
+            <div class="slide-top-floating-bar">
+                <div class="slide-heading-text" id="slideHeading">
+                    <i class="fa-solid fa-bookmark" style="font-size:16px;"></i>
+                    <span id="slideTitleText">عنوان الشريحة</span>
+                </div>
+                
+                <div class="slide-quick-actions">
+                    
+                    <button class="btn-slide-action" onclick="goToLectureExam()" style="background: #ECFDF5; color: #059669; border-color: #A7F3D0;" title="اختبر فهمك في امتحان هذه المحاضرة">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>الامتحان التدريبي 🚀</span>
+                    </button>
+                    <button class="btn-slide-action" id="btnBookmarkCurrentSlide" onclick="toggleBookmarkCurrentSlide()">
+                        <i class="fa-regular fa-star" id="bookmarkStarIcon"></i>
+                        <span id="bookmarkBtnText">حفظ الصفحة</span>
+                    </button>
+                    
+                    <button class="btn-slide-action" onclick="promptAddStudentNote()">
+                        <i class="fa-solid fa-pencil"></i>
+                        <span>تدوين ملاحظة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slide Main Rich HTML Body -->
+            <div id="slideBodyHtml" style="line-height: 1.85;">
+                <!-- Slide Content Injected Here -->
+            </div>
+
+            <!-- Student Personal Note on this Slide (If exists) -->
+            <div id="studentNoteContainer" class="student-personal-note-box" style="display:none;">
+                <div class="student-personal-note-header">
+                    <span>📝 ملاحظتي الخاصة على هذه الصفحة:</span>
+                    <button onclick="deleteCurrentSlideNote()" style="background:transparent; border:none; color:#DC2626; cursor:pointer; font-size:12px; font-weight:800;">حذف ✖</button>
+                </div>
+                <div id="studentNoteContent" class="student-personal-note-text"></div>
+            </div>
+
+            <!-- Teacher Guidance Box (Optional) -->
+            <div id="teacherGuidanceBox" class="teacher-guidance-box" style="display:none;">
+                <i class="fa-solid fa-chalkboard-user" style="font-size:18px; margin-top:2px;"></i>
+                <div>
+                    <strong style="display:block; margin-bottom:2px;">إرشاد المعلم:</strong>
+                    <span id="teacherGuidanceText"></span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 3. Bottom Navigation Bar -->
+    <footer class="viewer-bottom-bar">
+        <!-- Prev Button (Moves right in RTL) -->
+        <button id="btnPrevSlide" class="btn-nav-step prev" onclick="navigateSlide(-1)">
+            <i class="fa-solid fa-arrow-right"></i>
+            <span>السابق</span>
+        </button>
+
+        <!-- Pages Scrubber Strip -->
+        <div class="pages-scrubber-container" id="pagesScrubber">
+            <!-- Dynamically populated page dots -->
+        </div>
+
+        <!-- Next Button (Moves left in RTL) -->
+        <button id="btnNextSlide" class="btn-nav-step next" onclick="navigateSlide(1)">
+            <span>التالي</span>
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+    </footer>
+
+    <!-- 4. Drawers (Bookmarks / Search / Notes) -->
+    <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeAllDrawers()"></div>
+
+    <!-- Bookmarks Drawer -->
+    <div class="viewer-drawer" id="bookmarksDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <i class="fa-solid fa-star" style="color:#F59E0B;"></i>
+                <span>الصفحات المحفوظة ⭐</span>
+            </div>
+            <button class="btn-close-drawer" onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-body" id="bookmarksListContainer">
+            <!-- Bookmarked items injected here -->
+        </div>
+    </div>
+
+    <!-- Search in Slides Drawer -->
+    <div class="viewer-drawer" id="searchDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <i class="fa-solid fa-magnifying-glass" style="color:#60A5FA;"></i>
+                <span>بحث في محتوى الكراسة</span>
+            </div>
+            <button class="btn-close-drawer" onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <input type="text" id="slideSearchInput" placeholder="اكتب كلمة أو مصطلح للبحث..." style="width:100%; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.15); color:white; padding:8px 12px; border-radius:10px; font-family:'Cairo'; font-size:13px; outline:none;" oninput="onSearchQueryChange(this.value)">
+        </div>
+        <div class="drawer-body" id="searchResultsContainer">
+            <div style="text-align:center; color:#94A3B8; font-size:13px; margin-top:20px;">
+                اكتب أي كلمة للبحث في جميع صفحات الكراسة والانتقال إليها فوراً 🔍
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Student Notes Drawer -->
+    <div class="viewer-drawer" id="notesDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">
+                <i class="fa-solid fa-note-sticky" style="color:#FDE047;"></i>
+                <span>ملاحظاتي الشخصية 📝</span>
+            </div>
+            <button class="btn-close-drawer" onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-body" id="studentNotesListContainer">
+            <!-- Student notes injected here -->
+        </div>
+    </div>
+
+    
+    <!-- Script Execution -->
+    <script>
+        
+        function goToLectureExam() {
+            if (subjectParam) {
+                window.location.href = `lectures.html?subject=${encodeURIComponent(subjectParam)}`;
+            } else {
+                window.location.href = 'courses.html';
+            }
+        }
+    
+        function goBackToLectures() {
+            if (document.referrer && document.referrer.includes('lectures.html')) {
+                window.history.back();
+            } else if (subjectParam) {
+                window.location.href = `lectures.html?subject=${encodeURIComponent(subjectParam)}`;
+            } else {
+                window.location.href = 'courses.html';
+            }
+        }
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const subjectParam = urlParams.get('subject') || '';
+        const lessonIdParam = urlParams.get('lessonId') || '';
+        const titleParam = urlParams.get('title') || '';
+
+        let deckData = {
+            title: titleParam || "كراسة المحاضرة التفاعلية",
+            slides: []
+        };
+        let currentSlideIdx = 0;
+        let currentUser = null;
+
+        // User Customizations & Storage
+        let userBookmarks = []; // [0, 2, 5]
+        let userNotes = {};     // { 0: "text" }
+        let userDrawings = {};  // { 0: "dataUrl" }
+        let fontScaleLevel = 1.0;
+        let currentThemeIndex = 0;
+        const themes = ['theme-dark', 'theme-light', 'theme-sepia'];
+
+        // Interactive Tool States
+        let isHighlighterActive = false;
+        let isDrawingActive = false;
+        let isFlashcardActive = false;
+        let isScrollMode = false;
+        let drawTool = 'pen';
+        let drawColor = '#EF4444';
+        let drawLineWidth = 3;
+        let isPainting = false;
+        let drawingCanvas = null;
+        let drawingCtx = null;
+        let isSpeaking = false;
+
+        const studentUser = JSON.parse(localStorage.getItem('user')) || { uid: 'guest', id: 'guest', name: 'طالب' };
+        const studentNotesStorageKey = `elk_notes_${subjectParam}_${lessonIdParam}_${studentUser.id || studentUser.uid}`;
+        const studentBookmarksStorageKey = `elk_bookmarks_${subjectParam}_${lessonIdParam}_${studentUser.id || studentUser.uid}`;
+        const studentDrawingsStorageKey = `elk_drawings_${subjectParam}_${lessonIdParam}_${studentUser.id || studentUser.uid}`;
+
+        // Local Storage Init
+        try {
+            userNotes = JSON.parse(localStorage.getItem(studentNotesStorageKey) || '{}');
+            userBookmarks = JSON.parse(localStorage.getItem(studentBookmarksStorageKey) || '[]');
+            userDrawings = JSON.parse(localStorage.getItem(studentDrawingsStorageKey) || '{}');
+        } catch(e) {}
+
+        // DOM Loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (titleParam) {
+                document.getElementById('viewerTitle').textContent = `كراسة: ${titleParam} 📚`;
+            }
+            if (subjectParam) {
+                document.getElementById('viewerSubject').textContent = `📖 ${subjectParam}`;
+            }
+
+            // Check Firebase user (without redirecting)
+            if (firebase && firebase.auth) {
+                firebase.auth().onAuthStateChanged(user => {
+                    currentUser = user;
+                    loadCloudUserData();
+                });
+            }
+
+            // Load Deck
+            loadDeckData();
+
+            // Keyboard Navigation (Arrow Keys / Space / PageUp / PageDown)
+            window.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
+                    navigateSlide(1); // RTL next
+                } else if (e.key === 'ArrowRight' || e.key === 'PageUp' || e.key === 'Backspace') {
+                    navigateSlide(-1); // RTL prev
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    openSearchModal();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                    e.preventDefault();
+                    printFullDeckPDF();
+                }
+            });
+
+            // Touch Swipe Gestures
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const stage = document.getElementById('presentationStage');
+            if (stage) {
+                stage.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+                stage.addEventListener('touchend', e => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    const diff = touchEndX - touchStartX;
+                    if (Math.abs(diff) > 50) {
+                        if (diff < 0) navigateSlide(1);  // Left -> Next
+                        else navigateSlide(-1);         // Right -> Prev
+                    }
+                }, {passive: true});
+            }
+        });
+
+        // ─── 1. LOAD DECK DATA ───
+        async function loadDeckData() {
+            if (!subjectParam || !lessonIdParam) {
+                renderMockSlide();
+                return;
+            }
+
+            try {
+                // Fetch Lesson Header
+                database.ref(`Lectures/${subjectParam}/${lessonIdParam}`).once('value', snap => {
+                    if (snap.exists()) {
+                        const l = snap.val();
+                        document.getElementById('viewerTitle').textContent = `كراسة: ${l.title || subjectParam} 📚`;
+                        document.getElementById('viewerSubject').textContent = `📖 ${subjectParam}`;
+                        document.getElementById('viewerLesson').textContent = l.title || 'المحاضرة';
+                    }
+                });
+
+                // Dual-Node Load Strategy
+                let data = null;
+                try {
+                    const notesSnap = await database.ref(`LectureNotes/${subjectParam}/${lessonIdParam}`).once('value');
+                    if (notesSnap.exists()) data = notesSnap.val();
+                } catch(e) {}
+
+                if (!data || !data.slides || data.slides.length === 0) {
+                    try {
+                        const lecSnap = await database.ref(`Lectures/${subjectParam}/${lessonIdParam}/notesDeck`).once('value');
+                        if (lecSnap.exists()) data = lecSnap.val();
+                    } catch(e) {}
+                }
+
+                if (data && data.slides && data.slides.length > 0) {
+                    deckData = data;
+                    renderCurrentSlide();
+                    renderScrubber();
+                    return;
+                }
+            } catch (err) {
+                console.error("Load deck error:", err);
+            }
+
+            renderMockSlide();
+        }
+
+        function renderMockSlide() {
+            deckData.slides = [{
+                title: "مرحباً بك في كراسة الخطة 📚",
+                contentHtml: "<h2>كراسة المحاضرة التفاعلية</h2><p>لم يقم المعلم بنشر شرائح هذه المحاضرة بعد. ستظهر هنا فور إضافتها بإذن الله.</p>",
+                teacherNotes: ""
+            }];
+            renderCurrentSlide();
+            renderScrubber();
+        }
+
+        // ─── 2. RENDER ACTIVE SLIDE ───
+        function renderCurrentSlide() {
+            if (isScrollMode) {
+                renderContinuousBooklet();
+                return;
+            }
+
+            const total = deckData.slides.length;
+            if (total === 0) return;
+
+            // Constrain index
+            if (currentSlideIdx < 0) currentSlideIdx = 0;
+            if (currentSlideIdx >= total) currentSlideIdx = total - 1;
+
+            const slide = deckData.slides[currentSlideIdx];
+
+            // Counter Badge
+            const counterText = document.getElementById('counterText');
+            if (counterText) counterText.textContent = `${currentSlideIdx + 1} / ${total}`;
+
+            // Title & Content
+            const slideTitleText = document.getElementById('slideTitleText');
+            if (slideTitleText) slideTitleText.textContent = slide.title || `شريحة ${currentSlideIdx + 1}`;
+
+            const slideBodyHtml = document.getElementById('slideBodyHtml');
+            if (slideBodyHtml) slideBodyHtml.innerHTML = slide.contentHtml || '';
+
+            // Apply Background & Themes
+            const slideCard = document.getElementById('slideCardContainer');
+            if (slideCard) {
+                if (slide.customBg) {
+                    slideCard.className = 'slide-card-container';
+                    slideCard.style.background = slide.customBg;
+                    slideCard.style.color = slide.customTextColor || '#0F172A';
+                } else if (slide.theme && slide.theme !== 'theme-white') {
+                    slideCard.className = `slide-card-container ${slide.theme}`;
+                    slideCard.style.background = '';
+                    slideCard.style.color = '';
+                } else {
+                    slideCard.className = 'slide-card-container';
+                    slideCard.style.background = '';
+                    slideCard.style.color = '';
+                }
+            }
+
+            // Teacher Guidance Box
+            const guideBox = document.getElementById('teacherGuidanceBox');
+            if (guideBox) {
+                if (slide.teacherNotes && slide.teacherNotes.trim()) {
+                    guideBox.style.display = 'flex';
+                    document.getElementById('teacherGuidanceText').textContent = slide.teacherNotes.trim();
+                } else {
+                    guideBox.style.display = 'none';
+                }
+            }
+
+            // Student Note on Slide
+            const noteBox = document.getElementById('studentNoteContainer');
+            const noteText = userNotes[currentSlideIdx];
+            if (noteBox) {
+                if (noteText && noteText.trim()) {
+                    noteBox.style.display = 'block';
+                    document.getElementById('studentNoteContent').textContent = noteText;
+                } else {
+                    noteBox.style.display = 'none';
+                }
+            }
+
+            // Sticky note badge dot in topbar
+            const stickyBadge = document.getElementById('stickyBadgeDot');
+            if (stickyBadge) {
+                stickyBadge.style.display = (noteText && noteText.trim()) ? 'block' : 'none';
+            }
+
+            // Bookmark Status
+            const isBookmarked = userBookmarks.includes(currentSlideIdx);
+            const bookmarkBtn = document.getElementById('btnBookmarkCurrentSlide');
+            const bookmarkIcon = document.getElementById('bookmarkStarIcon');
+            const bookmarkText = document.getElementById('bookmarkBtnText');
+            if (bookmarkBtn && bookmarkIcon && bookmarkText) {
+                if (isBookmarked) {
+                    bookmarkBtn.className = 'btn-slide-action starred';
+                    bookmarkIcon.className = 'fa-solid fa-star';
+                    bookmarkText.textContent = 'محفوظة ⭐';
+                } else {
+                    bookmarkBtn.className = 'btn-slide-action';
+                    bookmarkIcon.className = 'fa-regular fa-star';
+                    bookmarkText.textContent = 'حفظ الصفحة';
+                }
+            }
+
+            // Topbar star button
+            const topStarBtn = document.getElementById('btnToolStar');
+            if (topStarBtn) {
+                topStarBtn.innerHTML = isBookmarked ? '<i class="fa-solid fa-star" style="color:#F59E0B;"></i>' : '<i class="fa-regular fa-star"></i>';
+                topStarBtn.classList.toggle('starred', isBookmarked);
+            }
+
+            // Nav buttons disabled state
+            const prevBtn = document.getElementById('btnPrevSlide');
+            const nextBtn = document.getElementById('btnNextSlide');
+            if (prevBtn) prevBtn.disabled = (currentSlideIdx === 0);
+            if (nextBtn) nextBtn.disabled = (currentSlideIdx === total - 1);
+
+            // Update scrubber dots
+            updateScrubberActive();
+
+            // Interactive Accordions & Quizzes
+            attachInteractiveBlockHandlers();
+
+            // Load Drawing Canvas for this slide
+            if (isDrawingActive) {
+                initDrawingCanvas();
+            } else {
+                loadSavedSlideDrawing();
+            }
+
+            // Reset scroll
+            const presentationStage = document.getElementById('presentationStage');
+            if (presentationStage) presentationStage.scrollTop = 0;
+        }
+
+        // ─── 3. NAVIGATION ───
+        function navigateSlide(delta) {
+            const nextIdx = currentSlideIdx + delta;
+            if (nextIdx >= 0 && nextIdx < deckData.slides.length) {
+                currentSlideIdx = nextIdx;
+                renderCurrentSlide();
+            }
+        }
+
+        function jumpToSlide(idx) {
+            if (idx >= 0 && idx < deckData.slides.length) {
+                currentSlideIdx = idx;
+                renderCurrentSlide();
+                closeAllDrawers();
+                closeTOCDrawer();
+            }
+        }
+
+        function renderScrubber() {
+            const container = document.getElementById('pagesScrubber');
+            if (!container) return;
+            container.innerHTML = '';
+            deckData.slides.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = `scrubber-dot ${idx === currentSlideIdx ? 'active' : ''} ${userBookmarks.includes(idx) ? 'bookmarked' : ''}`;
+                dot.textContent = idx + 1;
+                dot.onclick = () => jumpToSlide(idx);
+                container.appendChild(dot);
+            });
+        }
+
+        function updateScrubberActive() {
+            const dots = document.querySelectorAll('.scrubber-dot');
+            dots.forEach((dot, idx) => {
+                dot.className = `scrubber-dot ${idx === currentSlideIdx ? 'active' : ''} ${userBookmarks.includes(idx) ? 'bookmarked' : ''}`;
+            });
+            if (dots[currentSlideIdx]) {
+                dots[currentSlideIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        // ─── 4. DRAWING CANVAS ENGINE ───
+        function initDrawingCanvas() {
+            const container = document.getElementById('slideCardContainer');
+            if (!container) return;
+
+            let canvas = document.getElementById('slideDrawingCanvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'slideDrawingCanvas';
+                canvas.className = 'canvas-drawing-overlay';
+                container.appendChild(canvas);
+            }
+
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            drawingCanvas = canvas;
+            drawingCtx = canvas.getContext('2d');
+            drawingCtx.lineCap = 'round';
+            drawingCtx.lineJoin = 'round';
+
+            loadSavedSlideDrawing();
+
+            canvas.onmousedown = startDrawing;
+            canvas.onmousemove = drawMove;
+            canvas.onmouseup = stopDrawing;
+            canvas.onmouseleave = stopDrawing;
+
+            canvas.ontouchstart = (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            };
+            canvas.ontouchmove = (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            };
+            canvas.ontouchend = () => {
+                const mouseEvent = new MouseEvent("mouseup", {});
+                canvas.dispatchEvent(mouseEvent);
+            };
+        }
+
+        function toggleDrawingMode() {
+            isDrawingActive = !isDrawingActive;
+            const btn = document.getElementById('btnToolDraw');
+            const toolbar = document.getElementById('drawingToolbar');
+            const canvas = document.getElementById('slideDrawingCanvas');
+
+            if (isDrawingActive) {
+                btn?.classList.add('active');
+                toolbar?.classList.add('show');
+                if (!canvas) initDrawingCanvas();
+                else canvas.classList.add('active');
+            } else {
+                btn?.classList.remove('active');
+                toolbar?.classList.remove('show');
+                if (canvas) canvas.classList.remove('active');
+            }
+        }
+
+        function setDrawTool(tool) {
+            drawTool = tool;
+            document.querySelectorAll('.draw-tool-btn').forEach(b => b.classList.remove('active'));
+            if (tool === 'pen') {
+                drawLineWidth = 3;
+                document.getElementById('btnDrawPen')?.classList.add('active');
+            } else if (tool === 'pencil') {
+                drawLineWidth = 1.5;
+                document.getElementById('btnDrawPencil')?.classList.add('active');
+            } else if (tool === 'eraser') {
+                drawLineWidth = 22;
+                document.getElementById('btnDrawEraser')?.classList.add('active');
+            }
+        }
+
+        function setDrawColor(col, dotEl) {
+            drawColor = col;
+            document.querySelectorAll('.color-dot-btn').forEach(d => d.classList.remove('active'));
+            if (dotEl) dotEl.classList.add('active');
+            if (drawTool === 'eraser') setDrawTool('pen');
+        }
+
+        function startDrawing(e) {
+            if (!isDrawingActive || !drawingCtx) return;
+            isPainting = true;
+            const rect = drawingCanvas.getBoundingClientRect();
+            drawingCtx.beginPath();
+            drawingCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function drawMove(e) {
+            if (!isPainting || !isDrawingActive || !drawingCtx) return;
+            const rect = drawingCanvas.getBoundingClientRect();
+            if (drawTool === 'eraser') {
+                drawingCtx.globalCompositeOperation = 'destination-out';
+                drawingCtx.lineWidth = drawLineWidth;
+            } else {
+                drawingCtx.globalCompositeOperation = 'source-over';
+                drawingCtx.strokeStyle = drawColor;
+                drawingCtx.lineWidth = drawLineWidth;
+            }
+            drawingCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            drawingCtx.stroke();
+        }
+
+        function stopDrawing() {
+            if (isPainting) {
+                isPainting = false;
+                if (drawingCtx) drawingCtx.closePath();
+                saveSlideDrawing();
+            }
+        }
+
+        function saveSlideDrawing() {
+            if (!drawingCanvas) return;
+            const dataUrl = drawingCanvas.toDataURL('image/png');
+            userDrawings[currentSlideIdx] = dataUrl;
+            localStorage.setItem(studentDrawingsStorageKey, JSON.stringify(userDrawings));
+
+            const uid = (currentUser && currentUser.uid) || studentUser.id || studentUser.uid;
+            if (uid && database) {
+                database.ref(`StudentDrawings/${uid}/${lessonIdParam}/${currentSlideIdx}`).set(dataUrl).catch(()=>{});
+            }
+        }
+
+        function loadSavedSlideDrawing() {
+            if (!drawingCanvas || !drawingCtx) return;
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            const savedUrl = userDrawings[currentSlideIdx];
+            if (savedUrl) {
+                const img = new Image();
+                img.onload = () => {
+                    drawingCtx.drawImage(img, 0, 0);
+                };
+                img.src = savedUrl;
+            }
+        }
+
+        function clearSlideDrawing() {
+            if (!drawingCtx || !drawingCanvas) return;
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            delete userDrawings[currentSlideIdx];
+            localStorage.setItem(studentDrawingsStorageKey, JSON.stringify(userDrawings));
+
+            const uid = (currentUser && currentUser.uid) || studentUser.id || studentUser.uid;
+            if (uid && database) {
+                database.ref(`StudentDrawings/${uid}/${lessonIdParam}/${currentSlideIdx}`).remove().catch(()=>{});
+            }
+        }
+
+        // ─── 5. STUDENT PRIVATE NOTES & STICKY NOTES ───
+        function toggleStickyNotesDrawer() {
+            const drawer = document.getElementById('stickyNotesDrawer');
+            if (!drawer) return;
+            const isOpen = drawer.classList.toggle('open');
+            document.getElementById('btnToolSticky')?.classList.toggle('active', isOpen);
+            if (isOpen) {
+                document.getElementById('stickySlideNumBadge').textContent = currentSlideIdx + 1;
+                document.getElementById('studentStickyInput').value = userNotes[currentSlideIdx] || '';
+            }
+        }
+
+        function onStudentStickyChange(val) {
+            if (val.trim()) {
+                userNotes[currentSlideIdx] = val.trim();
+            } else {
+                delete userNotes[currentSlideIdx];
+            }
+            saveUserData();
+            renderCurrentSlide();
+        }
+
+        function promptAddStudentNote() {
+            const existing = userNotes[currentSlideIdx] || '';
+            Swal.fire({
+                title: 'تدوين ملاحظة خاصة 📝',
+                input: 'textarea',
+                inputLabel: `شريحة ${currentSlideIdx + 1}: ${deckData.slides[currentSlideIdx]?.title || ''}`,
+                inputValue: existing,
+                inputPlaceholder: 'اكتب ملاحظتك التلخيصية هنا (خاصة بك فقط ولن يراها أحد)...',
+                showCancelButton: true,
+                confirmButtonText: 'حفظ الملاحظة 💾',
+                cancelButtonText: 'إلغاء'
+            }).then(res => {
+                if (res.isConfirmed && res.value !== undefined) {
+                    if (res.value.trim()) {
+                        userNotes[currentSlideIdx] = res.value.trim();
+                    } else {
+                        delete userNotes[currentSlideIdx];
+                    }
+                    saveUserData();
+                    renderCurrentSlide();
+                }
+            });
+        }
+
+        function deleteCurrentSlideNote() {
+            delete userNotes[currentSlideIdx];
+            saveUserData();
+            renderCurrentSlide();
+        }
+
+        function toggleBookmarkCurrentSlide() {
+            const idx = currentSlideIdx;
+            const existIdx = userBookmarks.indexOf(idx);
+            if (existIdx > -1) {
+                userBookmarks.splice(existIdx, 1);
+            } else {
+                userBookmarks.push(idx);
+                userBookmarks.sort((a,b) => a - b);
+            }
+            saveUserData();
+            renderCurrentSlide();
+            renderScrubber();
+        }
+
+        function toggleStarCurrentSlide() {
+            toggleBookmarkCurrentSlide();
+        }
+
+        function toggleStarSlideIndex(idx) {
+            const existIdx = userBookmarks.indexOf(idx);
+            if (existIdx > -1) {
+                userBookmarks.splice(existIdx, 1);
+            } else {
+                userBookmarks.push(idx);
+                userBookmarks.sort((a,b) => a - b);
+            }
+            saveUserData();
+            renderCurrentSlide();
+            renderScrubber();
+            openTOCDrawer();
+        }
+
+        // Save User Data (Bookmarks & Notes)
+        function saveUserData() {
+            localStorage.setItem(studentNotesStorageKey, JSON.stringify(userNotes));
+            localStorage.setItem(studentBookmarksStorageKey, JSON.stringify(userBookmarks));
+
+            const uid = (currentUser && currentUser.uid) || studentUser.id || studentUser.uid;
+            if (uid && database) {
+                database.ref(`StudentBookmarks/${uid}/${lessonIdParam}`).set(userBookmarks).catch(()=>{});
+                database.ref(`StudentNotes/${uid}/${lessonIdParam}`).set(userNotes).catch(()=>{});
+            }
+        }
+
+        function loadCloudUserData() {
+            const uid = (currentUser && currentUser.uid) || studentUser.id || studentUser.uid;
+            if (uid && database) {
+                database.ref(`StudentBookmarks/${uid}/${lessonIdParam}`).once('value', snap => {
+                    if (snap.exists()) {
+                        userBookmarks = snap.val() || [];
+                        renderScrubber();
+                        renderCurrentSlide();
+                    }
+                });
+                database.ref(`StudentNotes/${uid}/${lessonIdParam}`).once('value', snap => {
+                    if (snap.exists()) {
+                        userNotes = snap.val() || {};
+                        renderCurrentSlide();
+                    }
+                });
+                database.ref(`StudentDrawings/${uid}/${lessonIdParam}`).once('value', snap => {
+                    if (snap.exists()) {
+                        userDrawings = snap.val() || {};
+                        loadSavedSlideDrawing();
+                    }
+                });
+            }
+        }
+
+        // ─── 6. AI TEXT-TO-SPEECH READER ───
+        function toggleSpeechReader() {
+            if (!('speechSynthesis' in window)) {
+                Swal.fire({ icon: 'warning', title: 'غير مدعوم', text: 'خاصية القراءة الصوتية غير مدعومة في هذا المتصفح.' });
+                return;
+            }
+
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                document.getElementById('btnToolTTS')?.classList.remove('active');
+                return;
+            }
+
+            const slide = deckData.slides[currentSlideIdx];
+            if (!slide) return;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = (slide.title ? slide.title + '. ' : '') + (slide.contentHtml || '');
+            const textToRead = tempDiv.innerText.replace(/\s+/g, ' ').trim();
+
+            if (!textToRead) {
+                Swal.fire({ icon: 'info', title: 'شريحة فارغة', text: 'لا يوجد نص لقراءته في هذه الشريحة.' });
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.95;
+
+            const voices = window.speechSynthesis.getVoices();
+            const arVoice = voices.find(v => v.lang.startsWith('ar'));
+            if (arVoice) utterance.voice = arVoice;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                document.getElementById('btnToolTTS')?.classList.add('active');
+            };
+            utterance.onend = () => {
+                isSpeaking = false;
+                document.getElementById('btnToolTTS')?.classList.remove('active');
+            };
+            utterance.onerror = () => {
+                isSpeaking = false;
+                document.getElementById('btnToolTTS')?.classList.remove('active');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ─── 7. HIGHLIGHTER MODE ───
+        function toggleHighlighterMode() {
+            isHighlighterActive = !isHighlighterActive;
+            const btn = document.getElementById('btnToolHighlight');
+            document.body.classList.toggle('highlighter-mode-active', isHighlighterActive);
+            btn?.classList.toggle('active', isHighlighterActive);
+            if (isHighlighterActive) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'info',
+                    title: 'وضع التظليل مفعّل 🖍️',
+                    text: 'حدد أي نص لتظليله باللون الفسفوري',
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        // ─── 8. FLASHCARD MODE ───
+        function toggleFlashcardMode() {
+            isFlashcardActive = !isFlashcardActive;
+            document.getElementById('btnToolFlashcard')?.classList.toggle('active', isFlashcardActive);
+            const container = document.getElementById('slideCardContainer');
+            if (container) {
+                if (isFlashcardActive) {
+                    container.classList.add('mode-flashcard');
+                    container.querySelectorAll('.elk-spoiler-box').forEach(b => b.classList.remove('revealed'));
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'وضع الفلاش كارد مفعّل 🗂️',
+                        text: 'اضغط على أي عنصر لكشف إجابته واختبار حفظك',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    container.classList.remove('mode-flashcard');
+                }
+            }
+        }
+
+        // ─── 9. CONTINUOUS SCROLL VS SLIDE VIEW ───
+        function toggleViewMode() {
+            isScrollMode = !isScrollMode;
+            document.body.classList.toggle('mode-scroll-booklet', isScrollMode);
+            const btn = document.getElementById('btnToolViewMode');
+            btn?.classList.toggle('active', isScrollMode);
+
+            if (isScrollMode) {
+                renderContinuousBooklet();
+            } else {
+                renderCurrentSlide();
+            }
+        }
+
+        function renderContinuousBooklet() {
+            const stage = document.getElementById('presentationStage');
+            if (!stage || !deckData.slides) return;
+            stage.innerHTML = deckData.slides.map((s, idx) => `
+                <div class="slide-card-container ${s.theme || 'theme-white'}" id="slide_booklet_${idx}" style="${s.customBg ? `background:${s.customBg} !important; color:${s.customTextColor || '#0F172A'} !important;` : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(0,0,0,0.08); padding-bottom:12px; margin-bottom:18px;">
+                        <span style="font-weight:900; font-size:13px; background:rgba(37,99,235,0.12); color:#2563EB; padding:4px 12px; border-radius:12px;">📄 صفحة ${idx+1} من ${deckData.slides.length}</span>
+                        <h3 style="margin:0; font-size:17px; font-weight:800;">${s.title || ''}</h3>
+                    </div>
+                    <div class="slide-body-content" style="line-height:1.85;">${s.contentHtml || ''}</div>
+                </div>
+            `).join('');
+            attachInteractiveBlockHandlers();
+        }
+
+        // ─── 10. SEARCH INSIDE NOTEBOOK ───
+        function openSearchModal() {
+            Swal.fire({
+                title: '🔍 بحث فوري داخل الكشكول',
+                input: 'text',
+                inputPlaceholder: 'اكتب كلمة أو مصطلح للبحث في كافة الصفحات...',
+                showCancelButton: true,
+                confirmButtonText: 'بحث 🚀',
+                cancelButtonText: 'إلغاء',
+                didOpen: () => {
+                    const input = Swal.getInput();
+                    input.focus();
+                }
+            }).then(res => {
+                if (res.isConfirmed && res.value) {
+                    const query = res.value.trim().toLowerCase();
+                    const matches = [];
+                    deckData.slides.forEach((s, idx) => {
+                        const plain = ((s.title || '') + ' ' + (s.contentHtml || '')).toLowerCase();
+                        if (plain.includes(query)) {
+                            matches.push({ index: idx, title: s.title || `شريحة ${idx+1}` });
+                        }
+                    });
+
+                    if (matches.length === 0) {
+                        Swal.fire({ icon: 'info', title: 'لم يتم العثور على نتائج', text: `لم يتم العثور على "${res.value}" داخل صفحات الكشكول.` });
+                    } else {
+                        const resultsHTML = matches.map(m => `
+                            <button onclick="Swal.close(); jumpToSlide(${m.index});" style="width:100%; text-align:right; background:#F1F5F9; border:1px solid #E2E8F0; padding:12px 16px; border-radius:12px; margin-bottom:8px; font-family:'Cairo'; font-weight:800; font-size:14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                                <span>📄 ${m.title}</span>
+                                <span style="font-size:12px; color:#2563EB;">انتقال للصفحة ${m.index+1} 👈</span>
+                            </button>
+                        `).join('');
+
+                        Swal.fire({
+                            title: `نتائج البحث (${matches.length} صفحة)`,
+                            html: `<div style="max-height:300px; overflow-y:auto; padding:8px 0;">${resultsHTML}</div>`,
+                            showConfirmButton: false,
+                            showCloseButton: true
+                        });
+                    }
+                }
+            });
+        }
+
+        // ─── 11. TABLE OF CONTENTS & BOOKMARKS DRAWER ───
+        function openTOCDrawer() {
+            const drawer = document.getElementById('tocDrawer');
+            const list = document.getElementById('tocItemsList');
+            if (!drawer || !list) return;
+
+            list.innerHTML = deckData.slides.map((s, idx) => {
+                const isStar = userBookmarks.includes(idx);
+                return `
+                    <div style="background:#0F172A; border:1px solid ${idx === currentSlideIdx ? '#3B82F6' : '#334155'}; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="jumpToSlide(${idx}); closeTOCDrawer();">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="background:${idx === currentSlideIdx ? '#2563EB' : '#334155'}; color:#FFFFFF; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900;">${idx+1}</span>
+                            <span style="font-size:13.5px; font-weight:800; color:#F8FAFC;">${s.title || `شريحة ${idx+1}`}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleStarSlideIndex(${idx});" style="background:none; border:none; color:${isStar ? '#F59E0B' : '#64748B'}; font-size:16px; cursor:pointer;">
+                            ${isStar ? '⭐' : '☆'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            drawer.style.display = 'flex';
+        }
+
+        function closeTOCDrawer() {
+            const drawer = document.getElementById('tocDrawer');
+            if (drawer) drawer.style.display = 'none';
+        }
+
+        function openAllSlidesModal() {
+            openTOCDrawer();
+        }
+
+        // ─── 12. PRINT & PDF STUDY BOOKLET ───
+        function printFullDeckPDF() {
+            Swal.fire({
+                title: '🖨️ طباعة وتصدير الكشكول كـ PDF',
+                text: 'سيتم تجهيز كافة صفحات الكشكول بتنسيق أكاديمي فائق الجودة وجاهز للطباعة أو الحفظ كـ PDF.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'بدء الطباعة / تصدير PDF 📑',
+                cancelButtonText: 'إلغاء'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    renderContinuousBooklet();
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                }
+            });
+        }
+
+        // ─── 13. INTERACTIVE BLOCK HANDLERS ───
+        function attachInteractiveBlockHandlers() {
+            document.querySelectorAll('.elk-spoiler-box').forEach(box => {
+                box.onclick = () => {
+                    box.classList.toggle('revealed');
+                };
+            });
+
+            document.querySelectorAll('.elk-quiz-box').forEach(quizBox => {
+                const optBtns = quizBox.querySelectorAll('.elk-quiz-opt-btn');
+                const feedbackBox = quizBox.querySelector('.elk-quiz-feedback');
+                const exp = quizBox.getAttribute('data-explanation') || '';
+
+                optBtns.forEach(btn => {
+                    btn.onclick = () => {
+                        const isCorrect = btn.getAttribute('data-correct') === 'true';
+                        optBtns.forEach(b => {
+                            b.disabled = true;
+                            b.style.pointerEvents = 'none';
+                            if (b.getAttribute('data-correct') === 'true') {
+                                b.classList.add('correct');
+                                b.querySelector('.elk-quiz-feedback-icon').textContent = '✔️';
+                            }
+                        });
+
+                        if (!isCorrect) {
+                            btn.classList.add('wrong');
+                            btn.querySelector('.elk-quiz-feedback-icon').textContent = '❌';
+                        }
+
+                        if (feedbackBox) {
+                            feedbackBox.style.display = 'block';
+                            feedbackBox.style.background = isCorrect ? '#DCFCE7' : '#FEE2E2';
+                            feedbackBox.style.color = isCorrect ? '#166534' : '#991B1B';
+                            feedbackBox.style.border = isCorrect ? '1px solid #86EFAC' : '1px solid #FECACA';
+                            feedbackBox.innerHTML = (isCorrect ? '🎯 إجابة صحيحة وممتازة! ' : '❌ إجابة غير دقيقة! ') + (exp ? `<br><strong>💡 الشرح والتوضيح:</strong> ${exp}` : '');
+                        }
+                    };
+                });
+            });
+        }
+
+        // ─── 14. UTILITY CONTROLS ───
+        function adjustFontSize(delta) {
+            fontScaleLevel = Math.max(0.7, Math.min(1.8, fontScaleLevel + delta));
+            document.documentElement.style.setProperty('--font-scale', fontScaleLevel);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function closeAllDrawers() {
+            document.querySelectorAll('.viewer-drawer').forEach(d => d.classList.remove('open'));
+            const backdrop = document.getElementById('drawerBackdrop');
+            if (backdrop) backdrop.classList.remove('show');
+        }
+    </script>
+
+
+    <!-- Floating Drawing Palette -->
+    <div class="drawing-toolbar-floating" id="drawingToolbar">
+        <button class="draw-tool-btn active" id="btnDrawPen" onclick="setDrawTool('pen')" title="قلم"><i class="fa-solid fa-pen"></i></button>
+        <button class="draw-tool-btn" id="btnDrawPencil" onclick="setDrawTool('pencil')" title="قلم خفيف"><i class="fa-solid fa-pencil"></i></button>
+        <button class="draw-tool-btn" id="btnDrawEraser" onclick="setDrawTool('eraser')" title="ممحاة"><i class="fa-solid fa-eraser"></i></button>
+        <div style="width:1px; height:20px; background:#475569;"></div>
+        <div class="color-dot-btn active" style="background:#EF4444;" onclick="setDrawColor('#EF4444', this)"></div>
+        <div class="color-dot-btn" style="background:#3B82F6;" onclick="setDrawColor('#3B82F6', this)"></div>
+        <div class="color-dot-btn" style="background:#10B981;" onclick="setDrawColor('#10B981', this)"></div>
+        <div class="color-dot-btn" style="background:#F59E0B;" onclick="setDrawColor('#F59E0B', this)"></div>
+        <div class="color-dot-btn" style="background:#8B5CF6;" onclick="setDrawColor('#8B5CF6', this)"></div>
+        <div class="color-dot-btn" style="background:#FFFFFF;" onclick="setDrawColor('#FFFFFF', this)"></div>
+        <div style="width:1px; height:20px; background:#475569;"></div>
+        <button class="draw-tool-btn" onclick="clearSlideDrawing()" title="مسح كل الرسومات"><i class="fa-solid fa-trash-can"></i></button>
+        <button class="draw-tool-btn" onclick="toggleDrawingMode()" title="إغلاق الرسم" style="color:#EF4444;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Student Private Sticky Notes Drawer -->
+    <div class="sticky-notes-drawer" id="stickyNotesDrawer">
+        <div class="sticky-notes-header">
+            <div style="font-weight:900; font-size:15px; color:#78350F; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-note-sticky" style="color:#F59E0B;"></i>
+                <span>ملاحظاتي الخاصة للشريحة <span id="stickySlideNumBadge">1</span></span>
+            </div>
+            <button onclick="toggleStickyNotesDrawer()" style="background:none; border:none; color:#92400E; font-size:16px; cursor:pointer; font-weight:bold;">✕</button>
+        </div>
+        <p style="font-size:11.5px; color:#B45309; margin-bottom:8px; font-weight:700;">🔒 ملاحظاتك سرية وخاصة بك فقط وتُحفظ تلقائياً في حسابك.</p>
+        <textarea class="sticky-notes-textarea" id="studentStickyInput" placeholder="اكتب ملاحظاتك وتلخيصك الخاص هنا..." oninput="onStudentStickyChange(this.value)"></textarea>
+    </div>
+
+    <!-- Table of Contents & Bookmarks Drawer -->
+    <div id="tocDrawer" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(6px); z-index:99999; justify-content:flex-end;" onclick="if(event.target===this) closeTOCDrawer()">
+        <div style="width:360px; max-width:85%; height:100%; background:#1E293B; border-right:1px solid #334155; display:flex; flex-direction:column; padding:20px; box-shadow:-10px 0 30px rgba(0,0,0,0.4);" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:14px; margin-bottom:14px;">
+                <div style="font-weight:900; font-size:16px; color:#FFFFFF; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-book-bookmark" style="color:#3B82F6;"></i>
+                    <span>فهرس الكشكول والمفضلة</span>
+                </div>
+                <button onclick="closeTOCDrawer()" style="background:#334155; border:none; color:#CBD5E1; width:30px; height:30px; border-radius:50%; cursor:pointer;">✕</button>
+            </div>
+            <div id="tocItemsList" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+                <!-- TOC entries populated in JS -->
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

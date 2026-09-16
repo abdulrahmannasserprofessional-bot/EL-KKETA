@@ -14,14 +14,17 @@
     <script src="motion-fx.js?v=2.0" defer></script>
     <style>
         :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
+            --primary: #10B981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --primary-dark: #059669;
+            --secondary: #3B82F6;
             --accent: #10B981;
-            --bg-body: #F1F5F9;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
+            --bg-body: #070D1E;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(16px);
         }
 
         * {
@@ -34,14 +37,20 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 110px;
             direction: rtl;
+            overflow-x: hidden;
         }
 
         body.dark-theme {
-            background: #0F172A;
+            background: #070D1E;
             color: #F8FAFC;
         }
 
@@ -57,22 +66,23 @@
 
         /* Topbar */
         .community-topbar {
-            background: #FFFFFF;
+            background: rgba(15, 23, 42, 0.9);
             border-radius: 20px;
             padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border-color);
             position: sticky;
             top: 12px;
             z-index: 100;
+            backdrop-filter: var(--glass-blur);
         }
 
         body.dark-theme .community-topbar {
-            background: #1E293B;
-            border-color: #334155;
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(255, 255, 255, 0.12);
         }
 
         .brand-section {
@@ -182,19 +192,20 @@
 
         /* Ask Question Card */
         .ask-card {
-            background: #FFFFFF;
+            background: rgba(15, 23, 42, 0.75);
             border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
-            border: 1.5px solid #E2E8F0;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             margin-bottom: 25px;
             position: relative;
             z-index: 10;
+            backdrop-filter: var(--glass-blur);
         }
         body.dark-theme .ask-card {
-            background: #1E293B;
-            border-color: #334155;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
         }
 
         .card-title-bar {
@@ -207,10 +218,10 @@
         .form-select, .form-input, .form-textarea {
             width: 100%;
             padding: 13px 16px;
-            background: #F8FAFC;
-            border: 1.5px solid #E2E8F0;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 14px;
-            color: #1E293B;
+            color: #F8FAFC;
             font-family: 'Cairo', sans-serif;
             font-size: 14px;
             outline: none;
@@ -219,20 +230,20 @@
         body.dark-theme .form-select, 
         body.dark-theme .form-input, 
         body.dark-theme .form-textarea {
-            background: #0F172A;
-            border-color: #334155;
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(255, 255, 255, 0.12);
             color: #F8FAFC;
         }
 
         .form-select:focus, .form-input:focus, .form-textarea:focus {
             border-color: #10B981;
-            background: #FFFFFF;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+            background: rgba(30, 41, 59, 0.95);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
         }
         body.dark-theme .form-select:focus,
         body.dark-theme .form-input:focus,
         body.dark-theme .form-textarea:focus {
-            background: #0F172A;
+            background: rgba(30, 41, 59, 0.95);
             border-color: #34D399;
         }
 
@@ -344,28 +355,28 @@
         .filter-tabs-wrapper::-webkit-scrollbar { display: none; }
 
         .tab-chip {
-            background: #FFFFFF;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 8px 16px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 8px 18px;
             font-size: 13px;
             font-weight: 700;
-            color: #64748B;
+            color: #94A3B8;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s;
         }
         body.dark-theme .tab-chip {
-            background: #1E293B;
-            border-color: #334155;
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
             color: #94A3B8;
         }
-        .tab-chip:hover { color: #10B981; border-color: #A7F3D0; }
+        .tab-chip:hover { color: #34D399; border-color: rgba(16, 185, 129, 0.4); background: rgba(30, 41, 59, 0.9); }
         .tab-chip.active {
-            background: #10B981;
+            background: linear-gradient(135deg, #059669, #10B981);
             color: #FFFFFF;
-            border-color: #10B981;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            border-color: #34D399;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
         }
 
         /* Question Cards in Feed */
@@ -376,28 +387,30 @@
         }
 
         .question-card {
-            background: #FFFFFF;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            backdrop-filter: var(--glass-blur);
             transition: all 0.2s;
         }
         body.dark-theme .question-card {
-            background: #1E293B;
-            border-color: #334155;
+            background: rgba(15, 23, 42, 0.75);
+            border-color: rgba(255, 255, 255, 0.08);
         }
         .question-card:hover {
-            border-color: #CBD5E1;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+            border-color: rgba(255, 255, 255, 0.16);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
         }
         .question-card.my-q {
-            border-color: #A7F3D0;
-            background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%);
+            border-color: rgba(16, 185, 129, 0.35);
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
         }
         body.dark-theme .question-card.my-q {
-            background: linear-gradient(180deg, rgba(16,185,129,0.08) 0%, #1E293B 100%);
-            border-color: rgba(16,185,129,0.3);
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border-color: rgba(16, 185, 129, 0.35);
         }
 
         .q-header {

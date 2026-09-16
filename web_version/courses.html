@@ -8,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>المواد والمناهج الدراسية - ELKHETA</title>
+    <title>المواد والمناهج الدراسية - منصة الخطة</title>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
@@ -17,20 +17,30 @@
             caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="motion-fx.css?v=2.5">
     <script src="motion-fx.js?v=2.5" defer></script>
     <style>
         :root {
-            --primary: #2563EB;
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
             --primary-dark: #1D4ED8;
             --accent: #6366F1;
-            --bg-body: #F1F5F9;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-sub: #64748B;
-            --border-color: #E2E8F0;
+            --accent-cyan: #06B6D4;
+            --accent-emerald: #10B981;
+            --accent-amber: #F59E0B;
+            --bg-body: #070D1E;
+            --bg-surface: rgba(15, 23, 42, 0.75);
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(59, 130, 246, 0.45);
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(16px);
         }
 
         * {
@@ -43,33 +53,42 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%);
+            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
             direction: rtl;
+            overflow-x: hidden;
         }
 
         .courses-app-container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 16px 20px;
+            padding: 20px 20px 30px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 22px;
         }
 
-        /* Topbar */
+        /* ─── Topbar ─── */
         .courses-topbar {
-            background: #FFFFFF;
-            border-radius: 20px;
-            padding: 12px 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 22px;
+            padding: 14px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border-color);
-            position: relative;
+            position: sticky;
+            top: 14px;
             z-index: 100;
         }
 
@@ -82,28 +101,31 @@
         }
 
         .brand-logo-badge {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            font-size: 20px;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .brand-text-wrap h1 {
-            font-size: 16px;
+            font-size: 16.5px;
             font-weight: 900;
-            color: var(--text-main);
+            color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
             line-height: 1.2;
             margin: 0;
+            letter-spacing: -0.3px;
         }
         .brand-text-wrap span {
             font-size: 11.5px;
-            color: var(--text-sub);
+            color: #94A3B8;
             font-weight: 600;
         }
 
@@ -111,182 +133,265 @@
         .desktop-nav-links {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 4px 6px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .nav-link-btn {
             text-decoration: none;
-            color: #475569;
+            color: #94A3B8;
             font-weight: 700;
-            font-size: 13.5px;
+            font-size: 13px;
             padding: 8px 14px;
             border-radius: 12px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+            gap: 7px;
+            transition: all 0.25s ease;
         }
         .nav-link-btn:hover {
-            background: #EEF2FF;
-            color: var(--primary);
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
         }
         .nav-link-btn.active {
-            background: #EFF6FF;
-            color: var(--primary);
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: #FFFFFF;
             font-weight: 800;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
         }
 
-        @media (max-width: 860px) {
+        @media (max-width: 890px) {
             .desktop-nav-links { display: none; }
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .user-quick-chip {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 5px 12px 5px 6px;
             border-radius: 30px;
             text-decoration: none;
-            color: var(--text-main);
-            font-size: 12px;
+            color: #F8FAFC;
+            font-size: 12.5px;
             font-weight: 800;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
         }
         .user-quick-chip:hover {
-            background: #EEF2FF;
-            border-color: #C7D2FE;
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(96, 165, 250, 0.4);
         }
         .user-avatar-circle {
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             font-weight: 900;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-top-icon {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
-            color: #475569;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #CBD5E1;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
             text-decoration: none;
         }
         .btn-top-icon:hover {
-            background: #EEF2FF;
-            color: var(--primary);
-            border-color: #C7D2FE;
+            background: rgba(59, 130, 246, 0.25);
+            color: #60A5FA;
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-2px);
         }
 
-        /* Hero Banner */
+        /* ─── Hero Banner ─── */
         .courses-hero-card {
-            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #4F46E5 100%);
-            border-radius: 24px;
-            padding: 26px 24px;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(37, 99, 235, 0.75) 50%, rgba(79, 70, 229, 0.85) 100%);
+            border-radius: 26px;
+            padding: 28px 28px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 16px 40px rgba(37, 99, 235, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 18px;
+        }
+        .courses-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 65%);
+            pointer-events: none;
         }
         .courses-hero-card::after {
             content: '';
             position: absolute;
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-            bottom: -80px;
-            left: -30px;
+            bottom: -60px;
+            left: -40px;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
+        }
+
+        .hero-info-area {
+            position: relative;
+            z-index: 2;
         }
         .hero-pill-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            padding: 5px 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 6px 14px;
             border-radius: 30px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 800;
             border: 1px solid rgba(255, 255, 255, 0.25);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            letter-spacing: 0.2px;
         }
         .hero-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 900;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         .hero-sub {
-            font-size: 13px;
-            opacity: 0.92;
-            max-width: 580px;
-            line-height: 1.5;
+            font-size: 13.5px;
+            color: rgba(241, 245, 249, 0.9);
+            max-width: 600px;
+            line-height: 1.6;
             font-weight: 600;
         }
 
-        /* Search Box */
+        .hero-badge-pill {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 10px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 800;
+            font-size: 13.5px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        /* ─── Search & Filters Bar ─── */
+        .search-wrapper-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .search-container-box {
             position: relative;
             width: 100%;
         }
         .search-input-field {
             width: 100%;
-            padding: 14px 20px 14px 45px;
-            background: #FFFFFF;
+            padding: 15px 22px 15px 48px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
             border: 1.5px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 18px;
             font-family: inherit;
             font-size: 14px;
-            color: var(--text-main);
+            font-weight: 600;
+            color: #FFFFFF;
             outline: none;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .search-input-field::placeholder {
+            color: #64748B;
         }
         .search-input-field:focus {
             border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.12);
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 8px 24px rgba(0, 0, 0, 0.4);
         }
         .search-icon-inside {
             position: absolute;
-            left: 16px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 16px;
-            color: #94A3B8;
+            color: #60A5FA;
             pointer-events: none;
         }
 
-        /* Subjects Grid */
+        /* Quick Filter Tags */
+        .filter-tags-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .filter-tags-scroll::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94A3B8;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+
+        /* ─── Subjects Bento Grid ─── */
         .subjects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 18px;
         }
         @media (max-width: 640px) {
             .subjects-grid {
@@ -294,26 +399,40 @@
             }
         }
 
-        /* Subject Card */
+        /* ─── Luxe Subject Card ─── */
         .subject-card {
-            background: #FFFFFF;
-            border: 1.5px solid var(--border-color);
-            border-radius: 20px;
-            padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 22px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 14px;
+            gap: 16px;
+        }
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         .subject-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.12);
+            transform: translateY(-5px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(59, 130, 246, 0.25);
+        }
+        .subject-card:hover::before {
+            opacity: 1;
         }
         .subject-card:active {
             transform: scale(0.98);
@@ -325,28 +444,32 @@
             left: 0;
             right: 0;
             height: 4px;
+            opacity: 0.9;
         }
 
         .subject-card-header {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
         }
 
         .subject-icon-box {
-            width: 58px;
-            height: 58px;
-            border-radius: 18px;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 28px;
             flex-shrink: 0;
-            transition: transform 0.25s;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
         .subject-card:hover .subject-icon-box {
-            transform: scale(1.08) rotate(4deg);
+            transform: scale(1.1) rotate(5deg);
         }
 
         .subject-text-info {
@@ -357,9 +480,11 @@
         .subject-name {
             font-size: 17px;
             font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 4px;
-            line-height: 1.3;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+            line-height: 1.35;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .subject-lectures-count {
@@ -367,135 +492,161 @@
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 3px 10px;
+            gap: 6px;
+            padding: 4px 12px;
             border-radius: 20px;
         }
         .count-active {
-            background: #ECFDF5;
-            color: #059669;
-            border: 1px solid #A7F3D0;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
         }
         .count-pending {
-            background: #FEF3C7;
-            color: #B45309;
-            border: 1px solid #FDE68A;
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
         }
 
-        /* Progress box */
+        /* Progress Box */
         .subject-progress-box {
             width: 100%;
-            background: #F8FAFC;
-            border: 1px solid #EEF2FF;
-            border-radius: 14px;
-            padding: 10px 12px;
+            background: rgba(30, 41, 59, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 12px 14px;
             text-align: right;
-            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
+            transition: all 0.25s ease;
         }
         .progress-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 800;
-            color: #475569;
-            margin-bottom: 6px;
+            color: #CBD5E1;
+            margin-bottom: 7px;
         }
         .progress-pct-badge {
-            color: #2563EB;
+            color: #60A5FA;
             font-weight: 900;
-            font-size: 12px;
+            font-size: 12.5px;
+            font-family: 'Alexandria', sans-serif;
         }
         .progress-track {
             width: 100%;
             height: 7px;
-            background: #E2E8F0;
+            background: rgba(15, 23, 42, 0.8);
             border-radius: 10px;
             overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .progress-fill {
             height: 100%;
             border-radius: 10px;
             background: linear-gradient(90deg, #2563EB 0%, #06B6D4 100%);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .progress-subtext {
-            font-size: 11px;
-            color: #64748B;
+            font-size: 11.5px;
+            color: #94A3B8;
             font-weight: 700;
-            margin-top: 6px;
-            line-height: 1.3;
+            margin-top: 7px;
+            line-height: 1.35;
         }
 
         .subject-card-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 10px;
-            border-top: 1px dashed var(--border-color);
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
         }
 
         .explore-btn-hint {
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 800;
-            color: var(--primary);
+            color: #60A5FA;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: gap 0.2s;
+            gap: 7px;
+            transition: gap 0.25s ease;
         }
         .subject-card:hover .explore-btn-hint {
-            gap: 10px;
+            gap: 11px;
+            color: #93C5FD;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #94A3B8;
-            background: #FFFFFF;
-            border-radius: 20px;
-            border: 1.5px dashed var(--border-color);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: var(--glass-blur);
+            border-radius: 22px;
+            border: 1.5px dashed rgba(255, 255, 255, 0.15);
         }
-        .empty-state div { font-size: 44px; margin-bottom: 10px; }
-        .empty-state p { font-size: 15px; font-weight: 700; }
+        .empty-state div { font-size: 46px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; font-weight: 700; color: #CBD5E1; }
 
-        /* Bottom Nav for Mobile */
+        /* ─── Bottom Nav for Mobile ─── */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 65px;
-            background: white;
+            height: 68px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            border-top: 1px solid #EEF2FF;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
             z-index: 1000;
         }
         .nav-item {
             text-decoration: none;
-            color: #A3AED0;
+            color: #64748B;
             font-size: 11px;
             font-weight: 700;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            transition: all 0.2s;
+            gap: 4px;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 4px 12px;
         }
-        .nav-item.active { color: #2563EB; font-weight: 800; }
-        .nav-item i { font-size: 18px; }
+        .nav-item.active {
+            color: #60A5FA;
+            font-weight: 800;
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            width: 24px;
+            height: 3px;
+            border-radius: 3px;
+            background: #3B82F6;
+            box-shadow: 0 0 10px #3B82F6;
+        }
+        .nav-item i { font-size: 19px; }
 
         @media (min-width: 992px) {
             .bottom-nav { display: none; }
             body { padding-bottom: 40px; }
         }
 
-        /* Strict Mobile Responsive Rules & Anti-Horizontal Overflow */
+        /* ─── Mobile Responsive Rules ─── */
         @media (max-width: 640px) {
             html, body {
                 overflow-x: hidden !important;
@@ -503,83 +654,62 @@
                 max-width: 100vw !important;
             }
             .courses-app-container {
-                padding: 10px 12px !important;
-                gap: 12px !important;
+                padding: 12px 14px !important;
+                gap: 14px !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                box-sizing: border-box !important;
             }
             .courses-topbar {
-                padding: 10px 12px !important;
-                border-radius: 16px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
+                padding: 10px 14px !important;
+                border-radius: 18px !important;
             }
-            .brand-text-wrap span {
-                display: none !important;
-            }
+            .brand-text-wrap span { display: none !important; }
             .brand-logo-badge {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 16px !important;
-                border-radius: 10px !important;
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 17px !important;
+                border-radius: 12px !important;
             }
             .user-quick-chip {
                 padding: 4px !important;
                 border-radius: 50% !important;
             }
-            .user-quick-chip span {
-                display: none !important;
-            }
+            .user-quick-chip span { display: none !important; }
             .btn-top-icon {
-                width: 34px !important;
-                height: 34px !important;
+                width: 36px !important;
+                height: 36px !important;
                 font-size: 14px !important;
                 border-radius: 10px !important;
             }
             .courses-hero-card {
-                padding: 18px 14px !important;
-                border-radius: 18px !important;
+                padding: 20px 16px !important;
+                border-radius: 20px !important;
                 flex-direction: column !important;
                 align-items: flex-start !important;
-                gap: 10px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
+                gap: 12px !important;
             }
-            .hero-title {
-                font-size: 18px !important;
-            }
-            .hero-sub {
-                font-size: 12px !important;
-            }
+            .hero-title { font-size: 19px !important; }
+            .hero-sub { font-size: 12px !important; }
             .search-input-field {
-                padding: 12px 14px 12px 38px !important;
+                padding: 13px 16px 13px 40px !important;
                 font-size: 13px !important;
-                border-radius: 14px !important;
+                border-radius: 15px !important;
             }
             .subjects-grid {
                 grid-template-columns: 1fr !important;
-                gap: 12px !important;
-                width: 100% !important;
+                gap: 14px !important;
             }
             .subject-card {
-                padding: 16px 14px !important;
-                border-radius: 18px !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                box-sizing: border-box !important;
+                padding: 18px 16px !important;
+                border-radius: 20px !important;
             }
             .subject-icon-box {
-                width: 46px !important;
-                height: 46px !important;
-                font-size: 20px !important;
-                border-radius: 14px !important;
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 22px !important;
+                border-radius: 16px !important;
             }
-            .subject-name {
-                font-size: 15px !important;
-            }
+            .subject-name { font-size: 15.5px !important; }
         }
     </style>
 </head>
@@ -648,20 +778,32 @@
         <section class="courses-hero-card">
             <div class="hero-info-area">
                 <div class="hero-pill-badge">
-                    <i class="fa-solid fa-book-open"></i> مساراتك التعليمية 2027
+                    <i class="fa-solid fa-sparkles" style="color: #FDE047;"></i> مساراتك الأكاديمية 2027
                 </div>
                 <h2 class="hero-title">📚 المواد والمناهج الدراسية</h2>
-                <p class="hero-sub">استكشف المواد الدراسية، تصفح المحاضرات، حمل الملخصات، وحل الامتحانات التدريبية مع متابعة شريط الإنجاز أولاً بأول.</p>
+                <p class="hero-sub">استكشف المواد الدراسية، تصفح المحاضرات مع الشرح والسبورات، حل التقييمات التفاعلية، وتابع شريط إنجازك نحو القمة أولاً بأول.</p>
             </div>
-            <div id="totalSubjectsBadge" style="background: rgba(255,255,255,0.18); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.25); font-weight: 800; font-size: 13px;">
-                📚 جاري التحميل...
+            <div id="totalSubjectsBadge" class="hero-badge-pill">
+                <span>📚 جاري التحميل...</span>
             </div>
         </section>
 
-        <!-- Search Bar -->
-        <div class="search-container-box">
-            <input type="text" class="search-input-field" id="searchSubjectInput" placeholder="ابحث عن مادة دراسية أو فرع..." oninput="filterSubjects()">
-            <span class="search-icon-inside"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <!-- Search & Filter Area -->
+        <div class="search-wrapper-card">
+            <div class="search-container-box">
+                <input type="text" class="search-input-field" id="searchSubjectInput" placeholder="ابحث عن مادة دراسية أو فرع..." oninput="filterSubjects()">
+                <span class="search-icon-inside"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
+            <!-- Fast Tag Filters -->
+            <div class="filter-tags-scroll">
+                <div class="filter-chip active" onclick="selectFilterTag('', this)">🌟 جميع المواد</div>
+                <div class="filter-chip" onclick="selectFilterTag('فرد', this)">👤 أفراد</div>
+                <div class="filter-chip" onclick="selectFilterTag('جماع', this)">👥 جماعات</div>
+                <div class="filter-chip" onclick="selectFilterTag('مجتمع', this)">🏘️ مجتمعات</div>
+                <div class="filter-chip" onclick="selectFilterTag('سياس', this)">📜 سياسات</div>
+                <div class="filter-chip" onclick="selectFilterTag('طبي', this)">🏥 مجال طبي</div>
+                <div class="filter-chip" onclick="selectFilterTag('تدريب', this)">🎯 تدريب ميداني</div>
+            </div>
         </div>
 
         <!-- Subjects Grid -->
@@ -706,22 +848,22 @@
         if (avEl) avEl.textContent = stInitial;
 
         const SUBJECT_ICONS = {
-            'افراد': { icon: '👤', bg: 'linear-gradient(135deg, #2563EB, #1D4ED8)', strip: 'linear-gradient(90deg, #2563EB, #60A5FA)' },
-            'أفراد': { icon: '👤', bg: 'linear-gradient(135deg, #2563EB, #1D4ED8)', strip: 'linear-gradient(90deg, #2563EB, #60A5FA)' },
-            'الممارسة المهنية للعمل مع الأفراد': { icon: '👤', bg: 'linear-gradient(135deg, #2563EB, #1D4ED8)', strip: 'linear-gradient(90deg, #2563EB, #60A5FA)' },
-            'جماعات': { icon: '👥', bg: 'linear-gradient(135deg, #059669, #047857)', strip: 'linear-gradient(90deg, #059669, #34D399)' },
-            'مجتمعات': { icon: '🏘️', bg: 'linear-gradient(135deg, #7C3AED, #5B21B6)', strip: 'linear-gradient(90deg, #7C3AED, #A78BFA)' },
-            'سياسات الرعاية الاجتماعية': { icon: '📜', bg: 'linear-gradient(135deg, #D97706, #B45309)', strip: 'linear-gradient(90deg, #D97706, #FBBF24)' },
-            'الخدمة الاجتماعية في مجال طبي': { icon: '🏥', bg: 'linear-gradient(135deg, #DC2626, #991B1B)', strip: 'linear-gradient(90deg, #DC2626, #F87171)' },
-            'تدريب ميداني': { icon: '🎯', bg: 'linear-gradient(135deg, #0891B2, #0E7490)', strip: 'linear-gradient(90deg, #0891B2, #22D3EE)' },
-            'مشروع تخرج': { icon: '🎓', bg: 'linear-gradient(135deg, #BE185D, #831843)', strip: 'linear-gradient(90deg, #BE185D, #F472B6)' }
+            'افراد': { icon: '👤', bg: 'linear-gradient(135deg, #1E40AF, #3B82F6)', strip: 'linear-gradient(90deg, #3B82F6, #60A5FA)' },
+            'أفراد': { icon: '👤', bg: 'linear-gradient(135deg, #1E40AF, #3B82F6)', strip: 'linear-gradient(90deg, #3B82F6, #60A5FA)' },
+            'الممارسة المهنية للعمل مع الأفراد': { icon: '👤', bg: 'linear-gradient(135deg, #1E40AF, #3B82F6)', strip: 'linear-gradient(90deg, #3B82F6, #60A5FA)' },
+            'جماعات': { icon: '👥', bg: 'linear-gradient(135deg, #065F46, #10B981)', strip: 'linear-gradient(90deg, #10B981, #34D399)' },
+            'مجتمعات': { icon: '🏘️', bg: 'linear-gradient(135deg, #5B21B6, #8B5CF6)', strip: 'linear-gradient(90deg, #8B5CF6, #A78BFA)' },
+            'سياسات الرعاية الاجتماعية': { icon: '📜', bg: 'linear-gradient(135deg, #92400E, #F59E0B)', strip: 'linear-gradient(90deg, #F59E0B, #FBBF24)' },
+            'الخدمة الاجتماعية في مجال طبي': { icon: '🏥', bg: 'linear-gradient(135deg, #991B1B, #EF4444)', strip: 'linear-gradient(90deg, #EF4444, #F87171)' },
+            'تدريب ميداني': { icon: '🎯', bg: 'linear-gradient(135deg, #0E7490, #06B6D4)', strip: 'linear-gradient(90deg, #06B6D4, #22D3EE)' },
+            'مشروع تخرج': { icon: '🎓', bg: 'linear-gradient(135deg, #831843, #EC4899)', strip: 'linear-gradient(90deg, #EC4899, #F472B6)' }
         };
 
         const DEFAULT_GRADIENTS = [
-            { icon: '📚', bg: 'linear-gradient(135deg, #4F46E5, #3730A3)', strip: 'linear-gradient(90deg, #4F46E5, #818CF8)' },
-            { icon: '📖', bg: 'linear-gradient(135deg, #059669, #047857)', strip: 'linear-gradient(90deg, #059669, #34D399)' },
-            { icon: '🧠', bg: 'linear-gradient(135deg, #D97706, #B45309)', strip: 'linear-gradient(90deg, #D97706, #FBBF24)' },
-            { icon: '🔬', bg: 'linear-gradient(135deg, #7C3AED, #5B21B6)', strip: 'linear-gradient(90deg, #7C3AED, #A78BFA)' }
+            { icon: '📚', bg: 'linear-gradient(135deg, #3730A3, #6366F1)', strip: 'linear-gradient(90deg, #6366F1, #818CF8)' },
+            { icon: '📖', bg: 'linear-gradient(135deg, #065F46, #10B981)', strip: 'linear-gradient(90deg, #10B981, #34D399)' },
+            { icon: '🧠', bg: 'linear-gradient(135deg, #92400E, #F59E0B)', strip: 'linear-gradient(90deg, #F59E0B, #FBBF24)' },
+            { icon: '🔬', bg: 'linear-gradient(135deg, #5B21B6, #8B5CF6)', strip: 'linear-gradient(90deg, #8B5CF6, #A78BFA)' }
         ];
 
         let allSubjects = [];
@@ -755,17 +897,16 @@
             } catch(e) {}
         }
 
-        // Real-Time Live Sync — Promise.all بدلاً من listeners متداخلة
+        // Real-Time Live Sync
         function initRealtimeSubjects() {
             const loadTimeout = setTimeout(() => {
-                // إذا لم تظهر البيانات خلال 10 ثواني — اعرض زر إعادة المحاولة
                 const container = document.getElementById('subjectsContainer');
                 if (container && container.innerHTML.includes('⏳')) {
                     container.innerHTML = `
                         <div style="text-align:center; padding:40px 20px; grid-column:1/-1;">
                             <div style="font-size:40px; margin-bottom:12px;">📡</div>
-                            <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0 0 6px;">تعذّر تحميل المواد</h3>
-                            <p style="font-size:13px; color:#64748B; font-weight:600; margin:0 0 16px;">تحقق من اتصالك بالإنترنت وأعد المحاولة</p>
+                            <h3 style="font-size:16px; font-weight:800; color:#F8FAFC; margin:0 0 6px;">تعذّر تحميل المواد</h3>
+                            <p style="font-size:13px; color:#94A3B8; font-weight:600; margin:0 0 16px;">تحقق من اتصالك بالإنترنت وأعد المحاولة</p>
                             <button onclick="location.reload()" style="background:#2563EB; color:#fff; border:none; padding:10px 24px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">
                                 🔄 إعادة المحاولة
                             </button>
@@ -814,7 +955,7 @@
                 renderSubjects(allSubjects);
 
                 const totalBadge = document.getElementById('totalSubjectsBadge');
-                if (totalBadge) totalBadge.innerHTML = `📚 ${allSubjects.length} مواد دراسية متاحة`;
+                if (totalBadge) totalBadge.innerHTML = `<span>📚 ${allSubjects.length} مواد دراسية متاحة</span>`;
 
             }).catch(err => {
                 clearTimeout(loadTimeout);
@@ -824,8 +965,8 @@
                     container.innerHTML = `
                         <div style="text-align:center; padding:40px 20px; grid-column:1/-1;">
                             <div style="font-size:40px; margin-bottom:12px;">⚠️</div>
-                            <h3 style="font-size:16px; font-weight:800; color:#0F172A; margin:0 0 6px;">خطأ في تحميل البيانات</h3>
-                            <p style="font-size:13px; color:#64748B; font-weight:600; margin:0 0 16px;">${err.message || 'حدث خطأ غير متوقع'}</p>
+                            <h3 style="font-size:16px; font-weight:800; color:#F8FAFC; margin:0 0 6px;">خطأ في تحميل البيانات</h3>
+                            <p style="font-size:13px; color:#94A3B8; font-weight:600; margin:0 0 16px;">${err.message || 'حدث خطأ غير متوقع'}</p>
                             <button onclick="location.reload()" style="background:#2563EB; color:#fff; border:none; padding:10px 24px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; font-family:'Cairo',sans-serif;">
                                 🔄 إعادة المحاولة
                             </button>
@@ -837,7 +978,6 @@
 
         initRealtimeSubjects();
 
-
         function renderSubjects(subjects) {
             const container = document.getElementById('subjectsContainer');
             container.innerHTML = "";
@@ -846,7 +986,7 @@
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1;">
                         <div>📚</div>
-                        <p>لا توجد مواد دراسية مضافة حالياً.</p>
+                        <p>لا توجد مواد دراسية مطابقة للبحث حالياً.</p>
                     </div>
                 `;
                 return;
@@ -858,8 +998,8 @@
                 const count = lectureCounts[sub.name] || 0;
                 const themeInfo = SUBJECT_ICONS[sub.name] || DEFAULT_GRADIENTS[idx % DEFAULT_GRADIENTS.length];
                 const icon = themeInfo.icon || '📚';
-                const iconBg = themeInfo.bg || 'linear-gradient(135deg, #2563EB, #1D4ED8)';
-                const stripBg = themeInfo.strip || 'linear-gradient(90deg, #2563EB, #60A5FA)';
+                const iconBg = themeInfo.bg || 'linear-gradient(135deg, #1E40AF, #3B82F6)';
+                const stripBg = themeInfo.strip || 'linear-gradient(90deg, #3B82F6, #60A5FA)';
 
                 // Calculate completed lessons
                 let completedLessons = {};
@@ -874,15 +1014,15 @@
                 if (count > 0) {
                     if (pct >= 100) {
                         progressHTML = `
-                            <div class="subject-progress-box" style="background:#ECFDF5; border-color:#A7F3D0;">
-                                <div class="progress-header-row" style="color:#065F46;">
+                            <div class="subject-progress-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
+                                <div class="progress-header-row" style="color: #6EE7B7;">
                                     <span>نسبة الإنجاز</span>
-                                    <span class="progress-pct-badge" style="color:#059669;">100% ✨</span>
+                                    <span class="progress-pct-badge" style="color: #34D399;">100% ✨</span>
                                 </div>
-                                <div class="progress-track" style="background:#D1FAE5;">
-                                    <div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #10B981, #059669);"></div>
+                                <div class="progress-track" style="background: rgba(6, 78, 59, 0.6);">
+                                    <div class="progress-fill" style="width: 100%; background: linear-gradient(90deg, #10B981, #34D399); box-shadow: 0 0 12px rgba(52, 211, 153, 0.5);"></div>
                                 </div>
-                                <div class="progress-subtext" style="color:#047857;">🎉 أنجزت كافة دروس المادة!</div>
+                                <div class="progress-subtext" style="color: #A7F3D0;">🎉 أنجزت كافة دروس ومحاضرات المادة!</div>
                             </div>
                         `;
                     } else if (pct > 0) {
@@ -903,7 +1043,7 @@
                             <div class="subject-progress-box">
                                 <div class="progress-header-row">
                                     <span>نسبة الإنجاز</span>
-                                    <span class="progress-pct-badge" style="color:#94A3B8;">0%</span>
+                                    <span class="progress-pct-badge" style="color: #64748B;">0%</span>
                                 </div>
                                 <div class="progress-track">
                                     <div class="progress-fill" style="width: 0%;"></div>
@@ -914,8 +1054,8 @@
                     }
                 } else {
                     progressHTML = `
-                        <div class="subject-progress-box" style="background:#FFFBEB; border-color:#FDE68A;">
-                            <div style="font-size: 11.5px; color: #B45309; font-weight: 800; text-align: center;">
+                        <div class="subject-progress-box" style="background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.25);">
+                            <div style="font-size: 11.5px; color: #FBBF24; font-weight: 800; text-align: center;">
                                 ⏳ جاري رفع وإعداد المحاضرات والملخصات
                             </div>
                         </div>
@@ -942,8 +1082,8 @@
                 };
 
                 const countBadgeHTML = count > 0 
-                    ? `<span class="subject-lectures-count count-active"><i class="fa-solid fa-play-circle"></i> ${count} محاضرات ودروس متوفرة</span>`
-                    : `<span class="subject-lectures-count count-pending"><i class="fa-solid fa-hourglass-half"></i> قريباً بالموقع</span>`;
+                    ? `<span class="subject-lectures-count count-active"><i class="fa-solid fa-play-circle"></i> ${count} محاضرات متاحة</span>`
+                    : `<span class="subject-lectures-count count-pending"><i class="fa-solid fa-hourglass-half"></i> قريباً بالمنصة</span>`;
 
                 card.innerHTML = `
                     <div class="subject-color-strip" style="background: ${stripBg};"></div>
@@ -957,7 +1097,7 @@
                     ${progressHTML}
                     <div class="subject-card-footer">
                         <span class="explore-btn-hint">دخول المادة والمحاضرات <i class="fa-solid fa-arrow-left"></i></span>
-                        <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">دفعة 2027</span>
+                        <span style="font-size: 11.5px; color: #64748B; font-weight: 700;">دفعة 2027</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -972,6 +1112,14 @@
             }
             const filtered = allSubjects.filter(s => s.name.toLowerCase().includes(q));
             renderSubjects(filtered);
+        }
+
+        function selectFilterTag(tag, el) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            if (el) el.classList.add('active');
+            const input = document.getElementById('searchSubjectInput');
+            if (input) input.value = tag;
+            filterSubjects();
         }
     </script>
     <script src="custom-dialogs.js"></script>

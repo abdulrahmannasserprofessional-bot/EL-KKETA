@@ -104,12 +104,12 @@
                 </p>
 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="https://wa.me/201158210358" target="_blank" style="
+                    <a href="chat.html" style="
                         display: flex; align-items: center; justify-content: center; gap: 8px;
-                        background: #10B981; color: white; padding: 12px; border-radius: 14px;
+                        background: linear-gradient(135deg, #0284C7, #0369A1); color: white; padding: 12px; border-radius: 14px;
                         font-weight: 800; font-size: 14px; text-decoration: none;
                     ">
-                        💬 تواصل مع الدعم الفني عبر واتساب
+                        💬 تواصل مع الدعم الفني عبر الشات المباشر
                     </a>
                     
                     <button onclick="window.location.href='index.html'" style="
@@ -154,186 +154,36 @@
     }
 
     // ==========================================
-    // 2. Realtime Maintenance & Live Timer Guard
+    // 2. Realtime Maintenance & Full-Screen Redirect Guard
     // ==========================================
     function initMaintenanceGuard(db) {
-        const page = window.location.pathname.split('/').pop();
-        if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html') return;
+        const page = window.location.pathname.split('/').pop().toLowerCase() || 'index.html';
+        if (page.startsWith('admin') || page === 'admin-gate.html' || page === 'admin-panel.html' || page === 'admin-config.html' || page === 'admin-maintenance.html') return;
+        if (page === 'maintenance.html') return;
 
         // Admin bypass for inspection and development
         const isAdmin = sessionStorage.getItem('adminRole') || localStorage.getItem('isAdmin');
         if (isAdmin) {
-            removeMaintenanceOverlay();
             return;
         }
 
         db.ref('Settings').on('value', snap => {
-            if (!snap.exists()) {
-                removeMaintenanceOverlay();
-                return;
-            }
+            if (!snap.exists()) return;
+
             // Re-check admin session on value change
             if (sessionStorage.getItem('adminRole') || localStorage.getItem('isAdmin')) {
-                removeMaintenanceOverlay();
                 return;
             }
             const s = snap.val();
             const isMaint = Boolean(s.maintenance);
-            const details = s.maintenanceDetails || {};
 
             if (isMaint) {
-                showMaintenanceScreen(details);
-            } else {
-                removeMaintenanceOverlay();
+                const curPage = window.location.pathname.split('/').pop().toLowerCase() || 'index.html';
+                if (curPage !== 'maintenance.html' && !curPage.startsWith('admin')) {
+                    window.location.replace('maintenance.html');
+                }
             }
         });
-    }
-
-    function removeMaintenanceOverlay() {
-        const existing = document.getElementById('elkhetaMaintenanceOverlay');
-        if (existing) existing.remove();
-        if (maintenanceInterval) clearInterval(maintenanceInterval);
-        isMaintenanceOverlayShown = false;
-    }
-
-    function showMaintenanceScreen(details) {
-        if (isMaintenanceOverlayShown) {
-            updateMaintenanceDetails(details);
-            return;
-        }
-        isMaintenanceOverlayShown = true;
-
-        const overlay = document.createElement('div');
-        overlay.id = 'elkhetaMaintenanceOverlay';
-        overlay.style.cssText = `
-            position: fixed; inset: 0;
-            background: rgba(9, 13, 22, 0.96);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 99999999;
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px; font-family: 'Cairo', sans-serif; direction: rtl;
-        `;
-
-        overlay.innerHTML = `
-            <div style="
-                background: rgba(17, 24, 39, 0.95);
-                border: 1px solid rgba(255, 255, 255, 0.12);
-                border-radius: 28px;
-                padding: 36px 28px;
-                max-width: 480px;
-                width: 100%;
-                text-align: center;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.25);
-                color: #F8FAFC;
-                position: relative; overflow: hidden;
-            ">
-                <div style="
-                    width: 80px; height: 80px;
-                    background: linear-gradient(135deg, #1E1B4B, #312E81);
-                    border: 2px solid rgba(99, 102, 241, 0.4);
-                    color: #38BDF8;
-                    border-radius: 24px;
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 38px; margin: 0 auto 20px;
-                    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-                ">🛠️</div>
-
-                <h2 style="font-size: 22px; font-weight: 900; color: #F8FAFC; margin-bottom: 6px;">المنصة تحت الصيانة والتحديث الفني</h2>
-                <p id="maintReasonText" style="font-size: 13.5px; font-weight: 700; color: #94A3B8; margin-bottom: 20px; line-height: 1.6;">
-                    ${details.reason || 'نقوم حالياً بتحسين وتحديث سيرفرات المنصة لتقديم أفضل تجربة تعلم 🎓'}
-                </p>
-
-                <!-- Live Timer Card -->
-                <div style="
-                    background: rgba(255, 255, 255, 0.04);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 20px;
-                    padding: 16px;
-                    margin-bottom: 22px;
-                ">
-                    <div style="font-size: 12px; font-weight: 800; color: #F59E0B; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <span>⏱️ الوقت المتبقي لانتهاء الصيانة:</span>
-                    </div>
-                    <div id="maintTimerDisplay" style="font-size: 32px; font-weight: 900; font-family: monospace; color: #38BDF8; letter-spacing: 3px;">
-                        --:--:--
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button onclick="window.showEmergencyReportModal()" style="
-                        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-                        color: white; border: none; padding: 13px; border-radius: 14px;
-                        font-weight: 800; font-size: 14px; font-family: inherit; cursor: pointer;
-                        display: flex; align-items: center; justify-content: center; gap: 8px;
-                        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-                    ">
-                        🚨 الإبلاغ عن مشكلة عاجلة أثناء الصيانة
-                    </button>
-
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="window.location.reload()" style="
-                            flex: 1; background: rgba(255, 255, 255, 0.06); color: #F8FAFC;
-                            border: 1px solid rgba(255, 255, 255, 0.12); padding: 11px;
-                            border-radius: 14px; font-weight: 800; font-size: 13px;
-                            cursor: pointer; font-family: inherit;
-                        ">
-                            🔄 تحديث ومراجعة
-                        </button>
-                        <a href="https://wa.me/201158210358" target="_blank" style="
-                            flex: 1; background: rgba(34, 197, 94, 0.15); color: #4ADE80;
-                            border: 1px solid rgba(34, 197, 94, 0.3); padding: 11px;
-                            border-radius: 14px; font-weight: 800; font-size: 13px;
-                            text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;
-                        ">
-                            💬 دعم واتساب
-                        </a>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-        startMaintenanceTimer(details.timerEnd);
-    }
-
-    function updateMaintenanceDetails(details) {
-        const reasonEl = document.getElementById('maintReasonText');
-        if (reasonEl && details.reason) reasonEl.textContent = details.reason;
-        startMaintenanceTimer(details.timerEnd);
-    }
-
-    function startMaintenanceTimer(timerEnd) {
-        if (maintenanceInterval) clearInterval(maintenanceInterval);
-
-        function tick() {
-            const timerDisplay = document.getElementById('maintTimerDisplay');
-            if (!timerDisplay) return;
-
-            if (!timerEnd) {
-                timerDisplay.textContent = 'قيد العمل...';
-                return;
-            }
-
-            const now = Date.now();
-            const diff = Math.max(0, Math.floor((timerEnd - now) / 1000));
-
-            if (diff <= 0) {
-                timerDisplay.textContent = 'أوشكنا على الانتهاء 🎉';
-                return;
-            }
-
-            const hrs = Math.floor(diff / 3600);
-            const mins = Math.floor((diff % 3600) / 60);
-            const secs = diff % 60;
-
-            const pad = n => n.toString().padStart(2, '0');
-            timerDisplay.textContent = `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-        }
-
-        tick();
-        maintenanceInterval = setInterval(tick, 1000);
     }
 
     window.showEmergencyReportModal = function() {

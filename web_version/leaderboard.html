@@ -6,8 +6,10 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>أوائل المنصة ولوحة الشرف - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>لوحة الشرف والمتصدرين - منصة الخطة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="motion-fx.css?v=2.0">
     <link rel="manifest" href="manifest.json">
@@ -15,13 +17,16 @@
     <script src="motion-fx.js?v=2.0" defer></script>
     <style>
         :root {
-            --primary: #2563EB;
-            --accent: #EAB308;
-            --bg-body: #F1F5F9;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border-color: #E2E8F0;
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent: #F59E0B;
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            --bg-body: #070D1E;
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(16px);
         }
 
         * {
@@ -34,35 +39,42 @@
         body {
             font-family: 'Cairo', sans-serif;
             background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
             direction: rtl;
             overflow-x: hidden;
         }
 
         .leaderboard-app-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 980px;
             margin: 0 auto;
-            padding: 16px 20px;
+            padding: 20px 20px 30px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 22px;
         }
 
-        /* Topbar */
+        /* ─── Topbar ─── */
         .lb-topbar {
-            background: #FFFFFF;
-            border-radius: 20px;
-            padding: 12px 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 22px;
+            padding: 14px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border-color);
             position: sticky;
-            top: 12px;
+            top: 14px;
             z-index: 100;
         }
 
@@ -75,16 +87,17 @@
         }
 
         .brand-logo-badge {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #B45309 0%, #F59E0B 100%);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            font-size: 20px;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .topbar-actions {
@@ -97,47 +110,52 @@
             width: 40px;
             height: 40px;
             border-radius: 12px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
-            color: #475569;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #CBD5E1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
             text-decoration: none;
         }
         .btn-nav-icon:hover {
-            background: #EEF2FF;
-            color: var(--primary);
-            border-color: #C7D2FE;
+            background: rgba(59, 130, 246, 0.25);
+            color: #60A5FA;
+            border-color: rgba(96, 165, 250, 0.4);
+            transform: translateY(-2px);
         }
 
-        /* Hero Banner */
+        /* ─── Hero Banner ─── */
         .lb-hero-banner {
-            background: linear-gradient(135deg, #1E1B4B 0%, #1E3A8A 50%, #3B82F6 100%);
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(30, 58, 138, 0.75) 50%, rgba(180, 83, 9, 0.75) 100%);
             border-radius: 26px;
             padding: 28px 24px;
             color: white;
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 12px 35px rgba(30, 27, 75, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
         }
-
         .lb-hero-banner h2 {
             font-size: 24px;
             font-weight: 900;
             margin-bottom: 6px;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         .lb-hero-banner p {
             font-size: 13.5px;
-            color: #E0E7FF;
+            color: #E2E8F0;
             font-weight: 600;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Podium Section */
+        /* ─── Podium Section ─── */
         .podium-section-wrap {
             display: flex;
             align-items: flex-end;
@@ -153,135 +171,146 @@
             align-items: center;
             position: relative;
             width: 30%;
-            max-width: 170px;
+            max-width: 175px;
         }
 
         .podium-avatar-circle {
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            background: #FFFFFF;
+            background: rgba(15, 23, 42, 0.9);
             border: 3.5px solid;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             margin-bottom: -18px;
             position: relative;
             z-index: 5;
+            backdrop-filter: blur(8px);
         }
 
         .podium-col.rank-1 .podium-avatar-circle {
-            width: 90px;
-            height: 90px;
+            width: 92px;
+            height: 92px;
             font-size: 42px;
             border-color: #F59E0B;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.6);
         }
         .podium-col.rank-2 .podium-avatar-circle {
             border-color: #94A3B8;
+            box-shadow: 0 0 25px rgba(148, 163, 184, 0.4);
         }
         .podium-col.rank-3 .podium-avatar-circle {
             border-color: #D97706;
+            box-shadow: 0 0 25px rgba(217, 119, 6, 0.4);
         }
 
         .crown-icon-float {
             position: absolute;
-            top: -28px;
-            font-size: 28px;
+            top: -30px;
+            font-size: 30px;
             animation: crownBounce 2.5s ease-in-out infinite alternate;
-            filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.6));
+            filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.8));
         }
 
         @keyframes crownBounce {
             0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(-6px) scale(1.1); }
+            100% { transform: translateY(-7px) scale(1.12); }
         }
 
         .podium-stand-box {
             width: 100%;
-            border-radius: 20px 20px 0 0;
-            padding: 26px 10px 14px;
+            border-radius: 22px 22px 0 0;
+            padding: 28px 10px 14px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: white;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .podium-col.rank-1 .podium-stand-box {
-            height: 165px;
-            background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+            height: 170px;
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.9) 0%, rgba(180, 83, 9, 0.85) 100%);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
         }
         .podium-col.rank-2 .podium-stand-box {
-            height: 130px;
-            background: linear-gradient(180deg, #94A3B8 0%, #64748B 100%);
+            height: 135px;
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.85) 0%, rgba(71, 85, 105, 0.85) 100%);
         }
         .podium-col.rank-3 .podium-stand-box {
-            height: 105px;
-            background: linear-gradient(180deg, #D97706 0%, #B45309 100%);
+            height: 110px;
+            background: linear-gradient(180deg, rgba(217, 119, 6, 0.85) 0%, rgba(146, 64, 14, 0.85) 100%);
         }
 
         .podium-student-name {
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 900;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 90%;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         .podium-col.rank-1 .podium-student-name {
-            font-size: 16px;
+            font-size: 16.5px;
         }
 
         .podium-score-badge {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11.5px;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 800;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .podium-rank-num {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 900;
             opacity: 0.35;
             margin-top: auto;
             line-height: 1;
+            font-family: 'Alexandria', sans-serif;
         }
 
-        /* Rank List Cards */
+        /* ─── Rank List Cards ─── */
         .ranks-list-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .rank-card-row {
-            background: #FFFFFF;
-            border: 1.5px solid var(--border-color);
-            border-radius: 18px;
-            padding: 14px 18px;
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .rank-card-row:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-            border-color: #CBD5E1;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
         }
 
         .rank-card-row.is-me {
-            background: #EFF6FF;
-            border-color: #93C5FD;
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.15);
+            background: rgba(30, 58, 138, 0.45);
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.3);
         }
 
         .rank-left-group {
@@ -293,33 +322,36 @@
         }
 
         .rank-number-pill {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            background: #F1F5F9;
-            color: #475569;
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #CBD5E1;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
             font-size: 14px;
             flex-shrink: 0;
+            font-family: 'Alexandria', sans-serif;
         }
         .rank-card-row.is-me .rank-number-pill {
-            background: var(--primary);
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
             color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
 
         .rank-avatar-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             flex-shrink: 0;
         }
 
@@ -327,57 +359,62 @@
             overflow: hidden;
         }
         .rank-student-name {
-            font-size: 14.5px;
+            font-size: 15px;
             font-weight: 800;
-            color: #0F172A;
+            color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .rank-student-sub {
-            font-size: 11.5px;
+            font-size: 12px;
             color: var(--text-muted);
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .rank-score-chip {
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
+            background: rgba(59, 130, 246, 0.18);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.35);
             padding: 6px 14px;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 14px;
             font-weight: 900;
             white-space: nowrap;
             flex-shrink: 0;
+            font-family: 'Alexandria', sans-serif;
         }
 
         .loading-state-box {
             text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 20px;
+            padding: 50px 20px;
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            border-radius: 22px;
             border: 1px solid var(--border-color);
             font-size: 15px;
             font-weight: 700;
             color: var(--text-muted);
         }
 
-        /* Mobile Bottom Nav */
+        /* ─── Mobile Bottom Nav ─── */
         .mobile-bottom-nav {
             display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            border-top: 1px solid #E2E8F0;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             height: 68px;
             align-items: center;
             justify-content: space-around;
             z-index: 1000;
-            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
         }
 
         .bottom-nav-item {
@@ -386,103 +423,34 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            color: #94A3B8;
+            color: #64748B;
             font-size: 11px;
             font-weight: 800;
             gap: 4px;
             padding: 8px 12px;
+            position: relative;
         }
-        .bottom-nav-item i { font-size: 18px; }
-        .bottom-nav-item.active { color: var(--primary); }
+        .bottom-nav-item i { font-size: 19px; }
+        .bottom-nav-item.active { color: #60A5FA; }
+        .bottom-nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            width: 24px;
+            height: 3px;
+            border-radius: 3px;
+            background: #3B82F6;
+            box-shadow: 0 0 10px #3B82F6;
+        }
 
         @media (max-width: 991px) {
             .mobile-bottom-nav { display: flex; }
-        }
-
-        @media (max-width: 640px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100%;
-                max-width: 100vw;
-            }
-            .leaderboard-app-container {
-                padding: 10px 12px;
-                gap: 12px;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            .lb-topbar {
-                padding: 10px 14px;
-                top: 6px;
-                border-radius: 16px;
-            }
-            .lb-hero-banner {
-                padding: 20px 16px;
-                border-radius: 20px;
-            }
-            .lb-hero-banner h2 {
-                font-size: 18px;
-            }
-            .lb-hero-banner p {
-                font-size: 12px;
-            }
-            .podium-section-wrap {
-                gap: 8px;
-                margin: 14px 0 5px;
-                padding-top: 24px;
-            }
-            .podium-col {
-                width: 32%;
-                max-width: 110px;
-            }
-            .podium-avatar-circle {
-                width: 54px;
-                height: 54px;
-                font-size: 22px;
-                border-width: 2.5px;
-                margin-bottom: -14px;
-            }
-            .podium-col.rank-1 .podium-avatar-circle {
-                width: 68px;
-                height: 68px;
-                font-size: 28px;
-                border-width: 3px;
-                margin-bottom: -16px;
-            }
-            .crown-icon-float {
-                top: -22px;
-                font-size: 22px;
-            }
-            .podium-stand-box {
-                padding: 20px 4px 10px;
-                border-radius: 14px 14px 0 0;
-            }
-            .podium-col.rank-1 .podium-stand-box { height: 140px; }
-            .podium-col.rank-2 .podium-stand-box { height: 115px; }
-            .podium-col.rank-3 .podium-stand-box { height: 95px; }
-            .podium-student-name { font-size: 11px; max-width: 95%; }
-            .podium-col.rank-1 .podium-student-name { font-size: 12px; }
-            .podium-score-badge { font-size: 10px; padding: 2px 5px; }
-            .podium-rank-num { font-size: 24px; }
-            .rank-card-row {
-                padding: 10px 12px;
-                gap: 8px;
-                border-radius: 14px;
-            }
-            .rank-left-group { gap: 8px; }
-            .rank-number-pill { width: 28px; height: 28px; font-size: 12px; border-radius: 8px; }
-            .rank-avatar-box { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
-            .rank-student-name { font-size: 13px; }
-            .rank-student-sub { font-size: 10.5px; }
-            .rank-score-chip { padding: 4px 8px; font-size: 12px; border-radius: 10px; }
         }
     </style>
 </head>
 <body>
 
     <div class="leaderboard-app-container">
-
         <!-- Topbar -->
         <header class="lb-topbar">
             <a href="home.html" class="brand-section">
@@ -490,11 +458,10 @@
                     <i class="fas fa-trophy"></i>
                 </div>
                 <div>
-                    <h1 style="font-size: 16px; font-weight: 900;">لوحة الشرف</h1>
-                    <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">منصة الخطة التعليمية</span>
+                    <h1 style="font-size: 16px; font-weight: 900; margin: 0; font-family: 'Alexandria', 'Cairo', sans-serif;">لوحة الشرف</h1>
+                    <span style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">متصدرو منصة الخطة 2027</span>
                 </div>
             </a>
-
             <div class="topbar-actions">
                 <a href="home.html" class="btn-nav-icon" title="الرئيسية">
                     <i class="fas fa-home"></i>
@@ -513,7 +480,7 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="loading-state-box">
-            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: var(--primary); margin-bottom: 8px; display: block;"></i>
+            <i class="fas fa-spinner fa-spin" style="font-size: 28px; color: #3B82F6; margin-bottom: 12px; display: block;"></i>
             <span>جاري سحب الترتيب الحقيقي للطلاب...</span>
         </div>
 
@@ -650,7 +617,7 @@
                                 <div class="rank-number-pill">${actualRank}</div>
                                 <div class="rank-avatar-box">${getAvatar(s.fullName)}</div>
                                 <div class="rank-student-info">
-                                    <div class="rank-student-name">${s.fullName} ${isMe ? '<span style="color:var(--primary); font-size:12px;">(أنت)</span>' : ''}</div>
+                                    <div class="rank-student-name">${s.fullName} ${isMe ? '<span style="color:#60A5FA; font-size:12px;">(أنت)</span>' : ''}</div>
                                     <div class="rank-student-sub">أتم ${examsTaken} امتحانات واختبارات</div>
                                 </div>
                             </div>
@@ -669,6 +636,3 @@
     <script src="student-guard.js"></script>
 </body>
 </html>
-
-
-

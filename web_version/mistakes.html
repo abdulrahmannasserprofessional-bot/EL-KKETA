@@ -2,100 +2,690 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل التعلم - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>كشكول وسجل الأخطاء الذكي - ELKHETA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="motion-fx.css?v=2.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
     <script src="motion-fx.js?v=2.0" defer></script>
     <style>
-        .stats-card { background: var(--card-bg); margin-top: -30px; text-align: center; }
-        .subject-header { padding: 20px 20px 5px; color: var(--primary); font-weight: bold; font-size: 18px; display: flex; align-items: center; }
-        .subject-header::before { content: ""; width: 4px; height: 20px; background: var(--primary); margin-left: 10px; border-radius: 2px; }
-        .mistake-card { border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-right: 5px solid #EF4444; margin-bottom: 15px; transition: transform 0.2s, box-shadow 0.2s; }
-        .mistake-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .explanation { padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 14px; color: var(--text-sub); border: 1px solid var(--border-color); }
-        /* Dark mode overrides for new colors */
-        body.dark-theme .explanation.success-box { background: rgba(22, 101, 52, 0.2) !important; border-color: #166534 !important; color: #DCFCE7 !important; }
-        body.dark-theme .explanation.success-box b { color: #86EFAC !important; }
-        body.dark-theme .exam-badge { background: rgba(79, 70, 229, 0.2) !important; color: #A5B4FC !important; }
+        :root {
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --primary-dark: #1D4ED8;
+            --secondary: #6366F1;
+            --accent-purple: #8B5CF6;
+            --accent-cyan: #06B6D4;
+            --accent-emerald: #10B981;
+            --danger: #EF4444;
+            --danger-glow: rgba(239, 68, 68, 0.35);
+            --bg: #070D1E;
+            --surface: rgba(15, 23, 42, 0.85);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(16px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 110px;
+            overflow-x: hidden;
+            direction: rtl;
+        }
+
+        /* Topbar Header */
+        .app-topbar {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .back-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #F8FAFC;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #60A5FA;
+            color: #60A5FA;
+            transform: scale(1.05);
+        }
+
+        .topbar-title {
+            font-family: 'Alexandria', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Hero Stats HUD Card */
+        .stats-hud-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .stats-hud-card::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: -40px;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .hud-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-icon-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(220, 38, 38, 0.1));
+            border: 1.5px solid rgba(239, 68, 68, 0.4);
+            color: #F87171;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+        }
+
+        .hud-heading {
+            font-family: 'Alexandria', sans-serif;
+            font-size: 19px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .hud-subtext {
+            color: var(--text-sub);
+            font-size: 13.5px;
+            margin-top: 3px;
+        }
+
+        .hud-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .hud-stat-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hud-stat-box .label {
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .hud-stat-box .value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            font-family: 'Alexandria', sans-serif;
+        }
+
+        .hud-stat-box.danger-accent .value { color: #F87171; }
+        .hud-stat-box.purple-accent .value { color: #C084FC; }
+        .hud-stat-box.cyan-accent .value { color: #38BDF8; }
+
+        .hud-actions-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Buttons */
+        .btn-luxe {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 22px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-luxe-primary {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+        }
+        .btn-luxe-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-luxe-purple {
+            background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+        }
+        .btn-luxe-purple:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-luxe-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #F87171;
+        }
+        .btn-luxe-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Filter Section */
+        .filter-glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 18px 20px;
+            backdrop-filter: var(--glass-blur);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-header {
+            font-family: 'Alexandria', sans-serif;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #93C5FD;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-selects-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .custom-select-wrap {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .luxe-select {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: #F8FAFC;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .luxe-select:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .custom-select-wrap::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            pointer-events: none;
+        }
+
+        /* Subject Group Header */
+        .subject-group-banner {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.18), rgba(99, 102, 241, 0.05));
+            border-right: 4px solid #3B82F6;
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .subject-group-title {
+            font-family: 'Alexandria', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Mistake Cards */
+        .mistake-card-luxe {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-right: 4px solid #EF4444;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--glass-blur);
+            transition: all 0.25s;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .mistake-card-luxe:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+            border-right-color: #EF4444;
+            box-shadow: 0 14px 35px rgba(239, 68, 68, 0.12);
+        }
+
+        .card-top-tags {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge-exam {
+            background: rgba(99, 102, 241, 0.18);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #A5B4FC;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-notes-shortcut {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            color: #C084FC;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-notes-shortcut:hover {
+            background: rgba(139, 92, 246, 0.3);
+            color: #FFFFFF;
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .question-text-content {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1.7;
+        }
+
+        /* Explanation Box */
+        .explanation-box-luxe {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.06) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            color: #D1FAE5;
+            font-size: 14.5px;
+            line-height: 1.7;
+        }
+
+        .explanation-header {
+            color: #34D399;
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .explanation-highlight {
+            color: #6EE7B7;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* Analytics Peer Stats */
+        .peer-analytics-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .peer-stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 7px 12px;
+            border-radius: 8px;
+            margin-top: 6px;
+        }
+
+        /* Empty State */
+        .empty-mistakes-hud {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .empty-icon-glow {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.1));
+            border: 1.5px solid rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #34D399;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 14px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 11.5px;
+            font-weight: 700;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            color: var(--primary);
+        }
 
         @media (max-width: 640px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100%;
-                max-width: 100vw;
-            }
-            .header-gradient {
-                padding: 20px 14px !important;
-                min-height: 100px !important;
-                border-radius: 0 0 24px 24px !important;
-            }
-            .stats-card {
-                margin: -20px 10px 15px !important;
-                padding: 14px !important;
-                border-radius: 18px !important;
-            }
-            .mistake-card {
-                margin: 10px 10px !important;
-                padding: 14px !important;
-                border-radius: 18px !important;
-            }
-            .subject-header {
-                padding: 12px 14px 4px !important;
-                font-size: 15px !important;
-            }
+            .app-topbar { padding: 12px 16px; }
+            .main-container { padding: 14px 12px; gap: 16px; }
+            .stats-hud-card { padding: 18px 16px; }
+            .hud-heading { font-size: 17px; }
+            .hud-stats-grid { grid-template-columns: 1fr; }
+            .hud-actions-row { flex-direction: column; }
+            .btn-luxe { width: 100%; }
+            .filter-selects-row { flex-direction: column; }
+            .custom-select-wrap { min-width: 100%; }
         }
     </style>
 </head>
 <body>
-    <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
-    <div class="header-gradient">
-        <div class="back-btn" onclick="history.back()">⬅️</div>
-        <div style="font-size: 22px; font-weight: bold;">سجل التعلم</div>
-    </div>
-
-    <div class="card stats-card">
-        <div id="mainStat" style="font-weight: bold; font-size: 17px;">جاري تجهيز سجل التعلم...</div>
-        <div id="subStat" style="color: var(--text-sub); font-size: 13px; margin-top: 5px;">راجع أخطاءك لتتعلم منها وتتفوق</div>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
-            <button id="aiReportBtn" class="btn-primary" style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #7C3AED, #6366F1); border: none;" onclick="location.href='ai-report.html'">🧠 التقرير والتحليل الذكي</button>
-            <button id="retryBtn" class="btn-primary" style="width: auto; padding: 10px 22px; display: none;" onclick="retryMistakes()">إعادة محاولة حل الأسئلة 🔄</button>
-            <button id="clearBtn" class="btn-primary" style="width: auto; padding: 10px 22px; background: #EF4444; border-color: #DC2626; display: none;" onclick="clearLearningRecord()">🗑️ تصفير سجل التعلم</button>
+    <!-- Topbar Navigation -->
+    <header class="app-topbar">
+        <div class="topbar-left">
+            <a href="home.html" class="back-btn" title="العودة">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <div class="topbar-title">
+                <i class="fa-solid fa-fire-flame-curved" style="color: #F87171;"></i>
+                <span>سجل التعلم والأخطاء</span>
+            </div>
         </div>
-    </div>
-
-    <div class="card stats-card" id="filterCard" style="display: none; padding: 15px; margin-bottom: 20px;">
-        <div style="font-weight: bold; margin-bottom: 10px; color: var(--primary);">تصفية سجل التعلم</div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <select id="filterSubject" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-color);" onchange="updateExamFilter()">
-                <option value="">كل المواد</option>
-            </select>
-            <select id="filterExam" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg); color: var(--text-color);" onchange="renderMistakes()">
-                <option value="">كل الامتحانات</option>
-            </select>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="ai-report.html" class="btn-luxe btn-luxe-purple" style="padding: 8px 14px; font-size: 12.5px; border-radius: 12px;">
+                <i class="fa-solid fa-brain"></i>
+                <span>تحليل الذكاء الاصطناعي</span>
+            </a>
         </div>
-    </div>
+    </header>
 
-    <div id="mistakesList">
-        <!-- Will be populated by JS -->
-    </div>
+    <main class="main-container">
+        <!-- Main Stats Card -->
+        <section class="stats-hud-card">
+            <div class="hud-header">
+                <div class="hud-title-wrap">
+                    <div class="hud-icon-badge">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h1 class="hud-heading" id="mainStat">جاري تجهيز كشكول الأخطاء...</h1>
+                        <p class="hud-subtext" id="subStat">راجع الأسئلة التي تعثرت فيها وحوّل نقاط ضعفك إلى مراكز قوة</p>
+                    </div>
+                </div>
+            </div>
 
-    <div class="bottom-nav">
-        <a href="home.html" class="nav-item">🏠<br>الرئيسية</a>
-        <a href="courses.html" class="nav-item">📖<br>المواد</a>
-        <a href="profile.html" class="nav-item">👤<br>حسابي</a>
-    </div>
+            <!-- Stats Grid -->
+            <div class="hud-stats-grid">
+                <div class="hud-stat-box danger-accent">
+                    <span class="label"><i class="fa-solid fa-triangle-exclamation"></i> إجمالي الأسئلة المسجلة</span>
+                    <span class="value" id="statTotalErrors">0</span>
+                </div>
+                <div class="hud-stat-box purple-accent">
+                    <span class="label"><i class="fa-solid fa-book-bookmark"></i> المادة الأكثر احتياجاً للمراجعة</span>
+                    <span class="value" id="statTopSubject">-</span>
+                </div>
+                <div class="hud-stat-box cyan-accent">
+                    <span class="label"><i class="fa-solid fa-chart-pie"></i> معدل التحسن والتكرار</span>
+                    <span class="value" id="statImprovement">جاهز للتحدي 🎯</span>
+                </div>
+            </div>
 
+            <!-- Action Buttons -->
+            <div class="hud-actions-row">
+                <button id="retryBtn" class="btn-luxe btn-luxe-primary" style="display: none;" onclick="retryMistakes()">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>اختبرني في جميع أخطائي (كويز معالجة) 🚀</span>
+                </button>
+                <button id="clearBtn" class="btn-luxe btn-luxe-danger" style="display: none;" onclick="clearLearningRecord()">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>تصفير سجل التعلم</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Filter Card -->
+        <section class="filter-glass-card" id="filterCard" style="display: none;">
+            <div class="filter-header">
+                <i class="fa-solid fa-filter"></i>
+                <span>تصفية الأخطاء حسب المادة والامتحان:</span>
+            </div>
+            <div class="filter-selects-row">
+                <div class="custom-select-wrap">
+                    <select id="filterSubject" class="luxe-select" onchange="updateExamFilter()">
+                        <option value="">جميع المواد الدراسية</option>
+                    </select>
+                </div>
+                <div class="custom-select-wrap">
+                    <select id="filterExam" class="luxe-select" onchange="renderMistakes()">
+                        <option value="">جميع الامتحانات</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Mistakes List -->
+        <section id="mistakesList" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Rendered by JavaScript -->
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="courses.html" class="nav-item">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>المواد</span>
+        </a>
+        <a href="mistakes.html" class="nav-item active">
+            <i class="fa-solid fa-fire"></i>
+            <span>الأخطاء</span>
+        </a>
+        <a href="leaderboard.html" class="nav-item">
+            <i class="fa-solid fa-trophy"></i>
+            <span>المتصدرين</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fa-solid fa-user-astronaut"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script>
-        // Load mistakes from localStorage (same as Android app logic)
         const mistakes = JSON.parse(localStorage.getItem('mistakes_list') || "[]");
         const container = document.getElementById('mistakesList');
         const subjectSelect = document.getElementById('filterSubject');
@@ -103,51 +693,85 @@
 
         function clearLearningRecord() {
             Swal.fire({
-                title: "تصفير سجل التعلم والأخطاء؟ 🗑️",
-                text: "هل أنت متأكد من رغبتك في مسح سجل أخطائك بالكامل وبدء سجل جديد نظيف؟",
+                title: "تصفير سجل الأخطاء؟ 🗑️",
+                text: "هل تريد مسح سجل أخطائك بالكامل وبدء صفحة تدريبية جديدة خالية من الأخطاء؟",
                 icon: "warning",
+                background: "#0F172A",
+                color: "#F8FAFC",
                 showCancelButton: true,
                 confirmButtonColor: "#EF4444",
-                cancelButtonColor: "#64748B",
+                cancelButtonColor: "#475569",
                 confirmButtonText: "نعم، تصفير السجل",
-                cancelButtonText: "إلغاء"
+                cancelButtonText: "إلغاء",
+                customClass: {
+                    popup: 'dark-swal-border'
+                }
             }).then((res) => {
                 if (res.isConfirmed) {
                     localStorage.removeItem('mistakes_list');
                     localStorage.removeItem('sessionMistakes');
                     Swal.fire({
-                        title: "تم تصفير سجل التعلم بنجاح! 🌟",
+                        title: "تم تصفير السجل بنجاح! 🌟",
+                        text: "جاهز الآن لبدء امتحانات جديدة والتفوق فيها.",
                         icon: "success",
-                        timer: 1500,
+                        background: "#0F172A",
+                        color: "#F8FAFC",
+                        timer: 1600,
                         showConfirmButton: false
                     });
                     setTimeout(() => {
                         location.reload();
-                    }, 1200);
+                    }, 1400);
                 }
             });
         }
 
-        function retryMistakes() {
-            window.location.href = "quiz.html?mode=mistakes";
+        function retryMistakes(specificSubject) {
+            if (specificSubject) {
+                window.location.href = `quiz.html?mode=mistakes&subject=${encodeURIComponent(specificSubject)}`;
+            } else {
+                window.location.href = "quiz.html?mode=mistakes";
+            }
         }
 
         if (mistakes.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding: 50px; color:#BCBCBC;">سجلك نظيف! لا توجد أخطاء حالياً 🌟</div>`;
-            document.getElementById('mainStat').innerText = "سجلك نظيف! أحسنت 🌟";
+            container.innerHTML = `
+                <div class="empty-mistakes-hud">
+                    <div class="empty-icon-glow">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-family: 'Alexandria'; font-size: 19px; color: #34D399; margin-bottom: 6px;">سجلك خالي من الأخطاء تماماً! 🌟</h2>
+                        <p style="color: var(--text-sub); font-size: 14px; max-width: 480px; line-height: 1.6;">
+                            رائع جداً! استمر في حل الامتحانات والتدريبات وسنحتفظ هنا بأي سؤال تحتاج مراجعته لاحقاً.
+                        </p>
+                    </div>
+                    <a href="courses.html" class="btn-luxe btn-luxe-primary" style="margin-top: 10px;">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>تصفح المواد وحل امتحانات جديدة</span>
+                    </a>
+                </div>
+            `;
+            document.getElementById('mainStat').innerText = "سجلك نظيف ومثالي! أحسنت 🌟";
+            document.getElementById('statTotalErrors').innerText = "0";
+            document.getElementById('statTopSubject').innerText = "لا توجد أخطاء";
+            document.getElementById('statImprovement').innerText = "100% متفوق 🏆";
         } else {
             document.getElementById('filterCard').style.display = 'block';
-            document.getElementById('retryBtn').style.display = 'inline-block';
-            document.getElementById('clearBtn').style.display = 'inline-block';
-            document.getElementById('mainStat').innerText = `لديك (${mistakes.length}) أسئلة في سجل التعلم`;
+            document.getElementById('retryBtn').style.display = 'inline-flex';
+            document.getElementById('clearBtn').style.display = 'inline-flex';
+            
+            const totalErrors = mistakes.length;
+            document.getElementById('statTotalErrors').innerText = `${totalErrors} سؤال`;
+            document.getElementById('mainStat').innerText = `لديك (${totalErrors}) أسئلة تحتاج للمراجعة والتركيز`;
 
-            // Group by subject and then by exam
+            // Group by subject and exams
             const groupedBySub = {};
             const examsBySub = {};
 
             mistakes.forEach(m => {
-                const sub = m.subjectName || 'مادة غير محددة';
-                const exm = m.examId || 'امتحان غير محدد';
+                const sub = m.subjectName || 'مادة عامة';
+                const exm = m.examId || 'امتحان عام';
                 
                 groupedBySub[sub] = groupedBySub[sub] || [];
                 groupedBySub[sub].push(m);
@@ -156,17 +780,22 @@
                 examsBySub[sub].add(exm);
             });
 
-            // Populate subjects
+            // Populate subjects dropdown
             for (const sub in groupedBySub) {
                 const opt = document.createElement('option');
                 opt.value = sub;
-                opt.textContent = sub;
+                opt.textContent = `${sub} (${groupedBySub[sub].length} خطأ)`;
                 subjectSelect.appendChild(opt);
+            }
+
+            const sortedSubs = Object.entries(groupedBySub).sort((a,b) => b[1].length - a[1].length);
+            if (sortedSubs.length > 0) {
+                document.getElementById('statTopSubject').innerText = `${sortedSubs[0][0]} (${sortedSubs[0][1].length})`;
             }
 
             window.updateExamFilter = function() {
                 const selectedSub = subjectSelect.value;
-                examSelect.innerHTML = '<option value="">كل الامتحانات</option>';
+                examSelect.innerHTML = '<option value="">جميع الامتحانات</option>';
                 
                 if (selectedSub && examsBySub[selectedSub]) {
                     examsBySub[selectedSub].forEach(exm => {
@@ -177,7 +806,7 @@
                     });
                 }
                 renderMistakes();
-            }
+            };
 
             window.renderMistakes = function() {
                 container.innerHTML = '';
@@ -186,48 +815,48 @@
 
                 let filteredMistakes = mistakes;
                 if (selectedSub) {
-                    filteredMistakes = filteredMistakes.filter(m => (m.subjectName || 'مادة غير محددة') === selectedSub);
+                    filteredMistakes = filteredMistakes.filter(m => (m.subjectName || 'مادة عامة') === selectedSub);
                 }
                 if (selectedExam) {
-                    filteredMistakes = filteredMistakes.filter(m => (m.examId || 'امتحان غير محدد') === selectedExam);
+                    filteredMistakes = filteredMistakes.filter(m => (m.examId || 'امتحان عام') === selectedExam);
                 }
 
                 if (filteredMistakes.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; padding: 50px; color:#BCBCBC;">لا توجد أخطاء مطابقة للبحث 🌟</div>`;
+                    container.innerHTML = `
+                        <div class="empty-mistakes-hud">
+                            <i class="fa-solid fa-magnifying-glass" style="font-size: 36px; color: #94A3B8;"></i>
+                            <div style="font-size: 15px; color: #CBD5E1;">لا توجد أخطاء مسجلة مطابقة لخيارات البحث المحددة.</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                // Group filtered by subject to render correctly
                 const renderGrouped = {};
                 filteredMistakes.forEach(m => {
-                    const sub = m.subjectName || 'مادة غير محددة';
+                    const sub = m.subjectName || 'مادة عامة';
                     renderGrouped[sub] = renderGrouped[sub] || [];
                     renderGrouped[sub].push(m);
                 });
 
                 for (const subject in renderGrouped) {
-                    const header = document.createElement('div');
-                    header.className = 'subject-header';
-                    header.style.display = 'flex';
-                    header.style.justifyContent = 'space-between';
-                    header.style.alignItems = 'center';
-                    header.style.padding = '20px 20px 5px';
-                    
-                    let retryUrl = `quiz.html?mode=mistakes&subject=${encodeURIComponent(subject)}`;
-                    if (selectedExam) {
-                        // We could pass exam to retry, but currently mistakes mode filters by subject
-                        // We just pass it anyway
-                    }
-
-                    header.innerHTML = `
-                        <span>${subject} ${selectedExam ? ' - ' + selectedExam : ''}</span>
-                        <button class="btn-primary" style="width: auto; padding: 6px 15px; font-size: 12px; border-radius: 10px;" onclick="location.href='${retryUrl}'">إعادة محاولة الأخطاء 🔄</button>
+                    const groupBanner = document.createElement('div');
+                    groupBanner.className = 'subject-group-banner';
+                    groupBanner.innerHTML = `
+                        <div class="subject-group-title">
+                            <i class="fa-solid fa-book-open" style="color: #60A5FA;"></i>
+                            <span>${subject} ${selectedExam ? ' - ' + selectedExam : ''}</span>
+                            <span style="font-size: 12px; color: #94A3B8; font-weight: normal;">(${renderGrouped[subject].length} أسئلة)</span>
+                        </div>
+                        <button class="btn-luxe btn-luxe-primary" style="padding: 6px 14px; font-size: 12px; border-radius: 10px;" onclick="retryMistakes('${subject}')">
+                            <i class="fa-solid fa-play"></i>
+                            <span>حل أخطاء المادة فقط</span>
+                        </button>
                     `;
-                    container.appendChild(header);
+                    container.appendChild(groupBanner);
 
                     renderGrouped[subject].forEach(m => {
                         const card = document.createElement('div');
-                        card.className = 'card mistake-card';
+                        card.className = 'mistake-card-luxe';
                         
                         let hash = 0;
                         const text = m.questionText || '';
@@ -235,102 +864,111 @@
                         const qId = 'q_' + Math.abs(hash);
                         const cleanSubject = (m.subjectName || 'مادة').replace(/[.#$\[\]]/g, '');
                         const cleanExam = (m.examId || 'امتحان').replace(/[.#$\[\]]/g, '');
-
                         const uniqueCardId = 'card_' + qId + '_' + Date.now() + Math.floor(Math.random()*1000);
                         card.id = uniqueCardId;
 
                         let pairsHtml = '';
                         if (m.type === 'matching' && m.pairs) {
-                            pairsHtml = '<div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 8px; font-size: 14px;"><b>التوصيل الصحيح:</b><br>';
+                            pairsHtml = '<div style="margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.25); border-radius: 12px; font-size: 13.5px; border: 1px solid rgba(255,255,255,0.06);"><b style="color: #6EE7B7;">التوصيل النموذجي الصحيح:</b><br>';
                             m.pairs.forEach(p => {
-                                pairsHtml += `- <b>${p.right}</b> ⬅️ <b>${p.left}</b><br>`;
+                                pairsHtml += `<div style="margin-top: 4px;">• <b style="color: #93C5FD;">${p.right}</b> ⬅️ <b style="color: #F8FAFC;">${p.left}</b></div>`;
                             });
                             pairsHtml += '</div>';
                         }
 
+                        // Format explanation
+                        const rawExplanation = m.explanation || 'لا يوجد توضيح متاح لهذه الإجابة';
+                        const formattedExplanation = rawExplanation.replace(/\*\*(.*?)\*\*/g, '<span class="explanation-highlight">$1</span>');
+
                         card.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                                <span class="exam-badge" style="background: linear-gradient(135deg, #E0E7FF, #C7D2FE); color: #3730A3; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">
-                                    📝 ${m.examId || 'امتحان غير محدد'}
+                            <div class="card-top-tags">
+                                <span class="badge-exam">
+                                    <i class="fa-solid fa-file-pen"></i>
+                                    <span>${m.examId || 'امتحان عام'}</span>
                                 </span>
+                                <a href="notes-viewer.html?subject=${encodeURIComponent(m.subjectName || '')}&lessonId=${encodeURIComponent(m.lessonId || '')}&title=${encodeURIComponent(m.examId || m.subjectName || '')}" class="btn-notes-shortcut">
+                                    <i class="fa-solid fa-book-bookmark"></i>
+                                    <span>راجع الشرح بالكشكول</span>
+                                </a>
                             </div>
-                            <div style="font-weight: bold; font-size: 16px; color: var(--text-color); line-height: 1.6; margin-bottom: 15px;">
+
+                            <div class="question-text-content">
                                 ${m.questionText}
                             </div>
-                            <div class="explanation success-box" style="background: linear-gradient(to left, #F0FDF4, #DCFCE7); border-color: #BBF7D0; color: #166534; margin-bottom: 15px;">
-                                <b style="color: #15803D; font-size: 15px;">✅ الإجابة النموذجية:</b><br>
-                                <span style="display: inline-block; margin-top: 6px; line-height: 1.6;">
-                                ${(m.explanation || 'لا يوجد توضيح متاح لهذه الإجابة').replace(/\*\*(.*?)\*\*/g, '<b style="color:#166534; background:rgba(187, 247, 208, 0.5); padding:0 4px; border-radius:4px;">$1</b>')}
-                                </span>
+
+                            <div class="explanation-box-luxe">
+                                <div class="explanation-header">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>الإجابة النموذجية والتوضيح:</span>
+                                </div>
+                                <div style="color: #ECFDF5;">
+                                    ${formattedExplanation}
+                                </div>
                                 ${pairsHtml}
                             </div>
-                            <div class="analytics-box" id="analytics_${uniqueCardId}" style="background: rgba(0,0,0,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 15px; font-size: 13px; color: var(--text-sub);">
-                                جاري تحميل إحصائيات زملائك... ⏳
+
+                            <div class="peer-analytics-card" id="analytics_${uniqueCardId}">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                    <span>جاري تحليل إحصائيات إجابات الطلاب للتعرف على أكثر الأخطاء شيوعاً...</span>
+                                </div>
                             </div>
                         `;
                         container.appendChild(card);
 
-                        // Fetch Analytics
-                        database.ref(`ExamAnalytics/${cleanSubject}/${cleanExam}/${qId}`).once('value').then(snap => {
-                            const aBox = document.getElementById(`analytics_${uniqueCardId}`);
-                            if (!aBox) return;
-                            
-                            if (snap.exists()) {
-                                const data = snap.val();
-                                const totalMistakes = data.totalMistakes || 0;
-                                let statsHtml = `<div style="font-weight: bold; color: #EF4444; margin-bottom: 8px;">📊 أخطأ في هذا السؤال ${totalMistakes} طالب</div>`;
+                        // Fetch Firebase Exam Analytics
+                        if (typeof database !== 'undefined') {
+                            database.ref(`ExamAnalytics/${cleanSubject}/${cleanExam}/${qId}`).once('value').then(snap => {
+                                const aBox = document.getElementById(`analytics_${uniqueCardId}`);
+                                if (!aBox) return;
                                 
-                                if (data.choices) {
-                                    statsHtml += `<div style="font-size: 12px; margin-bottom: 5px;">إجابات الطلاب الخاطئة:</div>`;
-                                    statsHtml += `<div style="display: flex; flex-direction: column; gap: 5px;">`;
+                                if (snap.exists()) {
+                                    const data = snap.val();
+                                    const totalMistakes = data.totalMistakes || 0;
+                                    let statsHtml = `
+                                        <div style="font-weight: 700; color: #F87171; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-solid fa-chart-simple"></i>
+                                            <span>أخطأ في هذا السؤال (${totalMistakes}) طالب من زملائك</span>
+                                        </div>
+                                    `;
                                     
-                                    // Sort choices by frequency
-                                    const choicesArr = Object.entries(data.choices).sort((a, b) => b[1] - a[1]);
-                                    
-                                    choicesArr.forEach(c => {
-                                        const choiceText = c[0].replace(/_/g, ' '); // simple unescape
-                                        const count = c[1];
-                                        const pct = Math.round((count / totalMistakes) * 100) || 0;
+                                    if (data.choices) {
+                                        statsHtml += `<div style="font-size: 12px; color: #94A3B8; margin-bottom: 4px;">الخيارات الخاطئة الأكثر اختياراً:</div>`;
+                                        statsHtml += `<div style="display: flex; flex-direction: column; gap: 4px;">`;
                                         
-                                        statsHtml += `
-                                            <div style="display: flex; align-items: center; justify-content: space-between; background: white; padding: 6px 10px; border-radius: 6px; border: 1px solid #eee;">
-                                                <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px;">${choiceText}</span>
-                                                <span style="font-weight: bold; color: #64748b;">${pct}% (${count})</span>
-                                            </div>
-                                        `;
-                                    });
-                                    statsHtml += `</div>`;
+                                        const choicesArr = Object.entries(data.choices).sort((a, b) => b[1] - a[1]);
+                                        choicesArr.forEach(c => {
+                                            const choiceText = c[0].replace(/_/g, ' ');
+                                            const count = c[1];
+                                            const pct = Math.round((count / totalMistakes) * 100) || 0;
+                                            
+                                            statsHtml += `
+                                                <div class="peer-stat-item">
+                                                    <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; color: #CBD5E1;">${choiceText}</span>
+                                                    <span style="font-weight: 700; color: #FCA5A5;">${pct}% <span style="font-size: 11px; opacity: 0.8;">(${count} طالب)</span></span>
+                                                </div>
+                                            `;
+                                        });
+                                        statsHtml += `</div>`;
+                                    }
+                                    aBox.innerHTML = statsHtml;
+                                } else {
+                                    aBox.innerHTML = `
+                                        <div style="display: flex; align-items: center; gap: 6px; color: #38BDF8;">
+                                            <i class="fa-solid fa-medal"></i>
+                                            <span>سؤال مميز! إحصائيات زملائك قيد الجمع والمزامنة.</span>
+                                        </div>
+                                    `;
                                 }
-                                aBox.innerHTML = statsHtml;
-                            } else {
-                                aBox.innerHTML = `🌟 أنت من أوائل من أخطأ في هذا السؤال! لا توجد إحصائيات كافية بعد.`;
-                            }
-                        }).catch(e => {
-                            const aBox = document.getElementById(`analytics_${uniqueCardId}`);
-                            if(aBox) aBox.style.display = 'none';
-                        });
+                            }).catch(e => {
+                                const aBox = document.getElementById(`analytics_${uniqueCardId}`);
+                                if(aBox) aBox.style.display = 'none';
+                            });
+                        }
                     });
                 }
             };
 
-            // Update stats
-            const totalErrors = mistakes.length;
-            const mostSubject = Object.entries(groupedBySub).sort((a,b) => b[1].length - a[1].length)[0];
-            
-            document.getElementById('mainStat').innerText = `إجمالي الأخطاء: ${totalErrors} | الأكثر احتياجاً للتركيز: ${mostSubject ? mostSubject[0] : '-'}`;
-            
-            let breakdown = "نسب توزيع الأخطاء: ";
-            for (const subject in groupedBySub) {
-                const pct = Math.round((groupedBySub[subject].length / totalErrors) * 100);
-                breakdown += `${subject} (${pct}%) | `;
-            }
-            if (breakdown.endsWith(" | ")) breakdown = breakdown.slice(0, -3);
-            
-            document.getElementById('subStat').innerText = breakdown;
-            document.getElementById('retryBtn').style.display = "block";
-            document.getElementById('clearBtn').style.display = "block";
-
-            // Initial render
             renderMistakes();
         }
     </script>
