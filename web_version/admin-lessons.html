@@ -731,52 +731,19 @@
                     </div>
                 </div>
 
-                <!-- 📚 قسم كراسة الخطة التفاعلية (PowerPoint Notes) -->
-                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <!-- 📚 قسم الدفتر الدراسي التفاعلي (Notion & Apple Notes Style) -->
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--card-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background: rgba(56, 189, 248, 0.05); padding: 14px; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.2);">
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: #2563EB; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-layer-group"></i> 📚 كراسة الخطة (نوتس وسلايدز المحاضرة التفاعلية)
+                        <div style="font-size: 14px; font-weight: 900; color: #0284C7; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-book-open-reader"></i> 📝 الدفتر الدراسي التفاعلي الذكي (Notion & Apple Notes Style)
                         </div>
-                        <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">
-                            أنشئ شرائح PowerPoint تفاعلية للطلاب مع عناصر ذكية وجداول وملاحظات خاصة.
+                        <div style="font-size: 11.5px; color: var(--text-sub); margin-top: 3px; font-weight: 600;">
+                            أنشئ مذكرة دراسية تفاعلية انسيابية للطلاب مع تنبيهات ذهبية، أسئلة قابلة للطي، وبطاقات قوانين ملونة (مجهز بـ 60 قالباً).
                         </div>
                     </div>
-                    <button type="button" onclick="openNotesBuilderFromForm()" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: 'Cairo'; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
-                        <i class="fa-solid fa-pen-to-square"></i> فتح منشئ كراسة الخطة (Editor) 🚀
+                    <button type="button" onclick="openNotesBuilderFromForm()" style="background: linear-gradient(135deg, #0284C7, #2563EB); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-size: 13px; font-weight: 900; cursor: pointer; font-family: 'Cairo'; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35); transition: all 0.2s;">
+                        <i class="fa-solid fa-pen-nib"></i> فتح محرر الدفتر الذكي (Notion Editor) ⚡
                     </button>
-                </div>
-            </div>
-
-            <!-- Exam Box -->
-            <div class="exam-box">
-                <div class="exam-box-header">
-                    <div style="font-size:14px; font-weight:900; color:#166534; display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-spell-check"></i>
-                        <span>امتحان إلكتروني مدمج (بابل شيت ومقالي)</span>
-                    </div>
-                    <span id="examQuestionsCountBadge" class="exam-count-badge">0 أسئلة مضافة</span>
-                </div>
-
-                <div class="exam-tool-buttons">
-                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('mcq')">🔘 اختياري (MCQ)</button>
-                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('tf')">⚖️ صح أم خطأ</button>
-                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('essay')">✍️ سؤال مقالي</button>
-                    <button type="button" class="btn-exam-tool" onclick="insertQuestionTemplate('matching')">🔗 سؤال توصيل</button>
-                </div>
-
-                <div class="form-group" style="margin-bottom:8px;">
-                    <textarea id="examJson" oninput="updateQuestionCountLive()" class="form-control" style="min-height:160px; font-family:monospace; direction:ltr; text-align:left; font-size:12px;" placeholder="[ // انقر على أزرار الأسئلة بالأعلى لإضافة بنك الأسئلة تلقائياً ]"></textarea>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <div style="display:flex; gap:6px;">
-                        <button type="button" onclick="formatAndValidateExamJson()" class="chapter-pill-btn" style="background:#10B981; color:white; border-color:#10B981;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> فحص وتنسيق
-                        </button>
-                        <button type="button" onclick="copyExamJson()" class="chapter-pill-btn" style="color:#2563EB;">
-                            <i class="fa-solid fa-copy"></i> نسخ كود الأسئلة
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -1697,25 +1664,22 @@
             });
         }
 
-        function openNotesBuilder(subject, key) {
-            window.open(`admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}&title=${encodeURIComponent(item.title || '')}`, '_blank');
+        function openNotesBuilder(subject, key, title) {
+            const lessonTitle = title || document.getElementById('lessonTitle')?.value || 'محاضرة';
+            window.open(`admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}&title=${encodeURIComponent(lessonTitle)}`, '_blank');
         }
 
         function openNotesBuilderFromForm() {
             const subject = document.getElementById('subjectSelect').value;
+            const title = document.getElementById('lessonTitle')?.value.trim() || 'محاضرة جديدة';
             if (!subject) {
                 return showToast("يرجى اختيار المادة الدراسية أولاً ⚠️");
             }
             if (editingLessonId) {
-                openNotesBuilder(subject, editingLessonId);
+                openNotesBuilder(subject, editingLessonId, title);
             } else {
-                Swal.fire({
-                    title: 'حفظ المحاضرة أولاً 💡',
-                    text: 'يرجى حفظ المحاضرة أولاً ثم الضغط على زر كراسة الخطة لتعديل الشرائح مباشرة.',
-                    icon: 'info',
-                    confirmButtonText: 'حسناً فهمت',
-                    confirmButtonColor: '#2563EB'
-                });
+                const tempId = 'draft_' + Date.now();
+                openNotesBuilder(subject, tempId, title);
             }
         }
 

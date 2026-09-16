@@ -548,24 +548,33 @@
 
         /* The Slide Frame */
         .slide-frame {
-            background: var(--slide-bg);
-            color: var(--slide-text);
-            border-radius: 16px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            min-height: 400px;
-            padding: 28px 34px;
+            background: #0F172A;
+            color: #F8FAFC;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(56, 189, 248, 0.15);
+            min-height: 520px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 34px 40px;
             position: relative;
             outline: none;
             cursor: text;
             user-select: text;
             font-family: 'Cairo', sans-serif;
-            line-height: 1.7;
+            line-height: 1.8;
             font-size: 15px;
-            transition: background-color 0.2s, color 0.2s;
+            transition: all 0.25s ease;
+        }
+
+        .slide-frame:focus-within {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.2);
         }
 
         .slide-frame[contenteditable="true"]:empty:before {
-            content: 'ابدأ بكتابة محتوى المحور هنا، أو اختر عنصراً جاهزاً من شريط الأدوات بالأعلى (تعريف، ملحوظة ذهبية، جدول مقارنة، خطوات)... ✍️✨';
+            content: 'ابدأ بكتابة محتوى هذا المحور بأسلوب Notion، أو اختر قالباً جاهزاً من المعرض بالأعلى (تنبيه ذهبي، سؤال تفاعلي، بطاقة قانون، جدول مقارنة)... ✍️✨';
             color: #94A3B8;
             pointer-events: none;
             font-size: 14px;
@@ -3311,6 +3320,49 @@
         }
 
         
+        
+        function insertNotionCallout() {
+            const html = `<div class="notion-callout" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.06) 100%); border: 1.5px solid rgba(251, 191, 36, 0.4); border-right: 4.5px solid #FBBF24; border-radius: 14px; padding: 14px 18px; margin: 16px 0; display: flex; align-items: flex-start; gap: 12px;" contenteditable="true">
+                <span style="font-size: 20px; color: #FBBF24;">💡</span>
+                <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; line-height: 1.7;"><b>تنبيه امتحاني هام:</b> اكتب الملاحظة أو الفكرة الذكية هنا لتظهر للطالب في صندوق ذهبي مميز.</div>
+            </div><p><br></p>`;
+            document.execCommand('insertHTML', false, html);
+        }
+
+        function insertNotionToggle() {
+            const html = `<div class="notion-toggle-block" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; margin: 16px 0; overflow: hidden;" contenteditable="true">
+                <div style="padding: 12px 16px; background: rgba(56, 189, 248, 0.1); display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 14px; color: #38BDF8;">
+                    <span>❓ سؤال تدريبي: اكتب نص السؤال هنا...</span>
+                    <span>🔽 اضغط لإظهار الحل</span>
+                </div>
+                <div style="padding: 14px 16px; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 13.5px; line-height: 1.7; color: #CBD5E1;">
+                    <b>الإجابة النموذجية والتعليل:</b> اكتب خطوات الحل النموذجية هنا ليتدرب عليها الطالب.
+                </div>
+            </div><p><br></p>`;
+            document.execCommand('insertHTML', false, html);
+        }
+
+        function insertNotionFormula() {
+            const html = `<div class="notion-formula-card" style="background: linear-gradient(135deg, rgba(129, 140, 248, 0.14) 0%, rgba(99, 102, 241, 0.08) 100%); border: 1.5px solid rgba(129, 140, 248, 0.4); border-radius: 14px; padding: 16px 20px; margin: 16px 0; text-align: center;" contenteditable="true">
+                <div style="font-size: 12px; font-weight: 800; color: #818CF8; margin-bottom: 6px;">⚡ بطاقة القانون الذهبي:</div>
+                <div style="font-size: 20px; font-weight: 900; color: #FFFFFF; font-family: monospace; letter-spacing: 1px; direction: ltr;">E = m · c²</div>
+            </div><p><br></p>`;
+            document.execCommand('insertHTML', false, html);
+        }
+
+        function insertNotionSummary() {
+            const html = `<div class="notion-summary-box" style="background: linear-gradient(135deg, rgba(52, 211, 153, 0.12) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1.5px solid rgba(52, 211, 153, 0.4); border-radius: 16px; padding: 16px 20px; margin: 16px 0;" contenteditable="true">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 900; color: #34D399; margin-bottom: 10px;">
+                    <span>✅ كبسولة وخلاصة المحور (Summary Checklist):</span>
+                </div>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+                    <li style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #FFFFFF;">🔹 النقطة الأساسية الأولى المستفادة من الدرس.</li>
+                    <li style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #FFFFFF;">🔹 النقطة الأساسية الثانية وملاحظات الحل السريع.</li>
+                </ul>
+            </div><p><br></p>`;
+            document.execCommand('insertHTML', false, html);
+        }
+
         function insertSmartBlock(type) {
             const editor = document.getElementById('slideContentEditor');
             editor.focus();
