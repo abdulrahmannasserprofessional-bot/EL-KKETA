@@ -7,6 +7,88 @@
 (function(window) {
     // ─── 1. بنك درر الشعر، سيكولوجية الإنجاز، وقوانين الصلابة الذهنية ───
     const CURATED_QUOTES = [
+        // ═══ 0) قبسات من القرآن الكريم (السكينة، التوكل، والهمة) ═══
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«وَقُل رَّبِّ زِدْنِي عِلْمًا»',
+            source: 'سورة طه: الآية 114'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«إِنَّا لَا نُضِيعُ أَجْرَ مَنْ أَحْسَنَ عَمَلًا»',
+            source: 'سورة الكهف: الآية 30'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«وَأَن لَّيْسَ لِلْإِنسَانِ إِلَّا مَا سَعَىٰ ۝ وَأَنَّ سَعْيَهُ سَوْفَ يُرَىٰ»',
+            source: 'سورة النجم: الآيات 39-40'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ ۚ إِنَّ اللَّهَ يُحِبُّ الْمُتَوَكِّلِينَ»',
+            source: 'سورة آل عمران: الآية 159'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«وَقُلِ اعْمَلُوا فَسَيَرَى اللَّهُ عَمَلَكُمْ وَرَسُولُهُ وَالْمُؤْمِنُونَ»',
+            source: 'سورة التوبة: الآية 105'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«لَا تَدْرِي لَعَلَّ اللَّهَ يُحْدِثُ بَعْدَ ذَٰلِكَ أَمْرًا»',
+            source: 'سورة الطلاق: الآية 1'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا»',
+            source: 'سورة الشرح: الآيات 5-6'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ»',
+            source: 'سورة المجادلة: الآية 11'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ ۚ إِنَّ اللَّهَ بَالِغُ أَمْرِهِ»',
+            source: 'سورة الطلاق: الآية 3'
+        },
+        {
+            category: 'quran',
+            badge: '📖 آية كريمة',
+            icon: 'fa-solid fa-quran',
+            color: '#10B981',
+            text: '«وَكَانَ فَضْلُ اللَّهِ عَلَيْكَ عَظِيمًا»',
+            source: 'سورة النساء: الآية 113'
+        },
+
         // ═══ أ) روائع الشعر العربي الخالد في الهمة والمجد ═══
         {
             category: 'poetry',
@@ -570,8 +652,8 @@
         /**
          * 👑 نافذة الاستقبال الملكية فور نجاح تسجيل الدخول
          * تحتوي على:
-         * - مهلة قراءة وتأمل 180 ثانية (3 دقائق)
-         * - عداد رقمي متناقص (03:00 -> 00:00)
+         * - مهلة قراءة وتأمل 15 ثانية
+         * - عداد رقمي متناقص (00:15 -> 00:00)
          * - زر فوري «انتقل للمنصة الآن 🚀» ينقلك بأي لحظة
          * - زر «درّة أخرى 🔄» للتنقل بين روائع الشعر وعلم النفس أثناء المهلة
          */
@@ -581,7 +663,7 @@
             const isManager = cleanName.includes('المدير') || cleanName.includes('مشرف') || cleanName.includes('إدارة');
             const titleHeader = isManager ? '👑 مرحباً بك في لوحة القيادة 👑' : '🌟 مرحباً بك يا بطل 🌟';
             const targetPlatformText = isManager ? 'انتقل للوحة الإدارة الآن 🚀' : 'انتقل للمنصة الآن 🚀';
-            const totalDurationSec = 180; // 180 ثانية = 3 دقائق
+            const totalDurationSec = 15; // 15 ثانية
             let timerInterval = null;
             let quoteAutoInterval = null;
             let hasCompleted = false;
@@ -685,7 +767,7 @@
                                 <div style="display: inline-flex; align-items: center; gap: 5px; background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.4); color: #C4B5FD; font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 20px; white-space: nowrap;">
                                     <i class="fa-solid fa-stopwatch" style="color: #A78BFA; font-size: 11px;"></i>
                                     <span>مهلة التأمل:</span>
-                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 13px; color: #FFFFFF; font-weight: 900;">03:00</span>
+                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 13px; color: #FFFFFF; font-weight: 900;">00:15</span>
                                 </div>
                             </div>
 
@@ -723,7 +805,7 @@
                     showConfirmButton: false,
                     allowOutsideClick: false,
                     allowEscapeKey: true,
-                    timer: 180000,
+                    timer: 15000,
                     timerProgressBar: true,
                     customClass: {
                         popup: 'swal2-border-gold'
@@ -731,7 +813,7 @@
                     didOpen: () => {
                         const countdownEl = document.getElementById('modalTimerCountdown');
                         const startTime = Date.now();
-                        const durationMs = 180 * 1000;
+                        const durationMs = 15 * 1000;
 
                         timerInterval = setInterval(() => {
                             const elapsed = Date.now() - startTime;
@@ -758,7 +840,7 @@
                         // تدوير درر الحكمة كل 50 ثانية داخل النافذة
                         quoteAutoInterval = setInterval(() => {
                             QuotesEngine.nextModalQuote();
-                        }, 50000);
+                        }, 6000);
                     },
                     willClose: () => {
                         if (timerInterval) clearInterval(timerInterval);
@@ -784,7 +866,7 @@
                                 <i id="modalQuoteIcon" class="${quote.icon}"></i> <span id="modalQuoteBadgeText">${quote.badge}</span>
                             </span>
                             <span style="color:#C4B5FD; font-size:11.5px; font-weight:900; background:rgba(139,92,246,0.18); border:1px solid rgba(139,92,246,0.4); padding:4px 12px; border-radius:20px;">
-                                ⏱️ المهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:13px; color:#FFF;">03:00</span>
+                                ⏱️ المهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:13px; color:#FFF;">00:15</span>
                             </span>
                         </div>
                         <div style="background:rgba(14,20,36,0.92); border:1.5px solid rgba(245,158,11,0.35); border-radius:16px; padding:14px 16px; margin-bottom:8px; max-height:220px; overflow-y:auto;">
@@ -806,7 +888,7 @@
 
                 const countdownEl = document.getElementById('modalTimerCountdown');
                 const startTime = Date.now();
-                const durationMs = 180 * 1000;
+                const durationMs = 15 * 1000;
 
                 timerInterval = setInterval(() => {
                     const elapsed = Date.now() - startTime;
@@ -829,8 +911,8 @@
 
                 // تدوير درر الحكمة كل 50 ثانية في البديل
                 quoteAutoInterval = setInterval(() => {
-                    QuotesEngine.nextModalQuote();
-                }, 50000);
+                            QuotesEngine.nextModalQuote();
+                        }, 6000);
             }
         },
 
