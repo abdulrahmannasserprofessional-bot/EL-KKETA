@@ -11,7 +11,8 @@
         "isBanned",
         "deviceId",
         "lastActive",
-        "joinDate"
+        "joinDate",
+        "role"
       ],
       "$studentCode": {
         ".validate": "newData.hasChildren(['fullName']) && newData.child('fullName').isString()"
@@ -21,21 +22,26 @@
       ".read": true,
       ".write": true,
       ".indexOn": [
-        "isUsed"
+        "code",
+        "isUsed",
+        "batch",
+        "createdAt"
       ]
     },
     "ActivatedCodes": {
       ".read": true,
       ".write": true,
       ".indexOn": [
-        "isUsed"
+        "isUsed",
+        "code"
       ]
     },
     "Supervisors": {
       ".read": true,
       ".write": true,
       ".indexOn": [
-        "isActive"
+        "isActive",
+        "role"
       ]
     },
     "Lectures": {
@@ -72,7 +78,12 @@
     },
     "Exams": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      ".indexOn": [
+        "subjectKey",
+        "lessonId",
+        "title"
+      ]
     },
     "Announcements": {
       ".read": true,
@@ -87,7 +98,8 @@
       ".write": true,
       ".indexOn": [
         "studentCode",
-        "subjectId"
+        "subjectId",
+        "timestamp"
       ],
       "$mistakeId": {
         ".validate": "newData.hasChildren(['studentCode'])"
@@ -97,7 +109,8 @@
       ".read": true,
       ".write": true,
       ".indexOn": [
-        "score"
+        "score",
+        "lastUpdated"
       ]
     },
     "PushTokens": {
@@ -108,12 +121,17 @@
       ".read": true,
       ".write": true
     },
+    "PlatformSettings": {
+      ".read": true,
+      ".write": true
+    },
     "EmergencyIssues": {
       ".read": true,
       ".write": true,
       ".indexOn": [
         "status",
-        "timestamp"
+        "timestamp",
+        "studentCode"
       ]
     },
     "Community": {
@@ -130,9 +148,39 @@
         ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length <= 1000"
       }
     },
+    "AuditLogs": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "timestamp",
+        "admin",
+        "action",
+        "target"
+      ],
+      "$logId": {
+        ".validate": "newData.hasChildren(['action', 'timestamp'])"
+      }
+    },
+    "SecurityAlerts": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": [
+        "timestamp",
+        "severity",
+        "type",
+        "status"
+      ],
+      "$alertId": {
+        ".validate": "newData.hasChildren(['type', 'timestamp'])"
+      }
+    },
     "ActivityLogs": {
       ".read": true,
-      ".write": true
+      ".write": true,
+      ".indexOn": [
+        "timestamp",
+        "studentCode"
+      ]
     },
     "DeviceRequests": {
       ".read": true,
@@ -192,6 +240,19 @@
       }
     },
     "StudentDrawings": {
+      ".read": true,
+      ".write": true
+    },
+    "WeeklySchedule": {
+      ".read": true,
+      ".write": true
+    },
+    "ExamResults": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["studentCode", "examId", "timestamp"]
+    },
+    "StudentProfiles": {
       ".read": true,
       ".write": true
     }

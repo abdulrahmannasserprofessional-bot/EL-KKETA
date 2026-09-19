@@ -11,57 +11,87 @@
     <script src="motion-fx.js?v=2.0" defer></script>
     <style>
         :root {
-            --primary: #2563EB;
-            --primary-dark: #1E3A8A;
-            --accent: #38BDF8;
-            --gold: #F59E0B;
-            --bg-body: #F8FAFC;
+            --primary: #C28B38;
+            --primary-dark: #A37024;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            
+            --bg-body: #FAF7F2;
             --surface: #FFFFFF;
-            --surface-glass: rgba(255, 255, 255, 0.9);
-            --border-color: #E2E8F0;
-            --text-main: #0F172A;
+            --surface-hover: #FDFBF8;
+            --border-color: #EFE8DC;
+            --border-color-hover: #D9C3A3;
+            
+            --text-main: #1E293B;
             --text-sub: #64748B;
-            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-            --exec-gradient: linear-gradient(135deg, #090D16 0%, #0F172A 40%, #1E3A8A 85%, #2563EB 100%);
+            --text-muted: #8C827A;
+            
+            --emerald: #10B981;
+            --emerald-bg: #ECFDF5;
+            --emerald-border: #A7F3D0;
+            --blue: #2563EB;
+            --blue-bg: #EFF6FF;
+            --purple: #9333EA;
+            --purple-bg: #FAF5FF;
+            --orange: #EA580C;
+            --orange-bg: #FFF7ED;
+            --rose: #E11D48;
+            --rose-bg: #FFF1F2;
+            
+            --card-shadow: 0 6px 24px -2px rgba(180, 140, 75, 0.09), 0 2px 8px rgba(0, 0, 0, 0.03);
+            --card-shadow-hover: 0 12px 30px -4px rgba(180, 140, 75, 0.18), 0 6px 14px rgba(0, 0, 0, 0.05);
+            
+            --exec-gradient: linear-gradient(135deg, #1A1714 0%, #292117 40%, #3D2D18 75%, #523B1B 100%);
         }
 
         [data-theme="dark"] {
-            --bg-body: #070B14;
-            --surface: #0F172A;
-            --surface-glass: rgba(15, 23, 42, 0.92);
-            --border-color: #1E293B;
-            --text-main: #F8FAFC;
-            --text-sub: #94A3B8;
-            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+            --bg-body: #0D1117;
+            --surface: #161B22;
+            --surface-hover: #1F242C;
+            --border-color: #30363D;
+            --border-color-hover: #8B6528;
+            --text-main: #F0F6FC;
+            --text-sub: #8B949E;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            --card-shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--bg-body);
-            color: var(--text-main);
+        html, body {
+            background-color: var(--bg-body) !important;
+            color: var(--text-main) !important;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
             min-height: 100vh;
             padding-bottom: 60px;
             overflow-x: hidden;
-            transition: background 0.3s ease, color 0.3s ease;
+            direction: rtl;
+            text-align: right;
         }
 
         .ambient-glow {
             position: fixed;
-            top: 0; right: 0; width: 450px; height: 450px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
-            z-index: 0; pointer-events: none; filter: blur(50px);
+            top: 0; right: 0; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(194, 139, 56, 0.12) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(60px);
+        }
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: 0; left: 0; width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(212, 151, 59, 0.08) 0%, transparent 70%);
+            z-index: 0; pointer-events: none; filter: blur(60px);
         }
 
+        /* ─── Executive Header ─── */
         .exec-header {
-            background: var(--exec-gradient);
-            padding: 30px 20px 75px;
+            background: var(--exec-gradient) !important;
+            padding: 32px 20px 85px;
             position: relative;
             overflow: hidden;
             border-bottom-left-radius: 36px;
             border-bottom-right-radius: 36px;
-            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            box-shadow: 0 15px 40px rgba(28, 25, 23, 0.25);
             z-index: 2;
         }
 
@@ -69,14 +99,14 @@
             content: '';
             position: absolute;
             bottom: -60px; left: -40px;
-            width: 240px; height: 240px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(212, 151, 59, 0.28) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
 
         .header-container {
-            max-width: 1060px;
+            max-width: 1140px;
             margin: 0 auto;
             position: relative;
             z-index: 3;
@@ -93,20 +123,22 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            color: #FFFFFF;
-            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #FFFFFF !important;
+            padding: 8px 18px;
             border-radius: 14px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
             text-decoration: none;
             backdrop-filter: blur(8px);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
         }
         .back-btn:hover {
-            background: rgba(255, 255, 255, 0.22);
-            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-color: #D4973B !important;
+            color: #FDF4E6 !important;
+            transform: translateX(-4px);
         }
 
         .header-actions {
@@ -120,90 +152,99 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #FFFFFF;
-            padding: 8px 18px;
+            background: var(--gold-gradient) !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            color: #FFFFFF !important;
+            padding: 9px 22px;
             border-radius: 14px;
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 13.5px;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 4px 16px rgba(194, 139, 56, 0.45);
             transition: all 0.25s ease;
             font-family: inherit;
         }
         .btn-add-student:hover {
-            background: linear-gradient(135deg, #1D4ED8, #1E40AF);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+            box-shadow: 0 6px 22px rgba(194, 139, 56, 0.6);
         }
 
         .btn-export-hdr {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            color: #FFFFFF;
-            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #FFFFFF !important;
+            padding: 9px 16px;
             border-radius: 14px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             backdrop-filter: blur(8px);
             transition: 0.2s;
             font-family: inherit;
         }
-        .btn-export-hdr:hover { background: rgba(255, 255, 255, 0.22); }
+        .btn-export-hdr:hover { 
+            background: rgba(255, 255, 255, 0.25) !important; 
+            border-color: #D4973B !important;
+        }
 
         .theme-toggle-btn {
             width: 40px; height: 40px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
             border-radius: 12px;
-            color: #FFFFFF;
+            color: #FFFFFF !important;
             font-size: 16px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             backdrop-filter: blur(8px);
             transition: 0.2s;
         }
-        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(15deg); }
+        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.25) !important; transform: rotate(15deg); }
 
-        .header-title-box { color: #FFFFFF; }
+        .header-title-box { color: #FFFFFF !important; }
         .badge-academic {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            color: #FDE68A;
-            padding: 4px 12px;
+            background: rgba(212, 151, 59, 0.25) !important;
+            border: 1px solid rgba(212, 151, 59, 0.5) !important;
+            color: #FDE68A !important;
+            padding: 5px 14px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             letter-spacing: 0.3px;
         }
         .header-title {
-            font-size: 26px;
-            font-weight: 900;
+            font-size: 28px !important;
+            font-weight: 900 !important;
             letter-spacing: -0.5px;
             line-height: 1.2;
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #FFFFFF !important;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
+        .header-title * { color: #FFFFFF !important; }
+        .header-title i { color: #F59E0B !important; }
         .header-subtitle {
-            font-size: 13px;
-            color: #94A3B8;
+            font-size: 13.5px !important;
+            color: #F1F5F9 !important;
             margin-top: 6px;
             font-weight: 600;
+            opacity: 0.95;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 
+        /* ─── Main Content Shell ─── */
         .main-content {
-            max-width: 1060px;
-            margin: -45px auto 0;
+            max-width: 1140px;
+            margin: -50px auto 0;
             padding: 0 16px;
             position: relative;
             z-index: 5;
@@ -212,7 +253,7 @@
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
+            gap: 14px;
             margin-bottom: 24px;
         }
         @media (max-width: 1024px) {
@@ -239,8 +280,8 @@
         }
 
         .radar-banner {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(234, 88, 12, 0.05));
-            border: 1px solid rgba(245, 158, 11, 0.25);
+            background: #FEF3C7 !important;
+            border: 1px solid #FDE68A !important;
             border-radius: 20px;
             padding: 16px 20px;
             margin-bottom: 16px;
@@ -252,30 +293,32 @@
             box-shadow: var(--card-shadow);
         }
         .btn-radar-alert {
-            background: linear-gradient(135deg, #D97706, #B45309);
-            color: #FFFFFF;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            padding: 8px 16px;
+            background: var(--gold-gradient) !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            padding: 8px 18px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             font-family: inherit;
+            box-shadow: 0 4px 12px rgba(194, 139, 56, 0.35);
             transition: all 0.2s;
         }
         .btn-radar-alert:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+            box-shadow: 0 6px 16px rgba(194, 139, 56, 0.45);
         }
 
+        /* ─── KPI Cards ─── */
         .kpi-card {
-            background: var(--surface);
-            border: 1px solid var(--border-color);
+            background: var(--surface) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 20px;
-            padding: 16px 18px;
+            padding: 18px 16px;
             box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
@@ -284,42 +327,47 @@
             overflow: hidden;
             transition: all 0.25s ease;
         }
-        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-card:hover { 
+            transform: translateY(-3px); 
+            border-color: var(--border-color-hover) !important;
+            box-shadow: var(--card-shadow-hover);
+        }
         .kpi-card::before {
             content: '';
             position: absolute;
             top: 0; right: 0; width: 4px; height: 100%;
         }
-        .kpi-card.blue::before { background: #2563EB; }
-        .kpi-card.emerald::before { background: #10B981; }
-        .kpi-card.green::before { background: #059669; }
-        .kpi-card.amber::before { background: #F59E0B; }
-        .kpi-card.purple::before { background: #8B5CF6; }
+        .kpi-card.blue::before { background: #C28B38 !important; }
+        .kpi-card.emerald::before { background: #10B981 !important; }
+        .kpi-card.green::before { background: #2563EB !important; }
+        .kpi-card.amber::before { background: #EA580C !important; }
+        .kpi-card.purple::before { background: #9333EA !important; }
 
-        .kpi-info h4 { font-size: 12px; font-weight: 700; color: var(--text-sub); }
-        .kpi-info .kpi-num { font-size: 24px; font-weight: 900; color: var(--text-main); margin-top: 4px; line-height: 1; }
+        .kpi-info h4 { font-size: 12.5px; font-weight: 700; color: var(--text-sub) !important; }
+        .kpi-info .kpi-num { font-size: 25px; font-weight: 900; color: var(--text-main) !important; margin-top: 4px; line-height: 1; }
         .kpi-icon {
             width: 44px; height: 44px;
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 19px;
         }
-        .kpi-card.blue .kpi-icon { background: rgba(37, 99, 235, 0.1); color: #2563EB; }
-        .kpi-card.emerald .kpi-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
-        .kpi-card.green .kpi-icon { background: rgba(5, 150, 105, 0.1); color: #059669; }
-        .kpi-card.amber .kpi-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
-        .kpi-card.purple .kpi-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+        .kpi-card.blue .kpi-icon { background: var(--gold-light) !important; color: var(--primary) !important; }
+        .kpi-card.emerald .kpi-icon { background: #ECFDF5 !important; color: #10B981 !important; }
+        .kpi-card.green .kpi-icon { background: #EFF6FF !important; color: #2563EB !important; }
+        .kpi-card.amber .kpi-icon { background: #FFF7ED !important; color: #EA580C !important; }
+        .kpi-card.purple .kpi-icon { background: #FAF5FF !important; color: #9333EA !important; }
 
+        /* ─── Search & Controls Card ─── */
         .controls-card {
-            background: var(--surface);
-            border: 1px solid var(--border-color);
+            background: var(--surface) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 24px;
-            padding: 18px 20px;
+            padding: 22px 24px;
             box-shadow: var(--card-shadow);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
         }
 
         .search-bar-wrap {
@@ -328,28 +376,29 @@
         }
         .search-input {
             width: 100%;
-            padding: 14px 46px 14px 18px;
-            background: var(--bg-body);
-            border: 1.5px solid var(--border-color);
+            padding: 14px 48px 14px 18px;
+            background: var(--bg-body) !important;
+            border: 1.5px solid var(--border-color) !important;
             border-radius: 16px;
-            color: var(--text-main);
+            color: var(--text-main) !important;
             font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14.5px;
+            font-weight: 700;
             outline: none;
             transition: all 0.25s;
         }
         .search-input:focus {
-            border-color: var(--primary);
-            background: var(--surface);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            border-color: var(--primary) !important;
+            background: var(--surface) !important;
+            box-shadow: 0 0 0 3.5px rgba(194, 139, 56, 0.15) !important;
         }
         .search-icon-pos {
             position: absolute;
             right: 18px; top: 50%;
             transform: translateY(-50%);
-            color: var(--text-sub);
-            font-size: 16px;
+            color: var(--primary) !important;
+            font-size: 17px;
+            pointer-events: none;
         }
 
         .filter-row {
@@ -357,7 +406,7 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .filter-chips-group {
@@ -367,34 +416,38 @@
             flex-wrap: wrap;
         }
         .filter-chip {
-            padding: 7px 14px;
+            padding: 8px 16px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
-            border: 1px solid var(--border-color);
-            background: var(--bg-body);
-            color: var(--text-sub);
+            border: 1.5px solid var(--border-color) !important;
+            background: var(--bg-body) !important;
+            color: var(--text-sub) !important;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-chip:hover { 
+            border-color: var(--primary) !important; 
+            color: var(--primary) !important;
+            background: var(--surface) !important;
+        }
         .filter-chip.active {
-            background: var(--primary);
-            color: #FFFFFF;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            background: var(--gold-gradient) !important;
+            color: #FFFFFF !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
         }
 
         .sort-btn {
-            background: var(--bg-body);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            background: var(--bg-body) !important;
+            border: 1.5px solid var(--border-color) !important;
+            color: var(--text-main) !important;
             padding: 8px 16px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 800;
             cursor: pointer;
             font-family: inherit;
@@ -403,229 +456,643 @@
             gap: 6px;
             transition: 0.2s;
         }
-        .sort-btn:hover { background: var(--surface); border-color: var(--primary); }
+        .sort-btn:hover { background: var(--surface) !important; border-color: var(--primary) !important; color: var(--primary) !important; }
 
+        /* ─── MODERN LUXURY STUDENT CARDS GRID ─── */
         .students-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 18px;
         }
 
         .student-item-card {
-            background: var(--surface);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px 20px;
+            background: var(--surface) !important;
+            border: 1.5px solid var(--border-color) !important;
+            border-radius: 22px;
+            padding: 20px;
             box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .student-item-card:hover {
+            border-color: var(--border-color-hover) !important;
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* Card Top Row */
+        .student-card-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .student-item-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px -6px rgba(37, 99, 235, 0.12);
-        }
-        @media (max-width: 768px) {
-            .student-item-card {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 14px;
-            }
+            gap: 12px;
         }
 
-        .student-left-wrap {
+        .student-profile-lead {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 10px;
             flex: 1;
             min-width: 0;
+        }
+
+        .student-idx-badge {
+            background: #F1F5F9 !important;
+            color: #475569 !important;
+            border: 1px solid #E2E8F0 !important;
+            font-size: 11px !important;
+            font-weight: 900 !important;
+            font-family: monospace, system-ui, sans-serif !important;
+            padding: 3px 7px !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 28px !important;
+        }
+
+        [data-theme="dark"] .student-idx-badge {
+            background: #21262D !important;
+            color: #8B949E !important;
+            border-color: #30363D !important;
         }
 
         .avatar-ring {
-            width: 52px; height: 52px; min-width: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #1E3A8A, #3B82F6);
-            color: #FFFFFF;
+            width: 44px; height: 44px; min-width: 44px;
+            border-radius: 12px;
+            background: var(--gold-gradient) !important;
+            color: #FFFFFF !important;
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 17px; font-weight: 900;
+            box-shadow: 0 4px 12px rgba(194, 139, 56, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.8) !important;
             position: relative;
         }
 
-        .student-details {
-            flex: 1;
+        .student-name-block {
+            display: flex;
+            flex-direction: column;
             min-width: 0;
         }
-        .student-name-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+
         .student-name {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--text-main);
+            font-size: 15px !important;
+            font-weight: 900 !important;
+            color: var(--text-main) !important;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .index-badge {
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 6px;
-        }
-        .status-pill-badge {
-            font-size: 11px;
-            font-weight: 800;
-            padding: 3px 9px;
-            border-radius: 8px;
+
+        .student-code-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-        }
-        .status-pill-badge.active { background: #DCFCE7; color: #15803D; }
-        .status-pill-badge.banned { background: #FEE2E2; color: #B91C1C; }
-        .status-pill-badge.warn { background: #FEF3C7; color: #B45309; }
-
-        .student-meta-strip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
-        .code-pill {
-            font-family: monospace;
-            font-size: 12px;
+            gap: 5px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            color: #8E5D16;
+            font-size: 11.5px;
             font-weight: 800;
-            color: #C2410C;
-            background: #FFF7ED;
-            border: 1px solid #FFEDD5;
-            padding: 3px 9px;
-            border-radius: 8px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-top: 3px;
+            width: fit-content;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
+        }
+        .student-code-badge:hover {
+            background: #FDE8CA;
+            transform: scale(1.02);
+        }
+
+        .meta-tag-pill {
             display: inline-flex;
             align-items: center;
             gap: 5px;
         }
-        .code-pill:hover { background: #FFEDD5; }
+        .meta-tag-pill i { color: var(--primary); font-size: 12px; }
 
-        .dept-tag {
-            font-size: 11px;
-            font-weight: 700;
-            background: var(--bg-body);
-            color: var(--text-sub);
-            border: 1px solid var(--border-color);
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-
-        .phone-link {
-            font-size: 12px;
-            color: var(--primary);
-            font-weight: 700;
-            text-decoration: none;
+        .btn-wa-pill {
             display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            direction: ltr;
-        }
-
-        .actions-group {
-            display: flex;
             align-items: center;
             gap: 6px;
-            flex-wrap: wrap;
-        }
-        @media (max-width: 768px) {
-            .actions-group {
-                justify-content: flex-end;
-                border-top: 1px dashed var(--border-color);
-                padding-top: 10px;
-            }
-        }
-
-        .action-icon-btn {
-            width: 38px; height: 38px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-body);
-            color: var(--text-main);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .action-icon-btn:hover { transform: translateY(-2px); }
-        .action-icon-btn.edit { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-        .action-icon-btn.edit:hover { background: #C7D2FE; }
-        .action-icon-btn.whatsapp { background: #DCFCE7; color: #166534; border-color: #BBF7D0; font-size: 16px; }
-        .action-icon-btn.whatsapp:hover { background: #BBF7D0; }
-        .action-icon-btn.ban { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
-        .action-icon-btn.unban { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
-        .action-icon-btn.reset { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
-        .action-icon-btn.delete { background: #FFF1F2; color: #E11D48; border-color: #FFE4E6; }
-
-        .score-badge {
-            background: rgba(16, 185, 129, 0.12);
+            background: #ECFDF5;
             color: #059669;
-            border: 1px solid rgba(16, 185, 129, 0.25);
+            border: 1px solid #A7F3D0;
             padding: 4px 10px;
             border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        /* ─── Modern Luxury Student Card Action System ─── */
+        .student-card-actions-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .btn-action-wa-full {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            padding: 9px 14px !important;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            color: #FFFFFF !important;
+            border: 1px solid #059669 !important;
+            border-radius: 12px !important;
+            font-size: 12px !important;
+            font-weight: 800 !important;
+            text-decoration: none !important;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.22) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
+        }
+        .btn-action-wa-full:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            color: #FFFFFF !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35) !important;
+        }
+        .btn-action-wa-full:active {
+            transform: scale(0.98) !important;
+        }
+
+        .btn-action-wa-none {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            width: 100% !important;
+            padding: 8px 12px !important;
+            background: var(--bg-body) !important;
+            color: var(--text-muted) !important;
+            border: 1px dashed var(--border-color) !important;
+            border-radius: 12px !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+        }
+
+        .student-card-actions-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 6px !important;
+            align-items: center !important;
+        }
+
+        .btn-card-action {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            padding: 8px 4px !important;
+            border-radius: 12px !important;
+            font-size: 11px !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            font-family: 'Cairo', system-ui, sans-serif !important;
+            border: 1.5px solid transparent !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            outline: none !important;
+            user-select: none !important;
+            text-decoration: none !important;
+        }
+        .btn-card-action i {
+            font-size: 14px !important;
+            line-height: 1 !important;
+        }
+        .btn-card-action span {
+            font-size: 10.5px !important;
+            font-weight: 800 !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+        }
+        .btn-card-action:active {
+            transform: scale(0.94) !important;
+        }
+
+        /* 1. Edit Action - Royal Blue */
+        .btn-card-action.edit {
+            background: #EFF6FF !important;
+            color: #2563EB !important;
+            border-color: #BFDBFE !important;
+        }
+        .btn-card-action.edit i { color: #2563EB !important; }
+        .btn-card-action.edit:hover {
+            background: #2563EB !important;
+            color: #FFFFFF !important;
+            border-color: #2563EB !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28) !important;
+        }
+        .btn-card-action.edit:hover i,
+        .btn-card-action.edit:hover span {
+            color: #FFFFFF !important;
+        }
+
+        /* 2. Reset Device Action - Warm Amber */
+        .btn-card-action.reset {
+            background: #FFF7ED !important;
+            color: #EA580C !important;
+            border-color: #FED7AA !important;
+        }
+        .btn-card-action.reset i { color: #EA580C !important; }
+        .btn-card-action.reset:hover {
+            background: #EA580C !important;
+            color: #FFFFFF !important;
+            border-color: #EA580C !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.28) !important;
+        }
+        .btn-card-action.reset:hover i,
+        .btn-card-action.reset:hover span {
+            color: #FFFFFF !important;
+        }
+
+        /* 3. Ban Action - Soft Rose/Crimson */
+        .btn-card-action.ban {
+            background: #FFF1F2 !important;
+            color: #E11D48 !important;
+            border-color: #FECDD3 !important;
+        }
+        .btn-card-action.ban i { color: #E11D48 !important; }
+        .btn-card-action.ban:hover {
+            background: #E11D48 !important;
+            color: #FFFFFF !important;
+            border-color: #E11D48 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28) !important;
+        }
+        .btn-card-action.ban:hover i,
+        .btn-card-action.ban:hover span {
+            color: #FFFFFF !important;
+        }
+
+        /* 3-B. Unban Action - Soft Emerald */
+        .btn-card-action.unban {
+            background: #ECFDF5 !important;
+            color: #059669 !important;
+            border-color: #A7F3D0 !important;
+        }
+        .btn-card-action.unban i { color: #059669 !important; }
+        .btn-card-action.unban:hover {
+            background: #10B981 !important;
+            color: #FFFFFF !important;
+            border-color: #10B981 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28) !important;
+        }
+        .btn-card-action.unban:hover i,
+        .btn-card-action.unban:hover span {
+            color: #FFFFFF !important;
+        }
+
+        /* 4. Delete Action - Danger Crimson */
+        .btn-card-action.delete {
+            background: #FEF2F2 !important;
+            color: #DC2626 !important;
+            border-color: #FCA5A5 !important;
+        }
+        .btn-card-action.delete i { color: #DC2626 !important; }
+        .btn-card-action.delete:hover {
+            background: #DC2626 !important;
+            color: #FFFFFF !important;
+            border-color: #DC2626 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.28) !important;
+        }
+        .btn-card-action.delete:hover i,
+        .btn-card-action.delete:hover span {
+            color: #FFFFFF !important;
+        }
+
+        .status-pill-badge {
             font-size: 11px;
             font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
         }
+        .status-pill-badge.active { background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; }
+        .status-pill-badge.banned { background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; }
+        .status-pill-badge.warn { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
 
-        .empty-box {
+        .empty-state-box {
+            grid-column: 1 / -1;
             text-align: center;
             padding: 60px 20px;
-            color: var(--text-sub);
-            background: var(--surface);
+            background: var(--surface) !important;
             border-radius: 24px;
-            border: 2px dashed var(--border-color);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--card-shadow);
         }
-        .empty-box i { font-size: 48px; color: var(--primary); opacity: 0.4; margin-bottom: 14px; }
-        .empty-box h3 { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
-        .empty-box p { font-size: 13px; }
-
-        .toast-bubble {
-            position: fixed;
-            bottom: 25px; left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #090D16;
-            color: #FFFFFF;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 12px 24px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 700;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-            z-index: 99999;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .toast-bubble.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
+        .empty-state-icon {
+            font-size: 48px;
+            color: var(--primary) !important;
+            margin-bottom: 12px;
         }
     </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
 </head>
 <body>
     <script>
@@ -684,7 +1151,7 @@
                     <span>سجلات الدفعة 2027 • فرقة رابعة</span>
                 </div>
                 <h1 class="header-title">
-                    <i class="fa-solid fa-user-graduate" style="color:#38BDF8;"></i>
+                    <i class="fa-solid fa-user-graduate" style="color:#F59E0B;"></i>
                     <span>إدارة الطلاب والاشتراكات</span>
                 </h1>
                 <p class="header-subtitle">التحكم الكامل في حسابات الطلاب، الأجهزة المقترنة، الحظر، والتواصل المباشر</p>
@@ -720,10 +1187,10 @@
             </div>
             <div class="kpi-card amber">
                 <div class="kpi-info">
-                    <h4>غائبون 7+ أيام</h4>
-                    <div class="kpi-num" id="inactiveStudents">—</div>
+                    <h4>الأجهزة المقترنة</h4>
+                    <div class="kpi-num" id="devicesCount">—</div>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid fa-user-clock"></i></div>
+                <div class="kpi-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
             </div>
             <div class="kpi-card purple">
                 <div class="kpi-info">
@@ -751,9 +1218,6 @@
                     <button class="filter-chip" id="chip-active" onclick="setStatusFilter('active')">
                         <i class="fa-solid fa-circle-check" style="color:#10B981;"></i> نشط
                     </button>
-                    <button class="filter-chip" id="chip-inactive" onclick="setStatusFilter('inactive')" style="border-color: rgba(245, 158, 11, 0.4);">
-                        <i class="fa-solid fa-user-clock" style="color:#F59E0B;"></i> غائبون (<span id="countFilterInactive">0</span>)
-                    </button>
                     <button class="filter-chip" id="chip-banned" onclick="setStatusFilter('banned')">
                         <i class="fa-solid fa-ban" style="color:#EF4444;"></i> محظور
                     </button>
@@ -767,23 +1231,6 @@
                     <span id="sortLabel">الأحدث تسجيلاً</span>
                 </button>
             </div>
-        </div>
-
-        <!-- Radar Alert Banner for Inactive Students -->
-        <div class="radar-banner" id="radarBanner" style="display: none;">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:40px; height:40px; border-radius:12px; background:rgba(245, 158, 11, 0.2); color:#D97706; display:flex; align-items:center; justify-content:center; font-size:18px;">
-                    <i class="fa-solid fa-satellite-dish"></i>
-                </div>
-                <div>
-                    <div style="font-size:14px; font-weight:900; color:var(--text-main);">رادار الطلاب المتعثرين والغائبين ⏱️</div>
-                    <div style="font-size:12px; color:var(--text-sub);" id="radarBannerSubtitle">تم رصد طلاب لم يسجلوا أي نشاط على المنصة منذ أكثر من 7 أيام</div>
-                </div>
-            </div>
-            <button class="btn-radar-alert" onclick="sendBulkEncouragementNotification()">
-                <i class="fa-solid fa-bullhorn"></i>
-                <span>إرسال إشعار تذكير تشجيعي للغائبين 📢</span>
-            </button>
         </div>
 
         <div class="students-list" id="studentsList">
@@ -865,6 +1312,75 @@
             if (minutes < 5) return 'متواجد الآن 🟢';
             if (minutes < 60) return `منذ ${minutes} دقيقة`;
             const hours = Math.floor(minutes / 60);
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const API_BASE = "https://backendapi-pi.vercel.app/api";
+        let allStudents = [];
+        let currentStatusFilter = 'all';
+        let sortDesc = true;
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin_theme', next);
+            updateThemeIcon(next);
+        }
+
+        function updateThemeIcon(t) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+        updateThemeIcon(savedTheme);
+
+        function showToast(msg) {
+            const t = document.getElementById('toastBubble');
+            t.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#38BDF8;"></i> <span>${msg}</span>`;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function getInitial(name) {
+            return name ? name.trim().charAt(0) : '🎓';
+        }
+
+        function copyCode(code) {
+            if (!code) return;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast(`تم نسخ كود الطالب: ${code}`);
+            }).catch(() => {
+                showToast(`كود الطالب: ${code}`);
+            });
+        }
+
+        function toggleSortOrder() {
+            sortDesc = !sortDesc;
+            document.getElementById('sortLabel').textContent = sortDesc ? 'الأحدث تسجيلاً' : 'الأقدم تسجيلاً';
+            filterStudents();
+        }
+
+        function isStudentOnline(st) {
+            if (st.isOnline === true) return true;
+            if (st.lastActive && (Date.now() - st.lastActive < 300000)) return true;
+            return false;
+        }
+
+        function isStudentInactive(st) {
+            if (!st.lastActive) return true;
+            return (Date.now() - st.lastActive > 604800000);
+        }
+
+        function formatLastSeen(timestamp) {
+            if (!timestamp) return 'لم يسجل دخول';
+            const diff = Date.now() - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            if (minutes < 5) return 'متواجد الآن 🟢';
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            const hours = Math.floor(minutes / 60);
             if (hours < 24) return `منذ ${hours} ساعة`;
             const days = Math.floor(hours / 24);
             return `منذ ${days} يوم`;
@@ -872,15 +1388,10 @@
 
         function setStatusFilter(filter) {
             currentStatusFilter = filter;
-            ['all', 'online', 'active', 'inactive', 'banned', 'warnings'].forEach(id => {
+            ['all', 'online', 'active', 'banned', 'warnings'].forEach(id => {
                 const el = document.getElementById(`chip-${id}`);
                 if (el) el.classList.toggle('active', id === filter);
             });
-
-            const banner = document.getElementById('radarBanner');
-            if (banner) {
-                banner.style.display = (filter === 'inactive') ? 'flex' : 'none';
-            }
 
             filterStudents();
         }
@@ -909,21 +1420,15 @@
 
             const onlineCount = allStudents.filter(isStudentOnline).length;
             const activeTodayCount = allStudents.filter(s => s.lastActive && (Date.now() - s.lastActive < 86400000)).length;
-            const inactiveCount = allStudents.filter(isStudentInactive).length;
+            const devicesCount = allStudents.filter(s => s.authorizedDevices || s.deviceId).length;
 
             document.getElementById('totalStudents').textContent = allStudents.length;
             document.getElementById('countFilterAll').textContent = allStudents.length;
             document.getElementById('onlineStudents').textContent = onlineCount;
             document.getElementById('countFilterOnline').textContent = onlineCount;
             document.getElementById('activeToday').textContent = activeTodayCount;
-            document.getElementById('inactiveStudents').textContent = inactiveCount;
-            document.getElementById('countFilterInactive').textContent = inactiveCount;
+            document.getElementById('devicesCount').textContent = devicesCount;
             document.getElementById('avgScore').textContent = scoreCount > 0 ? Math.round(totalScore / scoreCount) + '%' : '—';
-
-            const subEl = document.getElementById('radarBannerSubtitle');
-            if (subEl) {
-                subEl.textContent = `تم رصد ${inactiveCount} طالب لم يسجلوا أي نشاط على المنصة منذ أكثر من 7 أيام`;
-            }
 
             filterStudents();
         });
@@ -934,125 +1439,120 @@
 
             if (currentStatusFilter === 'online') {
                 filtered = filtered.filter(isStudentOnline);
-            } else if (currentStatusFilter === 'inactive') {
-                filtered = filtered.filter(isStudentInactive);
             } else if (currentStatusFilter === 'active') {
-                filtered = filtered.filter(s => !s.isBanned && s.is_banned != 1 && (!s.warnings || s.warnings === 0));
+                filtered = filtered.filter(s => !isStudentInactive(s) && !s.isBanned);
             } else if (currentStatusFilter === 'banned') {
-                filtered = filtered.filter(s => s.isBanned || s.is_banned == 1);
+                filtered = filtered.filter(s => s.isBanned);
             } else if (currentStatusFilter === 'warnings') {
-                filtered = filtered.filter(s => s.warnings > 0 && !s.isBanned && s.is_banned != 1);
+                filtered = filtered.filter(s => s.warnings && s.warnings > 0);
             }
 
             if (q) {
-                filtered = filtered.filter(s =>
+                filtered = filtered.filter(s => 
                     (s.fullName || '').toLowerCase().includes(q) ||
                     (s.studentCode || '').toLowerCase().includes(q) ||
-                    (s.whatsapp || '').includes(q)
+                    (s.whatsapp || '').includes(q) ||
+                    (s.email || '').toLowerCase().includes(q)
                 );
             }
 
-            renderStudents(filtered);
-        }
+            filtered.sort((a, b) => {
+                const timeA = a.createdAt || a.lastActive || 0;
+                const timeB = b.createdAt || b.lastActive || 0;
+                return sortDesc ? (timeB - timeA) : (timeA - timeB);
+            });
 
-        function renderStudents(list) {
             const container = document.getElementById('studentsList');
-            container.innerHTML = "";
+            container.innerHTML = '';
 
-            if (!list || list.length === 0) {
+            if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-box">
-                        <i class="fa-solid fa-user-slash"></i>
-                        <h3>لا يوجد طلاب مطابقين للبحث</h3>
-                        <p>تأكد من كتابة الاسم أو الكود بشكل صحيح أو قم بتغيير الفلتر</p>
+                    <div class="empty-state-box">
+                        <i class="fa-solid fa-user-slash empty-state-icon"></i>
+                        <h3 style="font-size: 18px; font-weight: 900; color: var(--text-main);">لم يتم العثور على أي طلاب</h3>
+                        <p style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">جرب تغيير كلمة البحث أو الفلتر المختار</p>
                     </div>
                 `;
                 return;
             }
 
-            const sorted = [...list].sort((a, b) => {
-                const dateA = a.joinDate || a.createdAt || 0;
-                const dateB = b.joinDate || b.createdAt || 0;
-                return sortDesc ? (dateB - dateA) : (dateA - dateB);
-            });
-
-            sorted.forEach((st, idx) => {
-                const isBanned = Boolean(st.isBanned || st.is_banned == 1);
-                const hasWarnings = (st.warnings > 0);
+            filtered.forEach((st, idx) => {
                 const isOnline = isStudentOnline(st);
                 const isInactive = isStudentInactive(st);
-                
-                let statusBadge = `<span class="status-pill-badge active"><i class="fa-solid fa-circle-check"></i> نشط</span>`;
+                const isBanned = !!st.isBanned;
+                const hasWarnings = st.warnings && st.warnings > 0;
+
+                let statusBadge = '';
                 if (isBanned) {
-                    statusBadge = `<span class="status-pill-badge banned"><i class="fa-solid fa-ban"></i> محظور</span>`;
+                    statusBadge = '<span class="status-pill-badge banned"><i class="fa-solid fa-ban"></i> محظور</span>';
                 } else if (hasWarnings) {
-                    statusBadge = `<span class="status-pill-badge warn"><i class="fa-solid fa-triangle-exclamation"></i> إنذار (${st.warnings}/3)</span>`;
+                    statusBadge = '<span class="status-pill-badge warn"><i class="fa-solid fa-triangle-exclamation"></i> إنذار (' + st.warnings + ')</span>';
+                } else if (isOnline) {
+                    statusBadge = '<span class="status-pill-badge active"><span class="pulse-dot"></span> متصل الآن</span>';
                 }
-
-                let presenceBadge = '';
-                if (isOnline) {
-                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; color:#10B981; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:2px 8px; border-radius:8px;"><span class="pulse-dot"></span> متواجد الآن</span>`;
-                } else if (isInactive) {
-                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; color:#D97706; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); padding:2px 8px; border-radius:8px;"><i class="fa-solid fa-user-clock"></i> غائب (${formatLastSeen(st.lastActive)})</span>`;
-                } else {
-                    presenceBadge = `<span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:var(--text-sub);"><i class="fa-regular fa-clock"></i> ${formatLastSeen(st.lastActive)}</span>`;
-                }
-
-                const scoreBadge = (st.stats && typeof st.stats.averageScore === 'number')
-                    ? `<span class="score-badge"><i class="fa-solid fa-chart-line"></i> ${st.stats.averageScore}%</span>`
-                    : '';
 
                 const escName = (st.fullName || 'طالب').replace(/'/g, "\\'");
                 const escCode = (st.studentCode || '').replace(/'/g, "\\'");
+                const devCount = st.authorizedDevices ? Object.keys(st.authorizedDevices).length : (st.deviceId ? 1 : 0);
+                const devName = st.authorizedDevices ? Object.values(st.authorizedDevices)[0]?.deviceName || 'جهاز مسجل' : (st.deviceId || 'جهاز موثق');
 
                 const card = document.createElement('div');
                 card.className = "student-item-card";
                 card.innerHTML = `
-                    <div class="student-left-wrap">
-                        <div class="avatar-ring" style="position:relative;">
-                            ${getInitial(st.fullName)}
-                            ${isOnline ? '<span style="position:absolute; bottom:1px; right:1px; width:12px; height:12px; background:#10B981; border:2.5px solid var(--surface); border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.3);"></span>' : ''}
-                        </div>
-                        <div class="student-details">
-                            <div class="student-name-row">
-                                <span class="index-badge">#${idx + 1}</span>
+                    <!-- Top Profile Row -->
+                    <div class="student-card-top">
+                        <div class="student-profile-lead">
+                            <span class="student-idx-badge">#${idx + 1}</span>
+                            <div class="avatar-ring">
+                                ${getInitial(st.fullName)}
+                                ${isOnline ? '<span style="position:absolute; bottom:0; right:0; width:12px; height:12px; background:#10B981; border:2.5px solid #FFFFFF; border-radius:50%;"></span>' : ''}
+                            </div>
+                            <div class="student-name-block">
                                 <span class="student-name" title="${st.fullName}">${st.fullName}</span>
-                                ${presenceBadge}
-                                ${statusBadge}
-                                ${scoreBadge}
-                            </div>
-                            <div class="student-meta-strip">
-                                <span class="code-pill" onclick="copyCode('${escCode}')" title="انقر لنسخ الكود">
+                                <span class="student-code-badge" onclick="copyCode('${escCode}')" title="انقر لنسخ كود الدخول">
                                     <i class="fa-regular fa-copy"></i>
-                                    <span>${st.studentCode || '—'}</span>
+                                    <span>كود: ${st.studentCode || '—'}</span>
                                 </span>
-                                <span class="dept-tag">الفرقة الرابعة • 2027</span>
-                                ${st.whatsapp ? `
-                                    <a href="tel:${st.whatsapp}" class="phone-link">
-                                        <i class="fa-solid fa-phone"></i>
-                                        <span>${st.whatsapp}</span>
-                                    </a>
-                                ` : `<span style="font-size:11px; color:var(--text-sub);">بدون هاتف</span>`}
                             </div>
                         </div>
+                        ${statusBadge}
                     </div>
 
-                    <div class="actions-group">
-                        <button class="action-icon-btn edit" onclick="editStudentModal('${escCode}')" title="تعديل بيانات الطالب">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button class="action-icon-btn whatsapp" onclick="sendStudentWhatsApp('${st.whatsapp || ''}', '${escName}', '${escCode}', ${isInactive})" title="${isInactive ? 'تشجيع ومراسلة الطالب عبر واتساب 💬' : 'مراسلة في واتساب مع كود الدخول'}">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </button>
-                        <button class="action-icon-btn ${isBanned ? 'unban' : 'ban'}" onclick="toggleStudentBan('${escCode}', ${isBanned})" title="${isBanned ? 'فك حظر الطالب' : 'حظر الطالب'}">
-                            <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
-                        </button>
-                        <button class="action-icon-btn reset" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز المقترن للطالب">
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                        </button>
-                        <button class="action-icon-btn delete" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف حساب الطالب نهائياً">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <!-- Luxury Actions Footer -->
+                    <div class="student-card-actions-wrapper">
+                        ${st.whatsapp ? `
+                            <a href="javascript:void(0)" onclick="sendStudentWhatsApp('${st.whatsapp}', '${escName}', '${escCode}')" class="btn-action-wa-full" title="مراسلة الطالب عبر واتساب">
+                                <span style="display:inline-flex; align-items:center; gap:7px;">
+                                    <i class="fa-brands fa-whatsapp" style="font-size:15px;"></i>
+                                    <span>مراسلة واتساب (${st.whatsapp})</span>
+                                </span>
+                                <i class="fa-solid fa-paper-plane" style="font-size:11px; opacity:0.85;"></i>
+                            </a>
+                        ` : `
+                            <div class="btn-action-wa-none">
+                                <i class="fa-solid fa-phone-slash"></i>
+                                <span>لا يوجد رقم هاتف مسجل</span>
+                            </div>
+                        `}
+
+                        <div class="student-card-actions-grid">
+                            <button class="btn-card-action edit" onclick="editStudentModal('${escCode}')" title="تعديل بيانات الطالب">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>تعديل</span>
+                            </button>
+                            <button class="btn-card-action reset" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز المقترن للطالب">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>فك الجهاز</span>
+                            </button>
+                            <button class="btn-card-action ${isBanned ? 'unban' : 'ban'}" onclick="toggleStudentBan('${escCode}', ${isBanned})" title="${isBanned ? 'فك حظر الطالب' : 'حظر حساب الطالب'}">
+                                <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                                <span>${isBanned ? 'فك الحظر' : 'حظر'}</span>
+                            </button>
+                            <button class="btn-card-action delete" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف حساب الطالب نهائياً">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>حذف</span>
+                            </button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);

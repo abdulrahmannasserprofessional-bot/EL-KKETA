@@ -5,1285 +5,2212 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>الرئيسية - ELKHETA | منصة الخطة التعليمية</title>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(r => r.forEach(reg => reg.unregister()));
-        }
-        if (window.caches) {
-            caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-        }
-    </script>
+    
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="motion-fx.css?v=2.5">
-    <link rel="stylesheet" href="live-chat.css?v=2.0">
-    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="mysql-api.js"></script>
-    <script src="motion-fx.js?v=2.5" defer></script>
-    <meta name="theme-color" content="#0B132B">
-    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+
     <style>
         :root {
-            --primary: #38BDF8;
-            --primary-rgb: 56, 189, 248;
-            --primary-dark: #0284C7;
-            --accent-indigo: #818CF8;
-            --accent-purple: #C084FC;
-            --accent-gold: #FBBF24;
-            --accent-emerald: #34D399;
-            --accent-rose: #FB7185;
+            /* ─── Warm Luxury Light Theme (Matching Provided Student Screenshot) ─── */
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
             
-            --bg-canvas: #060913;
-            --surface-glass: rgba(15, 23, 42, 0.72);
-            --surface-glass-hover: rgba(26, 38, 70, 0.85);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --border-glass-glow: rgba(56, 189, 248, 0.35);
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
             
-            --text-pure: #FFFFFF;
-            --text-sub: #CBD5E1;
-            --text-dim: #94A3B8;
-            --spring: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --text-light: #94A3B8;
+            
+            --emerald: #10B981;
+            --emerald-bg: #ECFDF5;
+            --blue: #2563EB;
+            --blue-bg: #EFF6FF;
+            --purple: #9333EA;
+            --purple-bg: #FAF5FF;
+            --orange: #EA580C;
+            --orange-bg: #FFF7ED;
+            --rose: #E11D48;
+            --rose-bg: #FFF1F2;
+            --cyan: #0891B2;
+            --cyan-bg: #ECFEFF;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 25px -4px rgba(180, 140, 75, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0D1117;
+            --bg-surface: #161B22;
+            --bg-surface-hover: #1F242C;
+            --border-card: #30363D;
+            --border-card-hover: #8B6528;
+            --text-title: #F0F6FC;
+            --text-body: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+            --shadow-subtle: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         * {
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Cairo', 'Alexandria', sans-serif;
-            background-color: var(--bg-canvas);
-            background-image: 
-                radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 50% 70%, rgba(192, 132, 252, 0.06) 0%, transparent 55%);
-            color: var(--text-pure);
+            background-color: var(--bg-page);
+            color: var(--text-title);
             min-height: 100vh;
-            padding-bottom: 110px;
             direction: rtl;
+            text-align: right;
             overflow-x: hidden;
+            display: flex;
         }
 
-        .home-app-wrapper {
+        /* ─── Layout Shell ─── */
+        .student-app-container {
+            display: flex;
             width: 100%;
-            max-width: 1220px;
-            margin: 0 auto;
-            padding: 16px 22px;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar (Right in RTL) ─── */
+        .student-sidebar {
+            width: 270px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-card);
+            padding: 22px 14px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
-        }
-
-        /* ─── Topbar Navigation (Liquid Glass Pill) ─── */
-        .home-topbar {
-            background: rgba(11, 17, 33, 0.85);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border-radius: 24px;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
             justify-content: space-between;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--border-glass);
             position: sticky;
-            top: 12px;
-            z-index: 100;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 99;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
         }
 
-        .brand-section {
+        .student-sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .student-sidebar::-webkit-scrollbar-thumb {
+            background: var(--border-card);
+            border-radius: 4px;
+        }
+
+        /* Sidebar Brand */
+        .sidebar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            padding: 6px 10px 18px 10px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
             text-decoration: none;
-            color: var(--text-pure);
         }
 
-        .brand-logo-badge {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #0284C7 0%, #6366F1 50%, #A855F7 100%);
-            border-radius: 13px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 19px;
-            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .brand-text-wrap h1 {
-            font-size: 17px;
-            font-weight: 900;
-            line-height: 1.2;
-            color: #FFFFFF;
-            letter-spacing: -0.2px;
-        }
-        .brand-text-wrap span {
-            font-size: 10.5px;
-            color: var(--primary);
-            font-weight: 800;
-        }
-
-        .desktop-nav-links {
+        .brand-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
             display: flex;
             align-items: center;
-            gap: 4px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 4px 8px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 22px;
+            flex-shrink: 0;
         }
 
-        .nav-link-btn {
-            padding: 8px 16px;
-            border-radius: 12px;
+        .brand-text-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+
+        .brand-title-row span {
+            color: var(--gold-primary);
+        }
+
+        .brand-sub {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Nav List */
+        .sidebar-nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #A37936;
+            margin: 16px 8px 6px 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-item-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-body);
             text-decoration: none;
-            color: var(--text-sub);
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item-link i {
+            width: 20px;
+            font-size: 15px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .nav-item-link:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-title);
+            transform: translateX(-3px);
+        }
+
+        .nav-item-link:hover i {
+            color: var(--gold-primary);
+        }
+
+        .nav-item-link.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+        }
+
+        .nav-item-link.active i {
+            color: #FFFFFF;
+        }
+
+        /* Support Box at Bottom of Sidebar */
+        .sidebar-support-card {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .support-headset-icon {
+            font-size: 26px;
+            color: var(--gold-primary);
+        }
+
+        .support-card-title {
             font-size: 13px;
             font-weight: 800;
+            color: var(--text-title);
+        }
+
+        .support-card-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .btn-support-chat {
+            width: 100%;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: var(--spring);
-        }
-        .nav-link-btn:hover {
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gold-gradient);
             color: #FFFFFF;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .nav-link-btn.active {
-            color: #FFFFFF;
-            background: linear-gradient(135deg, #0284C7, #4F46E5);
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-        }
-
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-quick-chip {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glass);
-            padding: 4px 12px 4px 5px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: var(--spring);
-            text-decoration: none;
-            color: inherit;
-        }
-        .user-quick-chip:hover {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: rgba(56, 189, 248, 0.4);
-        }
-
-        .user-avatar-circle {
-            width: 32px; height: 32px;
-            background: linear-gradient(135deg, #38BDF8, #818CF8);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 13px; font-weight: 900;
-        }
-
-        .user-name-short {
-            font-size: 12.5px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 800;
-            color: #FFFFFF;
-            max-width: 110px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(194, 139, 56, 0.3);
+            transition: all 0.2s ease;
         }
 
-        .btn-top-icon {
-            width: 38px; height: 38px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-glass);
-            color: var(--text-sub);
-            display: flex; align-items: center; justify-content: center;
+        .btn-support-chat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px rgba(194, 139, 56, 0.4);
+        }
+
+        /* ─── Main Content Stage ─── */
+        .student-main-stage {
+            flex: 1;
+            padding: 20px 28px 40px 28px;
+            overflow-y: auto;
+            max-width: 1450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* ─── Top Header Bar ─── */
+        .top-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-search-wrap {
+            flex: 1;
+            max-width: 540px;
+            position: relative;
+        }
+
+        .header-search-input {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 0 44px 0 16px;
+            font-size: 13.5px;
+            color: var(--text-title);
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
+        }
+
+        .header-search-input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15);
+        }
+
+        .header-search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .header-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 15px;
             cursor: pointer;
-            transition: var(--spring);
-            text-decoration: none;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
         }
-        .btn-top-icon:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #FFFFFF;
+
+        .btn-header-icon:hover {
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
             transform: translateY(-2px);
         }
 
-        /* 🌟 1. Cinema Hero Showcase (Apple & Linear Pro Style) ─── */
-        .home-hero-card {
-            background: linear-gradient(135deg, #0F1528 0%, #0A0E1C 50%, #15102A 100%);
-            border-radius: 28px;
-            padding: 28px 32px;
+        .icon-badge-num {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #E11D48;
             color: #FFFFFF;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-            border: 1px solid var(--border-glass);
+            font-size: 10px;
+            font-weight: 800;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-surface);
         }
 
-        .hero-decor-orb-1 {
-            position: absolute;
-            top: -90px; left: -60px;
-            width: 320px; height: 320px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none;
-        }
-        .hero-decor-orb-2 {
-            position: absolute;
-            bottom: -90px; right: 10%;
-            width: 340px; height: 340px;
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none;
+        .student-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 12px 4px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            text-decoration: none;
         }
 
-        .hero-top-row {
+        .student-profile-chip:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .student-avatar-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid var(--gold-primary);
+        }
+
+        .student-chip-info {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+
+        .student-chip-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .student-chip-role {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* ─── Hero Welcome Banner ─── */
+        .hero-banner-card {
+            background: linear-gradient(125deg, #FBF6EC 0%, #F5EAD4 50%, #FAF1DF 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 26px 34px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
-            z-index: 2;
-            gap: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-subtle);
         }
 
-        .hero-greeting-pill {
+        body.dark-mode .hero-banner-card {
+            background: linear-gradient(125deg, #231C13 0%, #332514 50%, #291D11 100%);
+            border-color: var(--gold-border);
+        }
+
+        .hero-banner-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: 0 auto;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .hero-banner-title {
+            font-size: 25px;
+            font-weight: 900;
+            color: #352514;
+        }
+
+        body.dark-mode .hero-banner-title {
+            color: #F8E5C4;
+        }
+
+        .hero-banner-sub {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #7A5B35;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .hero-banner-sub {
+            color: #CBB18B;
+        }
+
+        .btn-hero-start {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(56, 189, 248, 0.12);
-            backdrop-filter: blur(10px);
-            padding: 5px 14px;
-            border-radius: 30px;
+            padding: 9px 26px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-hero-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(194, 139, 56, 0.45);
+        }
+
+        /* ─── 5 KPI Cards Row ─── */
+        .kpi-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .kpi-stat-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            box-shadow: var(--shadow-subtle);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.25s ease;
+        }
+
+        .kpi-stat-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-card-hover);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .kpi-stat-icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .kpi-stat-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-title);
+        }
+
+        .kpi-stat-val-main {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+        }
+
+        .kpi-stat-val-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* ─── Middle Section: Latest Lectures & Course Progress ─── */
+        .middle-student-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+        }
+
+        .content-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+        }
+
+        .card-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-card);
+            padding-bottom: 12px;
+        }
+
+        .card-header-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header-link {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--gold-primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-header-link:hover {
+            transform: translateX(-3px);
+        }
+
+        /* Latest Lectures List */
+        .lectures-feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lecture-item-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-surface-hover);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            gap: 12px;
+        }
+
+        .lecture-item-card:hover {
+            border-color: var(--border-card-hover);
+            transform: translateX(-2px);
+        }
+
+        .lecture-thumb-box {
+            width: 80px;
+            height: 48px;
+            border-radius: 8px;
+            background: #1E293B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
             font-size: 12px;
             font-weight: 800;
-            margin-bottom: 10px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--primary);
-        }
-
-        .hero-title {
-            font-size: clamp(22px, 3vw, 30px);
-            font-weight: 900;
-            line-height: 1.3;
-            margin-bottom: 8px;
-            color: #FFFFFF;
-        }
-
-        .hero-subtitle {
-            font-size: 14px;
-            color: var(--text-sub);
-            font-weight: 600;
-            max-width: 560px;
-            line-height: 1.6;
-        }
-
-        .hero-flame-stat-box {
-            background: rgba(14, 20, 36, 0.85);
-            border: 1px solid rgba(251, 191, 36, 0.35);
-            border-radius: 20px;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.12);
-            backdrop-filter: blur(14px);
             flex-shrink: 0;
-        }
-
-        .flame-circle-icon {
-            width: 48px; height: 48px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #F59E0B, #EA580C);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; color: white;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
-            animation: flamePulse 2.2s infinite ease-in-out;
-        }
-        @keyframes flamePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); box-shadow: 0 0 25px rgba(234, 88, 12, 0.7); }
-        }
-
-        /* 3-Pillar Gamification Stat Strip */
-        .gamification-strip {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-top: 22px;
             position: relative;
-            z-index: 2;
+            overflow: hidden;
         }
 
-        .gamify-card {
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--border-glass);
-            border-radius: 18px;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            transition: var(--spring);
-        }
-        .gamify-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(56, 189, 248, 0.35);
-            transform: translateY(-2px);
+        .lecture-thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .gamify-icon {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .gamify-info {
+        .lecture-info-col {
+            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 2px;
-        }
-        .gamify-label {
-            font-size: 11.5px;
-            color: var(--text-dim);
-            font-weight: 700;
-        }
-        .gamify-value {
-            font-size: 17px;
-            font-weight: 900;
-            color: #FFFFFF;
-            font-family: 'Alexandria', 'Cairo', sans-serif;
-        }
-
-        /* ─── Bento Grid Hub (Linear & Apple Style) ─── */
-        .section-header-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 8px;
-        }
-        .section-title {
-            font-size: 19px;
-            font-weight: 900;
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bento-dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 16px;
-        }
-
-        .bento-card {
-            background: var(--surface-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 22px;
-            padding: 22px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            transition: var(--spring);
-            cursor: pointer;
-        }
-        .bento-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.15);
-        }
-
-        .bento-span-8 { grid-column: span 8; }
-        .bento-span-4 { grid-column: span 4; }
-        .bento-span-6 { grid-column: span 6; }
-        .bento-span-12 { grid-column: span 12; }
-
-        .card-top-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-
-        .card-icon-bubble {
-            width: 48px; height: 48px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 21px;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .bento-card:hover .card-icon-bubble {
-            transform: scale(1.1) rotate(-3deg);
-        }
-
-        .card-tag-pill {
-            font-size: 11px;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 12px;
-            border: 1px solid transparent;
-        }
-
-        .card-body-content h3 {
-            font-size: 17px;
-            font-weight: 900;
-            color: #FFFFFF;
-            margin-bottom: 5px;
-            line-height: 1.35;
-        }
-        .card-body-content p {
-            font-size: 12.5px;
-            color: var(--text-dim);
-            line-height: 1.6;
-            font-weight: 600;
-        }
-
-        .card-bottom-action {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 12.5px;
-            font-weight: 800;
-            color: var(--primary);
-            transition: color 0.2s;
-        }
-        .bento-card:hover .card-bottom-action {
-            color: #FFFFFF;
-        }
-
-        /* Color Themes for Bento Cards */
-        .theme-courses {
-            background: linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(56, 189, 248, 0.25);
-        }
-        .theme-courses .card-icon-bubble { background: linear-gradient(135deg, #0284C7, #0369A1); color: #FFF; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); }
-        .theme-courses .card-tag-pill { background: rgba(56, 189, 248, 0.15); color: #7DD3FC; border-color: rgba(56, 189, 248, 0.3); }
-
-        .theme-notes {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(129, 140, 248, 0.25);
-        }
-        .theme-notes .card-icon-bubble { background: linear-gradient(135deg, #6366F1, #4F46E5); color: #FFF; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
-        .theme-notes .card-tag-pill { background: rgba(129, 140, 248, 0.15); color: #A5B4FC; border-color: rgba(129, 140, 248, 0.3); }
-
-        .theme-ai {
-            background: linear-gradient(135deg, rgba(192, 132, 252, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(192, 132, 252, 0.25);
-        }
-        .theme-ai .card-icon-bubble { background: linear-gradient(135deg, #C084FC, #A855F7); color: #FFF; box-shadow: 0 4px 14px rgba(192, 132, 252, 0.4); }
-        .theme-ai .card-tag-pill { background: rgba(192, 132, 252, 0.15); color: #E9D5FF; border-color: rgba(192, 132, 252, 0.3); }
-
-        .theme-mistakes {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(251, 191, 36, 0.25);
-        }
-        .theme-mistakes .card-icon-bubble { background: linear-gradient(135deg, #F59E0B, #D97706); color: #FFF; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); }
-        .theme-mistakes .card-tag-pill { background: rgba(251, 191, 36, 0.15); color: #FDE68A; border-color: rgba(251, 191, 36, 0.3); }
-
-        .theme-rank {
-            background: linear-gradient(135deg, rgba(52, 211, 153, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(52, 211, 153, 0.25);
-        }
-        .theme-rank .card-icon-bubble { background: linear-gradient(135deg, #10B981, #059669); color: #FFF; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4); }
-        .theme-rank .card-tag-pill { background: rgba(52, 211, 153, 0.15); color: #A7F3D0; border-color: rgba(52, 211, 153, 0.3); }
-
-        .theme-community {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(56, 189, 248, 0.25);
-        }
-        .theme-community .card-icon-bubble { background: linear-gradient(135deg, #0284C7, #0891B2); color: #FFF; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4); }
-        .theme-community .card-tag-pill { background: rgba(56, 189, 248, 0.15); color: #BAE6FD; border-color: rgba(56, 189, 248, 0.3); }
-
-        /* Notice Banner */
-        .notice-pill-bar {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--border-glass);
-            border-radius: 18px;
-            padding: 10px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-            color: var(--text-sub);
-            font-weight: 700;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(14px);
-        }
-        .notice-icon-box {
-            width: 34px; height: 34px;
-            border-radius: 10px;
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--accent-gold);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px; flex-shrink: 0;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        /* Resume Learning Floating Strip */
-        .resume-learning-card {
-            background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(15, 23, 42, 0.85) 100%);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 20px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
-            transition: var(--spring);
-        }
-        .resume-learning-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.25);
-        }
-
-        .resume-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
             min-width: 0;
         }
-        .resume-play-icon {
-            width: 44px; height: 44px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #0284C7 0%, #6366F1 100%);
-            color: #FFFFFF;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; flex-shrink: 0;
-            box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
-        }
-        .resume-tag {
-            font-size: 11px;
-            color: var(--primary);
+
+        .lecture-title-text {
+            font-size: 13px;
             font-weight: 800;
-        }
-        .resume-title-text {
-            font-size: 15px;
-            font-weight: 900;
-            color: #FFFFFF;
-            margin-top: 1px;
+            color: var(--text-title);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .resume-action-btn {
-            background: linear-gradient(135deg, #0284C7, #2563EB);
-            color: white;
-            padding: 8px 18px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 900;
+        .lecture-meta-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .lecture-progress-col {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .badge-completed {
+            background: var(--emerald-bg);
+            color: var(--emerald);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-            flex-shrink: 0;
+            gap: 4px;
         }
 
-        /* Honor Roll Section */
-        .honor-roll-card-custom {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(20, 16, 40, 0.9) 100%);
-            border: 1px solid rgba(251, 191, 36, 0.35);
-            border-radius: 22px;
-            padding: 18px 20px;
-            color: white;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        /* Subjects Progress List */
+        .subjects-progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* Achievements Badges Showcase */
-        .badges-showcase-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .badge-item-card {
-            background: var(--surface-glass);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--border-glass);
-            border-radius: 18px;
-            padding: 14px 12px;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-            transition: var(--spring);
-        }
-        .badge-item-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--border-glass-glow);
-        }
-
-        /* Mobile Bottom Nav Bar (iOS Floating Glass Dock) */
-        .mobile-bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 12px;
-            left: 14px;
-            right: 14px;
-            background: rgba(11, 17, 33, 0.9);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
-            height: 62px;
+        .subject-bar-row {
+            display: flex;
             align-items: center;
-            justify-content: space-around;
-            z-index: 1000;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
-            padding: 0 6px;
+            justify-content: space-between;
+            gap: 10px;
         }
 
-        .bottom-nav-item {
+        .subject-badge-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-title);
+            width: 140px;
+        }
+
+        .subject-icon-box {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 7px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .progress-track {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .progress-num {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            width: 32px;
+            text-align: left;
+        }
+
+        /* ─── Bottom Section (3 Cards) ─── */
+        .bottom-student-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Achievements Card */
+        .achievement-box {
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-align: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .achievement-star-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            text-decoration: none;
-            color: var(--text-dim);
-            font-size: 10px;
+            color: #D97706;
+            font-size: 26px;
+        }
+
+        .achievement-score-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-title);
+        }
+
+        .achievement-score-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .streak-pill-badge {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11.5px;
             font-weight: 800;
-            gap: 3px;
-            transition: var(--spring);
-            padding: 6px 12px;
-            border-radius: 14px;
+            color: var(--gold-text);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .bottom-nav-item i {
-            font-size: 17px;
+
+        /* Upcoming Exams List */
+        .upcoming-exams-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .bottom-nav-item.active {
+
+        .exam-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: var(--bg-surface-hover);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            gap: 8px;
+        }
+
+        .exam-item-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .exam-icon-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #FFEDD5;
+            color: #EA580C;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .exam-title-text {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--text-title);
+        }
+
+        .exam-sub-text {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .exam-date-badge {
+            background: #FEF3C7;
+            color: #B45309;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* Notifications List */
+        .notifs-feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notif-item-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 10px;
+            background: var(--bg-surface-hover);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+        }
+
+        .notif-icon-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .notif-text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .notif-title-text {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-title);
+        }
+
+        .notif-body-text {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* ─── Footer ─── */
+        .student-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-links-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .footer-link-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link-item:hover {
+            color: var(--gold-primary);
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1100px) {
+            .kpi-grid-5 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .middle-student-grid {
+                grid-template-columns: 1fr;
+            }
+            .bottom-student-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .student-sidebar {
+                display: none;
+            }
+            .student-main-stage {
+                padding: 14px 16px;
+            }
+            .kpi-grid-5 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    
+        /* ─── Floating Support Button ─── */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
             color: #FFFFFF;
-            background: rgba(56, 189, 248, 0.15);
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: floatGlow 3s ease-in-out infinite alternate;
         }
-
-        /* Responsive */
-        @media (max-width: 991px) {
-            .desktop-nav-links { display: none; }
-            .mobile-bottom-nav { display: flex; }
-            .bento-span-8, .bento-span-4, .bento-span-6 { grid-column: span 12; }
-            .badges-showcase-grid { grid-template-columns: repeat(2, 1fr); }
-            .home-hero-card { padding: 22px 18px; }
-            .hero-title { font-size: 21px; }
+        @keyframes floatGlow {
+            0% { box-shadow: 0 8px 25px rgba(194, 139, 56, 0.4); transform: translateY(0); }
+            100% { box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7); transform: translateY(-3px); }
         }
-
+        .floating-support-btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 14px 40px rgba(194, 139, 56, 0.75);
+            color: #FFFFFF;
+        }
+        .floating-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .floating-text-box {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+        .floating-text-title {
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .floating-text-sub {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #FEF3C7;
+        }
         @media (max-width: 640px) {
-            .home-app-wrapper { padding: 10px 12px !important; gap: 14px !important; }
-            .home-topbar { padding: 8px 12px !important; border-radius: 18px !important; }
-            .brand-logo-badge { width: 36px !important; height: 36px !important; font-size: 16px !important; }
-            .brand-text-wrap h1 { font-size: 14px !important; }
-            .brand-text-wrap span { display: none !important; }
-            .user-name-short { display: none !important; }
-            .user-quick-chip { padding: 3px !important; border-radius: 50% !important; }
-            .btn-top-icon { width: 34px !important; height: 34px !important; font-size: 13px !important; }
-            .gamification-strip { grid-template-columns: 1fr !important; gap: 8px !important; }
-            .hero-top-row { flex-direction: column-reverse; align-items: stretch; text-align: right; }
-            .hero-flame-stat-box { justify-content: space-between; margin-bottom: 12px; }
-            .badges-showcase-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
-            .resume-action-btn span { display: none !important; }
+            .floating-support-btn {
+                padding: 10px;
+                border-radius: 50%;
+                bottom: 20px;
+                left: 20px;
+            }
+            .floating-text-box {
+                display: none;
+            }
         }
-
     </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    
+
+
+<style id="elkheta-master-mobile-engine">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 ELKHETA UNIVERSAL MOBILE & DESKTOP ENGINE (v5.0.0 Fluid Grids)       */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop Rules (> 992px) */
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+    .mobile-sidebar-close-row { display: none !important; }
+    .student-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        width: 270px !important;
+        height: 100vh !important;
+        flex-shrink: 0 !important;
+    }
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+}
+
+/* Mobile & Tablet Rules (<= 992px) */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 78px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper,
+    .landing-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 10px 10px 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Off-canvas Mobile Drawer for Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar,
+    aside.student-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 16px 14px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open,
+    aside.student-sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    .mobile-sidebar-close-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        margin-bottom: 12px !important;
+        background: #FDF4E6 !important;
+        border-radius: 12px !important;
+        border: 1px solid #E8D3B2 !important;
+    }
+
+    .drawer-user-info {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        color: #8E5D16 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .btn-drawer-close {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #E11D48 !important;
+        font-size: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 10px 6px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Top Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-search-input {
+        width: 100% !important;
+        height: 42px !important;
+        border-radius: 21px !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-header-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+        position: relative !important;
+    }
+
+    .student-profile-chip {
+        flex-shrink: 0 !important;
+        padding: 4px 10px 4px 6px !important;
+        max-width: 60% !important;
+    }
+
+    .student-avatar-img {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .icon-badge-num {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 100% SINGLE COLUMN GRIDS ON MOBILE ─── */
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer,
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card,
+    #subjectsCardsContainer > div,
+    #notesContainerGrid > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card,
+    .hero-showcase-card {
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title,
+    .hero-main-heading {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub,
+    .hero-sub-title {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 74px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    /* Mobile Drawer Backdrop */
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Universal Mobile Bottom Navigation Dock */
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileSidebar(open) {
+    try {
+        var sb = document.querySelector('.student-sidebar, .dashboard-sidebar, aside.student-sidebar, aside');
+        var bd = document.getElementById('mobileDrawerBackdrop');
+        if (!sb) return;
+        var isCurrentlyOpen = sb.classList.contains('mobile-open');
+        var targetState = (open !== undefined) ? open : !isCurrentlyOpen;
+        if (targetState) {
+            sb.classList.add('mobile-open');
+            if (bd) bd.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sb.classList.remove('mobile-open');
+            if (bd) bd.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch(e) { console.error('Sidebar toggle error:', e); }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+</script>
 </head>
 <body>
 
-    <div class="home-app-wrapper">
+<div class="student-app-container">
 
-        <!-- Top Navigation Bar -->
-        <header class="home-topbar">
-            <a href="home.html" class="brand-section">
-                <div class="brand-logo-badge">
-                    <i class="fas fa-graduation-cap"></i>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 1. Right Sidebar (Student Navigation) -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <aside class="student-sidebar">
+        <!-- Mobile Drawer Close Header -->
+        <div class="mobile-sidebar-close-row">
+            <div class="drawer-user-info">
+                <i class="fa-solid fa-graduation-cap" style="color: #C28B38;"></i>
+                <span>قائمة منصة الخطة</span>
+            </div>
+            <button class="btn-drawer-close" onclick="toggleMobileSidebar(false)" title="إغلاق القائمة">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div>
+            <!-- Brand -->
+            <a href="home.html" class="sidebar-brand">
+                <div class="brand-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
-                <div class="brand-text-wrap">
-                    <h1>منصة الخطة</h1>
-                    <span>المنصة التعليمية الشاملة</span>
+                <div class="brand-text-col">
+                    <div class="brand-title-row">
+                        ELKHETA <span>|</span> الخطة
+                    </div>
+                    <span class="brand-sub">طريقك المنظم نحو التفوق الأكاديمي</span>
                 </div>
             </a>
 
-            <!-- Desktop Links -->
-            <nav class="desktop-nav-links">
-                <a href="home.html" class="nav-link-btn active">
-                    <i class="fas fa-home"></i>
-                    <span>الرئيسية</span>
-                </a>
-                <a href="courses.html" class="nav-link-btn">
-                    <i class="fas fa-book-open"></i>
-                    <span>المواد والمناهج</span>
-                </a>
-                <a href="ai-report.html" class="nav-link-btn">
-                    <i class="fas fa-brain"></i>
-                    <span>التقرير الذكي</span>
-                </a>
-                <a href="leaderboard.html" class="nav-link-btn">
-                    <i class="fas fa-trophy"></i>
-                    <span>لوحة الأوائل</span>
-                </a>
-                <a href="profile.html" class="nav-link-btn">
-                    <i class="fas fa-user-circle"></i>
-                    <span>حسابي</span>
-                </a>
-            </nav>
+            <!-- Nav Links -->
+            <ul class="sidebar-nav-list">
+                <li>
+                    <a href="home.html" class="nav-item-link active">
+                        <i class="fa-solid fa-house"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="courses.html" class="nav-item-link">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>المواد الدراسية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="lectures.html" class="nav-item-link">
+                        <i class="fa-solid fa-clapperboard"></i>
+                        <span>المحاضرات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notes-viewer.html" class="nav-item-link">
+                        <i class="fa-solid fa-note-sticky"></i>
+                        <span>كشكول ونوتس</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="quiz.html" class="nav-item-link">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>الامتحانات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mistakes.html" class="nav-item-link">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        <span>أخطائي</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="planner.html" class="nav-item-link">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>تقدمي</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="leaderboard.html" class="nav-item-link">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>لوحة الشرف</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="community.html" class="nav-item-link">
+                        <i class="fa-solid fa-users"></i>
+                        <span>المجتمع</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="nav-item-link">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>الدعم والتواصل</span>
+                    </a>
+                </li>
 
-            <!-- User Chip & Buttons -->
-            <div class="topbar-actions">
-                <a href="notifications.html" class="btn-top-icon" title="مركز الرسائل والتنبيهات" style="position:relative;">
-                    <i class="fas fa-bell"></i>
-                    <span id="homeUnreadNotifBadge" style="position:absolute; top:-3px; right:-3px; background:#EF4444; color:white; font-size:10px; font-weight:900; width:16px; height:16px; border-radius:50%; display:none; align-items:center; justify-content:center; border:2px solid #070D1E;">0</span>
+                                <div class="nav-section-title">أدوات إضافية</div>
+
+                <li>
+                    <a href="profile.html#settings" class="nav-item-link">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>الإعدادات</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Bottom Support Card in Sidebar -->
+        <div>
+            <div class="sidebar-support-card">
+                <i class="fa-solid fa-headset support-headset-icon"></i>
+                <div class="support-card-title">تواصل مع الإدارة</div>
+                <div class="support-card-sub">نحن هنا لمساعدتك دائمًا</div>
+                <a href="chat.html" class="btn-support-chat">
+                    <span>ابدأ المحادثة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
                 </a>
-                <a href="profile.html" class="user-quick-chip" title="عرض الحساب">
-                    <div class="user-avatar-circle" id="userInitial">🎓</div>
-                    <span class="user-name-short" id="userHeaderName">طالب</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 2. Main Stage -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <main class="student-main-stage">
+
+        <!-- Top Header Bar -->
+        <header class="top-header-bar">
+            <!-- Search Bar -->
+            <div class="header-search-wrap">
+                <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+                <input type="text" id="studentSearchInput" class="header-search-input" placeholder="ابحث عن محاضرات أو مواد أو اختبارات..." oninput="handleStudentSearch(this.value)">
+            </div>
+
+                        <!-- Header Actions -->
+            <div class="header-actions-group">
+                <!-- Direct Support & Chat Button -->
+                <a href="chat.html" class="btn-header-icon" title="تواصل مع إدارة المنصة والدعم الفني">
+                    <i class="fa-solid fa-headset" style="color: var(--gold-primary);"></i>
                 </a>
-                <button type="button" class="btn-top-icon" id="openDrawer" data-action="open-drawer" onclick="if(window.openStudentDrawer) window.openStudentDrawer(); else if(window.toggleStudentDrawer) window.toggleStudentDrawer();" title="القائمة">
-                    <i class="fas fa-bars"></i>
+
+                <!-- Theme Mode Toggle -->
+                <button class="btn-header-icon" id="themeToggleBtn" onclick="toggleStudentTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-sun"></i>
                 </button>
-                <button type="button" class="btn-top-icon logout" onclick="logout()" title="تسجيل الخروج">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+
+                <!-- Notifications Bell -->
+                <a href="notifications.html" class="btn-header-icon" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="icon-badge-num" id="studentNotifBadge">3</span>
+                </a>
+
+                <!-- Student Profile Chip -->
+                <a href="profile.html" class="student-profile-chip">
+                    <img src="banner-illustration.png" alt="Student" class="student-avatar-img" onerror="this.src='icons/icon.svg'">
+                    <div class="student-chip-info">
+                        <div class="student-chip-name" id="studentDisplayName">
+                            طالب متميز
+                            <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>
+                        </div>
+                        <span class="student-chip-role" id="studentGradeText">طالب • المرحلة الأكاديمية</span>
+                    </div>
+                </a>
             </div>
         </header>
 
-        <!-- 🌟 Hero Showcase Card -->
-        <section class="home-hero-card">
-            <div class="hero-decor-orb-1"></div>
-            <div class="hero-decor-orb-2"></div>
+        <!-- ─── Hero Welcome Banner ─── -->
+        <section class="hero-banner-card">
+            <!-- Center Welcome Text -->
+            <div class="hero-banner-center">
+                <h1 class="hero-banner-title">مرحبًا بك في منصة الخطة</h1>
+                <p class="hero-banner-sub">كل ما تحتاجه لتحقيق التفوق الأكاديمي في مكان واحد</p>
+                <a href="courses.html" class="btn-hero-start">
+                    <span>ابدأ الآن</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
 
-            <div class="hero-top-row">
-                <div>
-                    <div class="hero-greeting-pill" id="greetingPill">
-                        <span id="greetingIcon">☀️</span>
-                        <span id="greetingText">صباح التميز والنشاط!</span>
-                    </div>
-                    <h2 class="hero-title" id="userName">أهلاً بك يا بطل الخطة 👋</h2>
-                    <p class="hero-subtitle">جاهز لمواصلة رحلة التفوق الأكاديمي؟ جميع الشروحات التفاعلية، كشاكيل الشرح، وبنوك الأسئلة الذكية بانتظارك اليوم.</p>
+            <!-- Right 3D Graduation Vector Illustration -->
+            <svg style="width: 140px; height: auto;" viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="85" width="60" height="12" rx="3" fill="#D4973B" />
+                <rect x="25" y="73" width="55" height="12" rx="3" fill="#1E293B" />
+                <rect x="22" y="61" width="58" height="12" rx="3" fill="#C28B38" />
+                <polygon points="110,18 70,32 110,46 150,32" fill="#1E293B" />
+                <rect x="98" y="33" width="24" height="16" rx="2" fill="#0F172A" />
+                <circle cx="106" cy="65" r="3" fill="#D4973B" />
+                <path d="M110 46 L110 58 L106 64" stroke="#D4973B" stroke-width="2" fill="none" />
+                <rect x="135" y="75" width="16" height="18" rx="3" fill="#FFFFFF" stroke="#E2CEB1" stroke-width="2" />
+            </svg>
+        </section>
+
+                <!-- ─── 5 Key Stats Row (100% Real Dynamic Stats) ─── -->
+        <section class="kpi-grid-5">
+            <!-- 1. المواد الدراسية -->
+            <a href="courses.html" class="kpi-stat-box">
+                <div class="kpi-stat-icon-circle" style="background: #EFF6FF; color: #2563EB;">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
+                <div class="kpi-stat-title">المواد الدراسية</div>
+                <div class="kpi-stat-val-main" id="statSubjectsCount">7 مواد</div>
+                <div class="kpi-stat-val-sub">مناهج معتمدة</div>
+            </a>
 
-                <!-- Glowing Flame Streak Box -->
-                <div class="hero-flame-stat-box">
-                    <div class="flame-circle-icon">🔥</div>
-                    <div>
-                        <div style="font-size: 11px; color: #FDE68A; font-weight: 800;">شعلة الالتزام اليومي</div>
-                        <div style="font-size: 19px; font-weight: 900; color: #FFFFFF; font-family:'Alexandria', 'Cairo';" id="heroStreakDays">1 يوم متواصل</div>
+            <!-- 2. المحاضرات -->
+            <a href="lectures.html" class="kpi-stat-box">
+                <div class="kpi-stat-icon-circle" style="background: #FAF5FF; color: #9333EA;">
+                    <i class="fa-solid fa-clapperboard"></i>
+                </div>
+                <div class="kpi-stat-title">المحاضرات</div>
+                <div class="kpi-stat-val-main" id="statLecturesCount">0 محاضرة</div>
+                <div class="kpi-stat-val-sub" id="statLecturesSub">متاحة بالمنصة</div>
+            </a>
+
+            <!-- 3. الامتحانات -->
+            <a href="quiz.html" class="kpi-stat-box">
+                <div class="kpi-stat-icon-circle" style="background: #FFF7ED; color: #EA580C;">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <div class="kpi-stat-title">الامتحانات</div>
+                <div class="kpi-stat-val-main" id="statExamsCount">0 امتحان</div>
+                <div class="kpi-stat-val-sub" id="statExamsSub">متاح للحل</div>
+            </a>
+
+            <!-- 4. تقدمي -->
+            <a href="planner.html" class="kpi-stat-box">
+                <div class="kpi-stat-icon-circle" style="background: #ECFEFF; color: #0891B2;">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="kpi-stat-title">تقدمي</div>
+                <div class="kpi-stat-val-main" id="statProgressPercent">0%</div>
+                <div class="kpi-stat-val-sub">إجمالي الإنجاز</div>
+            </a>
+
+            <!-- 5. أخطائي -->
+            <a href="mistakes.html" class="kpi-stat-box">
+                <div class="kpi-stat-icon-circle" style="background: #FFF1F2; color: #E11D48;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div class="kpi-stat-title">أخطائي</div>
+                <div class="kpi-stat-val-main" id="statMistakesCount" style="color: #059669;">0 سؤال</div>
+                <div class="kpi-stat-val-sub" id="statMistakesSub">سجلك نظيف ✨</div>
+            </a>
+        </section>
+
+                <!-- ─── Middle Section (Real Lectures & Real Subjects Progress) ─── -->
+        <section class="middle-student-grid">
+            <!-- 1. أحدث المحاضرات -->
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <div class="card-header-title">
+                        <i class="fa-solid fa-play" style="color: var(--gold-primary);"></i>
+                        <span>أحدث المحاضرات</span>
+                    </div>
+                    <a href="lectures.html" class="card-header-link">
+                        <span>عرض الكل</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="lectures-feed-list" id="recentLecturesList">
+                    <div style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🎬</div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-title); margin-bottom: 4px;">لا توجد محاضرات منشورة حالياً</div>
+                        <div style="font-size: 12px;">سيتم رفع الدروس والشروحات بواسطة أستاذ المادة تباعاً ⏳</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Gamification Stats Strip -->
-            <div class="gamification-strip">
-                <div class="gamify-card">
-                    <div class="gamify-icon" style="color: #F59E0B;">🔥</div>
-                    <div class="gamify-info">
-                        <span class="gamify-label">أيام الالتزام</span>
-                        <span class="gamify-value" id="streakDays">1 يوم</span>
+            <!-- 2. تقدمك في المواد -->
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <div class="card-header-title">
+                        <i class="fa-solid fa-chart-pie" style="color: var(--gold-primary);"></i>
+                        <span>تقدمك في المواد الدراسية</span>
                     </div>
+                    <a href="courses.html" class="card-header-link">
+                        <span>عرض الكل</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
                 </div>
-
-                <div class="gamify-card">
-                    <div class="gamify-icon" style="color: #10B981;">🏆</div>
-                    <div class="gamify-info">
-                        <span class="gamify-label">مجموع النقاط</span>
-                        <span class="gamify-value" id="userPoints">0</span>
+                <div class="subjects-progress-list" id="studentSubjectsProgressList">
+                    <!-- Real University Subjects Progress -->
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #FFEDD5; color: #EA580C;">
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                            <span>طريقة العمل مع الأفراد</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #EA580C;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
                     </div>
-                </div>
 
-                <div class="gamify-card">
-                    <div class="gamify-icon" style="color: #8B5CF6;">⭐</div>
-                    <div class="gamify-info">
-                        <span class="gamify-label">المستوى التعليمي</span>
-                        <span class="gamify-value" id="userLevel">مستوى 1</span>
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #DBEAFE; color: #2563EB;">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <span>طريقة العمل مع الجماعات</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #2563EB;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
+                    </div>
+
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #D1FAE5; color: #059669;">
+                                <i class="fa-solid fa-city"></i>
+                            </div>
+                            <span>تنظيم وإدارة المجتمعات</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #059669;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
+                    </div>
+
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #F3E8FF; color: #9333EA;">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <span>سياسات الرعاية الاجتماعية</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #9333EA;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
+                    </div>
+
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #FFE4E6; color: #E11D48;">
+                                <i class="fa-solid fa-hospital-user"></i>
+                            </div>
+                            <span>الخدمة الاجتماعية في مجال طبي</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #E11D48;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
+                    </div>
+
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #FEF3C7; color: #D97706;">
+                                <i class="fa-solid fa-briefcase"></i>
+                            </div>
+                            <span>تدريب ميداني</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #D97706;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
+                    </div>
+
+                    <div class="subject-bar-row">
+                        <div class="subject-badge-label">
+                            <div class="subject-icon-box" style="background: #ECFEFF; color: #0891B2;">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <span>مشروع تخرج</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 0%; background: #0891B2;"></div>
+                        </div>
+                        <span class="progress-num">0%</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Personal Admin Message Banner (If Available) -->
-        <div id="personalNoticeBar" class="notice-pill-bar" style="display: none; background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #E0E7FF;">
-            <div class="notice-icon-box" style="background: #6366F1; color: white;">
-                <i class="fas fa-bullhorn"></i>
-            </div>
-            <div style="flex: 1;">
-                <div style="font-size: 11px; color: #818CF8; font-weight: 800;">رسالة خاصة من إدارة المنصة:</div>
-                <div id="personalNoticeText" style="font-weight: 800; font-size: 13.5px; margin-top: 2px;"></div>
-            </div>
-            <button onclick="dismissPersonalNotice()" style="background: #4F46E5; border: none; color: white; padding: 6px 14px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 12px; font-family: 'Cairo';">تم ✔️</button>
-        </div>
-
-        <!-- Resume Learning Floating Banner (If accessed before) -->
-        <div id="resumeWidget" class="resume-learning-card" style="display: none;" onclick="resumeLastLesson()">
-            <div class="resume-left">
-                <div class="resume-play-icon">
-                    <i class="fas fa-play"></i>
+                <!-- ─── Bottom Section (Achievements | Real Upcoming Exams | Real Notifications) ─── -->
+        <section class="bottom-student-grid">
+            <!-- 1. إنجازاتك -->
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <div class="card-header-title">
+                        <span>إنجازاتك الأكاديمية</span>
+                        <i class="fa-solid fa-trophy" style="color: #D97706;"></i>
+                    </div>
+                    <a href="leaderboard.html" class="card-header-link">
+                        <span>لوحة الشرف</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
                 </div>
-                <div>
-                    <div class="resume-tag">استكمال المحطة السابقة ⏯️</div>
-                    <div class="resume-title-text" id="resumeTitle">عنوان المحاضرة</div>
-                </div>
-            </div>
-            <div class="resume-action-btn">
-                <span>متابعة الدرس الآن</span>
-                <i class="fas fa-arrow-left"></i>
-            </div>
-        </div>
-
-        <!-- Honor Roll Leaderboard Widget (Live from Firebase) -->
-        <div id="honorRollSection" class="honor-roll-card-custom" style="display: none; margin-bottom: 4px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🏆</div>
+                <div class="achievement-box">
+                    <div class="achievement-star-badge">
+                        <i class="fa-solid fa-medal"></i>
+                    </div>
                     <div>
-                        <h3 style="font-size: 16px; font-weight: 900; color: #FBBF24; margin: 0;">لوحة الشرف — أوائل دفعة 2027 🎓</h3>
-                        <span style="font-size: 11.5px; color: #94A3B8; font-weight: 700;">المتفوقون وأصحاب أعلى الدرجات في الامتحانات</span>
+                        <div class="achievement-score-val" id="studentTotalPoints">0</div>
+                        <div class="achievement-score-sub">إجمالي النقاط الأكاديمية</div>
+                    </div>
+                    <div class="streak-pill-badge" id="studentStreakBadge">
+                        <i class="fa-solid fa-fire" style="color: #EA580C;"></i>
+                        <span>مستعد للانطلاق والتفوق 🚀</span>
                     </div>
                 </div>
-                <span style="background: rgba(245, 158, 11, 0.2); color: #FDE68A; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.4);">معتمد 👑</span>
             </div>
-            <div id="honorRollStudentsGrid" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch;">
-                <!-- Populated dynamically -->
+
+            <!-- 2. الاختبارات والتقييمات القادمة -->
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <div class="card-header-title">
+                        <i class="fa-solid fa-calendar-days" style="color: var(--gold-primary);"></i>
+                        <span>الاختبارات المتاحة</span>
+                    </div>
+                    <a href="quiz.html" class="card-header-link">
+                        <span>دخول الاختبارات</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="upcoming-exams-list" id="upcomingExamsList">
+                    <div style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-title); margin-bottom: 4px;">لا توجد اختبارات منشورة حالياً</div>
+                        <div style="font-size: 12px;">سيتم إتاحة الاختبارات بواسطة أستاذ المادة فور نشرها ⏳</div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Latest Announcement Notice -->
-        <div class="notice-pill-bar">
-            <div class="notice-icon-box">
-                <i class="fas fa-bell"></i>
-            </div>
-            <div style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <span id="latestNotice">جاري تحميل آخر التنبيهات من إدارة المنصة...</span>
-            </div>
-        </div>
-
-        <!-- Section Title -->
-        <div class="section-header-wrap">
-            <h2 class="section-title">
-                <i class="fas fa-th-large" style="color: #60A5FA;"></i>
-                <span>الأقسام والخدمات التعليمية التفاعلية</span>
-            </h2>
-        </div>
-
-        <!-- ▦ Bento Grid Main Dashboard -->
-        <div class="bento-dashboard-grid">
-
-            <!-- Bento 1: Courses & Lectures (Wide 8 Columns) -->
-            <a href="courses.html" class="bento-card bento-span-8 theme-courses">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-book-open"></i>
+            <!-- 3. الإشعارات والتحديثات -->
+            <div class="content-card">
+                <div class="card-header-bar">
+                    <div class="card-header-title">
+                        <i class="fa-solid fa-bell" style="color: #EA580C;"></i>
+                        <span>الإشعارات</span>
+                    </div>
+                    <a href="notifications.html" class="card-header-link">
+                        <span>عرض الكل</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="notifs-feed-list" id="studentNotifsList">
+                    <div class="notif-item-row">
+                        <div class="notif-icon-circle" style="background: #FEF3C7; color: #D97706;">
+                            <i class="fa-solid fa-graduation-cap"></i>
                         </div>
-                        <span class="card-tag-pill">المناهج المعتمدة 📚</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>المواد والمناهج الدراسية</h3>
-                        <p>استكشف المواد التعليمية الكاملة مع مسارات التعلم التفاعلية وشروحات الفيديو وبنوك التقييم.</p>
-                    </div>
-                </div>
-                <div class="card-bottom-action">
-                    <span>دخول المواد واستعراض المحاضرات</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-            <!-- Bento 2: Interactive Notebooks (4 Columns) -->
-            <a href="courses.html" class="bento-card bento-span-4 theme-notes">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-book-bookmark"></i>
+                        <div class="notif-text-group">
+                            <div class="notif-title-text">مرحباً بك في منصة الخطة التعليمية 🎓</div>
+                            <span class="notif-body-text">نتمنى لك عاماً دراسياً حافلاً بالتميز والامتياز الأكاديمي!</span>
                         </div>
-                        <span class="card-tag-pill">كشكول المحاضرة 📓</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>كشاكيل ونوتس الشرح</h3>
-                        <p>تصفح شرائح المحاضرات تفاعلياً مع أدوات التلوين والملاحظات الذكية.</p>
                     </div>
                 </div>
-                <div class="card-bottom-action">
-                    <span>فتح الكشاكيل</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-            <!-- Bento 3: AI Diagnostic Report (6 Columns) -->
-            <a href="ai-report.html" class="bento-card bento-span-6 theme-ai">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <span class="card-tag-pill">الذكاء الاصطناعي ✨</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>التقرير والتشخيص الذكي</h3>
-                        <p>تحليل فوري لمستواك في كل مادة مع تحديد نقاط القوة وخطة علاجية للثغرات قبل الامتحانات.</p>
-                    </div>
-                </div>
-                <div class="card-bottom-action">
-                    <span>عرض التقرير التفاعلي</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-            <!-- Bento 4: Mistakes Bank (6 Columns) -->
-            <a href="mistakes.html" class="bento-card bento-span-6 theme-mistakes">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <span class="card-tag-pill">بنك المراجعة 🎯</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>بنك الأخطاء الذكي</h3>
-                        <p>سجل مخصص لكل سؤال أخطأت به لتعيد تدريب نفسك عليه وتضمن العلامة الكاملة.</p>
-                    </div>
-                </div>
-                <div class="card-bottom-action">
-                    <span>بدء مراجعة الأخطاء</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-            <!-- Bento 5: Leaderboard (6 Columns) -->
-            <a href="leaderboard.html" class="bento-card bento-span-6 theme-rank">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <span class="card-tag-pill">لوحة الشرف 👑</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>أوائل ومتميزو المنصة</h3>
-                        <p>تنافس مع زملائك على مستوى الجمهورية واكتشف ترتيبك الحالي ودرجاتك بين المتميزين.</p>
-                    </div>
-                </div>
-                <div class="card-bottom-action">
-                    <span>مشاهدة لوحة الأوائل</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-            <!-- Bento 6: Community Discussions (6 Columns) -->
-            <a href="community.html" class="bento-card bento-span-6 theme-community">
-                <div>
-                    <div class="card-top-row">
-                        <div class="card-icon-bubble">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <span class="card-tag-pill">مجتمع الطلاب 💬</span>
-                    </div>
-                    <div class="card-body-content">
-                        <h3>أسئلة ومجتمع الطلاب</h3>
-                        <p>اطرح استفساراتك حول المنهج وتلقّ إجابات وشروحات فورية من المعلمين والمساعدين.</p>
-                    </div>
-                </div>
-                <div class="card-bottom-action">
-                    <span>دخول المجتمع التفاعلي</span>
-                    <i class="fas fa-arrow-left"></i>
-                </div>
-            </a>
-
-        </div>
-
-        <!-- Student Badges & Achievements Section -->
-        <div class="section-header-wrap" style="margin-top: 24px;">
-            <h2 class="section-title">
-                <i class="fas fa-award" style="color: #F59E0B;"></i>
-                <span>أوسمة وإنجازات التفوق التفاعلية</span>
-            </h2>
-        </div>
-
-        <div class="badges-showcase-grid">
-            <div class="badge-item-card">
-                <div style="font-size: 34px; margin-bottom: 6px;">🏅</div>
-                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">البداية القوية</div>
-                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">أول امتحان مكتمل</div>
-                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3);">مكتمل ✔️</span>
             </div>
+        </section>
 
-            <div class="badge-item-card">
-                <div style="font-size: 34px; margin-bottom: 6px;">🔥</div>
-                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">شعلة الالتزام</div>
-                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">7 أيام متتالية</div>
-                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3);">جاري التقدم ⏳</span>
+        <!-- ─── Footer ─── -->
+        <footer class="student-footer">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open" style="color: var(--gold-primary);"></i>
+                <b>الخطة | ELKHETA</b>
+                <span>طريقك المنظم نحو التفوق الأكاديمي</span>
             </div>
-
-            <div class="badge-item-card">
-                <div style="font-size: 34px; margin-bottom: 6px;">💯</div>
-                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">العلامة الكاملة</div>
-                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">100% في اختبار</div>
-                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3);">مكتمل ✔️</span>
+            <div class="footer-links-row">
+                <a href="guide.html" class="footer-link-item">شروط الاستخدام</a>
+                <a href="privacy.html" class="footer-link-item">سياسة الخصوصية</a>
+                <a href="chat.html" class="footer-link-item">دعم فني</a>
+                <span>2026 © جميع الحقوق محفوظة</span>
             </div>
+        </footer>
 
-            <div class="badge-item-card">
-                <div style="font-size: 34px; margin-bottom: 6px;">🏆</div>
-                <div style="font-size: 13.5px; font-weight: 900; color: #FFFFFF;">نجم الأوائل</div>
-                <div style="font-size: 11px; color: #94A3B8; font-weight: 700;">ضمن الـ Top 10</div>
-                <span style="display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); color: #A5B4FC; border: 1px solid rgba(99, 102, 241, 0.3);">أبطال الخطة 🌟</span>
-            </div>
-        </div>
+    </main>
+</div>
 
-    </div>
-
-    <!-- Mobile Bottom Fixed Navigation -->
-    <nav class="mobile-bottom-nav">
-        <a href="home.html" class="bottom-nav-item active">
-            <i class="fas fa-home"></i>
-            <span>الرئيسية</span>
-        </a>
-        <a href="courses.html" class="bottom-nav-item">
-            <i class="fas fa-book-open"></i>
-            <span>المواد</span>
-        </a>
-        <a href="ai-report.html" class="bottom-nav-item">
-            <i class="fas fa-brain"></i>
-            <span>التقرير</span>
-        </a>
-        <a href="profile.html" class="bottom-nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>حسابي</span>
-        </a>
-    </nav>
-
-    <!-- Student Drawer is automatically built and managed by student-drawer.js -->
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="toast.js"></script>
-
-    <script>
-        let user = null;
-        try {
-            const raw = localStorage.getItem('user');
-            if (raw) user = JSON.parse(raw);
-        } catch(e) {}
-
-        const isActualAdmin = (sessionStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isAdmin') === 'true' || Boolean(localStorage.getItem('adminRole')));
-        const isStudentAccount = user && (user.student_code || user.studentCode || user.code) && (user.studentCode !== 'ADMIN_PREVIEW' && user.code !== 'ADMIN_PREVIEW') && user.role !== 'admin';
-
-        if (isStudentAccount) {
-            localStorage.removeItem('isAdmin');
-            localStorage.removeItem('adminRole');
-            localStorage.removeItem('isMysqlAdmin');
-            sessionStorage.removeItem('isAdmin');
-            sessionStorage.removeItem('adminRole');
-            sessionStorage.removeItem('adminPreviewMode');
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- JavaScript: Real Firebase Synchronization for Student Dashboard -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Get Logged in Student Info
+        const currentStudent = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = currentStudent.fullName || currentStudent.name || localStorage.getItem('studentName') || 'طالب متميز';
+        const stCode = currentStudent.studentCode || localStorage.getItem('studentCode') || '';
+        
+        document.getElementById('studentDisplayName').innerHTML = `${stName} <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>`;
+        
+        // 2. Load Theme
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
         }
 
-        const isAdminPreview = !isStudentAccount && (isActualAdmin || (user && user.studentCode === 'ADMIN_PREVIEW') || sessionStorage.getItem('adminPreviewMode') === 'true');
+        // 3. Connect Real Firebase Data
+        initStudentFirebaseData(stCode);
+    });
 
-        if (!user && isAdminPreview) {
-            user = {
-                fullName: 'معاينة الإدارة (المدير العام)',
-                studentCode: 'ADMIN_PREVIEW',
-                phone: '01000000000',
-                stage: 'الفرقة الرابعة',
-                points: 1250,
-                streak: 5,
-                level: 6
-            };
-            try { localStorage.setItem('user', JSON.stringify(user)); } catch(e){}
-        }
+    function toggleStudentTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    }
 
-        if (user) {
-            const studentFullName = user.fullName || user.full_name || 'طالب';
-            const studentCode = user.studentCode || user.student_code || user.code || '';
+        function initStudentFirebaseData(studentCode) {
+        if (!window.database) return;
 
-            const userNameEl = document.getElementById('userName');
-            if (userNameEl) userNameEl.innerText = "أهلاً بك يا " + studentFullName + " 👋";
-
-            const userHeaderNameEl = document.getElementById('userHeaderName');
-            if (userHeaderNameEl) userHeaderNameEl.innerText = studentFullName.split(' ')[0] || 'طالب';
-
-            const drawerUserNameEl = document.getElementById('drawerUserName') || document.getElementById('_drawer_name');
-            if (drawerUserNameEl) drawerUserNameEl.innerText = studentFullName;
-
-            const drawerUserCodeEl = document.getElementById('drawerUserCode');
-            if (drawerUserCodeEl) drawerUserCodeEl.innerText = "كود: " + studentCode;
-
-            // Set initial letter
-            const firstLetter = studentFullName.trim().charAt(0) || '🎓';
-            const userInitialEl = document.getElementById('userInitial');
-            if (userInitialEl) userInitialEl.innerText = firstLetter;
-
-            if (typeof ElkhetaAPI !== 'undefined' && ElkhetaAPI.logActivity) {
-                ElkhetaAPI.logActivity(studentCode, studentFullName, 'تصفح الرئيسية 🏠', 'متواجد في الصفحة الرئيسية');
-            }
-
-            // Dynamic Time Greeting
-            const hour = new Date().getHours();
-            const gTextEl = document.getElementById('greetingText');
-            const gIconEl = document.getElementById('greetingIcon');
-            if (hour >= 5 && hour < 12) {
-                if (gTextEl) gTextEl.innerText = "صباح الخير والنشاط!";
-                if (gIconEl) gIconEl.innerText = "☀️";
-            } else if (hour >= 12 && hour < 18) {
-                if (gTextEl) gTextEl.innerText = "مساء الخير والهمة العالية!";
-                if (gIconEl) gIconEl.innerText = "🌤️";
-            } else {
-                if (gTextEl) gTextEl.innerText = "مساء الخير والهدوء!";
-                if (gIconEl) gIconEl.innerText = "🌙";
-            }
-
-            // Listen for personal message from admin
-            if (studentCode && studentCode !== 'ADMIN_PREVIEW') {
-                try {
-                    const stRef = database.ref('Students/' + studentCode);
-                    stRef.child('lastActive').set(Date.now());
-                    const onlineRef = stRef.child('isOnline');
-                    onlineRef.onDisconnect().set(false);
-                    onlineRef.set(true);
-                } catch(e) {}
-
-                database.ref('Students/' + studentCode + '/personalMessage').on('value', (snap) => {
-                    const msg = snap.val();
-                    const pBar = document.getElementById('personalNoticeBar');
-                    const pText = document.getElementById('personalNoticeText');
-                    if (msg) {
-                        if (pBar) pBar.style.display = 'flex';
-                        if (pText) pText.innerText = msg;
-                    } else {
-                        if (pBar) pBar.style.display = 'none';
-                    }
-                });
-
-                database.ref('Students/' + studentCode + '/isBanned').on('value', (snap) => {
-                    if (snap.val() === true) {
-                        alert('⚠️ تم إيقاف هذا الحساب من قبل إدارة المنصة.');
-                        logout();
-                    }
-                });
-
-                database.ref('Students/' + studentCode + '/stats').on('value', (snap) => {
-                    const stats = snap.val() || { totalScore: 0, examsTaken: 0 };
-                    const points = stats.totalScore || 0;
-                    const pEl = document.getElementById('userPoints');
-                    if (pEl) pEl.innerText = points;
-
-                    const level = Math.floor(points / 200) + 1;
-                    const lEl = document.getElementById('userLevel');
-                    if (lEl) lEl.innerText = `مستوى ${level}`;
+        // 1. Real Subjects
+        database.ref('Subjects').on('value', snap => {
+            let count = 7;
+            let subjects = [];
+            if (snap.exists()) {
+                count = snap.numChildren();
+                snap.forEach(c => {
+                    const sub = c.val();
+                    if (sub) subjects.push(sub.name || c.key);
                 });
             }
+            document.getElementById('statSubjectsCount').textContent = `${count} مواد`;
 
-            // Real-time Honor Roll Widget Listener
-            database.ref('HonorRoll').on('value', snap => {
-                const sec = document.getElementById('honorRollSection');
-                const grid = document.getElementById('honorRollStudentsGrid');
-                if (!sec || !grid) return;
+            if (subjects.length > 0) {
+                const container = document.getElementById('studentSubjectsProgressList');
+                const colors = [
+                    { bg: '#FFEDD5', color: '#EA580C', icon: 'fa-user-group' },
+                    { bg: '#DBEAFE', color: '#2563EB', icon: 'fa-users' },
+                    { bg: '#D1FAE5', color: '#059669', icon: 'fa-city' },
+                    { bg: '#F3E8FF', color: '#9333EA', icon: 'fa-scale-balanced' },
+                    { bg: '#FFE4E6', color: '#E11D48', icon: 'fa-hospital-user' },
+                    { bg: '#FEF3C7', color: '#D97706', icon: 'fa-briefcase' },
+                    { bg: '#ECFEFF', color: '#0891B2', icon: 'fa-graduation-cap' }
+                ];
 
-                const data = snap.val();
-                if (data && data.topStudents && Array.isArray(data.topStudents) && data.topStudents.length > 0) {
-                    grid.innerHTML = '';
-                    data.topStudents.forEach(st => {
-                        let crown = `#${st.rank}`;
-                        if (st.rank === 1) crown = '🥇';
-                        else if (st.rank === 2) crown = '🥈';
-                        else if (st.rank === 3) crown = '🥉';
-
-                        const card = document.createElement('div');
-                        card.style.cssText = `
-                            background: rgba(255, 255, 255, 0.06);
-                            border: 1px solid rgba(245, 158, 11, 0.35);
-                            border-radius: 16px;
-                            padding: 10px 14px;
-                            min-width: 140px;
-                            flex-shrink: 0;
-                            text-align: center;
-                        `;
-                        card.innerHTML = `
-                            <div style="font-size: 22px; margin-bottom: 4px;">${crown}</div>
-                            <div style="font-size: 13px; font-weight: 900; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${st.studentName}</div>
-                            <div style="font-size: 11px; color: #FBBF24; font-weight: 800; margin-top: 3px;">${st.percentage}%</div>
-                        `;
-                        grid.appendChild(card);
-                    });
-                    sec.style.display = 'block';
-                } else {
-                    sec.style.display = 'none';
-                }
-            });
-        } else {
-            window.location.href = "index.html";
-        }
-
-        function dismissPersonalNotice() {
-            if (user && (user.studentCode || user.code)) {
-                const code = user.studentCode || user.code;
-                database.ref('Students/' + code + '/personalMessage').remove();
+                container.innerHTML = subjects.map((name, i) => {
+                    const c = colors[i % colors.length];
+                    const savedPct = Number(localStorage.getItem('progress_' + name) || 0);
+                    return `
+                        <a href="lectures.html?subject=${encodeURIComponent(name)}" class="subject-bar-row" style="text-decoration: none; color: inherit;">
+                            <div class="subject-badge-label">
+                                <div class="subject-icon-box" style="background: ${c.bg}; color: ${c.color};">
+                                    <i class="fa-solid ${c.icon}"></i>
+                                </div>
+                                <span>${name}</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: ${savedPct}%; background: ${c.color};"></div>
+                            </div>
+                            <span class="progress-num">${savedPct}%</span>
+                        </a>
+                    `;
+                }).join('');
             }
-            document.getElementById('personalNoticeBar').style.display = 'none';
-        }
-
-        const drawerBtn = document.getElementById('openDrawer');
-        if (drawerBtn) {
-            drawerBtn.onclick = () => {
-                if (window.toggleStudentDrawer) {
-                    window.toggleStudentDrawer();
-                }
-            };
-        }
-
-        function logout() {
-            if (window.logoutStudent) {
-                window.logoutStudent();
-            } else {
-                localStorage.removeItem('user');
-                sessionStorage.clear();
-                window.location.href = "index.html";
-            }
-        }
-
-        database.ref('Settings/LatestNotification').on('value', (snap) => {
-            const notice = snap.val() || "لا توجد تنبيهات جديدة حالياً";
-            document.getElementById('latestNotice').innerText = notice;
         });
 
-        // Resume Last Lesson Check
-        const lastSubject = localStorage.getItem('last_accessed_subject');
-        const lastLecture = localStorage.getItem('last_accessed_lecture');
-        if (lastSubject && lastLecture) {
-            document.getElementById('resumeWidget').style.display = 'flex';
-            document.getElementById('resumeTitle').innerText = `${lastSubject}: ${lastLecture}`;
-        }
+        // 2. Real Lectures (Total count & latest feed)
+        database.ref('Lectures').on('value', snap => {
+            let totalLecs = 0;
+            let allLecs = [];
 
-        function resumeLastLesson() {
-            if (lastSubject) {
-                location.href = `lectures.html?subject=${encodeURIComponent(lastSubject)}`;
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subName = subSnap.key;
+                    subSnap.forEach(lecSnap => {
+                        totalLecs++;
+                        allLecs.push({
+                            id: lecSnap.key,
+                            subject: subName,
+                            ...lecSnap.val()
+                        });
+                    });
+                });
             }
+
+            document.getElementById('statLecturesCount').textContent = `${totalLecs} محاضرة`;
+
+            const recentList = document.getElementById('recentLecturesList');
+            if (allLecs.length > 0) {
+                // Show latest 3 real lectures
+                const latest = allLecs.slice(-3).reverse();
+                recentList.innerHTML = latest.map(lec => `
+                    <a href="lectures.html?subject=${encodeURIComponent(lec.subject)}&lecId=${lec.id}" class="lecture-item-card" style="text-decoration: none; color: inherit;">
+                        <div class="lecture-thumb-box" style="background: linear-gradient(135deg, #1E293B, #0F172A); color: #FEF3C7;">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div class="lecture-info-col">
+                            <div class="lecture-title-text">${lec.title || 'محاضرة جديدة'}</div>
+                            <span class="lecture-meta-sub">${lec.subject || 'مقرر دراسي'}</span>
+                        </div>
+                        <div>
+                            <span class="badge-completed" style="background: #EFF6FF; color: #2563EB;">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span>مشاهدة</span>
+                            </span>
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                recentList.innerHTML = `
+                    <div style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🎬</div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-title); margin-bottom: 4px;">لا توجد محاضرات منشورة حالياً</div>
+                        <div style="font-size: 12px;">سيتم إتاحة المحاضرات فور رفعها بواسطة أستاذ المادة ⏳</div>
+                    </div>
+                `;
+            }
+        });
+
+        // 3. Real Exams (Total count & upcoming list)
+        database.ref('Exams').on('value', snap => {
+            let totalExams = 0;
+            let examsList = [];
+
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    totalExams++;
+                    examsList.push({ id: c.key, ...c.val() });
+                });
+            }
+
+            document.getElementById('statExamsCount').textContent = `${totalExams} امتحان`;
+
+            const upcomingContainer = document.getElementById('upcomingExamsList');
+            if (examsList.length > 0) {
+                upcomingContainer.innerHTML = examsList.slice(0, 3).map(ex => `
+                    <a href="quiz.html?examId=${ex.id}" class="exam-item-row" style="text-decoration: none; color: inherit;">
+                        <div class="exam-item-main">
+                            <div class="exam-icon-circle">
+                                <i class="fa-solid fa-file-pen"></i>
+                            </div>
+                            <div>
+                                <div class="exam-title-text">${ex.title || 'امتحان تقييمي'}</div>
+                                <span class="exam-sub-text">${ex.subject || 'مقرر دراسي'} • ${ex.duration || '25 دقيقة'}</span>
+                            </div>
+                        </div>
+                        <div class="exam-date-badge">متاح الآن 🟢</div>
+                    </a>
+                `).join('');
+            } else {
+                upcomingContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px 16px; color: var(--text-muted);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
+                        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-title); margin-bottom: 4px;">لا توجد اختبارات منشورة حالياً</div>
+                        <div style="font-size: 12px;">سيتم إتاحة الاختبارات والتقييمات بواسطة أستاذ المادة فور نشرها ⏳</div>
+                    </div>
+                `;
+            }
+        });
+
+        // 4. Student Real Profile, Mistakes & Overall Progress
+        const userObj = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('studentData') || '{}');
+        const activeCode = studentCode || userObj.studentCode || localStorage.getItem('studentCode') || '';
+
+        if (activeCode) {
+            database.ref('Students/' + activeCode.toUpperCase()).on('value', snap => {
+                if (snap.exists()) {
+                    const st = snap.val();
+                    const pts = Number(st.points || 0);
+                    document.getElementById('studentTotalPoints').textContent = pts.toLocaleString();
+                    if (st.fullName) {
+                        document.getElementById('studentDisplayName').innerHTML = `${st.fullName} <i class="fa-solid fa-chevron-down" style="font-size: 10px; color: var(--text-muted);"></i>`;
+                    }
+                }
+            });
+
+            // Real Mistakes Count
+            database.ref('Mistakes/' + activeCode.toUpperCase()).on('value', snap => {
+                let count = snap.exists() ? snap.numChildren() : 0;
+                if (count === 0) {
+                    try {
+                        const localMistakes = JSON.parse(localStorage.getItem('mistakes_list') || '[]');
+                        count = localMistakes.length;
+                    } catch(e){}
+                }
+                const mEl = document.getElementById('statMistakesCount');
+                const mSub = document.getElementById('statMistakesSub');
+                if (count > 0) {
+                    mEl.textContent = `${count} سؤال`;
+                    mEl.style.color = '#E11D48';
+                    mSub.textContent = 'سنراجعها معك 🎯';
+                } else {
+                    mEl.textContent = '0 سؤال';
+                    mEl.style.color = '#059669';
+                    mSub.textContent = 'سجلك نظيف ✨';
+                }
+            });
+
+            // Overall Progress
+            const savedOverall = localStorage.getItem('overall_progress_' + activeCode.toUpperCase()) || '0';
+            document.getElementById('statProgressPercent').textContent = savedOverall + '%';
         }
-    </script>
-    <script src="custom-dialogs.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script src="offline-overlay.js"></script>
-    <script src="student-drawer.js?v=2027"></script>
-    <script src="student-guard.js"></script>
-    <script src="live-chat.js?v=2.0"></script>
+    }
+
+    function handleStudentSearch(q) {
+        if (q.trim().length > 1) {
+            window.location.href = `courses.html?search=${encodeURIComponent(q.trim())}`;
+        }
+    }
+</script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- FLOATING SUPPORT & ACADEMIC CENTER BUTTON -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+        <div class="floating-icon-box">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="floating-text-box">
+            <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+            <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+        </div>
+    </a>
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+
+
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+<div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+<nav id="universalMobileDock" class="universal-mobile-dock">
+    <a href="home.html" class="mobile-dock-btn active">
+        <i class="fa-solid fa-house"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="courses.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-book-open"></i>
+        <span>المواد</span>
+    </a>
+    <a href="lectures.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span>المحاضرات</span>
+    </a>
+    <a href="quiz.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>الامتحانات</span>
+    </a>
+    <a href="profile.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>حسابي</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleMobileSidebar()" class="mobile-dock-btn">
+        <i class="fa-solid fa-bars"></i>
+        <span>القائمة</span>
+    </a>
+</nav>
+
 </body>
 </html>

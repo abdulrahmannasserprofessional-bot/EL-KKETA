@@ -1,5 +1,54 @@
 {
+  "name": "elkheta-desktop",
+  "version": "2.0.0",
+  "description": "منصة الخطة التعليمية الذكية - النسخة الرسمية للكمبيوتر",
+  "main": "electron-main.js",
+  "author": "ELKHETA Team",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "electron . --dev",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:installer": "electron-builder --win nsis --x64",
+    "build:exe": "electron-builder --win --x64"
+  },
   "dependencies": {
     "firebase": "^12.17.1"
+  },
+  "devDependencies": {
+    "electron": "^34.5.8",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.elkheta.desktop",
+    "productName": "ELKHETA",
+    "copyright": "Copyright © 2026 ELKHETA Platform",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "icons/icon-512.png",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "منصة الخطة التعليمية"
+    },
+    "portable": {
+      "artifactName": "ELKHETA-Portable-${version}.${ext}"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/**/.bin",
+      "!*.log",
+      "!*.md"
+    ]
   }
 }

@@ -5,634 +5,1064 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>لوحة الشرف والمتصدرين - منصة الخطة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة الشرف والمتصدرين - ELKHETA | منصة الخطة</title>
+    
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Alexandria:wght@600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="motion-fx.css?v=2.0">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon.svg">
-    <script src="motion-fx.js?v=2.0" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+
     <style>
         :root {
-            --primary: #3B82F6;
-            --primary-glow: rgba(59, 130, 246, 0.4);
-            --accent: #F59E0B;
-            --accent-glow: rgba(245, 158, 11, 0.4);
-            --bg-body: #070D1E;
-            --bg-card: rgba(15, 23, 42, 0.7);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --glass-blur: blur(16px);
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
+            
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
+            
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --text-light: #94A3B8;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 25px -4px rgba(180, 140, 75, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0D1117;
+            --bg-surface: #161B22;
+            --bg-surface-hover: #1F242C;
+            --border-card: #30363D;
+            --border-card-hover: #8B6528;
+            --text-title: #F0F6FC;
+            --text-body: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+            --shadow-subtle: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-body);
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
+            background-color: var(--bg-page);
+            color: var(--text-title);
             min-height: 100vh;
-            padding-bottom: 95px;
             direction: rtl;
+            text-align: right;
             overflow-x: hidden;
+            display: flex;
         }
 
-        .leaderboard-app-container {
+        .student-app-container {
+            display: flex;
             width: 100%;
-            max-width: 980px;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ─── */
+        .student-sidebar {
+            width: 270px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-card);
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 99;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px 18px 10px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
+            text-decoration: none;
+        }
+
+        .brand-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .brand-title-row {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+        .brand-title-row span { color: var(--gold-primary); }
+        .brand-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+
+        .sidebar-nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-section-title { font-size: 11px; font-weight: 800; color: #A37936; margin: 16px 8px 6px 8px; }
+
+        .nav-item-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .nav-item-link i { width: 20px; font-size: 15px; text-align: center; color: var(--text-muted); }
+        .nav-item-link:hover { background: var(--bg-surface-hover); color: var(--text-title); transform: translateX(-3px); }
+        .nav-item-link:hover i { color: var(--gold-primary); }
+        .nav-item-link.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+        }
+        .nav-item-link.active i { color: #FFFFFF; }
+
+        .sidebar-support-card {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .btn-support-chat {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(194, 139, 56, 0.3);
+        }
+
+        /* ─── Main Stage ─── */
+        .student-main-stage {
+            flex: 1;
+            padding: 20px 28px 40px 28px;
+            overflow-y: auto;
+            max-width: 1450px;
             margin: 0 auto;
-            padding: 20px 20px 30px;
             display: flex;
             flex-direction: column;
             gap: 22px;
         }
 
-        /* ─── Topbar ─── */
-        .lb-topbar {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border-radius: 22px;
-            padding: 14px 22px;
+        .top-header-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-            border: 1px solid var(--border-color);
-            position: sticky;
-            top: 14px;
-            z-index: 100;
+            gap: 16px;
         }
-
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text-main);
-        }
-
-        .brand-logo-badge {
-            width: 44px;
+        .header-search-wrap { flex: 1; max-width: 540px; position: relative; }
+        .header-search-input {
+            width: 100%;
             height: 44px;
-            background: linear-gradient(135deg, #B45309 0%, #F59E0B 100%);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 0 44px 0 16px;
+            font-size: 13.5px;
+            color: var(--text-title);
+            outline: none;
         }
+        .header-search-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15); }
+        .header-search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
 
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-nav-icon {
+        .header-actions-group { display: flex; align-items: center; gap: 12px; }
+        .btn-header-icon {
             width: 40px;
             height: 40px;
-            border-radius: 12px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #CBD5E1;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 15px;
             cursor: pointer;
-            transition: all 0.25s ease;
             text-decoration: none;
         }
-        .btn-nav-icon:hover {
-            background: rgba(59, 130, 246, 0.25);
-            color: #60A5FA;
-            border-color: rgba(96, 165, 250, 0.4);
-            transform: translateY(-2px);
+        .student-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 12px 4px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            text-decoration: none;
+            color: inherit;
         }
+        .student-avatar-img { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--gold-primary); }
 
         /* ─── Hero Banner ─── */
-        .lb-hero-banner {
-            background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(30, 58, 138, 0.75) 50%, rgba(180, 83, 9, 0.75) 100%);
-            border-radius: 26px;
-            padding: 28px 24px;
-            color: white;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-        }
-        .lb-hero-banner h2 {
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 6px;
-            font-family: 'Alexandria', 'Cairo', sans-serif;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        .lb-hero-banner p {
-            font-size: 13.5px;
-            color: #E2E8F0;
-            font-weight: 600;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* ─── Podium Section ─── */
-        .podium-section-wrap {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 16px;
-            margin: 20px 0 10px;
-            padding-top: 30px;
-        }
-
-        .podium-col {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            width: 30%;
-            max-width: 175px;
-        }
-
-        .podium-avatar-circle {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: rgba(15, 23, 42, 0.9);
-            border: 3.5px solid;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            margin-bottom: -18px;
-            position: relative;
-            z-index: 5;
-            backdrop-filter: blur(8px);
-        }
-
-        .podium-col.rank-1 .podium-avatar-circle {
-            width: 92px;
-            height: 92px;
-            font-size: 42px;
-            border-color: #F59E0B;
-            box-shadow: 0 0 35px rgba(245, 158, 11, 0.6);
-        }
-        .podium-col.rank-2 .podium-avatar-circle {
-            border-color: #94A3B8;
-            box-shadow: 0 0 25px rgba(148, 163, 184, 0.4);
-        }
-        .podium-col.rank-3 .podium-avatar-circle {
-            border-color: #D97706;
-            box-shadow: 0 0 25px rgba(217, 119, 6, 0.4);
-        }
-
-        .crown-icon-float {
-            position: absolute;
-            top: -30px;
-            font-size: 30px;
-            animation: crownBounce 2.5s ease-in-out infinite alternate;
-            filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.8));
-        }
-
-        @keyframes crownBounce {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(-7px) scale(1.12); }
-        }
-
-        .podium-stand-box {
-            width: 100%;
-            border-radius: 22px 22px 0 0;
-            padding: 28px 10px 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            text-align: center;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .podium-col.rank-1 .podium-stand-box {
-            height: 170px;
-            background: linear-gradient(180deg, rgba(245, 158, 11, 0.9) 0%, rgba(180, 83, 9, 0.85) 100%);
-            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
-        }
-        .podium-col.rank-2 .podium-stand-box {
-            height: 135px;
-            background: linear-gradient(180deg, rgba(148, 163, 184, 0.85) 0%, rgba(71, 85, 105, 0.85) 100%);
-        }
-        .podium-col.rank-3 .podium-stand-box {
-            height: 110px;
-            background: linear-gradient(180deg, rgba(217, 119, 6, 0.85) 0%, rgba(146, 64, 14, 0.85) 100%);
-        }
-
-        .podium-student-name {
-            font-size: 14.5px;
-            font-weight: 900;
-            font-family: 'Alexandria', 'Cairo', sans-serif;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 90%;
-            margin-bottom: 3px;
-        }
-        .podium-col.rank-1 .podium-student-name {
-            font-size: 16.5px;
-        }
-
-        .podium-score-badge {
-            background: rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(4px);
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 800;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .podium-rank-num {
-            font-size: 34px;
-            font-weight: 900;
-            opacity: 0.35;
-            margin-top: auto;
-            line-height: 1;
-            font-family: 'Alexandria', sans-serif;
-        }
-
-        /* ─── Rank List Cards ─── */
-        .ranks-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .rank-card-row {
-            background: var(--bg-card);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px 20px;
+        .universal-hero-banner {
+            background: linear-gradient(125deg, #FBF6EC 0%, #F5EAD4 50%, #FAF1DF 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 14px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: var(--shadow-subtle);
         }
-        .rank-card-row:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.4);
+        body.dark-mode .universal-hero-banner {
+            background: linear-gradient(125deg, #231C13 0%, #332514 50%, #291D11 100%);
         }
+        .hero-banner-title { font-size: 24px; font-weight: 900; color: #352514; margin-bottom: 4px; }
+        body.dark-mode .hero-banner-title { color: #F8E5C4; }
+        .hero-banner-sub { font-size: 13.5px; font-weight: 600; color: #7A5B35; }
+        body.dark-mode .hero-banner-sub { color: #CBB18B; }
 
-        .rank-card-row.is-me {
-            background: rgba(30, 58, 138, 0.45);
-            border-color: rgba(96, 165, 250, 0.5);
-            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.3);
-        }
-
-        .rank-left-group {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .rank-number-pill {
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #CBD5E1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 14px;
-            flex-shrink: 0;
-            font-family: 'Alexandria', sans-serif;
-        }
-        .rank-card-row.is-me .rank-number-pill {
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-        }
-
-        .rank-avatar-box {
-            width: 46px;
-            height: 46px;
-            border-radius: 16px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-
-        .rank-student-info {
-            overflow: hidden;
-        }
-        .rank-student-name {
-            font-size: 15px;
-            font-weight: 800;
-            color: #FFFFFF;
-            font-family: 'Alexandria', 'Cairo', sans-serif;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .rank-student-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-top: 3px;
-        }
-
-        .rank-score-chip {
-            background: rgba(59, 130, 246, 0.18);
-            color: #60A5FA;
-            border: 1px solid rgba(59, 130, 246, 0.35);
-            padding: 6px 14px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 900;
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-family: 'Alexandria', sans-serif;
-        }
-
-        .loading-state-box {
-            text-align: center;
-            padding: 50px 20px;
-            background: var(--bg-card);
-            backdrop-filter: var(--glass-blur);
-            border-radius: 22px;
-            border: 1px solid var(--border-color);
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
-        /* ─── Mobile Bottom Nav ─── */
-        .mobile-bottom-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            height: 68px;
-            align-items: center;
-            justify-content: space-around;
-            z-index: 1000;
-            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .bottom-nav-item {
+        /* ─── White Surface Card ─── */
+        .luxury-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-subtle);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #64748B;
-            font-size: 11px;
-            font-weight: 800;
-            gap: 4px;
-            padding: 8px 12px;
-            position: relative;
+            gap: 16px;
+            transition: all 0.25s ease;
         }
-        .bottom-nav-item i { font-size: 19px; }
-        .bottom-nav-item.active { color: #60A5FA; }
-        .bottom-nav-item.active::after {
-            content: '';
-            position: absolute;
-            top: -6px;
-            width: 24px;
-            height: 3px;
-            border-radius: 3px;
-            background: #3B82F6;
-            box-shadow: 0 0 10px #3B82F6;
+        .luxury-card:hover {
+            border-color: var(--border-card-hover);
         }
 
-        @media (max-width: 991px) {
-            .mobile-bottom-nav { display: flex; }
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .floating-support-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7);
+            color: #FFFFFF;
+        }
+        .floating-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .floating-text-box { display: flex; flex-direction: column; text-align: right; }
+        .floating-text-title { font-size: 13px; font-weight: 900; line-height: 1.2; }
+        .floating-text-sub { font-size: 10px; font-weight: 700; color: #FEF3C7; }
+        @media (max-width: 640px) {
+            .floating-support-btn { padding: 10px; border-radius: 50%; bottom: 20px; left: 20px; }
+            .floating-text-box { display: none; }
         }
     </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    
+
+
+<style id="elkheta-master-mobile-engine">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 ELKHETA UNIVERSAL MOBILE & DESKTOP ENGINE (v5.0.0 Fluid Grids)       */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop Rules (> 992px) */
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+    .mobile-sidebar-close-row { display: none !important; }
+    .student-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        width: 270px !important;
+        height: 100vh !important;
+        flex-shrink: 0 !important;
+    }
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+}
+
+/* Mobile & Tablet Rules (<= 992px) */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 78px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper,
+    .landing-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 10px 10px 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Off-canvas Mobile Drawer for Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar,
+    aside.student-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 16px 14px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open,
+    aside.student-sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    .mobile-sidebar-close-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        margin-bottom: 12px !important;
+        background: #FDF4E6 !important;
+        border-radius: 12px !important;
+        border: 1px solid #E8D3B2 !important;
+    }
+
+    .drawer-user-info {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        color: #8E5D16 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .btn-drawer-close {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #E11D48 !important;
+        font-size: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 10px 6px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Top Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-search-input {
+        width: 100% !important;
+        height: 42px !important;
+        border-radius: 21px !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-header-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+        position: relative !important;
+    }
+
+    .student-profile-chip {
+        flex-shrink: 0 !important;
+        padding: 4px 10px 4px 6px !important;
+        max-width: 60% !important;
+    }
+
+    .student-avatar-img {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .icon-badge-num {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 100% SINGLE COLUMN GRIDS ON MOBILE ─── */
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer,
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card,
+    #subjectsCardsContainer > div,
+    #notesContainerGrid > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card,
+    .hero-showcase-card {
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title,
+    .hero-main-heading {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub,
+    .hero-sub-title {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 74px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    /* Mobile Drawer Backdrop */
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Universal Mobile Bottom Navigation Dock */
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileSidebar(open) {
+    try {
+        var sb = document.querySelector('.student-sidebar, .dashboard-sidebar, aside.student-sidebar, aside');
+        var bd = document.getElementById('mobileDrawerBackdrop');
+        if (!sb) return;
+        var isCurrentlyOpen = sb.classList.contains('mobile-open');
+        var targetState = (open !== undefined) ? open : !isCurrentlyOpen;
+        if (targetState) {
+            sb.classList.add('mobile-open');
+            if (bd) bd.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sb.classList.remove('mobile-open');
+            if (bd) bd.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch(e) { console.error('Sidebar toggle error:', e); }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+</script>
 </head>
 <body>
 
-    <div class="leaderboard-app-container">
-        <!-- Topbar -->
-        <header class="lb-topbar">
-            <a href="home.html" class="brand-section">
-                <div class="brand-logo-badge">
-                    <i class="fas fa-trophy"></i>
+<div class="student-app-container">
+
+    <!-- 1. Right Sidebar -->
+    <aside class="student-sidebar">
+        <!-- Mobile Drawer Close Header -->
+        <div class="mobile-sidebar-close-row">
+            <div class="drawer-user-info">
+                <i class="fa-solid fa-graduation-cap" style="color: #C28B38;"></i>
+                <span>قائمة منصة الخطة</span>
+            </div>
+            <button class="btn-drawer-close" onclick="toggleMobileSidebar(false)" title="إغلاق القائمة">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div>
+            <!-- Brand -->
+            <a href="home.html" class="sidebar-brand">
+                <div class="brand-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
-                <div>
-                    <h1 style="font-size: 16px; font-weight: 900; margin: 0; font-family: 'Alexandria', 'Cairo', sans-serif;">لوحة الشرف</h1>
-                    <span style="font-size: 11.5px; color: #94A3B8; font-weight: 600;">متصدرو منصة الخطة 2027</span>
+                <div class="brand-text-col">
+                    <div class="brand-title-row">ELKHETA <span>|</span> الخطة</div>
+                    <span class="brand-sub">طريقك المنظم نحو التفوق الأكاديمي</span>
                 </div>
             </a>
-            <div class="topbar-actions">
-                <a href="home.html" class="btn-nav-icon" title="الرئيسية">
-                    <i class="fas fa-home"></i>
+
+            <!-- Nav Links -->
+            <ul class="sidebar-nav-list">
+                <li><a href="home.html" class="nav-item-link "><i class="fa-solid fa-house"></i><span>الرئيسية</span></a></li>
+                <li><a href="courses.html" class="nav-item-link "><i class="fa-solid fa-book-open"></i><span>المواد الدراسية</span></a></li>
+                <li><a href="lectures.html" class="nav-item-link "><i class="fa-solid fa-clapperboard"></i><span>المحاضرات</span></a></li>
+                <li><a href="notes-viewer.html" class="nav-item-link "><i class="fa-solid fa-note-sticky"></i><span>كشكول ونوتس</span></a></li>
+                <li><a href="quiz.html" class="nav-item-link "><i class="fa-solid fa-clipboard-list"></i><span>الامتحانات</span></a></li>
+                <li><a href="mistakes.html" class="nav-item-link "><i class="fa-solid fa-circle-xmark"></i><span>أخطائي</span></a></li>
+                <li><a href="planner.html" class="nav-item-link "><i class="fa-solid fa-chart-line"></i><span>تقدمي</span></a></li>
+                <li><a href="leaderboard.html" class="nav-item-link active"><i class="fa-solid fa-trophy"></i><span>لوحة الشرف</span></a></li>
+                <li><a href="community.html" class="nav-item-link "><i class="fa-solid fa-users"></i><span>المجتمع</span></a></li>
+                <li><a href="chat.html" class="nav-item-link "><i class="fa-solid fa-headset"></i><span>الدعم والتواصل</span></a></li>
+
+                <div class="nav-section-title">أدوات إضافية</div>
+
+                <li><a href="profile.html#settings" class="nav-item-link "><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a></li>
+                <li><a href="javascript:void(0)" onclick="logoutStudent()" class="nav-item-link" style="color: #E11D48;"><i class="fa-solid fa-arrow-right-from-bracket" style="color: #E11D48;"></i><span>تسجيل الخروج</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="sidebar-support-card">
+                <i class="fa-solid fa-headset" style="font-size: 26px; color: var(--gold-primary);"></i>
+                <div style="font-size: 13px; font-weight: 800; color: var(--text-title);">تواصل مع الإدارة</div>
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">نحن هنا لمساعدتك دائماً</div>
+                <a href="chat.html" class="btn-support-chat">
+                    <span>ابدأ المحادثة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
                 </a>
-                <button type="button" class="btn-nav-icon" id="openDrawer" title="القائمة">
-                    <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 2. Main Stage -->
+    <main class="student-main-stage">
+
+        <!-- Top Header -->
+        <header class="top-header-bar">
+            <div class="header-search-wrap">
+                <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+                <input type="text" id="globalStudentSearchInput" class="header-search-input" placeholder="ابحث في المنصة والمواد والمحاضرات..." oninput="if(typeof handlePageSearch === 'function') handlePageSearch(this.value)">
+            </div>
+
+            <div class="header-actions-group">
+                <button class="btn-header-icon" id="themeToggleBtn" onclick="toggleStudentTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-sun"></i>
                 </button>
+                <a href="notifications.html" class="btn-header-icon" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                </a>
+                <a href="profile.html" class="student-profile-chip">
+                    <img src="banner-illustration.png" alt="Student" class="student-avatar-img" onerror="this.src='icons/icon.svg'">
+                    <div style="display: flex; flex-direction: column; text-align: right;">
+                        <span id="studentDisplayName" style="font-size: 13px; font-weight: 800;">طالب متميز</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: var(--text-muted);">المرحلة الأكاديمية</span>
+                    </div>
+                </a>
             </div>
         </header>
 
         <!-- Hero Banner -->
-        <section class="lb-hero-banner">
-            <h2>لوحة المتصدرين والمتميزين 🏆</h2>
-            <p>ترتيب أوائل الطلاب بناءً على مجموع النقاط وحل الامتحانات والمواظبة اليومية.</p>
+        <section class="universal-hero-banner">
+            <div>
+                <h1 class="hero-banner-title">لوحة الشرف والمتصدرين الأكاديميين</h1>
+                <p class="hero-banner-sub">ترتيب وتكريم الطلاب الأكثر تميزاً وتفاعلاً في المنصة بالبيانات المباشرة</p>
+            </div>
+            <div style="font-size: 38px; color: var(--gold-primary); opacity: 0.85;">
+                <i class="fa-solid fa-crown"></i>
+            </div>
         </section>
 
-        <!-- Loading State -->
-        <div id="loadingState" class="loading-state-box">
-            <i class="fas fa-spinner fa-spin" style="font-size: 28px; color: #3B82F6; margin-bottom: 12px; display: block;"></i>
-            <span>جاري سحب الترتيب الحقيقي للطلاب...</span>
-        </div>
-
+        <!-- Page Main Content -->
+        
         <!-- Top 3 Podium -->
-        <div id="podiumContainer" class="podium-section-wrap" style="display: none;">
-            <!-- Injected via JS -->
+        <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; align-items: flex-end;" id="top3Podium">
+            <!-- Rendered dynamically from Real RTDB Students -->
         </div>
 
-        <!-- Ranks 4 to 50 -->
-        <div id="rankList" class="ranks-list-container" style="display: none;">
-            <!-- Injected via JS -->
+        <!-- Full Rankings Table -->
+        <div class="luxury-card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 18px 22px; border-bottom: 1px solid var(--border-card); display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 15px; font-weight: 900; color: var(--text-title); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-trophy" style="color: var(--gold-primary);"></i>
+                    <span>قائمة المتصدرين الأكاديميين (بيانات حقيقية)</span>
+                </div>
+                <span style="font-size: 12px; font-weight: 800; color: var(--gold-text); background: var(--gold-light); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--gold-border);" id="totalStudentsRankCount">0 طالب مسجل</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr style="background: var(--bg-surface-hover); border-bottom: 1px solid var(--border-card); font-size: 12px; font-weight: 800; color: var(--text-muted);">
+                            <th style="padding: 12px 18px; width: 60px;">الترتيب</th>
+                            <th style="padding: 12px 18px;">اسم الطالب</th>
+                            <th style="padding: 12px 18px;">كود الطالب</th>
+                            <th style="padding: 12px 18px;">المستوى الأكاديمي</th>
+                            <th style="padding: 12px 18px; text-align: left;">إجمالي النقاط</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody">
+                        <!-- Loaded from RTDB Students -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-    </div>
+        <!-- Universal Footer -->
+        <footer style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); font-size: 11.5px; font-weight: 600; color: var(--text-muted); flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open" style="color: var(--gold-primary);"></i>
+                <b style="color: var(--text-title);">الخطة | ELKHETA</b>
+                <span>طريقك المنظم نحو التفوق الأكاديمي</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="guide.html" style="color: inherit; text-decoration: none;">شروط الاستخدام</a>
+                <a href="privacy.html" style="color: inherit; text-decoration: none;">سياسة الخصوصية</a>
+                <a href="chat.html" style="color: inherit; text-decoration: none;">دعم فني</a>
+                <span>2026 © جميع الحقوق محفوظة</span>
+            </div>
+        </footer>
 
-    <!-- Mobile Bottom Nav -->
-    <nav class="mobile-bottom-nav">
-        <a href="home.html" class="bottom-nav-item">
-            <i class="fas fa-home"></i>
-            <span>الرئيسية</span>
-        </a>
-        <a href="courses.html" class="bottom-nav-item">
-            <i class="fas fa-book-open"></i>
-            <span>المواد</span>
-        </a>
-        <a href="ai-report.html" class="bottom-nav-item">
-            <i class="fas fa-brain"></i>
-            <span>التقرير</span>
-        </a>
-        <a href="profile.html" class="bottom-nav-item">
-            <i class="fas fa-user-circle"></i>
-            <span>حسابي</span>
-        </a>
-    </nav>
+    </main>
+</div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = student.fullName || student.name || localStorage.getItem('studentName') || 'طالب متميز';
+        document.getElementById('studentDisplayName').textContent = stName;
 
-    <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) window.location.href = "index.html";
-
-        const avatars = ['🧑‍🎓', '👨‍💻', '👩‍💻', '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🥷', '🕵️', '🧑‍🚀'];
-
-        function getAvatar(name) {
-            if (!name) return '🧑‍🎓';
-            return avatars[name.length % avatars.length];
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
         }
+    });
 
-        database.ref('Leaderboard').orderByChild('score').once('value').then(snap => {
-            document.getElementById('loadingState').style.display = 'none';
-            
-            if (!snap.exists()) {
-                document.getElementById('loadingState').style.display = 'block';
-                document.getElementById('loadingState').textContent = 'لا يوجد طلاب مسجلين في لوحة الشرف حتى الآن!';
-                return;
-            }
+    function toggleStudentTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLeaderboardFromFirebase();
+    });
+
+    function loadLeaderboardFromFirebase() {
+        if (!window.database) return;
+
+        database.ref('Students').on('value', snap => {
+            if (!snap.exists()) return;
 
             let students = [];
-            snap.forEach(child => {
-                students.push(child.val());
+            snap.forEach(c => {
+                const s = c.val();
+                if (s && !s.isBanned) {
+                    students.push({
+                        code: s.studentCode || c.key,
+                        name: s.fullName || s.name || 'طالب متميز',
+                        points: Number(s.points || s.score || 0),
+                        grade: s.grade || 'المرحلة الأكاديمية',
+                        isOnline: !!s.isOnline
+                    });
+                }
             });
-            students.sort((a, b) => b.score - a.score);
 
-            const top3 = students.slice(0, 3);
-            const others = students.slice(3, 50);
+            // Sort by points descending
+            students.sort((a, b) => b.points - a.points);
 
-            const podiumContainer = document.getElementById('podiumContainer');
-            const rankList = document.getElementById('rankList');
+            // Update Count
+            document.getElementById('totalStudentsRankCount').textContent = `${students.length} طالب مسجل`;
 
-            if (top3.length > 0) {
-                podiumContainer.style.display = 'flex';
-                let podiumHtml = '';
-
-                // Second Place (Silver)
-                if (top3[1]) {
-                    podiumHtml += `
-                        <div class="podium-col rank-2">
-                            <div class="podium-avatar-circle">${getAvatar(top3[1].fullName)}</div>
-                            <div class="podium-stand-box">
-                                <div class="podium-student-name">${top3[1].fullName.split(' ')[0]}</div>
-                                <div class="podium-score-badge">${top3[1].score} نقطة</div>
-                                <div class="podium-rank-num">2</div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // First Place (Gold + Crown)
-                if (top3[0]) {
-                    podiumHtml += `
-                        <div class="podium-col rank-1">
-                            <span class="crown-icon-float">👑</span>
-                            <div class="podium-avatar-circle">${getAvatar(top3[0].fullName)}</div>
-                            <div class="podium-stand-box">
-                                <div class="podium-student-name">${top3[0].fullName.split(' ')[0]}</div>
-                                <div class="podium-score-badge">${top3[0].score} نقطة</div>
-                                <div class="podium-rank-num">1</div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // Third Place (Bronze)
-                if (top3[2]) {
-                    podiumHtml += `
-                        <div class="podium-col rank-3">
-                            <div class="podium-avatar-circle">${getAvatar(top3[2].fullName)}</div>
-                            <div class="podium-stand-box">
-                                <div class="podium-student-name">${top3[2].fullName.split(' ')[0]}</div>
-                                <div class="podium-score-badge">${top3[2].score} نقطة</div>
-                                <div class="podium-rank-num">3</div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                podiumContainer.innerHTML = podiumHtml;
+            // Render Podium
+            if (students.length >= 3) {
+                renderPodium(students.slice(0, 3));
             }
 
-            if (others.length > 0) {
-                rankList.style.display = 'flex';
-                let listHtml = '';
-                others.forEach((s, index) => {
-                    const actualRank = index + 4;
-                    const isMe = s.studentCode === user.studentCode;
-                    const examsTaken = s.examsTaken || 0;
-
-                    listHtml += `
-                        <div class="rank-card-row ${isMe ? 'is-me' : ''}">
-                            <div class="rank-left-group">
-                                <div class="rank-number-pill">${actualRank}</div>
-                                <div class="rank-avatar-box">${getAvatar(s.fullName)}</div>
-                                <div class="rank-student-info">
-                                    <div class="rank-student-name">${s.fullName} ${isMe ? '<span style="color:#60A5FA; font-size:12px;">(أنت)</span>' : ''}</div>
-                                    <div class="rank-student-sub">أتم ${examsTaken} امتحانات واختبارات</div>
-                                </div>
-                            </div>
-                            <div class="rank-score-chip">${s.score} نقطة</div>
-                        </div>
-                    `;
-                });
-                rankList.innerHTML = listHtml;
-            }
-        }).catch(err => {
-            console.error(err);
-            document.getElementById('loadingState').textContent = 'حدث خطأ أثناء تحميل لوحة الشرف!';
+            // Render Table
+            renderRankTable(students);
         });
-    </script>
-    <script src="student-drawer.js"></script>
-    <script src="student-guard.js"></script>
+    }
+
+    function renderPodium(top3) {
+        const podium = document.getElementById('top3Podium');
+        const [first, second, third] = top3;
+
+        podium.innerHTML = `
+            <!-- 2nd Place -->
+            <div class="luxury-card" style="text-align: center; align-items: center; border-color: #CBD5E1; padding: 20px 14px;">
+                <div style="font-size: 24px; color: #94A3B8;"><i class="fa-solid fa-medal"></i></div>
+                <div style="font-size: 15px; font-weight: 900; color: var(--text-title); margin-top: 6px;">${second.name}</div>
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">المركز الثاني</div>
+                <div style="font-size: 15px; font-weight: 900; color: var(--gold-primary); margin-top: 6px;">${second.points.toLocaleString()} نقطة</div>
+            </div>
+
+            <!-- 1st Place (Center / Gold) -->
+            <div class="luxury-card" style="text-align: center; align-items: center; border-color: #F59E0B; background: linear-gradient(180deg, #FFFFFF 0%, #FFFBEB 100%); padding: 28px 16px; transform: translateY(-10px); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);">
+                <div style="font-size: 32px; color: #F59E0B;"><i class="fa-solid fa-crown"></i></div>
+                <div style="font-size: 17px; font-weight: 900; color: var(--text-title); margin-top: 8px;">${first.name}</div>
+                <div style="font-size: 12px; font-weight: 800; color: #B45309; background: #FEF3C7; padding: 3px 12px; border-radius: 20px; margin-top: 4px;">بطل المنصة الأول 🏆</div>
+                <div style="font-size: 18px; font-weight: 900; color: var(--gold-primary); margin-top: 8px;">${first.points.toLocaleString()} نقطة</div>
+            </div>
+
+            <!-- 3rd Place -->
+            <div class="luxury-card" style="text-align: center; align-items: center; border-color: #FDBA74; padding: 18px 14px;">
+                <div style="font-size: 24px; color: #EA580C;"><i class="fa-solid fa-award"></i></div>
+                <div style="font-size: 15px; font-weight: 900; color: var(--text-title); margin-top: 6px;">${third.name}</div>
+                <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">المركز الثالث</div>
+                <div style="font-size: 15px; font-weight: 900; color: var(--gold-primary); margin-top: 6px;">${third.points.toLocaleString()} نقطة</div>
+            </div>
+        `;
+    }
+
+    function renderRankTable(list) {
+        const tbody = document.getElementById('leaderboardTableBody');
+        tbody.innerHTML = list.map((st, idx) => `
+            <tr style="border-bottom: 1px solid var(--border-card); font-size: 13px; font-weight: 700; transition: background 0.2s ease;">
+                <td style="padding: 14px 18px;">
+                    ${idx === 0 ? '<span style="color: #F59E0B; font-weight: 900;">🥇 1</span>' :
+                      idx === 1 ? '<span style="color: #94A3B8; font-weight: 900;">🥈 2</span>' :
+                      idx === 2 ? '<span style="color: #EA580C; font-weight: 900;">🥉 3</span>' :
+                      `#${idx + 1}`}
+                </td>
+                <td style="padding: 14px 18px; font-weight: 900; color: var(--text-title);">
+                    ${st.name} ${st.isOnline ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981; display: inline-block; margin-right: 4px;" title="متصل"></span>' : ''}
+                </td>
+                <td style="padding: 14px 18px; color: var(--text-muted); font-family: monospace;">${st.code}</td>
+                <td style="padding: 14px 18px; color: var(--text-body);">${st.grade}</td>
+                <td style="padding: 14px 18px; text-align: left; font-weight: 900; color: var(--gold-primary); font-size: 14px;">
+                    ${st.points.toLocaleString()}
+                </td>
+            </tr>
+        `).join('');
+    }
+</script>
+
+    <!-- FLOATING SUPPORT & ACADEMIC CENTER BUTTON -->
+    <a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+        <div class="floating-icon-box">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="floating-text-box">
+            <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+            <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+        </div>
+    </a>
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+
+
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+<div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+<nav id="universalMobileDock" class="universal-mobile-dock">
+    <a href="home.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-house"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="courses.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-book-open"></i>
+        <span>المواد</span>
+    </a>
+    <a href="lectures.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span>المحاضرات</span>
+    </a>
+    <a href="quiz.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>الامتحانات</span>
+    </a>
+    <a href="profile.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>حسابي</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleMobileSidebar()" class="mobile-dock-btn">
+        <i class="fa-solid fa-bars"></i>
+        <span>القائمة</span>
+    </a>
+</nav>
+
 </body>
 </html>

@@ -1,439 +1,448 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رفع الامتحانات - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بنك الأسئلة واستيراد القوالب - ELKHETA Admin</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=2.5">
+    <script src="motion-fx.js?v=2.5" defer></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
-
-        .page-header {
-            background: linear-gradient(135deg, #78350F, #92400E);
-            padding: 50px 20px 70px; position: relative; overflow: hidden;
+        :root {
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --text-title: #1E293B;
+            --text-muted: #8C827A;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07);
         }
-        .page-header::after {
-            content: ''; position: absolute; width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
-            bottom: -80px; left: -30px; border-radius: 50%;
-        }
-        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
-        .back-btn {
-            width: 40px; height: 40px; background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.15); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 18px; transition: background 0.2s;
-         color: #FFFFFF; }
-        .back-btn:hover { background: rgba(255,255,255,0.2); }
-        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
-        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
-
-        .add-card {
-            margin: -30px 15px 0; background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.08); border-radius: 24px;
-            padding: 22px; position: relative; z-index: 10;
-        }
-        .add-card h3 { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.6); margin-bottom: 14px; }
-        .form-group { margin-bottom: 12px; }
-        .form-label { font-size: 12px; color: rgba(0,0,0,0.4); margin-bottom: 6px; display: block; font-weight: 600; }
-        .form-input, .form-select, .form-textarea {
-            width: 100%; padding: 13px 16px; background: #F8FAFC;
-            border: 1.5px solid rgba(255,255,255,0.1); border-radius: 14px; color: #1E293B;
-            font-family: 'Cairo', sans-serif; font-size: 14px; outline: none; transition: all 0.3s;
-        }
-        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #FBBF24; background: rgba(251,191,36,0.06); }
-        .form-input::placeholder, .form-textarea::placeholder { color: rgba(0,0,0,0.2); }
-        .form-select option { background: #FFFFFF; color: #1E293B; }
-        .form-textarea { height: 180px; resize: vertical; font-family: monospace; font-size: 12px; }
-
-        .json-helper { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
-        .json-helper-title { font-size: 12px; font-weight: 700; color: #FBBF24; margin-bottom: 8px; }
-        .json-example { font-family: monospace; font-size: 11px; color: rgba(0,0,0,0.5); white-space: pre-wrap; line-height: 1.6; direction: ltr; text-align: left; }
-
-        .btn-submit {
-            width: 100%; padding: 14px;
-            background: linear-gradient(135deg, #D97706, #FBBF24);
-            border: none; border-radius: 14px; color: #1A1207; font-size: 15px; font-weight: 800;
-            font-family: 'Cairo', sans-serif; cursor: pointer; margin-top: 14px; transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(251,191,36,0.3);
-        }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(251,191,36,0.45); }
-        .btn-submit:active { transform: scale(0.98); }
-        .btn-submit:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
-
-        .list-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 15px 8px; }
-        .list-title { font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.4); }
-        .count-badge { background: rgba(251,191,36,0.12); color: #FBBF24; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
-
-        .exam-group { margin: 0 15px 18px; }
-        .exam-group-header {
-            background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.15);
-            border-radius: 14px 14px 0 0; padding: 11px 16px;
-            display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #FBBF24;
-        }
-        .exam-item {
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.07);
-            border-top: none; padding: 14px 16px;
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-        }
-        .exam-item:last-child { border-radius: 0 0 14px 14px; }
-        .exam-title { font-size: 14px; font-weight: 700; color: #1E293B; }
-        .exam-chapter { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
-
-        .btn-delete {
-            width: 36px; height: 36px; min-width: 36px;
-            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 15px; transition: all 0.2s;
-        }
-        .btn-delete:hover { background: rgba(239,68,68,0.3); transform: scale(1.05); }
-
-        .empty-state { text-align: center; padding: 50px 20px; color: rgba(0,0,0,0.3); }
-        .empty-state div { font-size: 40px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; }
-
-        /* ─── Toast ─── */
-        .toast {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(120px);
-            background: #1E293B; border: 1px solid rgba(0,0,0,0.15);
-            color: #1E293B; padding: 14px 24px; border-radius: 16px;
-            font-size: 14px; font-weight: 600; z-index: 99999;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); max-width: 90vw; text-align: center;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-
-        /* ─── Custom Confirm Modal ─── */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px); z-index: 99998;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-            padding: 20px;
-        }
-        .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-        .modal-box {
-            background: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 28px; padding: 32px 28px; width: 100%; max-width: 340px;
-            text-align: center;
-            transform: scale(0.85) translateY(20px);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-        }
-        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-
-        .modal-icon {
-            width: 68px; height: 68px; border-radius: 22px; margin: 0 auto 18px;
-            display: flex; align-items: center; justify-content: center; font-size: 32px;
-        }
-        .modal-icon.danger { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
-
-        .modal-title { font-size: 18px; font-weight: 900; color: #1E293B; margin-bottom: 10px; }
-        .modal-msg { font-size: 13px; color: rgba(0,0,0,0.5); line-height: 1.7; margin-bottom: 24px; }
-
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btn {
-            flex: 1; padding: 14px; border-radius: 14px; font-size: 14px;
-            font-weight: 700; font-family: 'Cairo', sans-serif; cursor: pointer;
-            border: none; transition: all 0.2s;
-        }
-        .modal-btn.cancel {
-            background: rgba(255,255,255,0.07); color: rgba(0,0,0,0.6);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        .modal-btn.cancel:hover { background: rgba(255,255,255,0.12); }
-        .modal-btn.confirm-del {
-            background: linear-gradient(135deg, #DC2626, #EF4444);
-            color: #1E293B; box-shadow: 0 6px 20px rgba(239,68,68,0.35);
-        }
-        .modal-btn.confirm-del:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(239,68,68,0.5); }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo',sans-serif; }
+        body { background: var(--bg-page); color: var(--text-title); min-height: 100vh; direction: rtl; display: flex; }
+        .main-stage { flex: 1; padding: 22px 28px; overflow-y: auto; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .luxury-card { background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 16px; }
+        .dropzone { border: 2px dashed #D9C3A3; border-radius: var(--radius-md); padding: 36px 20px; text-align: center; background: var(--gold-light); cursor: pointer; transition: all 0.2s; }
+        .dropzone:hover { border-color: var(--gold-primary); background: #FAF2E3; }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
 </head>
 <body>
-    <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') window.location.href = "admin-gate.html";
-    </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
+<main class="main-stage">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="admin-exams.html" style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: center; color: var(--text-title); text-decoration: none;">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
             <div>
-                <div class="header-title">📝 مركز رفع الامتحانات</div>
-                <div class="header-sub">ارفع أسئلة الامتحانات بصيغة JSON</div>
+                <h1 style="font-size: 22px; font-weight: 900; color: var(--text-title);">بنك الأسئلة واستيراد وتصدير القوالب</h1>
+                <p style="font-size: 12.5px; color: var(--text-muted);">استيراد الأسئلة دفعة واحدة من ملفات JSON / Excel ونسخ بنك الأسئلة احتياطياً</p>
             </div>
         </div>
     </div>
 
-    <div class="add-card">
-        <h3>📤 رفع امتحان جديد</h3>
-        <div class="form-group">
-            <label class="form-label">المادة الدراسية</label>
-            <select id="subjectSelect" class="form-select"><option value="">اختر المادة...</option></select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">عنوان الامتحان</label>
-            <input type="text" id="examTitle" class="form-input" placeholder="مثال: امتحان الفصل الأول - الوحدة 1">
-        </div>
-        <div class="form-group">
-            <label class="form-label">الفصل / الوحدة</label>
-            <input type="text" id="examChapter" class="form-input" placeholder="مثال: الفصل الأول">
-        </div>
-        <div class="form-group">
-            <label class="form-label">كود الأسئلة JSON</label>
-            <div class="json-helper">
-                <div class="json-helper-title">📋 صيغة JSON المطلوبة:</div>
-                <div class="json-example" dir="ltr">[
-  {
-    "id": "1",
-    "text": "نص السؤال الاختياري هنا",
-    "options": ["أ", "ب", "ج", "د"],
-    "correctAnswerIndex": 0,
-    "explanation": "التفسير هنا"
-  },
-  {
-    "id": "2",
-    "type": "essay",
-    "text": "بم تفسر: أهمية دراسة التاريخ؟"
-  }
-]</div>
-            </div>
-            <textarea id="examJson" class="form-textarea" placeholder="انسخ JSON الأسئلة هنا..."></textarea>
-        </div>
-        <button class="btn-submit" id="submitBtn" onclick="uploadExam()">🚀 رفع ونشر الامتحان</button>
-    </div>
+    <!-- Import Card -->
+    <div class="luxury-card">
+        <h3 style="font-size: 16px; font-weight: 900; color: var(--text-title);">
+            <i class="fa-solid fa-cloud-arrow-up" style="color: var(--gold-primary);"></i>
+            <span>استيراد قوالب أسئلة جاهزة</span>
+        </h3>
 
-    <div class="list-header">
-        <span class="list-title">الامتحانات المنشورة حالياً</span>
-        <span class="count-badge" id="examCount">جاري التحميل...</span>
-    </div>
-    <div id="examsList">
-        <div class="empty-state"><div>📝</div><p>جاري تحميل الامتحانات...</p></div>
-    </div>
+        <div class="dropzone" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept=".json,.xlsx,.csv,.txt" style="display: none;" onchange="handleFileSelected(this.files)">
+            <i class="fa-solid fa-file-import" style="font-size: 40px; color: var(--gold-primary); margin-bottom: 12px;"></i>
+            <h4 style="font-size: 16px; font-weight: 800;">اضغط هنا لاختيار ملف الأسئلة أو اسحبه وأفلته هنا</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">يدعم الملفات بصيغة JSON و Excel و Word و CSV</p>
+        </div>
 
-    <!-- Custom Confirm Modal -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-box">
-            <div class="modal-icon danger"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
-            <div class="modal-title">تأكيد الحذف</div>
-            <div class="modal-msg" id="modalMsg">هل أنت متأكد من حذف هذا العنصر؟<br>لا يمكن التراجع عن هذا الإجراء.</div>
-            <div class="modal-btns">
-                <button class="modal-btn cancel" onclick="closeModal()">إلغاء</button>
-                <button class="modal-btn confirm-del" id="modalConfirmBtn">حذف نهائياً </button>
-            </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-card); padding-top: 14px;">
+            <button onclick="downloadSampleTemplate()" style="padding: 8px 18px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: var(--radius-md); font-size: 12.5px; font-weight: 800; cursor: pointer; color: var(--text-title);">
+                <i class="fa-solid fa-download"></i>
+                <span>تحميل نموذج قالب أسئلة فارغ (JSON)</span>
+            </button>
+            <button onclick="exportAllExams()" style="padding: 8px 22px; background: var(--gold-gradient); color: #fff; border: none; border-radius: var(--radius-md); font-size: 12.5px; font-weight: 800; cursor: pointer;">
+                <i class="fa-solid fa-file-export"></i>
+                <span>تصدير جميع امتحانات المنصة كنسخة احتياطية</span>
+            </button>
         </div>
     </div>
+</main>
 
-    <div class="toast" id="toast"></div>
+<script>
+    function handleFileSelected(files) {
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        const reader = new FileReader();
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script>
-        // ─── Toast ───
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3500);
-        }
-
-        // ─── Custom Confirm Modal ───
-        let pendingDeleteFn = null;
-        function showConfirm(message, onConfirm) { Swal.fire({
-        title: "تأكيد",
-        html: message,
-        icon: "warning", color: "#1E293B",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "نعم، متأكد",
-        cancelButtonText: "إلغاء"
-    }).then((result) => { if (result.isConfirmed && onConfirm) { onConfirm(); } }); }
-        function closeModal() {
-            document.getElementById('confirmModal').classList.remove('open');
-            pendingDeleteFn = null;
-        }
-        // Close on overlay click
-        document.getElementById('confirmModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        // ─── Load Subjects ───
-        database.ref('Subjects').on('value', snap => {
-            const select = document.getElementById('subjectSelect');
-            select.innerHTML = '<option value="">اختر المادة...</option>';
-            if (snap.exists()) {
-                snap.forEach(child => {
-                    const sub = child.val();
-                    select.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
-                });
-            }
-        });
-
-        // ─── Upload Exam ───
-        function uploadExam() {
-            const subject = document.getElementById('subjectSelect').value;
-            const title = document.getElementById('examTitle').value.trim();
-            const chapter = document.getElementById('examChapter').value.trim();
-            const jsonCode = document.getElementById('examJson').value.trim();
-
-            if (!subject) return showToast("⚠️ يرجى اختيار المادة أولاً");
-            if (!title) return showToast("⚠️ يرجى كتابة عنوان الامتحان");
-            if (!jsonCode) return showToast("⚠️ يرجى لصق كود JSON للأسئلة");
-
-            let parsed;
+        reader.onload = (e) => {
             try {
-                parsed = JSON.parse(jsonCode);
-                if (!Array.isArray(parsed) || parsed.length === 0)
-                    return showToast(" JSON يجب أن يكون مصفوفة أسئلة غير فارغة");
-            } catch(e) {
-                return showToast(" صيغة JSON غير صحيحة، راجع الكود");
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data) && window.database) {
+                    data.forEach(item => database.ref('Exams').push(item));
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم الاستيراد بنجاح',
+                        text: `تم استيراد ${data.length} امتحانات وإضافتها إلى بنك الأسئلة.`,
+                        confirmButtonColor: '#C28B38'
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'صيغة غير صالحة', text: 'يرجى التأكد من أن الملف يحتوي على مصفوفة امتحانات بصيغة JSON الصحيحة.', confirmButtonColor: '#C28B38' });
+                }
+            } catch(err) {
+                Swal.fire({ icon: 'error', title: 'خطأ في قراءة الملف', text: 'حدث خطأ أثناء فك تشفير الملف.', confirmButtonColor: '#C28B38' });
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function downloadSampleTemplate() {
+        const sample = [
+            {
+                subject: "طريقة العمل مع الأفراد",
+                subjectKey: "افراد",
+                title: "امتحان تجريبي نموذجي",
+                duration: "30 دقيقة",
+                passingScore: "70%",
+                questions: [
+                    { q: "نص السؤال الأول هنا؟", options: ["الخيار الصحيح", "خيار خاطئ 1", "خيار خاطئ 2", "خيار خاطئ 3"], correct: 0 }
+                ]
+            }
+        ];
+
+        const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'ELKHETA_Exam_Template_Sample.json';
+        a.click();
+    }
+
+    function exportAllExams() {
+        if (!window.database) return;
+
+        database.ref('Exams').once('value', snap => {
+            let list = [];
+            if (snap.exists()) {
+                snap.forEach(c => list.push(c.val()));
             }
 
-            const btn = document.getElementById('submitBtn');
-            btn.textContent = '⏳ جاري الرفع...';
-            btn.disabled = true;
+            const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ELKHETA_Exams_Backup_${Date.now()}.json`;
+            a.click();
 
-            const id = database.ref('Exams').child(subject).push().key;
-            const data = { id, title, chapter: chapter || 'عام', jsonCode, subject, questionsCount: parsed.length };
-
-            database.ref('Exams').child(subject).child(id).set(data).then(() => {
-                showToast(`✅ تم رفع الامتحان بنجاح! (${parsed.length} سؤال)`);
-                document.getElementById('examTitle').value = "";
-                document.getElementById('examChapter').value = "";
-                document.getElementById('examJson').value = "";
-                btn.textContent = '🚀 رفع ونشر الامتحان';
-                btn.disabled = false;
-            }).catch(err => {
-                console.error(err);
-                showToast(" فشل في الرفع، حاول مرة أخرى");
-                btn.textContent = '🚀 رفع ونشر الامتحان';
-                btn.disabled = false;
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التصدير',
+                text: 'تم تنزيل النسخة الاحتياطية لجميع الامتحانات.',
+                confirmButtonColor: '#C28B38'
             });
-        }
-
-        // ─── Load & Render Exams ───
-        // Store references for deletion (avoid special chars in onclick string)
-        let examDeleteMap = {};
-
-        function loadExams() {
-            database.ref('Exams').on('value', snap => {
-                const container = document.getElementById('examsList');
-                container.innerHTML = "";
-                examDeleteMap = {};
-                let total = 0;
-
-                if (!snap.exists()) {
-                    container.innerHTML = `<div class="empty-state"><div>📝</div><p>لا توجد امتحانات منشورة حالياً</p></div>`;
-                    document.getElementById('examCount').textContent = '0 امتحان';
-                    return;
-                }
-
-                let examsBySubject = {};
-
-                snap.forEach(childSnap => {
-                    const key = childSnap.key;
-                    const val = childSnap.val();
-
-                    // Check if this child is an old exam itself (has name or title directly)
-                    if (typeof val === 'object' && !Array.isArray(val) && (val.name || val.title || val.questions || val.examName)) {
-                        const subjectName = val.subject || val.unit || 'امتحانات عامة (قديمة)';
-                        if (!examsBySubject[subjectName]) examsBySubject[subjectName] = {};
-                        examsBySubject[subjectName][key] = val;
-                        // To delete an old exam, the path is Exams/{key}
-                        examsBySubject[subjectName][key]._firebasePath = key;
-                    } 
-                    // Otherwise, it's a subject containing exams (new structure)
-                    else if (typeof val === 'object') {
-                        const subjectName = key;
-                        if (!examsBySubject[subjectName]) examsBySubject[subjectName] = {};
-                        
-                        childSnap.forEach(examSnap => {
-                            const examId = examSnap.key;
-                            const examVal = examSnap.val();
-                            examsBySubject[subjectName][examId] = examVal;
-                            // Path is Exams/{subjectName}/{examId}
-                            examsBySubject[subjectName][examId]._firebasePath = `${subjectName}/${examId}`;
-                        });
-                    }
-                });
-
-                Object.keys(examsBySubject).forEach(subjectKey => {
-                    const examsObj = examsBySubject[subjectKey];
-                    const examItems = [];
-                    let count = 0;
-
-                    Object.keys(examsObj).forEach(examId => {
-                        const exam = examsObj[examId];
-                        const firebasePath = exam._firebasePath;
-                        const deleteId = `del_${total}`;
-                        examDeleteMap[deleteId] = { path: firebasePath, title: exam.title || exam.name || exam.examName || '(امتحان بدون عنوان)' };
-
-                        const displayTitle = exam.title || exam.name || exam.examName || '(امتحان بدون عنوان)';
-                        const displayChapter = exam.chapter || exam.unit || 'عام';
-                        let displayCount = '?';
-                        if (exam.questionsCount) displayCount = exam.questionsCount;
-                        else if (exam.questions && Array.isArray(exam.questions)) displayCount = exam.questions.length;
-                        else if (exam.jsonCode) displayCount = 'JSON';
-
-                        total++; count++;
-                        examItems.push(`
-                            <div class="exam-item">
-                                <div style="flex:1; min-width:0;">
-                                    <div class="exam-title">${displayTitle}</div>
-                                    <div class="exam-chapter">📌 ${displayChapter} · ${displayCount} سؤال</div>
-                                </div>
-                                <div class="btn-delete" data-id="${deleteId}" title="حذف الامتحان"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></div>
-                            </div>
-                        `);
-                    });
-
-                    if (count > 0) {
-                        const group = document.createElement('div');
-                        group.className = 'exam-group';
-                        group.innerHTML = `
-                            <div class="exam-group-header">
-                                📝 ${subjectKey}
-                                <span style="margin-right: auto; font-size: 11px; background: rgba(251,191,36,0.15); padding: 2px 8px; border-radius: 6px;">${count} امتحان</span>
-                            </div>
-                            ${examItems.join('')}
-                        `;
-                        container.appendChild(group);
-                    }
-                });
-
-                document.getElementById('examCount').textContent = total + ' امتحان';
-
-                // Attach event listeners to all delete buttons
-                container.querySelectorAll('.btn-delete[data-id]').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const ref = examDeleteMap[btn.dataset.id];
-                        if (!ref) return;
-                        showConfirm(
-                            `هل أنت متأكد من حذف هذا الامتحان؟<br><br><strong style="color:#FBBF24">${ref.title}</strong><br><br>لا يمكن التراجع عن هذا الإجراء.`,
-                            () => {
-                                database.ref('Exams').child(ref.path).remove()
-                                    .then(() => showToast(" تم حذف الامتحان بنجاح"))
-                                    .catch(() => showToast(" فشل الحذف، حاول مرة أخرى"));
-                            }
-                        );
-                    });
-                });
-            });
-        }
-
-        loadExams();
-    </script>
+        });
+    }
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

@@ -2,590 +2,607 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>توليد الأكواد - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="motion-fx.css?v=2.0">
-    <script src="motion-fx.js?v=2.0" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>توليد وإدارة أكواد التفعيل - ELKHETA Admin</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=2.5">
+    <script src="motion-fx.js?v=2.5" defer></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background: #F8FAFC; min-height: 100vh; color: #1E293B; padding-bottom: 40px; }
-
-        .page-header {
-            background: linear-gradient(135deg, #14532D, #166534);
-            padding: 50px 20px 70px;
-            position: relative; overflow: hidden;
+        :root {
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07);
         }
-        .page-header::after {
-            content: '';
-            position: absolute;
-            width: 250px; height: 250px;
-            background: radial-gradient(circle, rgba(74,222,128,0.15) 0%, transparent 70%);
-            bottom: -80px; right: -30px; border-radius: 50%;
-        }
-        .header-top { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
-        .back-btn {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 18px; transition: background 0.2s;
-            color: #FFFFFF; text-decoration: none;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.3); }
-        .header-title { font-size: 20px; font-weight: 800;  color: #FFFFFF; }
-        .header-sub { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 3px;  color: rgba(255,255,255,0.8); }
-
-        /* Gen Card */
-        .gen-card {
-            margin: -30px 15px 0;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 24px;
-            padding: 22px;
-            position: relative; z-index: 10;
-        }
-        .gen-card h3 { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.6); margin-bottom: 14px; }
-
-        .count-input {
-            width: 100%;
-            padding: 16px;
-            background: #F8FAFC;
-            border: 1.5px solid rgba(255,255,255,0.1);
-            border-radius: 14px;
-            color: #1E293B;
-            font-family: 'Cairo', sans-serif;
-            font-size: 22px;
-            text-align: center;
-            outline: none;
-            transition: all 0.3s;
-        }
-        .count-input:focus { border-color: #4ADE80; background: rgba(74,222,128,0.07); }
-        .count-input::placeholder { font-size: 14px; color: rgba(0,0,0,0.2); }
-
-        .quick-select { display: flex; gap: 8px; margin-top: 10px; }
-        .quick-btn {
-            flex: 1; padding: 10px;
-            background: #F8FAFC;
-            border: 1px solid rgba(0,0,0,0.09);
-            border-radius: 12px;
-            color: rgba(0,0,0,0.6);
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .quick-btn:hover { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.3); color: #4ADE80; }
-
-        .btn-generate {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #16A34A, #4ADE80);
-            border: none; border-radius: 14px;
-            color: #1E293B; font-size: 16px; font-weight: 800;
-            font-family: 'Cairo', sans-serif; cursor: pointer;
-            margin-top: 14px; transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(74,222,128,0.3);
-        }
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(74,222,128,0.45); }
-        .btn-generate:active { transform: scale(0.98); }
-
-        /* Stats */
-        .stats-row { display: flex; gap: 10px; padding: 15px 15px 0; }
-        .stat-pill {
-            flex: 1; background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(0,0,0,0.07);
-            border-radius: 14px; padding: 12px 10px; text-align: center;
-        }
-        .stat-val-green { font-size: 20px; font-weight: 900; color: #4ADE80; }
-        .stat-val-red { font-size: 20px; font-weight: 900; color: #F87171; }
-        .stat-lbl { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-
-        /* Filter Tabs */
-        .filter-tabs { display: flex; gap: 8px; padding: 15px 15px 8px; }
-        .filter-tab {
-            flex: 1; padding: 10px;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 13px; font-weight: 700;
-            color: rgba(0,0,0,0.5); cursor: pointer; transition: all 0.2s;
-            text-align: center;
-        }
-        .filter-tab.active { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.3); color: #4ADE80; }
-
-        /* Code list */
-        .codes-container {
-            margin: 0 15px;
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.07);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .code-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: background 0.2s;
-        }
-        .code-item:last-child { border-bottom: none; }
-        .code-item:hover { background: rgba(255,255,255,0.02); }
-        .code-item.available { cursor: pointer; }
-        .code-item.available:hover { background: rgba(74,222,128,0.05); }
-
-        .code-text { font-family: monospace; font-size: 20px; font-weight: 900; color: #1E293B; letter-spacing: 2px; }
-        .code-date { font-size: 11px; color: rgba(0,0,0,0.25); margin-top: 3px; }
-
-        .badge-available {
-            background: rgba(74,222,128,0.15); color: #4ADE80;
-            border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700;
-        }
-        .badge-used {
-            background: #F8FAFC; color: rgba(0,0,0,0.3);
-            border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700;
-        }
-
-        .copy-hint { font-size: 11px; color: #4ADE80; margin-top: 3px; }
-
-        .empty-state { text-align: center; padding: 50px 20px; color: rgba(0,0,0,0.3); }
-        .empty-state div { font-size: 40px; margin-bottom: 12px; }
-        .empty-state p { font-size: 14px; }
-
-        .toast {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #1E293B; border: 1px solid rgba(0,0,0,0.1);
-            color: #1E293B; padding: 12px 22px; border-radius: 14px;
-            font-size: 14px; font-weight: 600; z-index: 9999;
-            transition: transform 0.35s ease; white-space: nowrap;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo',sans-serif; }
+        body { background: var(--bg-page); color: var(--text-title); min-height: 100vh; direction: rtl; display: flex; }
+        .admin-layout { display: flex; width: 100%; min-height: 100vh; }
+        
+        .main-stage { flex: 1; padding: 22px 28px; overflow-y: auto; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .luxury-card { background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 16px; }
+        
+        .header-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .btn-gold { padding: 10px 22px; background: var(--gold-gradient); color: #fff; border: none; border-radius: 20px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(194, 139, 56, 0.35); text-decoration: none; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th { padding: 12px 16px; background: var(--bg-surface-hover); border-bottom: 1px solid var(--border-card); font-size: 12px; font-weight: 800; color: var(--text-muted); }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--border-card); font-size: 13px; font-weight: 700; }
+        .code-box { font-family: monospace; font-size: 14px; font-weight: 900; color: var(--gold-primary); background: var(--gold-light); padding: 4px 10px; border-radius: 6px; border: 1px dashed var(--gold-border); }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
 </head>
 <body>
-    <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') {
-            if (localStorage.getItem('isAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-                if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
-                if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
-            } else {
-                window.location.href = "admin-gate.html";
-            }
-        }
-        const role = sessionStorage.getItem('adminRole') || 'master';
-        if (role !== 'master' && role !== 'super_admin') {
-            try {
-                const perms = JSON.parse(sessionStorage.getItem('adminPermissions') || '{}');
-                if (!perms.all && !perms.codes) {
-                    alert("⛔ ليس لديك صلاحية للوصول إلى قسم توليد الأكواد");
-                    window.location.href = "admin-panel.html";
-                }
-            } catch(e) {}
-        }
-    </script>
 
-    <div class="page-header">
-        <div class="header-top">
-            <div class="back-btn" onclick="location.href='admin-panel.html'">⬅️</div>
-            <div>
-                <div class="header-title">🔑 توليد أكواد التفعيل</div>
-                <div class="header-sub">توليد وإدارة أكواد تفعيل الطلاب</div>
+<div class="admin-layout">
+    <main class="main-stage">
+        <!-- Top Bar -->
+        <div class="header-bar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="admin-panel.html" style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: center; color: var(--text-title); text-decoration: none;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <div>
+                    <h1 style="font-size: 22px; font-weight: 900; color: var(--text-title);">توليد وإدارة أكواد الاشتراك والتفعيل</h1>
+                    <p style="font-size: 12.5px; color: var(--text-muted);">إنشاء وتخصيص وتتبع أكواد التفعيل لجميع الطلاب والمواد</p>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="gen-card">
-        <h3>✨ توليد أكواد تفعيل جديدة (دفعة 2027)</h3>
-        
-        <div style="display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 140px;">
-                <label style="font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.6); display: block; margin-bottom: 4px;">بادئة الكود:</label>
-                <select id="codePrefix" class="count-input" style="font-size: 15px; height: 46px; padding: 0 10px; width: 100%;">
-                    <option value="KH27">KH27 (دفعة 2027)</option>
-                    <option value="STU">STU (طالب)</option>
-                    <option value="VIP">VIP (اشتراك مميز)</option>
-                    <option value="2027">2027</option>
-                    <option value="NONE">أرقام فقط</option>
-                </select>
-            </div>
-            <div style="flex: 1; min-width: 140px;">
-                <label style="font-size: 12px; font-weight: 700; color: rgba(0,0,0,0.6); display: block; margin-bottom: 4px;">عدد الأكواد:</label>
-                <input type="number" id="codeCount" class="count-input" style="font-size: 18px; height: 46px;" placeholder="العدد" min="1" max="200" value="10">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="openGenerateModal()" class="btn-gold">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>توليد أكواد جديدة</span>
+                </button>
             </div>
         </div>
 
-        <div class="quick-select">
-            <button class="quick-btn" onclick="setCount(1)">1 كود</button>
-            <button class="quick-btn" onclick="setCount(5)">5</button>
-            <button class="quick-btn" onclick="setCount(10)">10</button>
-            <button class="quick-btn" onclick="setCount(25)">25</button>
-            <button class="quick-btn" onclick="setCount(50)">50</button>
+        <!-- Metric KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+            <div class="luxury-card" style="flex-direction: row; align-items: center; gap: 14px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--gold-light); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <div>
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-title);" id="totalCodesCount">0</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">إجمالي الأكواد</div>
+                </div>
+            </div>
+
+            <div class="luxury-card" style="flex-direction: row; align-items: center; gap: 14px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #ECFDF5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-title);" id="activeCodesCount">0</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">أكواد متاحة للاستخدام</div>
+                </div>
+            </div>
+
+            <div class="luxury-card" style="flex-direction: row; align-items: center; gap: 14px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-title);" id="usedCodesCount">0</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">أكواد مفعلة للطلاب</div>
+                </div>
+            </div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-            <button class="btn-generate" style="flex: 2; min-width: 160px;" onclick="generateCodes()">🔑 توليد وحفظ الأكواد</button>
-            <button class="btn-generate" style="flex: 1.5; min-width: 140px; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #fff;" onclick="generateSingleInstantCode()">⚡ توليد كود فوري ونسخه</button>
-            <button class="btn-generate" style="flex: 1; min-width: 120px; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;" onclick="resetAllCodes()">🗑️ تصفير الكل</button>
+        <!-- Codes Table -->
+        <div class="luxury-card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-card); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-list" style="color: var(--gold-primary);"></i>
+                    <span style="font-size: 15px; font-weight: 900;">سجل أكواد التفعيل</span>
+                </div>
+                <input type="text" id="searchCodeInput" placeholder="بحث بكود أو اسم الطالب..." style="height: 38px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: 20px; padding: 0 16px; font-size: 12.5px; outline: none;" oninput="filterCodesTable(this.value)">
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>كود التفعيل</th>
+                            <th>نوع الاشتراك / المادة</th>
+                            <th>المدة (أيام)</th>
+                            <th>الحالة</th>
+                            <th>المستخدم بواسطة</th>
+                            <th>تاريخ التوليد</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="codesTableBody">
+                        <!-- Loaded from RTDB -->
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </main>
+</div>
 
-    <div class="stats-row">
-        <div class="stat-pill">
-            <div class="stat-val-green" id="availableCount">—</div>
-            <div class="stat-lbl">كود متاح للتفعيل</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-val-red" id="usedCount">—</div>
-            <div class="stat-lbl">كود مستخدم ومفعل</div>
-        </div>
-        <div class="stat-pill">
-            <div class="stat-val-green" id="totalCount">—</div>
-            <div class="stat-lbl">إجمالي الأكواد</div>
-        </div>
-    </div>
+<script>
+    let allCodesList = [];
 
-    <div style="padding: 10px 15px 0;">
-        <input type="text" id="searchCodeInput" class="count-input" style="width: 100%; font-size: 14px; height: 44px; text-align: right; padding: 0 16px;" placeholder="🔍 ابحث برقم الكود أو اسم الطالب الذي فعّله..." oninput="filterCodes()">
-    </div>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadActivationCodes();
+    });
 
-    <div class="filter-tabs">
-        <button class="filter-tab active" id="tab-all" onclick="switchTab('all')">الكل</button>
-        <button class="filter-tab" id="tab-available" onclick="switchTab('available')">✅ المتاحة</button>
-        <button class="filter-tab" id="tab-used" onclick="switchTab('used')">🔴 المستخدمة</button>
-        <button class="filter-tab" style="background: #16A34A; color: #fff; border:none;" onclick="exportCodesCSV()">📊 تصدير Excel</button>
-        <button class="filter-tab" style="background: #2563EB; color: #fff; border:none;" onclick="exportPDF()">🖨️ كروت (PDF)</button>
-    </div>
-
-    <div class="codes-container" id="codesContainer">
-        <div class="empty-state"><div>🔑</div><p>جاري تحميل الأكواد...</p></div>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script>
-        let allCodes = [];
-        let currentTab = 'all';
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        function setCount(n) { document.getElementById('codeCount').value = n; }
-
-        function generateCodeString(prefix) {
-            const randNum = Math.floor(1000 + Math.random() * 9000);
-            if (prefix === 'NONE') return randNum.toString();
-            return `${prefix}-${randNum}`;
-        }
-
-        async function generateSingleInstantCode() {
-            const prefix = document.getElementById('codePrefix').value;
-            const newCode = generateCodeString(prefix);
-
-            await database.ref('ActivationCodes/' + newCode).set({
-                code: newCode,
-                isUsed: false,
-                createdAt: Date.now()
-            });
-
-            navigator.clipboard.writeText(newCode).then(() => {
-                Swal.fire({
-                    title: 'تم توليد الكود ونسخه 🎉',
-                    html: `
-                        <div style="text-align:center; font-family:'Cairo', sans-serif;">
-                            <p style="margin-bottom:8px; font-size:13px;">تم حفظ الكود في قاعدة البيانات ونسخه للحافظة:</p>
-                            <div style="font-size:24px; font-weight:900; font-family:monospace; color:#16A34A; background:#F0FDF4; border:2px dashed #4ADE80; border-radius:12px; padding:12px; margin-bottom:12px; letter-spacing:2px;">
-                                ${newCode}
-                            </div>
-                            <button onclick="sendCodeWhatsApp('${newCode}')" class="btn-generate" style="background:#16A34A; color:#fff; border:none; margin:0; padding:10px;"><i class="fa-brands fa-whatsapp"></i> مشاركة الكود عبر واتساب</button>
-                        </div>
-                    `,
-                    icon: 'success',
-                    confirmButtonText: 'حسناً',
-                    confirmButtonColor: '#2563EB'
-                });
-            });
-        }
-
-        function generateCodes() {
-            const count = parseInt(document.getElementById('codeCount').value);
-            const prefix = document.getElementById('codePrefix').value;
-
-            if (!count || count < 1) return showToast("⚠️ أدخل عدداً صحيحاً");
-            if (count > 200) return showToast("⚠️ الحد الأقصى 200 كود في المرة");
-
-            const batch = {};
-            for (let i = 0; i < count; i++) {
-                const code = generateCodeString(prefix);
-                batch[code] = { code, isUsed: false, createdAt: Date.now() };
-            }
-
-            database.ref('ActivationCodes').update(batch).then(() => {
-                Swal.fire({
-                    title: 'تم التوليد بنجاح! 🔑',
-                    text: `تم توليد وحفظ ${count} كود تفعيل جديد في قاعدة البيانات.`,
-                    icon: 'success',
-                    confirmButtonColor: '#2563EB',
-                    confirmButtonText: 'ممتاز'
-                });
-                document.getElementById('codeCount').value = "10";
-            }).catch((err) => {
-                console.error(err);
-                showToast("فشل توليد الأكواد");
-            });
-        }
-
-        function deleteSingleCode(code) {
-            Swal.fire({
-                title: `حذف الكود (${code})؟`,
-                text: "لن يتمكن أي طالب من استخدام هذا الكود بعد الحذف.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#64748B',
-                confirmButtonText: 'نعم، حذف',
-                cancelButtonText: 'إلغاء'
-            }).then(r => {
-                if (r.isConfirmed) {
-                    database.ref('ActivationCodes/' + code).remove().then(() => {
-                        showToast(`تم حذف الكود: ${code}`);
-                    });
-                }
-            });
-        }
-
-        function sendCodeWhatsApp(code) {
-            const msg = encodeURIComponent(`أهلاً بك في منصة الخطة التعليمية 🎓 (الدفعة 2027)\nكود تفعيل اشتراكك هو: ${code}\nقم بالدخول على الرابط وتفعيل كودك: https://elkheta2026.web.app/register.html?code=${code}`);
-            window.open(`https://wa.me/?text=${msg}`, '_blank');
-        }
-
-        function exportCodesCSV() {
-            if (!allCodes || allCodes.length === 0) return showToast("⚠️ لا توجد أكواد لتصديرها");
-
-            let csvContent = "\uFEFF"; // UTF-8 BOM
-            csvContent += "م,الكود,الحالة,المستخدم,رقم الهاتف,تاريخ التوليد\n";
-
-            allCodes.forEach((item, i) => {
-                const status = item.isUsed ? "مستخدم" : "متاح";
-                const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG') : "—";
-                const row = [
-                    i + 1,
-                    `"${item.code || item.key}"`,
-                    `"${status}"`,
-                    `"${(item.usedBy || '').replace(/"/g, '""')}"`,
-                    `"${item.phone || ''}"`,
-                    `"${date}"`
-                ];
-                csvContent += row.join(",") + "\n";
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `اكواد_تفعيل_الخطة_2027_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast("تم تصدير ملف الإكسيل بنجاح 📊");
-        }
-
-        function exportPDF() {
-            let filtered = allCodes;
-            if (currentTab === 'available') filtered = allCodes.filter(c => !c.isUsed);
-            if (currentTab === 'used') filtered = allCodes.filter(c => c.isUsed);
-            
-            if (filtered.length === 0) return showToast("⚠️ لا يوجد أكواد للطباعة في هذه القائمة");
-            
-            showToast("⏳ جاري تجهيز كروت الـ PDF...");
-            
-            const wrapper = document.createElement('div');
-            wrapper.style.position = 'absolute';
-            wrapper.style.left = '-9999px';
-            wrapper.style.top = '0';
-            wrapper.style.width = '800px';
-            wrapper.style.background = '#FFFFFF';
-            wrapper.id = 'pdfWrapperNode';
-
-            const container = document.createElement('div');
-            container.style.display = 'flex';
-            container.style.flexWrap = 'wrap';
-            container.style.padding = '20px';
-            container.style.gap = '15px';
-            container.style.fontFamily = "'Cairo', sans-serif";
-            container.style.direction = 'rtl';
-            container.style.background = '#FFFFFF';
-
-            filtered.forEach(item => {
-                const card = document.createElement('div');
-                card.style.width = 'calc(33.333% - 15px)';
-                card.style.border = '2px dashed #4ADE80';
-                card.style.borderRadius = '12px';
-                card.style.padding = '15px';
-                card.style.textAlign = 'center';
-                card.style.pageBreakInside = 'avoid';
-                card.style.background = '#FFFFFF';
-                
-                card.innerHTML = `
-                    <div style="font-size:14px; font-weight:700; color:#166534; margin-bottom:10px;">منصة الخطة التعليمية 2027 🎓</div>
-                    <div style="font-size:24px; font-weight:900; font-family:monospace; color:#1E293B; letter-spacing:2px; background:#F0FDF4; padding:10px; border-radius:8px; margin-bottom:10px;">${item.code || item.key}</div>
-                    <div style="font-size:10px; color:#64748B;">كود تفعيل واشتراك الطالب</div>
-                `;
-                container.appendChild(card);
-            });
-
-            wrapper.appendChild(container);
-            document.body.appendChild(wrapper);
-            
-            setTimeout(() => {
-                html2pdf().set({
-                    margin: 10,
-                    filename: `كروت_أكواد_الخطة_2027_${Date.now()}.pdf`,
-                    image: { type: 'jpeg', quality: 1.0 },
-                    html2canvas: { scale: 2, useCORS: true, windowWidth: 800, scrollY: 0, x: 0, y: 0 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                }).from(wrapper).save().then(() => {
-                    document.body.removeChild(wrapper);
-                    showToast("✅ تم تصدير ملف الـ PDF بنجاح!");
-                }).catch(err => {
-                    console.error(err);
-                    document.body.removeChild(wrapper);
-                    showToast("❌ حدث خطأ أثناء التصدير", "error");
-                });
-            }, 500);
-        }
-
-        function resetAllCodes() {
-            Swal.fire({
-                title: 'هل أنت متأكد؟',
-                text: "سيتم حذف وتصفير جميع الأكواد (المتاحة والمستخدمة) نهائياً!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'نعم، قم بالحذف!',
-                cancelButtonText: 'إلغاء'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    database.ref('ActivationCodes').remove().then(() => {
-                        showToast("✅ تم تصفير جميع الأكواد بنجاح");
-                    }).catch(err => {
-                        console.error(err);
-                        showToast("❌ حدث خطأ أثناء التصفير");
-                    });
-                }
-            });
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            filterCodes();
-        }
+    function loadActivationCodes() {
+        if (!window.database) return;
 
         database.ref('ActivationCodes').on('value', snap => {
-            allCodes = [];
-            let available = 0, used = 0;
+            allCodesList = [];
+            let active = 0, used = 0;
 
             if (snap.exists()) {
-                snap.forEach(child => {
-                    const val = child.val();
-                    if (typeof val === 'object' && val !== null) {
-                        allCodes.push({ key: child.key, ...val });
-                    } else {
-                        allCodes.push({ key: child.key, code: child.key, isUsed: val === true });
-                    }
+                snap.forEach(c => {
+                    const code = c.val();
+                    const item = { id: c.key, ...code };
+                    allCodesList.push(item);
+                    if (item.isUsed) used++; else active++;
                 });
-                allCodes.reverse();
-                allCodes.forEach(c => c.isUsed ? used++ : available++);
             }
 
-            document.getElementById('availableCount').textContent = available;
-            document.getElementById('usedCount').textContent = used;
-            document.getElementById('totalCount').textContent = allCodes.length;
-            filterCodes();
+            document.getElementById('totalCodesCount').textContent = allCodesList.length;
+            document.getElementById('activeCodesCount').textContent = active;
+            document.getElementById('usedCodesCount').textContent = used;
+
+            renderCodesTable(allCodesList);
         });
+    }
 
-        function filterCodes() {
-            const q = (document.getElementById('searchCodeInput').value || '').trim().toLowerCase();
-            let filtered = allCodes;
+    function renderCodesTable(list) {
+        const tbody = document.getElementById('codesTableBody');
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أكواد تفعيل حالياً. اضغط "توليد أكواد جديدة" لإنشاء باقة.</td></tr>';
+            return;
+        }
 
-            if (currentTab === 'available') filtered = filtered.filter(c => !c.isUsed);
-            if (currentTab === 'used') filtered = filtered.filter(c => c.isUsed);
+        tbody.innerHTML = list.map(c => `
+            <tr>
+                <td><span class="code-box">${c.code || c.id}</span></td>
+                <td>${c.subject || 'جميع المواد (شامل)'}</td>
+                <td>${c.days || 30} يوم</td>
+                <td>
+                    ${c.isUsed ? 
+                        '<span style="background: #EFF6FF; color: #2563EB; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 800;">مستخدم ✓</span>' : 
+                        '<span style="background: #ECFDF5; color: #059669; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 800;">متاح للتفعيل</span>'
+                    }
+                </td>
+                <td style="color: var(--text-muted);">${c.usedByName || c.usedBy || '—'}</td>
+                <td style="color: var(--text-muted); font-size: 11.5px;">${c.createdAt ? new Date(c.createdAt).toLocaleDateString('ar-EG') : 'الآن'}</td>
+                <td>
+                    <button onclick="copyCode('${c.code || c.id}')" style="padding: 5px 10px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: 6px; cursor: pointer; color: var(--gold-primary);" title="نسخ الكود">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button onclick="deleteCode('${c.id}')" style="padding: 5px 10px; background: #FFF1F2; border: 1px solid #FFE4E6; border-radius: 6px; cursor: pointer; color: #E11D48; margin-right: 4px;" title="حذف">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-            if (q) {
-                filtered = filtered.filter(c => 
-                    (c.code || c.key || '').toLowerCase().includes(q) ||
-                    (c.usedBy || '').toLowerCase().includes(q) ||
-                    (c.phone || '').includes(q)
-                );
+    function openGenerateModal() {
+        Swal.fire({
+            title: 'توليد أكواد تفعيل جديدة',
+            html: `
+                <div style="text-align: right; display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800;">عدد الأكواد المراد إنشاؤها:</label>
+                        <input id="swalCount" type="number" value="10" min="1" max="100" style="width: 100%; height: 40px; border: 1px solid #EFE8DC; border-radius: 8px; padding: 0 12px; font-weight: 800;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800;">مدة الصلاحية:</label>
+                        <select id="swalDays" style="width: 100%; height: 40px; border: 1px solid #EFE8DC; border-radius: 8px; padding: 0 12px; font-weight: 800;">
+                            <option value="30">شهر كامل (30 يوم)</option>
+                            <option value="90">فصل دراسي (90 يوم)</option>
+                            <option value="180">فصلين دراسيين (180 يوم)</option>
+                            <option value="365">سنة كاملة (365 يوم)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800;">المقرر الدراسي:</label>
+                        <select id="swalSubject" style="width: 100%; height: 40px; border: 1px solid #EFE8DC; border-radius: 8px; padding: 0 12px; font-weight: 800;">
+                            <option value="جميع المواد (شامل)">جميع المواد (اشتراك عام)</option>
+                            <option value="طريقة العمل مع الأفراد">طريقة العمل مع الأفراد</option>
+                            <option value="طريقة العمل مع الجماعات">طريقة العمل مع الجماعات</option>
+                            <option value="تنظيم وإدارة المجتمعات">تنظيم وإدارة المجتمعات</option>
+                            <option value="سياسات الرعاية الاجتماعية">سياسات الرعاية الاجتماعية</option>
+                            <option value="الخدمة الاجتماعية في مجال طبي">الخدمة الاجتماعية في مجال طبي</option>
+                            <option value="تدريب ميداني">تدريب ميداني</option>
+                            <option value="مشروع تخرج">مشروع تخرج</option>
+                        </select>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'توليد وحفظ في Firebase',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#C28B38',
+            preConfirm: () => {
+                const count = parseInt(document.getElementById('swalCount').value) || 1;
+                const days = parseInt(document.getElementById('swalDays').value) || 30;
+                const subject = document.getElementById('swalSubject').value;
+                return { count, days, subject };
             }
-
-            renderCodes(filtered);
-        }
-
-        function renderCodes(filtered) {
-            const container = document.getElementById('codesContainer');
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div>🔑</div><p>لا توجد أكواد مطابقة</p></div>`;
-                return;
+        }).then(res => {
+            if (res.isConfirmed && res.value) {
+                generateBatchCodes(res.value);
             }
+        });
+    }
 
-            container.innerHTML = filtered.map(item => {
-                const date = item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-                const codeVal = item.code || item.key;
-                if (!item.isUsed) {
-                    return `
-                        <div class="code-item available">
-                            <div onclick="copyCode('${codeVal}')" style="flex:1; cursor:pointer;">
-                                <div class="code-text">${codeVal}</div>
-                                <div class="copy-hint">اضغط لنسخ الكود 📋 • ${date}</div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="badge-available">متاح ✅</span>
-                                <button onclick="sendCodeWhatsApp('${codeVal}')" style="background:#DCFCE7; border:1px solid #BBF7D0; color:#166534; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700;" title="إرسال عبر واتساب"><i class="fa-brands fa-whatsapp"></i> واتساب</button>
-                                <button onclick="deleteSingleCode('${codeVal}')" style="background:#FEE2E2; border:1px solid #FECACA; color:#DC2626; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px;" title="حذف الكود"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>`;
-                } else {
-                    return `
-                        <div class="code-item">
-                            <div style="flex:1;">
-                                <div class="code-text" style="color: rgba(0,0,0,0.35); text-decoration: line-through;">${codeVal}</div>
-                                <div class="code-date">تم التفعيل بواسطة: <b>${item.usedBy || 'طالب مسجل'}</b> ${item.phone ? `(${item.phone})` : ''}</div>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span class="badge-used">مستخدم 🔴</span>
-                                <button onclick="deleteSingleCode('${codeVal}')" style="background:#FEE2E2; border:1px solid #FECACA; color:#DC2626; padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px;" title="حذف الكود"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>`;
-                }
-            }).join('');
+    function generateBatchCodes({ count, days, subject }) {
+        if (!window.database) return;
+
+        for (let i = 0; i < count; i++) {
+            const randomCode = 'KHETA-' + Math.floor(100000 + Math.random() * 900000);
+            const codeData = {
+                code: randomCode,
+                days: days,
+                subject: subject,
+                isUsed: false,
+                createdAt: Date.now()
+            };
+            database.ref('ActivationCodes').push(codeData);
         }
 
-        function copyCode(code) {
-            navigator.clipboard.writeText(code).then(() => {
-                showToast(`📋 تم نسخ الكود: ${code}`);
-            }).catch(() => {
-                showToast("الكود: " + code);
-            });
-        }
-    </script>
+        Swal.fire({
+            icon: 'success',
+            title: 'تم التوليد بنجاح',
+            text: `تم إنشاء ${count} كود تفعيل وحفظها في قاعدة البيانات.`,
+            confirmButtonColor: '#C28B38'
+        });
+    }
+
+    function copyCode(code) {
+        navigator.clipboard.writeText(code);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'تم نسخ الكود: ' + code,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
+
+    function deleteCode(id) {
+        Swal.fire({
+            title: 'تأكيد الحذف',
+            text: 'هل أنت متأكد من حذف هذا الكود نهائياً؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#E11D48'
+        }).then(res => {
+            if (res.isConfirmed) {
+                database.ref('ActivationCodes/' + id).remove();
+            }
+        });
+    }
+
+    function filterCodesTable(q) {
+        const term = q.trim().toLowerCase();
+        const filtered = allCodesList.filter(c => 
+            (c.code && c.code.toLowerCase().includes(term)) ||
+            (c.subject && c.subject.toLowerCase().includes(term)) ||
+            (c.usedByName && c.usedByName.toLowerCase().includes(term))
+        );
+        renderCodesTable(filtered);
+    }
+</script>
 </body>
 </html>
-
-
-
-
-
-
-

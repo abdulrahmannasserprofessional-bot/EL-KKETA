@@ -5,1281 +5,1242 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تساؤلات واستفسارات الطلاب - ELKHETA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.6">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مجتمع الطلاب - ELKHETA | منصة الخطة</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="motion-fx.js?v=2.0" defer></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+
     <style>
         :root {
-            --primary: #10B981;
-            --primary-glow: rgba(16, 185, 129, 0.4);
-            --primary-dark: #059669;
-            --secondary: #3B82F6;
-            --accent: #10B981;
-            --bg-body: #070D1E;
-            --card-bg: rgba(15, 23, 42, 0.75);
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --glass-blur: blur(16px);
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
+            
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
+            
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --text-light: #94A3B8;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 25px -4px rgba(180, 140, 75, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0D1117;
+            --bg-surface: #161B22;
+            --bg-surface-hover: #1F242C;
+            --border-card: #30363D;
+            --border-card-hover: #8B6528;
+            --text-title: #F0F6FC;
+            --text-body: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+            --shadow-subtle: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-body);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
-            background-attachment: fixed;
-            color: var(--text-main);
+            background-color: var(--bg-page);
+            color: var(--text-title);
             min-height: 100vh;
-            padding-bottom: 110px;
             direction: rtl;
+            text-align: right;
             overflow-x: hidden;
+            display: flex;
         }
 
-        body.dark-theme {
-            background: #070D1E;
-            color: #F8FAFC;
-        }
-
-        .community-app-container {
+        .student-app-container {
+            display: flex;
             width: 100%;
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 16px 20px;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ─── */
+        .student-sidebar {
+            width: 270px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-card);
+            padding: 22px 14px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 99;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
         }
 
-        /* Topbar */
-        .community-topbar {
-            background: rgba(15, 23, 42, 0.9);
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px 18px 10px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
+            text-decoration: none;
+        }
+
+        .brand-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .brand-title-row {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+        .brand-title-row span { color: var(--gold-primary); }
+        .brand-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+
+        .sidebar-nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-section-title { font-size: 11px; font-weight: 800; color: #A37936; margin: 16px 8px 6px 8px; }
+
+        .nav-item-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .nav-item-link i { width: 20px; font-size: 15px; text-align: center; color: var(--text-muted); }
+        .nav-item-link:hover { background: var(--bg-surface-hover); color: var(--text-title); transform: translateX(-3px); }
+        .nav-item-link:hover i { color: var(--gold-primary); }
+        .nav-item-link.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+        }
+        .nav-item-link.active i { color: #FFFFFF; }
+
+        .sidebar-support-card {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .btn-support-chat {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
             border-radius: 20px;
-            padding: 12px 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(194, 139, 56, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ─── Main Stage ─── */
+        .student-main-stage {
+            flex: 1;
+            padding: 20px 28px 40px 28px;
+            overflow-y: auto;
+            max-width: 1450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .top-header-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            position: sticky;
-            top: 12px;
-            z-index: 100;
-            backdrop-filter: var(--glass-blur);
+            gap: 16px;
+        }
+        .header-search-wrap { flex: 1; max-width: 540px; position: relative; }
+        .header-search-input {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 0 44px 0 16px;
+            font-size: 13.5px;
+            color: var(--text-title);
+            outline: none;
+        }
+        .header-search-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15); }
+        .header-search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+
+        .header-actions-group { display: flex; align-items: center; gap: 12px; }
+        .btn-header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .student-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 12px 4px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .student-avatar-img { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--gold-primary); }
+
+        /* ─── Hero Banner ─── */
+        .universal-hero-banner {
+            background: linear-gradient(125deg, #FBF6EC 0%, #F5EAD4 50%, #FAF1DF 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-subtle);
+        }
+        body.dark-mode .universal-hero-banner {
+            background: linear-gradient(125deg, #231C13 0%, #332514 50%, #291D11 100%);
+        }
+        .hero-banner-title { font-size: 24px; font-weight: 900; color: #352514; margin-bottom: 4px; }
+        body.dark-mode .hero-banner-title { color: #F8E5C4; }
+        .hero-banner-sub { font-size: 13.5px; font-weight: 600; color: #7A5B35; }
+        body.dark-mode .hero-banner-sub { color: #CBB18B; }
+
+        /* ─── Filter Pills ─── */
+        .subject-pills-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 2px;
+            scrollbar-width: none;
+        }
+        .subject-pills-row::-webkit-scrollbar { display: none; }
+        .subject-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-card);
+            background: var(--bg-surface);
+            color: var(--text-body);
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .subject-pill:hover { border-color: var(--gold-border); color: var(--gold-primary); }
+        .subject-pill.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(194, 139, 56, 0.3);
         }
 
-        body.dark-theme .community-topbar {
-            background: rgba(15, 23, 42, 0.9);
-            border-color: rgba(255, 255, 255, 0.12);
+        /* ─── Luxury Card ─── */
+        .luxury-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.25s ease;
+        }
+        .luxury-card:hover {
+            border-color: var(--border-card-hover);
         }
 
-        .brand-section {
+        /* Floating Support Button */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: var(--text-main);
-        }
-
-        .brand-logo-badge {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-
-        .topbar-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-nav-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #F8FAFC;
-            border: 1px solid var(--border-color);
-            color: #475569;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-nav-icon:hover {
-            background: #ECFDF5;
-            color: #059669;
-            border-color: #A7F3D0;
-        }
-
-        body.dark-theme .btn-nav-icon {
-            background: #0F172A;
-            border-color: #334155;
-            color: #94A3B8;
-        }
-
-        /* Hero Banner */
-        .community-hero-card {
-            background: linear-gradient(135deg, #065F46 0%, #059669 50%, #10B981 100%);
-            border-radius: 24px;
-            padding: 26px 24px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.22);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .community-hero-card::after {
-            content: '';
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
-            bottom: -70px;
-            left: -30px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .hero-pill-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             backdrop-filter: blur(8px);
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            width: fit-content;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .community-hero-card h1 {
-            font-size: 22px;
-            font-weight: 900;
-            margin: 0;
+        .floating-support-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7);
             color: #FFFFFF;
         }
-        .community-hero-card p {
-            font-size: 13px;
-            opacity: 0.92;
-            margin: 0;
-            line-height: 1.5;
-            font-weight: 600;
-        }
-
-        /* Ask Question Card */
-        .ask-card {
-            background: rgba(15, 23, 42, 0.75);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 10;
-            backdrop-filter: var(--glass-blur);
-        }
-        body.dark-theme .ask-card {
-            background: rgba(15, 23, 42, 0.75);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-        }
-
-        .card-title-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-
-        .form-select, .form-input, .form-textarea {
-            width: 100%;
-            padding: 13px 16px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            color: #F8FAFC;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-        }
-        body.dark-theme .form-select, 
-        body.dark-theme .form-input, 
-        body.dark-theme .form-textarea {
-            background: rgba(30, 41, 59, 0.7);
-            border-color: rgba(255, 255, 255, 0.12);
-            color: #F8FAFC;
-        }
-
-        .form-select:focus, .form-input:focus, .form-textarea:focus {
-            border-color: #10B981;
-            background: rgba(30, 41, 59, 0.95);
-            box-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
-        }
-        body.dark-theme .form-select:focus,
-        body.dark-theme .form-input:focus,
-        body.dark-theme .form-textarea:focus {
-            background: rgba(30, 41, 59, 0.95);
-            border-color: #34D399;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-        /* Toolbar Actions */
-        .ask-actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1.5px dashed #E2E8F0;
-        }
-        body.dark-theme .ask-actions-bar { border-color: #334155; }
-
-        .tools-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .tool-btn {
-            background: #F1F5F9;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 9px 14px;
-            font-size: 13px;
-            font-weight: 700;
-            font-family: 'Cairo', sans-serif;
-            color: #475569;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        body.dark-theme .tool-btn {
-            background: #0F172A;
-            border-color: #334155;
-            color: #CBD5E1;
-        }
-        .tool-btn:hover {
-            border-color: #10B981;
-            color: #059669;
-            background: #ECFDF5;
-            transform: translateY(-1px);
-        }
-        .tool-btn.recording {
-            background: #FEE2E2;
-            color: #DC2626;
-            border-color: #EF4444;
-            animation: pulseRecord 1s infinite alternate;
-        }
-        @keyframes pulseRecord {
-            from { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-            to { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(239,68,68,0); }
-        }
-
-        .btn-submit-q {
-            background: linear-gradient(135deg, #059669, #10B981);
-            color: #FFFFFF;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 800;
-            font-family: 'Cairo', sans-serif;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-            transition: all 0.2s;
-        }
-        .btn-submit-q:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); }
-
-        /* Media Preview Container */
-        .media-preview-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #F0FDF4;
-            border: 1.5px solid #BBF7D0;
-            padding: 10px 14px;
-            border-radius: 14px;
-            margin-top: 12px;
-        }
-        body.dark-theme .media-preview-box {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        /* Filter Tabs */
-        .filter-tabs-wrapper {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-bottom: 18px;
-            scrollbar-width: none;
-        }
-        .filter-tabs-wrapper::-webkit-scrollbar { display: none; }
-
-        .tab-chip {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #94A3B8;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        body.dark-theme .tab-chip {
-            background: rgba(30, 41, 59, 0.6);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #94A3B8;
-        }
-        .tab-chip:hover { color: #34D399; border-color: rgba(16, 185, 129, 0.4); background: rgba(30, 41, 59, 0.9); }
-        .tab-chip.active {
-            background: linear-gradient(135deg, #059669, #10B981);
-            color: #FFFFFF;
-            border-color: #34D399;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-        }
-
-        /* Question Cards in Feed */
-        .questions-feed {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .question-card {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 22px;
-            padding: 22px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-            backdrop-filter: var(--glass-blur);
-            transition: all 0.2s;
-        }
-        body.dark-theme .question-card {
-            background: rgba(15, 23, 42, 0.75);
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        .question-card:hover {
-            border-color: rgba(255, 255, 255, 0.16);
-            transform: translateY(-2px);
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
-        }
-        .question-card.my-q {
-            border-color: rgba(16, 185, 129, 0.35);
-            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
-        }
-        body.dark-theme .question-card.my-q {
-            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border-color: rgba(16, 185, 129, 0.35);
-        }
-
-        .q-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            gap: 10px;
-        }
-
-        .q-sender-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .q-avatar {
+        .floating-icon-box {
             width: 38px;
             height: 38px;
-            border-radius: 12px;
-            background: #EFF6FF;
-            color: #2563EB;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 17px;
+            flex-shrink: 0;
         }
-        .q-sender-name {
-            font-size: 14px;
-            font-weight: 800;
-            color: #1E293B;
-        }
-        body.dark-theme .q-sender-name { color: #F8FAFC; }
-        .q-meta-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .tag-pill {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: #F1F5F9;
-            color: #475569;
-            border: 1px solid #E2E8F0;
-        }
-        body.dark-theme .tag-pill {
-            background: #0F172A;
-            border-color: #334155;
-            color: #94A3B8;
-        }
-        .tag-pill.subject { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-        .tag-pill.answered { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
-        .tag-pill.pending { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
-
-        .q-body {
-            font-size: 14px;
-            color: #334155;
-            line-height: 1.7;
-            margin-bottom: 12px;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        body.dark-theme .q-body { color: #CBD5E1; }
-
-        .q-media-container img {
-            max-width: 100%;
-            max-height: 280px;
-            border-radius: 12px;
-            cursor: pointer;
-            border: 1px solid #E2E8F0;
-            margin-bottom: 10px;
-        }
-        .q-media-container audio {
-            width: 100%;
-            height: 38px;
-            margin-bottom: 10px;
-        }
-
-        /* Admin Reply Box */
-        .admin-reply-box {
-            background: #FFFDF5;
-            border: 1.5px solid #FCD34D;
-            border-right: 4px solid #F59E0B;
-            border-radius: 14px;
-            padding: 14px 16px;
-            margin-top: 14px;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05);
-        }
-        body.dark-theme .admin-reply-box {
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
-            border-right: 4px solid #F59E0B;
-        }
-
-        .admin-reply-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .admin-reply-badge {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .admin-reply-text {
-            font-size: 13.5px;
-            color: #78350F;
-            font-weight: 700;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-        body.dark-theme .admin-reply-text { color: #FEF3C7; }
-
-        .btn-del-my-q {
-            background: transparent;
-            border: none;
-            color: #94A3B8;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 6px;
-            transition: 0.2s;
-        }
-        .btn-del-my-q:hover { color: #DC2626; background: #FEE2E2; }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: #FFFFFF;
-            border-radius: 20px;
-            border: 1.5px dashed #CBD5E1;
-            color: #64748B;
-        }
-        body.dark-theme .empty-state {
-            background: #1E293B;
-            border-color: #334155;
-            color: #94A3B8;
-        }
-        .empty-state div { font-size: 45px; margin-bottom: 12px; }
-
-        /* Recording Live Bar */
-        .recording-live-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #FEF2F2;
-            border: 1.5px solid #FECACA;
-            border-radius: 12px;
-            padding: 8px 14px;
-            margin-top: 10px;
-        }
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            height: 65px;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid #EEF2FF;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
-            z-index: 1000;
-        }
-        body.dark-theme .bottom-nav {
-            background: #1E293B;
-            border-color: #334155;
-        }
-        .nav-item {
-            text-decoration: none;
-            color: #A3AED0;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            transition: all 0.2s;
-        }
-        .nav-item.active { color: #10B981; font-weight: 800; }
-        .nav-item i { font-size: 18px; }
-
-        @media (min-width: 992px) {
-            .bottom-nav { display: none !important; }
-            body { padding-bottom: 40px; }
-        }
-
+        .floating-text-box { display: flex; flex-direction: column; text-align: right; }
+        .floating-text-title { font-size: 13px; font-weight: 900; line-height: 1.2; }
+        .floating-text-sub { font-size: 10px; font-weight: 700; color: #FEF3C7; }
         @media (max-width: 640px) {
-            html, body {
-                overflow-x: hidden !important;
-                width: 100%;
-                max-width: 100vw;
-            }
-            .community-app-container {
-                padding: 10px 12px;
-                gap: 12px;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-            .community-topbar {
-                padding: 10px 14px;
-                top: 6px;
-                border-radius: 16px;
-            }
-            .community-hero-card {
-                padding: 18px 16px;
-                border-radius: 18px;
-            }
-            .community-hero-card h1 {
-                font-size: 18px;
-            }
-            .community-hero-card p {
-                font-size: 12px;
-            }
-            .ask-card {
-                padding: 16px 14px;
-                border-radius: 18px;
-                margin-bottom: 16px;
-            }
-            .ask-actions-bar {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-            .tools-left {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                width: 100%;
-                gap: 8px;
-            }
-            .tool-btn {
-                width: 100%;
-                justify-content: center;
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-            .btn-submit-q {
-                width: 100%;
-                justify-content: center;
-                padding: 11px 16px;
-                font-size: 13.5px;
-            }
-            .question-card {
-                padding: 14px 14px;
-                border-radius: 16px;
-            }
-            .q-sender-name {
-                font-size: 13px;
-            }
-            .q-avatar {
-                width: 34px;
-                height: 34px;
-                font-size: 14px;
-                border-radius: 10px;
-            }
-            .q-body {
-                font-size: 13px;
-            }
+            .floating-support-btn { padding: 10px; border-radius: 50%; bottom: 20px; left: 20px; }
+            .floating-text-box { display: none; }
+            .student-sidebar { display: none; }
+            .student-main-stage { padding: 16px 14px 70px; }
         }
     </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    
+
+
+<style id="elkheta-master-mobile-engine">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 ELKHETA UNIVERSAL MOBILE & DESKTOP ENGINE (v5.0.0 Fluid Grids)       */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop Rules (> 992px) */
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+    .mobile-sidebar-close-row { display: none !important; }
+    .student-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        width: 270px !important;
+        height: 100vh !important;
+        flex-shrink: 0 !important;
+    }
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+}
+
+/* Mobile & Tablet Rules (<= 992px) */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 78px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper,
+    .landing-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 10px 10px 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Off-canvas Mobile Drawer for Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar,
+    aside.student-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 16px 14px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open,
+    aside.student-sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    .mobile-sidebar-close-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        margin-bottom: 12px !important;
+        background: #FDF4E6 !important;
+        border-radius: 12px !important;
+        border: 1px solid #E8D3B2 !important;
+    }
+
+    .drawer-user-info {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        color: #8E5D16 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .btn-drawer-close {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #E11D48 !important;
+        font-size: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 10px 6px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Top Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-search-input {
+        width: 100% !important;
+        height: 42px !important;
+        border-radius: 21px !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-header-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+        position: relative !important;
+    }
+
+    .student-profile-chip {
+        flex-shrink: 0 !important;
+        padding: 4px 10px 4px 6px !important;
+        max-width: 60% !important;
+    }
+
+    .student-avatar-img {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .icon-badge-num {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 100% SINGLE COLUMN GRIDS ON MOBILE ─── */
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer,
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card,
+    #subjectsCardsContainer > div,
+    #notesContainerGrid > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card,
+    .hero-showcase-card {
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title,
+    .hero-main-heading {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub,
+    .hero-sub-title {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 74px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    /* Mobile Drawer Backdrop */
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Universal Mobile Bottom Navigation Dock */
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileSidebar(open) {
+    try {
+        var sb = document.querySelector('.student-sidebar, .dashboard-sidebar, aside.student-sidebar, aside');
+        var bd = document.getElementById('mobileDrawerBackdrop');
+        if (!sb) return;
+        var isCurrentlyOpen = sb.classList.contains('mobile-open');
+        var targetState = (open !== undefined) ? open : !isCurrentlyOpen;
+        if (targetState) {
+            sb.classList.add('mobile-open');
+            if (bd) bd.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sb.classList.remove('mobile-open');
+            if (bd) bd.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch(e) { console.error('Sidebar toggle error:', e); }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+</script>
 </head>
 <body>
-    <script>
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-    
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-    </script>
 
-    <div class="community-app-container">
-        <!-- Top Navigation Bar -->
-        <header class="community-topbar">
-            <a href="home.html" class="brand-section">
-                <div class="brand-logo-badge">
-                    <i class="fa-solid fa-comments"></i>
+<div class="student-app-container">
+
+    <!-- 1. Right Sidebar -->
+    <aside class="student-sidebar">
+        <!-- Mobile Drawer Close Header -->
+        <div class="mobile-sidebar-close-row">
+            <div class="drawer-user-info">
+                <i class="fa-solid fa-graduation-cap" style="color: #C28B38;"></i>
+                <span>قائمة منصة الخطة</span>
+            </div>
+            <button class="btn-drawer-close" onclick="toggleMobileSidebar(false)" title="إغلاق القائمة">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div>
+            <!-- Brand -->
+            <a href="home.html" class="sidebar-brand">
+                <div class="brand-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
                 </div>
-                <div>
-                    <div style="font-weight: 900; font-size: 16px; color: var(--text-main); line-height: 1.2;">مجتمع واستفسارات الطلاب</div>
-                    <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">منصة الخطة التعليمية</div>
+                <div class="brand-text-col">
+                    <div class="brand-title-row">ELKHETA <span>|</span> الخطة</div>
+                    <span class="brand-sub">طريقك المنظم نحو التفوق الأكاديمي</span>
                 </div>
             </a>
-            <div class="topbar-actions">
-                <div id="studentAvatarHeader" style="background: #EEF2FF; color: #2563EB; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; border: 1px solid #C7D2FE;">🎓</div>
-                <a href="courses.html" class="btn-nav-icon" title="المواد الدراسية">
-                    <i class="fa-solid fa-book-open"></i>
-                </a>
-                <a href="leaderboard.html" class="btn-nav-icon" title="لوحة الشرف">
-                    <i class="fa-solid fa-trophy"></i>
-                </a>
-                <a href="home.html" class="btn-nav-icon" title="الرئيسية">
+
+            <!-- Nav Links -->
+            <ul class="sidebar-nav-list">
+                <li><a href="home.html" class="nav-item-link"><i class="fa-solid fa-house"></i><span>الرئيسية</span></a></li>
+                <li><a href="courses.html" class="nav-item-link"><i class="fa-solid fa-book-open"></i><span>المواد الدراسية</span></a></li>
+                <li><a href="lectures.html" class="nav-item-link"><i class="fa-solid fa-clapperboard"></i><span>المحاضرات</span></a></li>
+                <li><a href="notes-viewer.html" class="nav-item-link"><i class="fa-solid fa-note-sticky"></i><span>كشكول ونوتس</span></a></li>
+                <li><a href="quiz.html" class="nav-item-link"><i class="fa-solid fa-clipboard-list"></i><span>الامتحانات</span></a></li>
+                <li><a href="mistakes.html" class="nav-item-link"><i class="fa-solid fa-circle-xmark"></i><span>أخطائي</span></a></li>
+                <li><a href="planner.html" class="nav-item-link"><i class="fa-solid fa-chart-line"></i><span>تقدمي</span></a></li>
+                <li><a href="leaderboard.html" class="nav-item-link"><i class="fa-solid fa-trophy"></i><span>لوحة الشرف</span></a></li>
+                <li><a href="community.html" class="nav-item-link active"><i class="fa-solid fa-users"></i><span>المجتمع</span></a></li>
+                <li><a href="chat.html" class="nav-item-link"><i class="fa-solid fa-headset"></i><span>الدعم والتواصل</span></a></li>
+
+                <div class="nav-section-title">أدوات إضافية</div>
+
+                <li><a href="profile.html#settings" class="nav-item-link"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a></li>
+                <li><a href="javascript:void(0)" onclick="logoutStudent()" class="nav-item-link" style="color: #E11D48;"><i class="fa-solid fa-arrow-right-from-bracket" style="color: #E11D48;"></i><span>تسجيل الخروج</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="sidebar-support-card">
+                <i class="fa-solid fa-headset" style="font-size: 26px; color: var(--gold-primary);"></i>
+                <div style="font-size: 13px; font-weight: 800; color: var(--text-title);">تواصل مع الإدارة</div>
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">نحن هنا لمساعدتك دائماً</div>
+                <a href="chat.html" class="btn-support-chat">
+                    <span>ابدأ المحادثة</span>
                     <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 2. Main Stage -->
+    <main class="student-main-stage">
+
+        <!-- Top Header -->
+        <header class="top-header-bar">
+            <div class="header-search-wrap">
+                <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+                <input type="text" id="globalStudentSearchInput" class="header-search-input" placeholder="ابحث في النقاشات والمنشورات..." oninput="handleCommunitySearch(this.value)">
+            </div>
+
+            <div class="header-actions-group">
+                <button class="btn-header-icon" id="themeToggleBtn" onclick="toggleStudentTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <a href="notifications.html" class="btn-header-icon" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                </a>
+                <a href="profile.html" class="student-profile-chip">
+                    <img src="banner-illustration.png" alt="Student" class="student-avatar-img" onerror="this.src='icons/icon.svg'">
+                    <div style="display: flex; flex-direction: column; text-align: right;">
+                        <span id="studentDisplayName" style="font-size: 13px; font-weight: 800;">طالب متميز</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: var(--text-muted);">المرحلة الأكاديمية</span>
+                    </div>
                 </a>
             </div>
         </header>
 
-        <!-- Hero Card -->
-        <section class="community-hero-card">
-            <div class="hero-pill-badge">
-                <i class="fa-solid fa-circle-question"></i> فضاء النقاش والاستفسارات
+        <!-- Hero Banner -->
+        <section class="universal-hero-banner">
+            <div>
+                <h1 class="hero-banner-title">مجتمع طلاب منصة الخطة</h1>
+                <p class="hero-banner-sub">تواصل وتبادل المعرفة والنقاشات الأكاديمية مع زملائك والمشرفين الأكاديميين</p>
             </div>
-            <h1>💬 تساؤلات واستفسارات المناهج</h1>
-            <p>اطرح سؤالك أو استفسارك التعليمي بالصوت أو الصورة، وسيقوم المعلمون والمشرفون بالرد عليك وتوضيح كل النقاط فوراً.</p>
+            <div style="font-size: 38px; color: var(--gold-primary); opacity: 0.85;">
+                <i class="fa-solid fa-crown"></i>
+            </div>
         </section>
 
-        <!-- Ask Question Box -->
-        <div class="ask-card">
-            <div class="card-title-bar">
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-                    <span style="background: rgba(16,185,129,0.1); color: #10B981; padding: 6px; border-radius: 10px;">✍️</span> 
-                    طرح سؤال أو استفسار جديد
-                </h3>
-                <span id="userBadgeCode" style="font-size: 11px; background: #EEF2FF; color: #4F46E5; padding: 4px 10px; border-radius: 8px; font-weight: 800;">طالب</span>
-            </div>
-
-            <!-- Subject & Lecture Pickers -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 4px; display: block;">📚 المادة الدراسية</label>
-                    <select id="askSubjectSelect" class="form-select" onchange="onAskSubjectChange()">
-                        <option value="">اختر المادة...</option>
-                    </select>
+        <!-- Post Composer -->
+        <div class="luxury-card">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gold-light); border: 1.5px solid var(--gold-border); display: flex; align-items: center; justify-content: center; color: var(--gold-primary); font-size: 18px; flex-shrink: 0;">
+                    <i class="fa-solid fa-pen-nib"></i>
                 </div>
-                <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 4px; display: block;">📽️ المحاضرة أو الدرس (اختياري)</label>
-                    <select id="askLectureSelect" class="form-select">
-                        <option value="عام">تساؤل عام في المادة 📌</option>
-                    </select>
-                </div>
-            </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                    <textarea id="communityPostInput" placeholder="شارك زملاءك استفساراً دراسياً أو فكرة أو ملخصاً لمادة..." style="width: 100%; height: 80px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 12px; font-size: 13.5px; color: var(--text-title); resize: none; outline: none;"></textarea>
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <select id="postSubjectTagSelect" style="padding: 8px 16px; border-radius: 20px; background: var(--bg-surface); border: 1.5px solid var(--gold-border); font-size: 13px; font-weight: 800; color: var(--text-title); outline: none;">
+                            <option value="طريقة العمل مع الأفراد">1. طريقة العمل مع الأفراد</option>
+                            <option value="طريقة العمل مع الجماعات">2. طريقة العمل مع الجماعات</option>
+                            <option value="تنظيم وإدارة المجتمعات">3. تنظيم وإدارة المجتمعات</option>
+                            <option value="سياسات الرعاية الاجتماعية">4. سياسات الرعاية الاجتماعية</option>
+                            <option value="الخدمة الاجتماعية في مجال طبي">5. الخدمة الاجتماعية في مجال طبي</option>
+                            <option value="تدريب ميداني">6. تدريب ميداني</option>
+                            <option value="مشروع تخرج">7. مشروع تخرج</option>
+                            <option value="نقاش أكاديمي عام">💬 نقاش أكاديمي عام</option>
+                        </select>
 
-            <!-- Question Textarea -->
-            <textarea id="askQuestionText" class="form-textarea" placeholder="اكتب سؤالك أو استفسارك هنا بكل وضوح حتى يقوم المعلم بالرد عليك وتوضيحه... ✍️"></textarea>
-
-            <!-- Recording live bar -->
-            <div id="voiceRecordingLiveBar" class="recording-live-bar" style="display: none;">
-                <div style="display: flex; align-items: center; gap: 8px; color: #DC2626; font-weight: 800; font-size: 13px;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #DC2626; animation: pulseRecord 0.8s infinite;"></span>
-                    جاري تسجيل الصوت: <span id="recordingTimerDisplay" style="font-family: monospace; font-size: 15px;">00:00</span>
+                        <button onclick="publishCommunityPost()" style="padding: 9px 24px; background: var(--gold-gradient); color: #fff; border: none; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(194, 139, 56, 0.35); display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>نشر في المجتمع</span>
+                        </button>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    <button type="button" onclick="stopVoiceRecording(true)" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-family: inherit; font-size: 12px; cursor: pointer;">✔️ اعتماد</button>
-                    <button type="button" onclick="cancelVoiceRecording()" style="background: #EF4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-family: inherit; font-size: 12px; cursor: pointer;">❌ إلغاء</button>
-                </div>
-            </div>
-
-            <!-- Media Preview Attachment Box -->
-            <div id="mediaPreviewBox" class="media-preview-box" style="display: none;">
-                <div id="mediaPreviewContent" style="display: flex; align-items: center; gap: 10px;"></div>
-                <button type="button" onclick="clearMediaAttachment()" style="background: #FEE2E2; color: #DC2626; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">مسح 🗑️</button>
-            </div>
-
-            <!-- Actions Bar -->
-            <div class="ask-actions-bar">
-                <div class="tools-left">
-                    <input type="file" id="imageAttachmentInput" accept="image/*" style="display: none;" onchange="handleImageSelected(this)">
-                    <button type="button" class="tool-btn" onclick="document.getElementById('imageAttachmentInput').click()" title="إرفاق صورة">
-                        <i class="fa-solid fa-camera"></i> <span>إرفاق صورة</span>
-                    </button>
-                    <button type="button" id="btnMicRecord" class="tool-btn" onclick="startVoiceRecording()" title="تسجيل صوتي">
-                        <i class="fa-solid fa-microphone"></i> <span>تسجيل صوتي</span>
-                    </button>
-                </div>
-                <button type="button" class="btn-submit-q" onclick="submitNewQuestion()">
-                    <i class="fa-solid fa-paper-plane"></i> <span>نشر السؤال</span>
-                </button>
             </div>
         </div>
 
-        <!-- Filter & Search Bar -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-                <select id="filterSubjectSelect" class="form-select" onchange="filterQuestions()">
-                    <option value="">جميع المواد الدراسية 📚</option>
-                </select>
-            </div>
-            <div>
-                <select id="filterStatusSelect" class="form-select" onchange="filterQuestions()">
-                    <option value="all">جميع الحالات (الكل) 🌟</option>
-                    <option value="answered">تم الرد من المعلم ✅</option>
-                    <option value="pending">في انتظار الرد ⏳</option>
-                    <option value="my_questions">أسئلتي أنا فقط 🙋‍♂️</option>
-                </select>
-            </div>
+        <!-- Subject Filter Pills Row for all 7 subjects -->
+        <div class="subject-pills-row" id="communityFilterPills">
+            <button class="subject-pill active" onclick="filterCommunityCategory('all', this)"><i class="fa-solid fa-border-all"></i> جميع المواد (7)</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('افراد', this)"><i class="fa-solid fa-user"></i> طريقة العمل مع الأفراد</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('جماعات', this)"><i class="fa-solid fa-users"></i> طريقة العمل مع الجماعات</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('مجتمعات', this)"><i class="fa-solid fa-city"></i> تنظيم وإدارة المجتمعات</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('سياسات الرعاية الاجتماعية', this)"><i class="fa-solid fa-file-contract"></i> سياسات الرعاية الاجتماعية</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('الخدمة الاجتماعية في مجال طبي', this)"><i class="fa-solid fa-hospital-user"></i> الخدمة الاجتماعية في مجال طبي</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('تدريب ميداني', this)"><i class="fa-solid fa-briefcase"></i> التدريب الميداني</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('مشروع تخرج', this)"><i class="fa-solid fa-graduation-cap"></i> مشروع التخرج</button>
+            <button class="subject-pill" onclick="filterCommunityCategory('نقاش أكاديمي عام', this)"><i class="fa-solid fa-comments"></i> نقاش أكاديمي عام</button>
         </div>
 
-        <!-- Questions Feed -->
-        <main class="questions-feed" id="questionsFeedList">
-            <div class="empty-state">
-                <div>💬</div>
-                <h3>جاري تحميل تساؤلات الطلاب...</h3>
+        <!-- Community Feed -->
+        <div style="display: flex; flex-direction: column; gap: 16px;" id="communityFeedContainer">
+            <!-- Loaded dynamically from Firebase Realtime Database -->
+        </div>
+
+        <!-- Universal Footer -->
+        <footer style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); font-size: 11.5px; font-weight: 600; color: var(--text-muted); flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open" style="color: var(--gold-primary);"></i>
+                <b style="color: var(--text-title);">الخطة | ELKHETA</b>
+                <span>طريقك المنظم نحو التفوق الأكاديمي</span>
             </div>
-        </main>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="guide.html" style="color: inherit; text-decoration: none;">شروط الاستخدام</a>
+                <a href="privacy.html" style="color: inherit; text-decoration: none;">سياسة الخصوصية</a>
+                <a href="chat.html" style="color: inherit; text-decoration: none;">دعم فني</a>
+                <span>2026 © جميع الحقوق محفوظة</span>
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+<!-- Floating Support & Academic Center Button -->
+<a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+    <div class="floating-icon-box">
+        <i class="fa-solid fa-headset"></i>
     </div>
+    <div class="floating-text-box">
+        <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+        <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+    </div>
+</a>
 
-    <!-- Bottom Navigation for Mobile -->
-    <nav class="bottom-nav">
-        <a href="home.html" class="nav-item">
-            <i class="fa-solid fa-house"></i>
-            <span>الرئيسية</span>
-        </a>
-        <a href="courses.html" class="nav-item">
-            <i class="fa-solid fa-book-open"></i>
-            <span>المواد</span>
-        </a>
-        <a href="community.html" class="nav-item active">
-            <i class="fa-solid fa-comments"></i>
-            <span>المجتمع</span>
-        </a>
-        <a href="profile.html" class="nav-item">
-            <i class="fa-solid fa-user"></i>
-            <span>حسابي</span>
-        </a>
-    </nav>
+<script>
+    let realCommunityPosts = [];
+    let currentCategoryFilter = 'all';
+    let searchFilterQuery = '';
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="toast.js"></script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = student.fullName || student.name || localStorage.getItem('studentName') || 'طالب متميز';
+        document.getElementById('studentDisplayName').textContent = stName;
 
-    <script>
-        // Auth check
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user || (!user.studentCode && !user.code)) {
-            window.location.href = "index.html";
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
         }
 
-        const studentCode = user.studentCode || user.code || 'student';
-        const studentName = user.fullName || user.name || 'طالب';
+        loadCommunityPostsFromDB();
+    });
 
-        document.getElementById('userBadgeCode').textContent = `${studentName} (${studentCode})`;
-        const avatarEl = document.getElementById('studentAvatarHeader');
-        if (avatarEl) avatarEl.textContent = studentName.charAt(0) || '🎓';
+    function toggleStudentTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    }
 
-        let allLecturesMap = {}; // { subjectName: [ {id, title}, ... ] }
-        let allQuestionsList = []; // [ { key, subject, lectureId, ...data } ]
+    function filterCommunityCategory(cat, btn) {
+        currentCategoryFilter = cat;
+        document.querySelectorAll('#communityFilterPills .subject-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderCommunityFeed();
+    }
 
-        let pendingImageBase64 = null;
-        let pendingAudioBase64 = null;
-        let voiceRecorder = null;
-        let voiceChunks = [];
-        let voiceTimer = null;
-        let recordingSecs = 0;
+    function handleCommunitySearch(query) {
+        searchFilterQuery = query.trim().toLowerCase();
+        renderCommunityFeed();
+    }
 
-        // Load Subjects
-        database.ref('Subjects').on('value', snap => {
-            const askSelect = document.getElementById('askSubjectSelect');
-            const filterSelect = document.getElementById('filterSubjectSelect');
-            
-            askSelect.innerHTML = '<option value="">اختر المادة...</option>';
-            filterSelect.innerHTML = '<option value="">جميع المواد الدراسية 📚</option>';
+    function loadCommunityPostsFromDB() {
+        if (!window.database) {
+            renderCommunityFeed();
+            return;
+        }
 
+        // Listen to CommunityPosts
+        database.ref('CommunityPosts').on('value', snap => {
+            realCommunityPosts = [];
             if (snap.exists()) {
-                snap.forEach(child => {
-                    const sub = child.val();
-                    const name = sub.name || child.key;
-                    askSelect.innerHTML += `<option value="${name}">${name}</option>`;
-                    filterSelect.innerHTML += `<option value="${name}">${name}</option>`;
-                });
-            }
-        });
-
-        // Load Lectures for Subject
-        database.ref('Lectures').on('value', snap => {
-            allLecturesMap = {};
-            if (snap.exists()) {
-                snap.forEach(subSnap => {
-                    const subName = subSnap.key;
-                    allLecturesMap[subName] = [];
-                    subSnap.forEach(lecSnap => {
-                        const lec = lecSnap.val();
-                        allLecturesMap[subName].push({
-                            id: lec.id || lecSnap.key,
-                            title: lec.title || 'محاضرة بدون عنوان'
-                        });
+                snap.forEach(c => {
+                    const val = c.val();
+                    realCommunityPosts.push({
+                        id: c.key,
+                        author: val.author || val.senderName || 'طالب',
+                        role: val.role || 'طالب مسجل',
+                        isOfficial: !!val.isOfficial,
+                        subjectTag: val.subjectTag || val.subject || 'نقاش عام',
+                        content: val.content || val.text || '',
+                        likes: Number(val.likes || 0),
+                        comments: Number(val.comments || 0),
+                        timestamp: Number(val.timestamp || 0),
+                        timeStr: val.timeStr || formatTimeAgo(val.timestamp)
                     });
                 });
             }
+
+            // Sort newest first
+            realCommunityPosts.sort((a, b) => b.timestamp - a.timestamp);
+            renderCommunityFeed();
+        });
+    }
+
+    function formatTimeAgo(ts) {
+        if (!ts) return 'الآن';
+        const diff = Math.floor((Date.now() - ts) / 1000);
+        if (diff < 60) return 'الآن';
+        if (diff < 3600) return `منذ ${Math.floor(diff/60)} دقيقة`;
+        if (diff < 86400) return `منذ ${Math.floor(diff/3600)} ساعة`;
+        return `منذ ${Math.floor(diff/86400)} يوم`;
+    }
+
+    function renderCommunityFeed() {
+        const container = document.getElementById('communityFeedContainer');
+        const filtered = realCommunityPosts.filter(p => {
+            const matchCat = (currentCategoryFilter === 'all') ||
+                p.subjectTag.toLowerCase().includes(currentCategoryFilter.toLowerCase()) ||
+                (currentCategoryFilter === 'افراد' && p.subjectTag.includes('أفراد')) ||
+                (currentCategoryFilter === 'جماعات' && p.subjectTag.includes('جماعات')) ||
+                (currentCategoryFilter === 'مجتمعات' && (p.subjectTag.includes('مجتمعات') || p.subjectTag.includes('مجتمع')));
+
+            const matchSearch = !searchFilterQuery || 
+                p.content.toLowerCase().includes(searchFilterQuery) ||
+                p.author.toLowerCase().includes(searchFilterQuery) ||
+                p.subjectTag.toLowerCase().includes(searchFilterQuery);
+
+            return matchCat && matchSearch;
         });
 
-        function onAskSubjectChange() {
-            const sub = document.getElementById('askSubjectSelect').value;
-            const lecSelect = document.getElementById('askLectureSelect');
-            lecSelect.innerHTML = '<option value="عام">تساؤل عام في المادة 📌</option>';
-
-            if (sub && allLecturesMap[sub]) {
-                allLecturesMap[sub].forEach(lec => {
-                    lecSelect.innerHTML += `<option value="${lec.id}">${lec.title}</option>`;
-                });
-            }
-        }
-
-        // Image Attachment
-        function handleImageSelected(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            if (file.size > 5 * 1024 * 1024) {
-                return showToast("يرجى اختيار صورة بحجم أقل من 5 ميجابايت 📷", "warning");
-            }
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                pendingImageBase64 = e.target.result;
-                showMediaPreview('image', pendingImageBase64);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Voice Recording
-        async function startVoiceRecording() {
-            try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    return showToast("متصفحك لا يدعم تسجيل الصوت المباشر 🎙️", "warning");
-                }
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                voiceRecorder = new MediaRecorder(stream);
-                voiceChunks = [];
-
-                voiceRecorder.ondataavailable = e => {
-                    if (e.data && e.data.size > 0) voiceChunks.push(e.data);
-                };
-
-                voiceRecorder.onstop = () => {
-                    const audioBlob = new Blob(voiceChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        pendingAudioBase64 = reader.result;
-                        showMediaPreview('audio', pendingAudioBase64);
-                    };
-                    reader.readAsDataURL(audioBlob);
-                    stream.getTracks().forEach(track => track.stop());
-                };
-
-                voiceRecorder.start();
-                recordingSecs = 0;
-                document.getElementById('voiceRecordingLiveBar').style.display = 'flex';
-                document.getElementById('btnMicRecord').classList.add('recording');
-
-                clearInterval(voiceTimer);
-                voiceTimer = setInterval(() => {
-                    recordingSecs++;
-                    const m = Math.floor(recordingSecs / 60);
-                    const s = recordingSecs % 60;
-                    document.getElementById('recordingTimerDisplay').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-                }, 1000);
-
-            } catch(err) {
-                console.error("Mic error:", err);
-                showToast("يرجى السماح بصلاحية الميكروفون لتسجيل سؤال صوتي 🎙️", "error");
-            }
-        }
-
-        function stopVoiceRecording() {
-            clearInterval(voiceTimer);
-            if (voiceRecorder && voiceRecorder.state !== 'inactive') {
-                voiceRecorder.stop();
-            }
-            document.getElementById('voiceRecordingLiveBar').style.display = 'none';
-            document.getElementById('btnMicRecord').classList.remove('recording');
-        }
-
-        function cancelVoiceRecording() {
-            clearInterval(voiceTimer);
-            if (voiceRecorder && voiceRecorder.state !== 'inactive') {
-                voiceRecorder.stop();
-            }
-            voiceChunks = [];
-            pendingAudioBase64 = null;
-            document.getElementById('voiceRecordingLiveBar').style.display = 'none';
-            document.getElementById('btnMicRecord').classList.remove('recording');
-        }
-
-        function showMediaPreview(type, dataUrl) {
-            const box = document.getElementById('mediaPreviewBox');
-            const content = document.getElementById('mediaPreviewContent');
-            if (!box || !content) return;
-
-            if (type === 'image') {
-                content.innerHTML = `
-                    <img src="${dataUrl}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1.5px solid #10B981;">
-                    <span style="font-size: 13px; color: #059669; font-weight: 800;">📷 تم إرفاق الصورة بنجاح</span>
-                `;
-            } else if (type === 'audio') {
-                content.innerHTML = `
-                    <span style="font-size: 20px;">🎙️</span>
-                    <audio controls src="${dataUrl}" style="height: 32px; max-width: 200px;"></audio>
-                    <span style="font-size: 12px; color: #059669; font-weight: 800;">تسجيل صوتي جاهز</span>
-                `;
-            }
-            box.style.display = 'flex';
-        }
-
-        function clearMediaAttachment() {
-            pendingImageBase64 = null;
-            pendingAudioBase64 = null;
-            const input = document.getElementById('imageAttachmentInput');
-            if (input) input.value = '';
-            const box = document.getElementById('mediaPreviewBox');
-            if (box) box.style.display = 'none';
-        }
-
-        // Submit Question
-        function submitNewQuestion() {
-            const subject = document.getElementById('askSubjectSelect').value;
-            const lectureId = document.getElementById('askLectureSelect').value || 'عام';
-            const text = document.getElementById('askQuestionText').value.trim();
-
-            if (!subject) {
-                return showToast("يرجى اختيار المادة الدراسية أولاً 📚", "warning");
-            }
-            if (!text && !pendingImageBase64 && !pendingAudioBase64) {
-                return showToast("يرجى كتابة نص السؤال أو تسجيل صوت أو إرفاق صورة ✍️", "warning");
-            }
-
-            let type = 'text';
-            let mediaUrl = '';
-            if (pendingAudioBase64) {
-                type = 'audio';
-                mediaUrl = pendingAudioBase64;
-            } else if (pendingImageBase64) {
-                type = 'image';
-                mediaUrl = pendingImageBase64;
-            }
-
-            // Find lecture title for display
-            let lectureTitle = 'تساؤل عام';
-            if (lectureId !== 'عام' && allLecturesMap[subject]) {
-                const found = allLecturesMap[subject].find(l => l.id === lectureId);
-                if (found) lectureTitle = found.title;
-            }
-
-            const payload = {
-                senderName: studentName,
-                senderCode: studentCode,
-                isAdmin: false,
-                text: text,
-                type: type,
-                mediaUrl: mediaUrl,
-                subject: subject,
-                lectureId: lectureId,
-                lectureTitle: lectureTitle,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            database.ref(`Community/${subject}/${lectureId}`).push(payload).then(() => {
-                showToast("تم نشر سؤالك بنجاح وسيتم إشعارك فور رد المعلم! 🎉", "success");
-                document.getElementById('askQuestionText').value = '';
-                clearMediaAttachment();
-            }).catch(err => {
-                console.error("Post error:", err);
-                showToast("حدث خطأ أثناء نشر السؤال", "error");
-            });
-        }
-
-        // Realtime Feed Listener
-        function loadAllQuestionsFeed() {
-            database.ref('Community').on('value', snap => {
-                allQuestionsList = [];
-                if (snap.exists()) {
-                    snap.forEach(subSnap => {
-                        const subName = subSnap.key;
-                        subSnap.forEach(lecSnap => {
-                            const lecId = lecSnap.key;
-                            lecSnap.forEach(msgSnap => {
-                                const msg = msgSnap.val();
-                                const msgKey = msgSnap.key;
-                                allQuestionsList.push({
-                                    key: msgKey,
-                                    subject: subName,
-                                    lectureId: lecId,
-                                    ...msg
-                                });
-                            });
-                        });
-                    });
-                }
-                allQuestionsList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                renderQuestionsFeed(allQuestionsList);
-            });
-        }
-
-        function filterQuestions() {
-            const subFilter = document.getElementById('filterSubjectSelect').value;
-            const statusFilter = document.getElementById('filterStatusSelect').value;
-
-            let filtered = allQuestionsList;
-
-            if (subFilter) {
-                filtered = filtered.filter(q => q.subject === subFilter);
-            }
-
-            if (statusFilter === 'my_questions') {
-                filtered = filtered.filter(q => q.senderCode === studentCode);
-            } else if (statusFilter === 'answered') {
-                filtered = filtered.filter(q => q.replies || q.isAdmin || (q.replies && Object.keys(q.replies).length > 0));
-            } else if (statusFilter === 'pending') {
-                filtered = filtered.filter(q => !q.replies && !q.isAdmin);
-            }
-
-            renderQuestionsFeed(filtered);
-        }
-
-        function renderQuestionsFeed(list) {
-            const feedContainer = document.getElementById('questionsFeedList');
-            feedContainer.innerHTML = '';
-
-            if (!list || list.length === 0) {
-                feedContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div>💬</div>
-                        <h3 style="margin:0; font-size:16px;">لا توجد أسئلة مطابقة للبحث حالياً</h3>
-                        <p style="font-size:13px; margin-top:6px;">كن أول من يطرح سؤاله واستفساره بالأعلى!</p>
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="luxury-card" style="text-align: center; padding: 60px 20px; border: 1.5px dashed var(--border-card);">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--gold-light); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 16px;">
+                        <i class="fa-solid fa-comments"></i>
                     </div>
-                `;
-                return;
-            }
+                    <h3 style="font-size: 18px; font-weight: 900; color: var(--text-title); margin-bottom: 6px;">لا توجد منشورات أو نقاشات حتى الآن في المجتمع 💬</h3>
+                    <p style="font-size: 13.5px; color: var(--text-muted); max-width: 520px; margin: 0 auto;">كن أول من يشارك زملاءه استفساراً دراسياً أو ملخصاً لمادة من خلال صندوق المشاركة أعلاه!</p>
+                </div>
+            `;
+            return;
+        }
 
-            list.forEach(q => {
-                const isMine = q.senderCode === studentCode;
-                const isAdminMsg = Boolean(q.isAdmin);
-                const hasReplies = q.replies && typeof q.replies === 'object' && Object.keys(q.replies).length > 0;
-
-                let dateStr = '';
-                if (q.timestamp) {
-                    const d = new Date(q.timestamp);
-                    dateStr = d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                }
-
-                let mediaHtml = '';
-                if (q.type === 'image' && q.mediaUrl) {
-                    // [SECURITY] التحقق أن الـ URL يبدأ بـ https:// فقط
-                    const safeImgUrl = String(q.mediaUrl).startsWith('https://') ? q.mediaUrl : '';
-                    if (safeImgUrl) {
-                        const escapedUrl = safeImgUrl.replace(/"/g, '&quot;');
-                        mediaHtml = `
-                            <div class="q-media-container">
-                                <img src="${escapedUrl}" onclick="window.open('${escapedUrl}', '_blank')" alt="صورة توضيحية">
+        container.innerHTML = filtered.map(post => `
+            <div class="luxury-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 42px; height: 42px; border-radius: 50%; background: ${post.isOfficial ? 'var(--gold-light)' : 'var(--bg-surface-hover)'}; border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: center; color: var(--gold-primary); font-size: 16px; font-weight: 900;">
+                            ${post.author.charAt(0)}
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 900; color: var(--text-title); display: flex; align-items: center; gap: 6px;">
+                                ${post.author}
+                                ${post.isOfficial ? '<i class="fa-solid fa-circle-check" style="color: var(--gold-primary); font-size: 13px;" title="حساب رسمي موثق"></i>' : ''}
                             </div>
-                        `;
-                    }
-                } else if (q.type === 'audio' && q.mediaUrl) {
-                    // [SECURITY] التحقق أن الـ URL يبدأ بـ https:// فقط
-                    const safeAudioUrl = String(q.mediaUrl).startsWith('https://') ? q.mediaUrl : '';
-                    if (safeAudioUrl) {
-                        const escapedUrl = safeAudioUrl.replace(/"/g, '&quot;');
-                        mediaHtml = `
-                            <div class="q-media-container">
-                                <audio controls src="${escapedUrl}"></audio>
-                            </div>
-                        `;
-                    }
-                }
+                            <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">${post.role} • ${post.timeStr}</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; background: var(--gold-light); color: var(--gold-text); border: 1px solid var(--gold-border);">${post.subjectTag}</span>
+                </div>
 
-                let statusBadge = '';
-                if (hasReplies || isAdminMsg) {
-                    statusBadge = `<span class="tag-pill answered">✅ تم الرد من المعلم</span>`;
-                } else {
-                    statusBadge = `<span class="tag-pill pending">⏳ في انتظار رد الإدارة</span>`;
-                }
+                <p style="font-size: 13.5px; color: var(--text-title); line-height: 1.6; margin-top: 4px; white-space: pre-wrap;">${post.content}</p>
 
-                // Replies HTML
-                let repliesHtml = '';
-                if (hasReplies) {
-                    Object.values(q.replies).forEach(rep => {
-                        const repRoleTitle = rep.adminRoleTitle || 'رد الإدارة المعتمد';
-                        let repDate = rep.timestamp ? new Date(rep.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
-                        
-                        let repMedia = '';
-                        if (rep.type === 'image' && rep.mediaUrl) {
-                            repMedia = `<img src="${rep.mediaUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 8px; cursor: pointer;" onclick="window.open('${rep.mediaUrl}')">`;
-                        } else if (rep.type === 'audio' && rep.mediaUrl) {
-                            repMedia = `<audio controls src="${rep.mediaUrl}" style="width: 100%; height: 34px; margin-top: 8px;"></audio>`;
-                        }
-
-                        repliesHtml += `
-                            <div class="admin-reply-box">
-                                <div class="admin-reply-header">
-                                    <span class="admin-reply-badge">👑 ${rep.senderName || 'الإدارة'} (${repRoleTitle})</span>
-                                    <span style="font-size: 11px; color: #94A3B8;">${repDate}</span>
-                                </div>
-                                ${rep.text ? `<div class="admin-reply-text">${escapeHtml(rep.text)}</div>` : ''}
-                                ${repMedia}
-                            </div>
-                        `;
-                    });
-                }
-
-                const deleteBtn = isMine ? `
-                    <button class="btn-del-my-q" onclick="deleteMyQuestion('${q.subject}', '${q.lectureId}', '${q.key}')" title="حذف سؤالي">
-                        🗑️
+                <div style="display: flex; align-items: center; gap: 18px; padding-top: 12px; border-top: 1px solid var(--border-card); font-size: 12.5px; font-weight: 700; color: var(--text-muted);">
+                    <button onclick="likePost('${post.id}')" style="display: flex; align-items: center; gap: 6px; background: none; border: none; color: inherit; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: all 0.2s ease;">
+                        <i class="fa-regular fa-heart" style="color: #E11D48;"></i>
+                        <span>${post.likes} إعجاب</span>
                     </button>
-                ` : '';
-
-                const card = document.createElement('div');
-                card.className = `question-card ${isMine ? 'my-q' : ''}`;
-                card.innerHTML = `
-                    <div class="q-header">
-                        <div class="q-sender-info">
-                            <div class="q-avatar">${(q.senderName || 'ط').charAt(0)}</div>
-                            <div>
-                                <div class="q-sender-name">${q.senderName || 'طالب'} ${isMine ? '<span style="font-size: 11px; color: #10B981; font-weight: bold;">(أنت)</span>' : ''}</div>
-                                <div class="q-meta-tags">
-                                    <span class="tag-pill subject">📚 ${q.subject}</span>
-                                    ${q.lectureTitle && q.lectureTitle !== 'تساؤل عام' ? `<span class="tag-pill">📽️ ${q.lectureTitle}</span>` : ''}
-                                    ${statusBadge}
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 11px; color: #94A3B8; font-weight: 700;">${dateStr}</span>
-                            ${deleteBtn}
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-regular fa-comment"></i>
+                        <span>${post.comments} تعليقات</span>
                     </div>
-                    ${q.text ? `<div class="q-body">${escapeHtml(q.text)}</div>` : ''}
-                    ${mediaHtml}
-                    ${repliesHtml}
-                `;
-                feedContainer.appendChild(card);
-            });
-        }
+                </div>
+            </div>
+        `).join('');
+    }
 
-        function deleteMyQuestion(subject, lectureId, key) {
+    function publishCommunityPost() {
+        const input = document.getElementById('communityPostInput');
+        const text = input.value.trim();
+        if (!text) {
             Swal.fire({
-                title: "حذف السؤال؟",
-                text: "هل أنت متأكد من رغبتك في حذف سؤالك؟",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "نعم، احذف",
-                cancelButtonText: "إلغاء",
-                confirmButtonColor: "#EF4444"
-            }).then(r => {
-                if (r.isConfirmed) {
-                    database.ref(`Community/${subject}/${lectureId}/${key}`).remove().then(() => {
-                        showToast("تم حذف سؤالك بنجاح", "info");
-                    });
-                }
+                icon: 'warning',
+                title: 'اكتب نص المنشور',
+                text: 'يرجى كتابة محتوى أو استفسار لمشاركته في المجتمع.',
+                confirmButtonColor: '#C28B38'
             });
+            return;
         }
 
-        loadAllQuestionsFeed();
-    </script>
-    <script src="custom-dialogs.js"></script>
-    <script src="pwa-installer.js"></script>
-    <script src="offline-overlay.js"></script>
-    <script src="student-guard.js"></script>
-    <script src="student-drawer.js"></script>
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = student.fullName || student.name || localStorage.getItem('studentName') || 'طالب متميز';
+        const stCode = (student.studentCode || '').toUpperCase();
+        const tag = document.getElementById('postSubjectTagSelect').value;
+
+        const newPost = {
+            author: stName,
+            senderCode: stCode,
+            role: 'طالب مسجل',
+            isOfficial: false,
+            subjectTag: tag,
+            content: text,
+            likes: 0,
+            comments: 0,
+            timestamp: Date.now()
+        };
+
+        if (window.database) {
+            database.ref('CommunityPosts').push(newPost).then(() => {
+                input.value = '';
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم النشر بنجاح',
+                    text: 'تمت مشاركة منشورك في مجتمع المنصة.',
+                    confirmButtonColor: '#C28B38',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }).catch(() => {
+                realCommunityPosts.unshift({ id: 'local_' + Date.now(), ...newPost, timeStr: 'الآن' });
+                input.value = '';
+                renderCommunityFeed();
+            });
+        } else {
+            realCommunityPosts.unshift({ id: 'local_' + Date.now(), ...newPost, timeStr: 'الآن' });
+            input.value = '';
+            renderCommunityFeed();
+        }
+    }
+
+    function likePost(id) {
+        if (window.database && id && !id.startsWith('local_')) {
+            const postRef = database.ref('CommunityPosts/' + id + '/likes');
+            postRef.transaction(currentLikes => (currentLikes || 0) + 1);
+        } else {
+            const p = realCommunityPosts.find(x => x.id === id);
+            if (p) {
+                p.likes++;
+                renderCommunityFeed();
+            }
+        }
+    }
+
+function logoutStudent() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'تسجيل الخروج',
+            text: 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، تسجيل الخروج',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#94A3B8'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sessionStorage.clear();
+                localStorage.removeItem('studentData');
+                localStorage.removeItem('studentCode');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        });
+    } else {
+        if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+            sessionStorage.clear();
+            localStorage.removeItem('studentData');
+            localStorage.removeItem('studentCode');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+</script>
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+
+
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+<div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+<nav id="universalMobileDock" class="universal-mobile-dock">
+    <a href="home.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-house"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="courses.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-book-open"></i>
+        <span>المواد</span>
+    </a>
+    <a href="lectures.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span>المحاضرات</span>
+    </a>
+    <a href="quiz.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>الامتحانات</span>
+    </a>
+    <a href="profile.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>حسابي</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleMobileSidebar()" class="mobile-dock-btn">
+        <i class="fa-solid fa-bars"></i>
+        <span>القائمة</span>
+    </a>
+</nav>
+
 </body>
 </html>

@@ -543,56 +543,56 @@
 
             container.innerHTML = `
                 <div class="quotes-widget-card" style="
-                    background: rgba(14, 20, 36, 0.75);
-                    border: 1.5px solid rgba(245, 158, 11, 0.25);
+                    background: #FFFFFF !important;
+                    border: 1.5px solid #EAE0D7 !important;
                     border-radius: 20px;
                     padding: 16px 18px;
                     margin: 18px 0 14px;
-                    backdrop-filter: blur(16px);
-                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+                    box-shadow: 0 4px 20px rgba(74, 46, 27, 0.06) !important;
                     position: relative;
                     direction: rtl;
-                    transition: border-color 0.3s ease;
+                    transition: all 0.3s ease;
                 ">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                         <div id="qwBadge" style="
                             display: inline-flex;
                             align-items: center;
                             gap: 6px;
-                            background: rgba(255, 255, 255, 0.06);
-                            border: 1px solid rgba(255, 255, 255, 0.12);
+                            background: #FAF6F0 !important;
+                            border: 1px solid #EAE0D7 !important;
                             border-radius: 50px;
                             padding: 4px 12px;
                             font-size: 11.5px;
                             font-weight: 800;
-                            color: ${currentQuote.color};
+                            color: #8C531B !important;
                         ">
                             <i class="${currentQuote.icon}"></i>
                             <span id="qwBadgeText">${currentQuote.badge}</span>
                         </div>
                         <button type="button" onclick="QuotesEngine.nextQuote()" style="
-                            background: transparent;
-                            border: none;
-                            color: #94A3B8;
+                            background: #F5EFEB;
+                            border: 1px solid #EAE0D7;
+                            color: #543D31;
                             cursor: pointer;
                             font-size: 12px;
-                            font-weight: 700;
+                            font-weight: 800;
                             display: flex;
                             align-items: center;
                             gap: 5px;
-                            padding: 4px 8px;
-                            border-radius: 8px;
-                            transition: color 0.2s, background 0.2s;
-                        " onmouseover="this.style.color='#FBBF24'; this.style.background='rgba(245,158,11,0.1)'" onmouseout="this.style.color='#94A3B8'; this.style.background='transparent'">
+                            padding: 4px 10px;
+                            border-radius: 20px;
+                            transition: all 0.2s;
+                        " onmouseover="this.style.color='#FFFBF7'; this.style.background='#4A2E1B'" onmouseout="this.style.color='#543D31'; this.style.background='#F5EFEB'">
                             <span>درّة أخرى</span>
                             <i class="fa-solid fa-arrows-rotate"></i>
                         </button>
                     </div>
 
                     <div id="qwText" style="
-                        font-size: 13.5px;
+                        font-size: 14px;
                         font-weight: 800;
-                        color: #FFFFFF;
+                        color: #2B1810 !important;
+                        -webkit-text-fill-color: #2B1810 !important;
                         line-height: 1.7;
                         min-height: 48px;
                         display: flex;
@@ -603,8 +603,9 @@
                     </div>
 
                     <div id="qwSource" style="
-                        font-size: 11.5px;
-                        color: #F59E0B;
+                        font-size: 12px;
+                        color: #C88A4B !important;
+                        -webkit-text-fill-color: #C88A4B !important;
                         font-weight: 800;
                         margin-top: 6px;
                         text-align: left;
@@ -752,7 +753,7 @@
                                 <div style="font-size: 13px; font-weight: 800; color: #94A3B8; margin-bottom: 2px;">
                                     ${titleHeader}
                                 </div>
-                                <div style="font-size: 17.5px; font-weight: 900; color: #FFFFFF; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; margin: 0 auto;">
+                                <div style="font-size: 17.5px; font-weight: 900; color: #2B1810; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 360px; margin: 0 auto;">
                                     ${cleanName}
                                 </div>
                             </div>
@@ -767,13 +768,13 @@
                                 <div style="display: inline-flex; align-items: center; gap: 5px; background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.4); color: #C4B5FD; font-size: 11.5px; font-weight: 900; padding: 4px 12px; border-radius: 20px; white-space: nowrap;">
                                     <i class="fa-solid fa-stopwatch" style="color: #A78BFA; font-size: 11px;"></i>
                                     <span>مهلة التأمل:</span>
-                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 13px; color: #FFFFFF; font-weight: 900;">00:15</span>
+                                    <span id="modalTimerCountdown" style="font-family: monospace; font-size: 13px; color: #2B1810; font-weight: 900;">00:15</span>
                                 </div>
                             </div>
 
                             <!-- صندوق الحكمة والبيت الشعري -->
-                            <div style="background: rgba(14, 20, 36, 0.92); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px 16px; margin-bottom: 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(245, 158, 11, 0.08); max-height: 220px; overflow-y: auto; scrollbar-width: none;">
-                                <div id="modalQuoteText" style="font-size: 13.5px; font-weight: 900; color: #F8FAFC; line-height: 1.7; font-family: 'Cairo', sans-serif; min-height: 42px; display: flex; align-items: center; justify-content: center; text-align: center; transition: opacity 0.2s ease, transform 0.2s ease;">
+                            <div style="background: #FAF6F0; border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 14px 16px; margin-bottom: 8px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(245, 158, 11, 0.08); max-height: 220px; overflow-y: auto; scrollbar-width: none;">
+                                <div id="modalQuoteText" style="font-size: 13.5px; font-weight: 900; color: #2B1810; line-height: 1.7; font-family: 'Cairo', sans-serif; min-height: 42px; display: flex; align-items: center; justify-content: center; text-align: center; transition: opacity 0.2s ease, transform 0.2s ease;">
                                     ${quote.text}
                                 </div>
                                 <div id="modalQuoteSource" style="font-size: 11.5px; color: #F59E0B; font-weight: 800; margin-top: 6px; text-align: left; transition: opacity 0.2s ease;">
@@ -795,13 +796,13 @@
                             </p>
 
                             <!-- زر الانتقال الفوري للمنصة بسطر واحد ثابت وبارز دائماً -->
-                            <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; height: 46px; min-height: 46px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #090D16; font-weight: 900; font-size: 15px; padding: 0 14px; border: none; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transition: transform 0.15s ease;">
+                            <button type="button" id="btnInstantEnterPlatform" onclick="QuotesEngine.navigateNow()" style="width: 100%; height: 46px; min-height: 46px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFBF7; font-weight: 900; font-size: 15px; padding: 0 14px; border: none; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transition: transform 0.15s ease;">
                                 <span>${targetPlatformText}</span>
                             </button>
                         </div>
                     `,
-                    background: '#090D16',
-                    color: '#FFFFFF',
+                    background: '#FFFFFF',
+                    color: '#2B1810',
                     showConfirmButton: false,
                     allowOutsideClick: false,
                     allowEscapeKey: true,
@@ -869,7 +870,7 @@
                                 ⏱️ المهلة: <span id="modalTimerCountdown" style="font-family:monospace; font-size:13px; color:#FFF;">00:15</span>
                             </span>
                         </div>
-                        <div style="background:rgba(14,20,36,0.92); border:1.5px solid rgba(245,158,11,0.35); border-radius:16px; padding:14px 16px; margin-bottom:8px; max-height:220px; overflow-y:auto;">
+                        <div style="background: #FAF6F0; border:1.5px solid rgba(245,158,11,0.35); border-radius:16px; padding:14px 16px; margin-bottom:8px; max-height:220px; overflow-y:auto;">
                             <div id="modalQuoteText" style="font-size:13.5px; font-weight:900; line-height:1.7;">${quote.text}</div>
                             <div id="modalQuoteSource" style="font-size:11.5px; color:#F59E0B; font-weight:800; margin-top:6px; text-align:left;">— ${quote.source}</div>
                         </div>
@@ -879,7 +880,7 @@
                             </button>
                             <span style="font-size:11px; color:#94A3B8; font-weight:700;">القمة خُلقت لمن لا يتراجع 🦅</span>
                         </div>
-                        <button type="button" onclick="QuotesEngine.navigateNow()" style="width:100%; height:46px; background:linear-gradient(135deg,#F59E0B,#D97706); color:#090D16; font-weight:900; font-size:15px; border:none; border-radius:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <button type="button" onclick="QuotesEngine.navigateNow()" style="width:100%; height:46px; background: linear-gradient(135deg, #4A2E1B, #2B1810); color: #FFFBF7; font-weight:900; font-size:15px; border:none; border-radius:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                             <span>${targetPlatformText}</span>
                         </button>
                     </div>

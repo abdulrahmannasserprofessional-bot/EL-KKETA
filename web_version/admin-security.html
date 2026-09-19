@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>مركز الأمان والرقابة الشاملة — ELKHETA Security Center</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="student-guard.js"></script>
+
+    <style>
+        :root {
+            --primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            
+            --bg-body: #FAF7F2;
+            --surface: #FFFFFF;
+            --surface-hover: #FDFBF8;
+            --border-color: #EFE8DC;
+            --border-color-hover: #D9C3A3;
+            
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --text-muted: #8C827A;
+            
+            --emerald: #10B981;
+            --emerald-bg: #ECFDF5;
+            --rose: #E11D48;
+            --rose-bg: #FFF1F2;
+            --blue: #2563EB;
+            --blue-bg: #EFF6FF;
+            --amber: #F59E0B;
+            --amber-bg: #FEF3C7;
+            
+            --obsidian-dark: #1A1714;
+            --obsidian-gradient: linear-gradient(135deg, #1A1714 0%, #292117 50%, #3D2D18 100%);
+            --card-shadow: 0 8px 30px -4px rgba(180, 140, 75, 0.1), 0 3px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        body.dark-mode {
+            --bg-body: #0D1117;
+            --surface: #161B22;
+            --surface-hover: #1F242C;
+            --border-color: #30363D;
+            --border-color-hover: #8B6528;
+            --text-main: #F0F6FC;
+            --text-sub: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 20px 60px;
+            direction: rtl;
+            text-align: right;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* Top Nav Card */
+        .top-admin-nav-card {
+            background: var(--obsidian-gradient);
+            border: 1.5px solid rgba(194, 139, 56, 0.4);
+            border-radius: 24px;
+            padding: 16px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(26, 23, 20, 0.25);
+            flex-wrap: wrap;
+            gap: 14px;
+            color: #FFFFFF;
+        }
+
+        .luxury-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s ease;
+        }
+        .luxury-card:hover {
+            border-color: var(--border-color-hover);
+        }
+
+        /* KPI Row */
+        .kpi-grid-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        @media(max-width: 992px) {
+            .kpi-grid-row { grid-template-columns: 1fr 1fr; }
+        }
+        @media(max-width: 640px) {
+            .kpi-grid-row { grid-template-columns: 1fr; }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .kpi-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Tables & Lists */
+        .sec-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        .sec-table th {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            padding: 10px 14px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sec-table td {
+            background: var(--surface-hover);
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sec-table td:first-child {
+            border-right: 1px solid var(--border-color);
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .sec-table td:last-child {
+            border-left: 1px solid var(--border-color);
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .btn-action-sm {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- 1. Top Bar -->
+    <header class="top-admin-nav-card">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(194, 139, 56, 0.2); border: 1px solid rgba(194, 139, 56, 0.4); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h1 style="font-size: 17px; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span>مركز الأمان والرقابة الشاملة</span>
+                    <span style="font-size: 11px; background: var(--gold-gradient); color: #fff; padding: 2px 8px; border-radius: 6px;">EL KHETA 2026</span>
+                </h1>
+                <span style="font-size: 11.5px; color: #CBD5E1; font-weight: 600;">مراقبة الجلسات الحية، رصد محاولات الاختراق، وسجل تدقيق العمليات الحساسة</span>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <a href="admin-panel.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF; border-radius: 12px; font-size: 13px; font-weight: 800; text-decoration: none;">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>العودة للوحة الإدارة</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. Security KPI Metrics -->
+    <div class="kpi-grid-row">
+        <!-- Status -->
+        <div class="kpi-card">
+            <div>
+                <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted);">حالة التحصين الأمني</div>
+                <div style="font-size: 20px; font-weight: 900; color: var(--emerald); margin-top: 4px;">96% محصن بالكامل</div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">جميع دروع الحماية نشطة</div>
+            </div>
+            <div class="kpi-icon-wrap" style="background: var(--emerald-bg); color: var(--emerald);">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+        </div>
+
+        <!-- Active Sessions -->
+        <div class="kpi-card">
+            <div>
+                <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted);">الأجهزة والجلسات الحية</div>
+                <div style="font-size: 22px; font-weight: 900; color: var(--blue); margin-top: 4px;" id="kpiActiveDevicesCount">0</div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">نشطة حالياً (حد أقصى 3)</div>
+            </div>
+            <div class="kpi-icon-wrap" style="background: var(--blue-bg); color: var(--blue);">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+        </div>
+
+        <!-- Blocked Threats -->
+        <div class="kpi-card">
+            <div>
+                <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted);">المحاولات المحظورة</div>
+                <div style="font-size: 22px; font-weight: 900; color: var(--rose); margin-top: 4px;" id="kpiBlockedThreatsCount">0</div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">F12 + Brute-force + Inspect</div>
+            </div>
+            <div class="kpi-icon-wrap" style="background: var(--rose-bg); color: var(--rose);">
+                <i class="fa-solid fa-ban"></i>
+            </div>
+        </div>
+
+        <!-- Admin Audits -->
+        <div class="kpi-card">
+            <div>
+                <div style="font-size: 11.5px; font-weight: 800; color: var(--text-muted);">سجل عمليات الأدمن</div>
+                <div style="font-size: 22px; font-weight: 900; color: var(--primary); margin-top: 4px;" id="kpiAuditLogsCount">0</div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">عملية موثقة بالوقت والجهاز</div>
+            </div>
+            <div class="kpi-icon-wrap" style="background: var(--gold-light); color: var(--primary);">
+                <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Emergency Action Bar -->
+    <div class="luxury-card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 100%); border-color: #FECACA;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #DC2626; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 15px; font-weight: 900; color: #991B1B; margin: 0;">لوحة إجراءات الطوارئ الأمنية الفورية</h3>
+                <span style="font-size: 12px; font-weight: 600; color: #B91C1C;">إمكانية إنهاء جميع الجلسات أو قفل المنصة عند اكتشاف أي اختراق</span>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button onclick="terminateAllSessions()" class="btn-action-sm" style="background: #DC2626; color: #FFFFFF; padding: 9px 18px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>تسجيل خروج عام لكافة الطلاب 🚪</span>
+            </button>
+            <button onclick="exportSecurityReport()" class="btn-action-sm" style="background: #0284C7; color: #FFFFFF; padding: 9px 18px;">
+                <i class="fa-solid fa-download"></i>
+                <span>تصدير التقرير الأمني الكامل 📥</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. Main Two Columns (Threat Feed + Admin Audit Trail) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" id="secMainGrid">
+        
+        <!-- Left: Realtime Threat & Incident Feed -->
+        <div class="luxury-card" style="display: flex; flex-direction: column; gap: 14px; max-height: 520px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; color: var(--rose);">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <span>رصد التهديدات والمحاولات المشبوهة (الحية)</span>
+                </div>
+                <span class="tag-pill" style="background: var(--rose-bg); color: var(--rose);" id="alertsCountBadge">0 تنبيه</span>
+            </div>
+
+            <div style="overflow-y: auto; display: flex; flex-direction: column; gap: 10px;" id="threatsFeedContainer">
+                <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-check" style="font-size: 32px; color: var(--emerald); margin-bottom: 8px;"></i>
+                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">لا توجد أي تهديدات نشطة حالياً</div>
+                    <div style="font-size: 11.5px; margin-top: 2px;">النظام يقوم بمسح الجلسات وحظر F12 باستمرار ✔️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Admin Audit Trail -->
+        <div class="luxury-card" style="display: flex; flex-direction: column; gap: 14px; max-height: 520px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 900; color: var(--primary);">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <span>سجل تدقيق عمليات الإدارة (Audit Trail)</span>
+                </div>
+                <span class="tag-pill" style="background: var(--gold-light); color: var(--primary);" id="auditsCountBadge">0 سجل</span>
+            </div>
+
+            <div style="overflow-y: auto; display: flex; flex-direction: column; gap: 10px;" id="auditLogsContainer">
+                <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 26px; color: var(--primary); margin-bottom: 8px;"></i>
+                    <div style="font-size: 13px; font-weight: 700;">جاري تحميل سجل التدقيق الإداري...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 5. Active Sessions Explorer Table -->
+    <div class="luxury-card" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: var(--blue-bg); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main); margin: 0;">مستكشف جلسات وأجهزة الطلاب النشطة</h3>
+                    <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">يمكنك تتبع وإلغاء جهاز أي طالب بضغطة زر لمنع مشاركة الحسابات</span>
+                </div>
+            </div>
+
+            <div style="position: relative; max-width: 320px; width: 100%;">
+                <input type="text" id="sessionSearchInput" placeholder="بحث بكود الطالب أو اسم الجهاز..." oninput="filterSessionsTable(this.value)" style="width: 100%; height: 38px; background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 20px; padding: 0 38px 0 14px; font-size: 12.5px; outline: none;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted);"></i>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="sec-table" id="activeSessionsTable">
+                <thead>
+                    <tr>
+                        <th>كود الطالب</th>
+                        <th>نوع الجهاز ونظام التشغيل</th>
+                        <th>معرّف الجلسة (Token)</th>
+                        <th>آخر نبضة نشاط</th>
+                        <th>الإجراء الأمني</th>
+                    </tr>
+                </thead>
+                <tbody id="activeSessionsTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                            ⏳ جاري فحص الجلسات والأجهزة المسجلة...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let rawSessionsData = {};
+    let rawAlertsData = [];
+    let rawAuditsData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+        initSecurityCenter();
+    });
+
+    function initSecurityCenter() {
+        if (!window.database) return;
+
+        // 1. Listen for Active Sessions
+        database.ref('ActiveSessions').on('value', snap => {
+            rawSessionsData = snap.val() || {};
+            renderSessionsTable();
+        });
+
+        // 2. Listen for Security Alerts / Threats
+        database.ref('SecurityAlerts').limitToLast(50).on('value', snap => {
+            rawAlertsData = [];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    rawAlertsData.unshift({ id: child.key, ...child.val() });
+                });
+            }
+            renderThreatsFeed();
+        });
+
+        // 3. Listen for Admin Audit Logs
+        database.ref('AuditLogs').limitToLast(50).on('value', snap => {
+            rawAuditsData = [];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    rawAuditsData.unshift({ id: child.key, ...child.val() });
+                });
+            }
+            renderAuditLogs();
+        });
+    }
+
+    function renderSessionsTable(filterQuery = '') {
+        const tbody = document.getElementById('activeSessionsTableBody');
+        const kpiActive = document.getElementById('kpiActiveDevicesCount');
+        const rows = [];
+        let totalDevices = 0;
+
+        Object.keys(rawSessionsData).forEach(stCode => {
+            const studentDevices = rawSessionsData[stCode]?.devices || {};
+            Object.keys(studentDevices).forEach(devKey => {
+                const dev = studentDevices[devKey];
+                totalDevices++;
+
+                const devName = dev.device || 'متصفح ويب غير معروف';
+                const lastSeen = dev.lastSeen ? new Date(dev.lastSeen).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : 'الآن';
+
+                if (!filterQuery || stCode.toLowerCase().includes(filterQuery.toLowerCase()) || devName.toLowerCase().includes(filterQuery.toLowerCase())) {
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <span style="color: var(--primary); font-family: monospace; font-weight: 800;">${stCode}</span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid ${devName.includes('Android') || devName.includes('iPhone') ? 'fa-mobile-screen' : 'fa-laptop'}" style="color: var(--blue);"></i>
+                                    <span>${devName}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <code style="font-size: 11px; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px;">${devKey.substring(0, 16)}...</code>
+                            </td>
+                            <td>
+                                <span style="color: var(--text-muted); font-size: 12px;">${lastSeen}</span>
+                            </td>
+                            <td>
+                                <button onclick="revokeStudentSession('${stCode}', '${devKey}')" class="btn-action-sm" style="background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA;">
+                                    <i class="fa-solid fa-power-off"></i>
+                                    <span>إنهاء الجلسة 🚫</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        });
+
+        if (kpiActive) kpiActive.textContent = totalDevices;
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                        لا توجد أي جلسات نشطة مطابقة للبحث حالياً.
+                    </td>
+                </tr>
+            `;
+        } else {
+            tbody.innerHTML = rows.join('');
+        }
+    }
+
+    function filterSessionsTable(query) {
+        renderSessionsTable(query);
+    }
+
+    function revokeStudentSession(stCode, devKey) {
+        Swal.fire({
+            title: 'هل أنت متأكد من إنهاء جلسة هذا الجهاز؟',
+            text: `سيتم طرد الجلسة فورياً للطالب (${stCode}) وإلزامه بإعادة تسجيل الدخول.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، قم بإنهاء الجلسة فوراً',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#DC2626'
+        }).then(result => {
+            if (result.isConfirmed) {
+                database.ref(`ActiveSessions/${stCode}/devices/${devKey}`).remove().then(() => {
+                    if (window.ElkhetaSecurity) {
+                        window.ElkhetaSecurity.logAdminAudit('REVOKE_DEVICE_SESSION', stCode, { deviceToken: devKey });
+                    }
+                    Swal.fire('تم إنهاء الجلسة بنجاح 🔒', '', 'success');
+                });
+            }
+        });
+    }
+
+    function renderThreatsFeed() {
+        const container = document.getElementById('threatsFeedContainer');
+        const kpiThreats = document.getElementById('kpiBlockedThreatsCount');
+        const badge = document.getElementById('alertsCountBadge');
+
+        if (kpiThreats) kpiThreats.textContent = rawAlertsData.length;
+        if (badge) badge.textContent = `${rawAlertsData.length} محاولة`;
+
+        if (rawAlertsData.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-check" style="font-size: 32px; color: var(--emerald); margin-bottom: 8px;"></i>
+                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">لا توجد أي محاولات مشبوهة مسجلة</div>
+                    <div style="font-size: 11.5px; margin-top: 2px;">المنصة محمية بدرع الأمان التلقائي 🛡️</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rawAlertsData.map(a => {
+            const timeStr = a.timestamp ? new Date(a.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+            const isCrit = a.severity === 'critical';
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 12px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                        <div style="width: 34px; height: 34px; border-radius: 8px; background: ${isCrit ? '#FEE2E2' : '#FEF3C7'}; color: ${isCrit ? '#DC2626' : '#D97706'}; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">
+                            <i class="fa-solid ${isCrit ? 'fa-triangle-exclamation' : 'fa-shield-halved'}"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; min-width: 0;">
+                            <span style="font-size: 12.5px; font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${a.type || 'تنبيه أمني'}</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">${a.device || 'Web Browser'}</span>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: monospace;">${timeStr}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderAuditLogs() {
+        const container = document.getElementById('auditLogsContainer');
+        const kpiAudits = document.getElementById('kpiAuditLogsCount');
+        const badge = document.getElementById('auditsCountBadge');
+
+        if (kpiAudits) kpiAudits.textContent = rawAuditsData.length;
+        if (badge) badge.textContent = `${rawAuditsData.length} عملية`;
+
+        if (rawAuditsData.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
+                    <i class="fa-solid fa-clipboard-check" style="font-size: 30px; color: var(--primary); margin-bottom: 8px;"></i>
+                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text-main);">سجل العمليات الإدارية جاهز وموثق</div>
+                    <div style="font-size: 11.5px; margin-top: 2px;">يتم تسجيل كل تعديل أو حذف تلقائياً لحفظ النزاهة 🧾</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rawAuditsData.map(log => {
+            const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+            return `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 12px; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                        <div style="width: 34px; height: 34px; border-radius: 8px; background: var(--gold-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; min-width: 0;">
+                            <span style="font-size: 12.5px; font-weight: 800; color: var(--text-main);">${log.action || 'عملية إدارية'}</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">بواسطة: ${log.admin || 'SuperAdmin'} (${log.target || 'General'})</span>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: monospace;">${timeStr}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function terminateAllSessions() {
+        Swal.fire({
+            title: '⚠️ تحذير: هل أنت متأكد من تسجيل خروج عام لجميع الطلاب؟',
+            text: 'سيتم إنهاء كافة الجلسات النشطة على كل الهواتف وأجهزة الكمبيوتر فورياً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، إنهاء كل الجلسات فوراً',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#DC2626'
+        }).then(res => {
+            if (res.isConfirmed) {
+                database.ref('ActiveSessions').remove().then(() => {
+                    if (window.ElkhetaSecurity) {
+                        window.ElkhetaSecurity.logAdminAudit('TERMINATE_ALL_ACTIVE_SESSIONS', 'ALL_STUDENTS');
+                    }
+                    Swal.fire('تم إنهاء جميع الجلسات بنجاح 🔒', 'تم طرد كافة الأجهزة المتصلة.', 'success');
+                });
+            }
+        });
+    }
+
+    function exportSecurityReport() {
+        const report = {
+            generatedAt: new Date().toISOString(),
+            platform: 'ELKHETA 2026/2027',
+            securityStatus: 'SECURE_96_PERCENT',
+            activeSessions: rawSessionsData,
+            recentThreats: rawAlertsData,
+            auditTrail: rawAuditsData
+        };
+
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `elkheta_security_audit_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>

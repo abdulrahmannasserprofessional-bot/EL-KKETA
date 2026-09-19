@@ -1,7 +1,209 @@
 /**
- * 🎬 ELKHETA KINETIC MOTION & INTERACTION ENGINE (PRO 2027)
- * Hardware-accelerated 3D Tilt, Kinetic Number Counters, Liquid Ripples & Scroll Reveals.
+ * 🎬 ELKHETA KINETIC MOTION & INTERACTION ENGINE + SECURITY SHIELD (PRO 2026)
+ * Hardware-accelerated 3D Tilt, Kinetic Number Counters, Liquid Ripples & Enterprise DevTools Protection.
  */
+
+// ═══════════════════════════════════════════════════════════════════════
+// 🛡️ ELKHETA ENTERPRISE ANTI-INSPECTION & ANTI-DATA-LEAK ENGINE (2026)
+// منع أدوات المطور (F12, Inspect, Console, Debugger, View Source, Copy)
+// ═══════════════════════════════════════════════════════════════════════
+(function initEnterpriseSecurityShield() {
+    'use strict';
+
+    function isPlatformAdmin() {
+        try {
+            const path = (window.location.pathname || '').toLowerCase();
+            // 1. Strictly Admin Dashboard/Panel pages
+            if (path.includes('admin-') || path.includes('admin.html') || path.includes('admin/') || path.includes('admin_')) {
+                return true;
+            }
+            // 2. Student learning pages are ALWAYS strictly protected (no bypass allowed)
+            const isStudentPage = path.includes('lectures') || path.includes('quiz') || path.includes('mistakes') || 
+                                  path.includes('notes-viewer') || path.includes('courses') || path.includes('planner') || 
+                                  path.includes('leaderboard') || path.includes('video') || path.includes('display-code') ||
+                                  path.includes('profile') || path.includes('community') || path.includes('home') ||
+                                  path.includes('notifications') || path.includes('map') || path.includes('guide') ||
+                                  path.includes('chat') || path.includes('index') || path.includes('ai-report');
+            if (isStudentPage) {
+                return false;
+            }
+            // 3. For other pages, require active session-only admin credentials
+            if (sessionStorage.getItem('isAdmin') === 'true' && (sessionStorage.getItem('adminRole') || sessionStorage.getItem('adminUser'))) {
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    if (isPlatformAdmin()) return;
+
+    // Preserve raw console methods before silencing public console
+    const _rawLog = (window.console && typeof window.console.log === 'function') ? window.console.log.bind(window.console) : function() {};
+    const _rawClear = (window.console && typeof window.console.clear === 'function') ? window.console.clear.bind(window.console) : function() {};
+
+    // 1. إيقاف وإلغاء جميع مخرجات الـ Console في وضع الإنتاج لمنع تسريب الروابط أو البيانات
+    try {
+        const noop = function() {};
+        window.console.log = noop;
+        window.console.info = noop;
+        window.console.warn = noop;
+        window.console.debug = noop;
+        window.console.dir = noop;
+        window.console.table = noop;
+    } catch(e) {}
+
+    // 2. قفل واعتراض جميع اختصارات لوحة المفاتيح الخاصة بالمطورين (Capture Phase)
+    window.addEventListener('keydown', function(e) {
+        if (isPlatformAdmin()) return;
+
+        const isCtrlOrMeta = e.ctrlKey || e.metaKey;
+        const isAlt = e.altKey;
+        const isShift = e.shiftKey;
+        const key = (e.key || '').toLowerCase();
+        const keyCode = e.keyCode || e.which;
+
+        // F12
+        if (keyCode === 123 || key === 'f12' || e.code === 'F12') {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showRightClickSecurityNotice('اختصار أدوات المطور (F12) محظور لحماية سرية الامتحانات والمحتوى 🛡️');
+            return false;
+        }
+
+        // Ctrl+Shift+I, J, C, K, E, S, X or Cmd+Option+I, J, C
+        if (
+            (isCtrlOrMeta && isShift && ['i', 'j', 'c', 'k', 'e', 's', 'x'].includes(key)) ||
+            (isCtrlOrMeta && isAlt && ['i', 'j', 'c'].includes(key)) ||
+            (keyCode === 73 && isCtrlOrMeta && isShift) || // I
+            (keyCode === 74 && isCtrlOrMeta && isShift) || // J
+            (keyCode === 67 && isCtrlOrMeta && isShift)    // C
+        ) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showRightClickSecurityNotice('فحص عناصر وأكواد المنصة محظور لحماية المحتوى الأكاديمي 🛡️');
+            return false;
+        }
+
+        // Ctrl+U (View Page Source)
+        if (isCtrlOrMeta && (key === 'u' || keyCode === 85)) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showRightClickSecurityNotice('استعراض الكود المصدري محظور لحماية سرية المنصة 🛡️');
+            return false;
+        }
+
+        // Ctrl+S (Save Page HTML Source)
+        if (isCtrlOrMeta && (key === 's' || keyCode === 83)) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            return false;
+        }
+
+        // Ctrl+P (Print to PDF leak)
+        if (isCtrlOrMeta && (key === 'p' || keyCode === 80)) {
+            const isQuizReview = window.location.pathname.includes('quiz') || window.location.pathname.includes('mistakes');
+            if (!isQuizReview) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }
+    }, true);
+
+    // 3. قفل القائمة المنسدلة للماوس مع إشعار أمني فاخر (Right Click Security Notice)
+    function showRightClickSecurityNotice(customMsg) {
+        let toast = document.getElementById('elkhetaSecurityRightClickToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'elkhetaSecurityRightClickToast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 24px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-30px);
+                background: rgba(15, 23, 42, 0.98);
+                border: 1.5px solid #C28B38;
+                border-radius: 20px;
+                padding: 14px 22px;
+                box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(194, 139, 56, 0.4);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                z-index: 2147483646;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: #FFFFFF;
+                font-family: 'Cairo', sans-serif;
+                direction: rtl;
+                text-align: right;
+                max-width: 92vw;
+                width: 480px;
+                opacity: 0;
+                pointer-events: none;
+                transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            `;
+            toast.innerHTML = `
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);">
+                    🛡️
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 900; color: #FDE68A; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
+                        <span>🔒 تنبيه أمني مشدد • منصة الخطة</span>
+                    </div>
+                    <div id="elkhetaSecurityNoticeText" style="font-size: 12.5px; color: #E2E8F0; font-weight: 700; line-height: 1.55;">
+                        هذا الإجراء غير مسموح به لحماية المحتوى الأكاديمي وسرية الامتحانات.
+                    </div>
+                </div>
+            `;
+            if (document.body) {
+                document.body.appendChild(toast);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.body.appendChild(toast));
+            }
+        }
+
+        const textEl = document.getElementById('elkhetaSecurityNoticeText');
+        if (textEl && customMsg) textEl.innerHTML = customMsg;
+
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        toast.style.pointerEvents = 'auto';
+
+        if (window.navigator && window.navigator.vibrate) {
+            try { window.navigator.vibrate([40, 60, 40]); } catch(e){}
+        }
+
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(-30px)';
+            toast.style.pointerEvents = 'none';
+        }, 2800);
+    }
+    window.showRightClickSecurityNotice = showRightClickSecurityNotice;
+
+    document.addEventListener('contextmenu', function(e) {
+        if (isPlatformAdmin()) return;
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        showRightClickSecurityNotice('النقر بالزر الأيمن واستدعاء القوائم المنسدلة غير مسموح به لحماية المحتوى الأكاديمي وسرية الامتحانات 🛡️');
+        return false;
+    }, true);
+
+    // 4. قفل سحب الصور والمحتوى (Drag & Drop Protection)
+    document.addEventListener('dragstart', function(e) {
+        if (isPlatformAdmin()) return;
+        e.preventDefault();
+        return false;
+    }, true);
+})();
 
 (function () {
     'use strict';

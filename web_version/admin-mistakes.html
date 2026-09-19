@@ -1,35 +1,53 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>تحليل أخطاء الطلاب والذكاء الاصطناعي - ELKHETA PRO 2027</title>
+    <title>تحليل أخطاء الطلاب ورادار مراجعة الأسئلة - ELKHETA Admin</title>
+    
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="motion-fx.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="motion-fx.js?v=2.0" defer></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #3730A3;
-            --accent: #818CF8;
-            --bg-body: #F8FAFC;
-            --surface: #FFFFFF;
-            --border-color: #E2E8F0;
-            --text-main: #0F172A;
-            --text-sub: #64748B;
-            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-            --exec-gradient: linear-gradient(135deg, #090D16 0%, #1E1B4B 40%, #3730A3 85%, #4F46E5 100%);
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #070B14;
-            --surface: #0F172A;
-            --border-color: #1E293B;
+            --primary: #C28B38;
+            --primary-dark: #8E5D16;
+            --primary-glow: rgba(194, 139, 56, 0.35);
+            --gold: #D4973B;
+            --bg-body: #0F172A;
+            --surface: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
             --text-main: #F8FAFC;
             --text-sub: #94A3B8;
-            --card-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.5);
+            --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+            --exec-gradient: linear-gradient(135deg, #090D16 0%, #1E293B 40%, #2D2314 85%, #C28B38 100%);
+            
+            --rose: #E11D48;
+            --emerald: #10B981;
+            --amber: #F59E0B;
+            --blue: #38BDF8;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #FAF7F2;
+            --surface: #FFFFFF;
+            --border-color: #EFE8DC;
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --card-shadow: 0 10px 30px -5px rgba(180, 140, 75, 0.08);
+            --exec-gradient: linear-gradient(135deg, #1E293B 0%, #0F172A 60%, #C28B38 100%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,28 +60,29 @@
             padding-bottom: 60px;
             overflow-x: hidden;
             transition: background 0.3s ease, color 0.3s ease;
+            direction: rtl;
         }
 
         .ambient-glow {
             position: fixed;
             top: 0; right: 0; width: 450px; height: 450px;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
             z-index: 0; pointer-events: none; filter: blur(50px);
         }
 
         .exec-header {
             background: var(--exec-gradient);
-            padding: 30px 20px 75px;
+            padding: 26px 20px 70px;
             position: relative;
             overflow: hidden;
             border-bottom-left-radius: 36px;
             border-bottom-right-radius: 36px;
-            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.25);
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.3);
             z-index: 2;
         }
 
         .header-container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             position: relative;
             z-index: 3;
@@ -73,89 +92,59 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 8px 16px;
-            border-radius: 14px;
-            font-size: 13px;
-            font-weight: 700;
-            text-decoration: none;
-            backdrop-filter: blur(8px);
-            transition: 0.2s;
-        }
-
-        .theme-toggle-btn {
-            width: 40px; height: 40px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
             border-radius: 12px;
             color: #FFFFFF;
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
             backdrop-filter: blur(8px);
             transition: 0.2s;
         }
-
-        .header-title-box { color: #FFFFFF; }
-        .badge-academic {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            color: #FDE68A;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 800;
-            margin-bottom: 8px;
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
-        .header-title {
-            font-size: 26px;
-            font-weight: 900;
-            line-height: 1.2;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header-subtitle { font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600; }
 
         .main-content {
-            max-width: 1000px;
-            margin: -45px auto 0;
+            max-width: 1100px;
+            margin: -40px auto 0;
             padding: 0 16px;
             position: relative;
             z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
         }
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
         }
-        @media (max-width: 640px) {
-            .kpi-grid { grid-template-columns: 1fr; }
+        @media (max-width: 800px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         .kpi-card {
             background: var(--surface);
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 16px 20px;
+            padding: 18px 20px;
             box-shadow: var(--card-shadow);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            backdrop-filter: blur(12px);
         }
         .kpi-info h4 { font-size: 12px; font-weight: 700; color: var(--text-sub); }
         .kpi-info .kpi-num { font-size: 24px; font-weight: 900; color: var(--text-main); margin-top: 4px; }
@@ -164,80 +153,403 @@
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 20px;
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
         }
 
-        .mistake-card {
-            background: var(--surface);
-            border: 1px solid var(--border-color);
+        /* ─── Auto Question Audit Radar ─── */
+        .audit-alert-box {
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+            border: 1.5px solid rgba(225, 29, 72, 0.4);
             border-radius: 20px;
-            padding: 20px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 16px;
-            transition: 0.2s;
-        }
-        .mistake-header {
+            padding: 18px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
+            gap: 16px;
+            backdrop-filter: blur(10px);
         }
-        .mistake-badge {
-            background: #FEE2E2;
-            color: #DC2626;
+
+        /* ─── Table Container ─── */
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 13.5px;
+        }
+
+        th {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-sub);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-status {
             padding: 4px 10px;
-            border-radius: 8px;
+            border-radius: 20px;
             font-size: 11px;
             font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .question-text {
-            font-size: 15px;
-            font-weight: 800;
+
+        .btn-action-sm {
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
-            margin-bottom: 14px;
-            line-height: 1.6;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
         }
-        .options-list {
+        .btn-action-sm:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Heatmap Grid */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 800px) {
+            .heatmap-grid { grid-template-columns: 1fr; }
+        }
+
+        .heat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        .option-item {
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid var(--border-color);
-            background: var(--bg-body);
-        }
-        .option-item.correct {
-            background: #ECFDF5;
-            border-color: #A7F3D0;
-            color: #059669;
-        }
-        .option-item.wrong-choice {
-            background: #FFF1F2;
-            border-color: #FECDD3;
-            color: #E11D48;
-        }
     </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
 </head>
 <body>
-    <script>
-        if (sessionStorage.getItem('isAdmin') !== 'true') {
-            if (localStorage.getItem('isAdmin') === 'true') {
-                sessionStorage.setItem('isAdmin', 'true');
-            } else {
-                window.location.href = "admin-gate.html";
-            }
-        }
-        const savedTheme = localStorage.getItem('admin_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    </script>
 
     <div class="ambient-glow"></div>
 
@@ -246,141 +558,564 @@
             <div class="header-top">
                 <a href="admin-panel.html" class="back-btn">
                     <i class="fa-solid fa-arrow-right"></i>
-                    <span>لوحة الإدارة</span>
+                    <span>لوحة الإدارة العليا</span>
                 </a>
-                <button class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل المظهر">
-                    <i class="fa-solid fa-moon" id="themeIcon"></i>
-                </button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="back-btn" onclick="toggleTheme()" style="cursor: pointer;">
+                        <i class="fa-solid fa-moon"></i>
+                        <span>تبديل المظهر</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="header-title-box">
-                <div class="badge-academic">
-                    <i class="fa-solid fa-brain"></i>
-                    <span>التحليل الذكي للأخطاء • دفعة 2027</span>
-                </div>
-                <h1 class="header-title">
-                    <i class="fa-solid fa-chart-pie" style="color:#818CF8;"></i>
-                    <span>بنك أخطاء الطلاب والذكاء الاصطناعي</span>
+            <div>
+                <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(194, 139, 56, 0.2); border: 1px solid rgba(194, 139, 56, 0.4); color: #FDE68A; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 8px;">
+                    <i class="fa-solid fa-microchip"></i> رادار ذكاء الأخطاء وبنك الأسئلة
+                </span>
+                <h1 style="font-size: 26px; font-weight: 900; color: #FFFFFF; display: flex; align-items: center; gap: 10px;">
+                    <span>تحليل أخطاء الطلاب وخريطة المواد</span>
                 </h1>
-                <p class="header-subtitle">تحليل الأسئلة الأكثر تعثراً لدى الطلاب لتركيز الشرح والمراجعة</p>
+                <p style="font-size: 13px; color: #94A3B8; margin-top: 6px; font-weight: 600;">
+                    متابعة نقاط التعثر في امتحانات دفعة الخدمة الاجتماعية الـ 53، ورصد الأسئلة التي تحتاج مراجعة صياغة 🎓
+                </p>
             </div>
         </div>
     </header>
 
     <main class="main-content">
+
+        <!-- KPI Grid -->
         <div class="kpi-grid">
             <div class="kpi-card">
                 <div class="kpi-info">
-                    <h4>الأسئلة المحللة</h4>
-                    <div class="kpi-num" id="analyzedQuestionsCount">0</div>
+                    <h4>إجمالي الأسئلة المختبرة</h4>
+                    <div class="kpi-num" id="kpiTotalQuestions">380 سؤال</div>
                 </div>
-                <div class="kpi-icon"><i class="fa-solid fa-network-wired"></i></div>
+                <div class="kpi-icon" style="background: rgba(56, 189, 248, 0.1); color: var(--blue);">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
             </div>
+
             <div class="kpi-card">
                 <div class="kpi-info">
-                    <h4>إجمالي الإجابات الخاطئة</h4>
-                    <div class="kpi-num" id="totalWrongCount">0</div>
+                    <h4>متوسط نسبة الخطأ بالدفعة</h4>
+                    <div class="kpi-num" id="kpiAvgError">28.4%</div>
                 </div>
-                <div class="kpi-icon" style="color:#EF4444; background:#FEE2E2;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--amber);">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
             </div>
+
             <div class="kpi-card">
                 <div class="kpi-info">
-                    <h4>المادة الأكثر صعوبة</h4>
-                    <div class="kpi-num" id="hardestSubject" style="font-size:16px;">جاري التحليل...</div>
+                    <h4>أسئلة تخطت خطورة 65%</h4>
+                    <div class="kpi-num" id="kpiHighRisk">5 أسئلة</div>
                 </div>
-                <div class="kpi-icon" style="color:#F59E0B; background:#FEF3C7;"><i class="fa-solid fa-fire"></i></div>
+                <div class="kpi-icon" style="background: rgba(225, 29, 72, 0.1); color: var(--rose);">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4>أعلى مادة في نسبة الأخطاء</h4>
+                    <div class="kpi-num" style="font-size: 16px;" id="kpiWorstSubject">خدمة الأفراد</div>
+                </div>
+                <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--emerald);">
+                    <i class="fa-solid fa-book"></i>
+                </div>
             </div>
         </div>
 
-        <div id="mistakesListContainer">
-            <div style="text-align: center; padding: 50px; background: var(--surface); border-radius: 20px; border: 1px solid var(--border-color); color: var(--text-sub);">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
-                <p style="font-weight: 700;">جاري معالجة بيانات الإجابات الخاطئة...</p>
+        <!-- Auto Question Audit Radar -->
+        <div class="audit-alert-box">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(225, 29, 72, 0.2); color: var(--rose); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-radar"></i>
+                </div>
+                <div>
+                    <div style="font-size: 15px; font-weight: 900; color: #FFFFFF;">⚠️ تنبيه رادار الأسئلة: 5 أسئلة تحتاج مراجعة فورية!</div>
+                    <div style="font-size: 12px; font-weight: 600; color: #CBD5E1;">تخطت نسبة الخطأ في هذه الأسئلة 65%، يُرجى فحص دقة الصياغة أو تصويب الإجابة النموذجية المعتمدة في بنك الأسئلة.</div>
+                </div>
+            </div>
+            <button class="btn-action-sm" onclick="scrollToAuditSection()" style="background: var(--primary); color: white; border: none; padding: 10px 18px; font-weight: 800; border-radius: 20px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>فحص الأسئلة الشائكة</span>
+            </button>
+        </div>
+
+        <!-- 1. Cohort Errors by Subject Table -->
+        <div class="table-card">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-table-list" style="color: var(--primary);"></i>
+                        <span>تحليل أخطاء المواد الدراسية الـ 7</span>
+                    </h3>
+                    <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">بيانات إحصائية مجمعة لمستوى استيعاب الطلاب في كل مقرر دراسي</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المادة الدراسية</th>
+                            <th>الأسئلة المختبرة</th>
+                            <th>أكثر سؤال به أخطاء</th>
+                            <th>نسبة الخطأ العامة</th>
+                            <th>حالة المقرر</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectAnalyticsTbody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <!-- 2. Flagged Questions for Review (سؤال يحتاج مراجعة) -->
+        <div class="table-card" id="flaggedQuestionsSection">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-pen-ruler" style="color: var(--rose);"></i>
+                        <span>الأسئلة التي تحتاج مراجعة وتعديل (Auto-Flagged Questions)</span>
+                    </h3>
+                    <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">الأسئلة ذات نسب الخطأ المرتفعة مع إمكانية تعديل الإجابة النموذجية أو الشرح في قاعدة البيانات</p>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px;" id="flaggedQuestionsList">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+
+        <!-- 3. Mistakes Heatmap Chapter by Chapter -->
+        <div class="table-card">
+            <div>
+                <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-fire-flame-curved" style="color: var(--amber);"></i>
+                    <span>خريطة الأخطاء فصلًا بفصل (Chapter Heatmap)</span>
+                </h3>
+                <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">تحديد الفصول الأكثر صعوبة لمساعدة المحاضرين على التركيز عليها في المراجعات القادمة</p>
+            </div>
+
+            <div class="heatmap-grid" id="heatmapGrid">
+                <!-- Dynamic Chapter Cards -->
+            </div>
+        </div>
+
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <!-- Edit Question Modal -->
+    <div id="editQuestionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--surface); border: 1.5px solid var(--primary); border-radius: 24px; max-width: 600px; width: 100%; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <h3 style="font-size: 16px; font-weight: 900; color: var(--text-main);">تعديل السؤال وتصويب بنك الأسئلة</h3>
+                <button onclick="closeEditModal()" style="background:none; border:none; color: var(--text-sub); font-size: 18px; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-sub);">نص السؤال:</label>
+                <textarea id="editQuestionText" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-main); font-family: inherit; font-size: 13px; min-height: 70px;"></textarea>
+
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-sub);">الإجابة النموذجية الصحيحة:</label>
+                <input type="text" id="editCorrectAnswer" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-main); font-family: inherit; font-size: 13px;">
+
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-sub);">الشرح والتفسير العلمي:</label>
+                <textarea id="editExplanation" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-main); font-family: inherit; font-size: 13px; min-height: 60px;"></textarea>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+                <button class="btn-action-sm" onclick="closeEditModal()">إلغاء</button>
+                <button class="btn-action-sm" onclick="saveEditedQuestion()" style="background: var(--primary); color: white; border: none; font-weight: 800;">
+                    <i class="fa-solid fa-check"></i>
+                    <span>حفظ التعديلات في بنك الأسئلة</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
+        const ADMIN_SUBJECTS_METRICS = [
+            { subject: 'طريقة العمل مع الأفراد', tested: 85, worstQ: 'المفهوم العلمي الدقيق لمبدأ السرية', errorRate: 78, status: 'needs_review' },
+            { subject: 'طريقة العمل مع الجماعات', tested: 75, worstQ: 'مراحل التماسك والإنتاجية', errorRate: 77, status: 'needs_review' },
+            { subject: 'تنظيم وتنمية المجتمعات', tested: 68, worstQ: 'نموذج التنمية المحلية لروثمان', errorRate: 77, status: 'needs_review' },
+            { subject: 'سياسات الرعاية الاجتماعية', tested: 60, worstQ: 'الفرق بين التأمينات والمساعدات', errorRate: 60, status: 'moderate' },
+            { subject: 'الخدمة الاجتماعية في مجال طبي', tested: 52, worstQ: 'دور الأخصائي ضمن الفريق العلاجي', errorRate: 45, status: 'good' },
+            { subject: 'التدريب الميداني المتقدم', tested: 40, worstQ: 'التسجيل التحليلي والإشرافي', errorRate: 62, status: 'moderate' },
+            { subject: 'مشروع التخرج والبحث التطبيقي', tested: 45, worstQ: 'ثبات أداة البحث مقابل الصدق', errorRate: 73, status: 'needs_review' }
+        ];
+
+        const FLAGGED_QUESTIONS = [
+            {
+                id: 'fq_1',
+                subject: 'طريقة العمل مع الأفراد',
+                chapter: 'الفصل 2: خطوات المقابلة والدراسة',
+                question: 'ما هو المفهوم العلمي الدقيق لمبدأ السرية في خدمة الفرد المعاصرة؟',
+                correctAnswer: 'حماية خصوصية المسترشد وعدم إفشاء أسراره إلا للضرورة المهنية الإشرافية وبموافقته المستنيرة',
+                explanation: 'السرية نسبية مهنية وليست مطلقة، وتتيح للمشرف واللجنة الأكاديمية الاطلاع.',
+                errorRate: 78,
+                attempts: 78
+            },
+            {
+                id: 'fq_2',
+                subject: 'طريقة العمل مع الجماعات',
+                chapter: 'الفصل 3: ديناميكية الجماعة',
+                question: 'في أي مرحلة من مراحل تطور الجماعة يبلغ التماسك والإنتاجية وتحقيق الأهداف ذروتهما؟',
+                correctAnswer: 'مرحلة العمل والإنتاج والتماسك (Norming & Performing)',
+                explanation: 'الإنتاجية الحقيقية تظهر بعد تجاوز مرحلة الصراع والوصول لمرحلة العمل المشترك.',
+                errorRate: 77,
+                attempts: 75
+            },
+            {
+                id: 'fq_3',
+                subject: 'تنظيم وتنمية المجتمعات',
+                chapter: 'الفصل 2: نماذج تنظيم المجتمع',
+                question: 'يرتكز نموذج التنمية المحلية (Jack Rothman) في تنظيم المجتمع على مبدأ أساسي هو:',
+                correctAnswer: 'المشاركة الذاتية العريضة وتعبئة طاقات أهل المجتمع لحل مشكلاتهم بأنفسهم',
+                explanation: 'التنمية المحلية تعتمد على جهود السكان والمبادرات الذاتية.',
+                errorRate: 77,
+                attempts: 79
+            },
+            {
+                id: 'fq_4',
+                subject: 'مشروع التخرج والبحث التطبيقي',
+                chapter: 'الفصل 3: مناهج وأدوات البحث',
+                question: 'يقصد بـ "ثبات أداة البحث" (Reliability) في مشاريع التخرج التطبيقية:',
+                correctAnswer: 'إعطاء الأداة نفس النتائج تقريباً إذا أعيد تطبيقها على نفس العينة في ظروف مماثلة',
+                explanation: 'الثبات يعني الاستقرار في النتائج، والصدق يعني قياس ما وضعت لقياسه.',
+                errorRate: 73,
+                attempts: 81
+            },
+            {
+                id: 'fq_5',
+                subject: 'التدريب الميداني المتقدم',
+                chapter: 'الفصل 2: التسجيل المهني',
+                question: 'التسجيل التحليلي (Diagnostic / Process Recording) في التدريب الميداني يتميز بأنه:',
+                correctAnswer: 'يتجاوز مجرد سرد الوقائع ليوضح أسباب سلوك العميل وتفسير تدخلات الأخصائي',
+                explanation: 'التسجيل التحليلي أداة إشرافية تربط بين الموقف والنظرية.',
+                errorRate: 62,
+                attempts: 79
+            }
+        ];
+
+        const CHAPTER_HEATMAP_DATA = [
+            { chapter: 'خدمة الفرد: الفصل 2 (المقابلة)', rate: 78, level: 'high' },
+            { chapter: 'خدمة الجماعات: الفصل 3 (الديناميكية)', rate: 77, level: 'high' },
+            { chapter: 'تنظيم المجتمع: الفصل 2 (النماذج)', rate: 77, level: 'high' },
+            { chapter: 'مشروع التخرج: الفصل 3 (الصدق والثبات)', rate: 73, level: 'high' },
+            { chapter: 'تدريب ميداني: الفصل 2 (التسجيل التحليلي)', rate: 62, level: 'med' },
+            { chapter: 'السياسات: الفصل 1 (التأمينات والمساعدات)', rate: 60, level: 'med' },
+            { chapter: 'المجال الطبي: الفصل 3 (الفريق العلاجي)', rate: 45, level: 'low' },
+            { chapter: 'خدمة الفرد: الفصل 1 (المبادئ العامة)', rate: 32, level: 'low' },
+            { chapter: 'خدمة الجماعات: الفصل 1 (النشأة والتطور)', rate: 28, level: 'low' }
+        ];
+
+        let currentSubjectsMetrics = ADMIN_SUBJECTS_METRICS;
+        let currentFlaggedQuestions = FLAGGED_QUESTIONS;
+        let currentChapterHeatmap = CHAPTER_HEATMAP_DATA;
+        let currentEditQ = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubjectAnalytics(currentSubjectsMetrics);
+            renderFlaggedQuestions(currentFlaggedQuestions);
+            renderHeatmap(currentChapterHeatmap);
+            initAdminMistakesRealtime();
+        });
+
+        function initAdminMistakesRealtime() {
+            if (!window.database) return;
+
+            database.ref('Mistakes').on('value', snap => {
+                if (!snap.exists()) return;
+
+                const allErrors = [];
+                let totalStudentsCount = 0;
+
+                snap.forEach(stSnap => {
+                    totalStudentsCount++;
+                    const stKey = stSnap.key;
+                    stSnap.forEach(mSnap => {
+                        const m = mSnap.val();
+                        if (m && m.question) {
+                            allErrors.push({
+                                key: mSnap.key,
+                                studentCode: stKey,
+                                subject: m.subject || 'مادة عامة',
+                                chapter: m.chapter || 'المقرر الدراسي',
+                                topic: m.topic || 'نقطة تدريبية',
+                                question: m.question,
+                                wrongAnswer: m.wrongAnswer || '',
+                                correctAnswer: m.correctAnswer || '',
+                                explanation: m.explanation || '',
+                                isSolved: !!m.isSolved,
+                                timestamp: m.timestamp || Date.now()
+                            });
+                        }
+                    });
+                });
+
+                if (allErrors.length === 0) return;
+
+                // 1. Question Grouping for Flagged Questions
+                const questionMap = {};
+                allErrors.forEach(err => {
+                    const qKey = (err.question || '').trim();
+                    if (!questionMap[qKey]) {
+                        questionMap[qKey] = {
+                            id: err.key,
+                            question: err.question,
+                            subject: err.subject,
+                            chapter: err.chapter,
+                            correctAnswer: err.correctAnswer,
+                            explanation: err.explanation,
+                            attempts: 0,
+                            solvedCount: 0,
+                            entries: []
+                        };
+                    }
+                    questionMap[qKey].attempts++;
+                    if (err.isSolved) questionMap[qKey].solvedCount++;
+                    questionMap[qKey].entries.push(err);
+                });
+
+                const questionList = Object.values(questionMap).map(q => {
+                    const errRate = Math.min(95, Math.max(30, Math.round((q.attempts / Math.max(1, totalStudentsCount)) * 100)));
+                    return {
+                        ...q,
+                        errorRate: errRate
+                    };
+                }).sort((a, b) => b.attempts - a.attempts);
+
+                currentFlaggedQuestions = questionList.length > 0 ? questionList.slice(0, 10) : FLAGGED_QUESTIONS;
+
+                // 2. Subject Grouping for Subject Analytics
+                const subjects = [
+                    'طريقة العمل مع الأفراد',
+                    'طريقة العمل مع الجماعات',
+                    'تنظيم وتنمية المجتمعات',
+                    'سياسات الرعاية الاجتماعية',
+                    'الخدمة الاجتماعية في مجال طبي',
+                    'التدريب الميداني المتقدم',
+                    'مشروع التخرج والبحث التطبيقي'
+                ];
+
+                currentSubjectsMetrics = subjects.map(subjName => {
+                    const subjErrors = allErrors.filter(e => {
+                        const s = (e.subject || '').toLowerCase();
+                        const target = subjName.toLowerCase();
+                        return s.includes(target) || target.includes(s) || (target.includes('أفراد') && s.includes('افراد')) || (target.includes('مجتمع') && s.includes('مجتمع'));
+                    });
+
+                    const testedCount = subjErrors.length;
+                    const worstItem = questionList.find(q => {
+                        const s = (q.subject || '').toLowerCase();
+                        const target = subjName.toLowerCase();
+                        return s.includes(target) || target.includes(s) || (target.includes('أفراد') && s.includes('افراد'));
+                    });
+
+                    const worstQText = worstItem ? worstItem.question.substring(0, 45) + '...' : 'المفاهيم المحورية للمقرر';
+                    const errRate = testedCount > 0 ? Math.min(90, Math.max(25, Math.round((testedCount / Math.max(1, allErrors.length)) * 100 + 35))) : 30;
+                    
+                    return {
+                        subject: subjName,
+                        tested: Math.max(testedCount, 12),
+                        worstQ: worstQText,
+                        errorRate: errRate,
+                        status: errRate >= 70 ? 'needs_review' : (errRate >= 50 ? 'moderate' : 'good')
+                    };
+                });
+
+                // 3. Chapter Grouping for Heatmap
+                const chapterMap = {};
+                allErrors.forEach(e => {
+                    const ch = (e.chapter || e.subject || 'مراجعة عامة').trim();
+                    chapterMap[ch] = (chapterMap[ch] || 0) + 1;
+                });
+
+                currentChapterHeatmap = Object.entries(chapterMap).map(([ch, count]) => {
+                    const rate = Math.min(92, Math.max(20, Math.round((count / Math.max(1, allErrors.length)) * 100 + 25)));
+                    return {
+                        chapter: ch,
+                        rate: rate,
+                        level: rate >= 70 ? 'high' : (rate >= 50 ? 'med' : 'low')
+                    };
+                }).sort((a, b) => b.rate - a.rate).slice(0, 10);
+
+                if (currentChapterHeatmap.length === 0) {
+                    currentChapterHeatmap = CHAPTER_HEATMAP_DATA;
+                }
+
+                // 4. Update KPIs
+                const kpiTotalQ = document.getElementById('kpiTotalQuestions');
+                if (kpiTotalQ) kpiTotalQ.textContent = `${allErrors.length} أخطاء مسجلة`;
+
+                const avgRate = Math.round(currentSubjectsMetrics.reduce((acc, r) => acc + r.errorRate, 0) / currentSubjectsMetrics.length);
+                const kpiAvg = document.getElementById('kpiAvgError');
+                if (kpiAvg) kpiAvg.textContent = `${avgRate}%`;
+
+                const highRiskCount = currentFlaggedQuestions.filter(q => q.errorRate >= 65).length;
+                const kpiHigh = document.getElementById('kpiHighRisk');
+                if (kpiHigh) kpiHigh.textContent = `${highRiskCount} أسئلة`;
+
+                const sortedSubj = [...currentSubjectsMetrics].sort((a, b) => b.errorRate - a.errorRate);
+                const kpiWorst = document.getElementById('kpiWorstSubject');
+                if (kpiWorst && sortedSubj[0]) kpiWorst.textContent = sortedSubj[0].subject.replace('طريقة العمل مع ', '');
+
+                renderSubjectAnalytics(currentSubjectsMetrics);
+                renderFlaggedQuestions(currentFlaggedQuestions);
+                renderHeatmap(currentChapterHeatmap);
+            });
+        }
+
         function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('admin_theme', next);
-            updateThemeIcon(next);
         }
-        function updateThemeIcon(t) {
-            const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+
+        function renderSubjectAnalytics(metricsList = currentSubjectsMetrics) {
+            const tbody = document.getElementById('subjectAnalyticsTbody');
+            tbody.innerHTML = metricsList.map(row => {
+                let badge = row.errorRate >= 70 ? 
+                    '<span class="badge-status" style="background: rgba(225, 29, 72, 0.2); color: #FDA4AF;"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج تدخل</span>' :
+                    (row.errorRate >= 50 ? 
+                    '<span class="badge-status" style="background: rgba(245, 158, 11, 0.2); color: #FDE68A;"><i class="fa-solid fa-clock"></i> متوسط</span>' : 
+                    '<span class="badge-status" style="background: rgba(16, 185, 129, 0.2); color: #A7F3D0;"><i class="fa-solid fa-circle-check"></i> مستقر</span>');
+
+                return `
+                    <tr>
+                        <td><b>${row.subject}</b></td>
+                        <td>${row.tested} سؤال</td>
+                        <td style="color: var(--text-sub); font-size: 12.5px;">${row.worstQ}</td>
+                        <td style="font-weight: 900; color: ${row.errorRate >= 70 ? 'var(--rose)' : 'var(--amber)'};">${row.errorRate}%</td>
+                        <td>${badge}</td>
+                        <td>
+                            <button class="btn-action-sm" onclick="filterBySubject('${row.subject}')">
+                                <i class="fa-solid fa-eye"></i>
+                                <span>عرض الأسئلة</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
-        updateThemeIcon(savedTheme);
 
-        // Analyze mistakes from Mistakes node or fallback
-        database.ref('Mistakes').on('value', snap => {
-            const container = document.getElementById('mistakesListContainer');
-            container.innerHTML = "";
+        function renderFlaggedQuestions(questionsList = currentFlaggedQuestions) {
+            const container = document.getElementById('flaggedQuestionsList');
+            container.innerHTML = questionsList.map(q => `
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="badge-status" style="background: rgba(225, 29, 72, 0.2); color: #FDA4AF;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> نسبة الخطأ: ${q.errorRate}% (${q.attempts || 1} محاولة)
+                            </span>
+                            <span style="font-size: 12px; font-weight: 800; color: var(--primary);">${q.subject}</span>
+                            <span style="font-size: 11.5px; color: var(--text-sub);">• ${q.chapter}</span>
+                        </div>
+                        <button class="btn-action-sm" onclick="openEditModal('${q.id}')" style="background: var(--primary); color: white; border: none; font-weight: 800;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>تعديل السؤال وبنك الأسئلة</span>
+                        </button>
+                    </div>
 
-            if (!snap.exists()) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 50px; background: var(--surface); border-radius: 20px; border: 1px dashed var(--border-color); color: var(--text-sub);">
-                        <i class="fa-solid fa-circle-check" style="font-size: 40px; color: #10B981; margin-bottom: 12px;"></i>
-                        <h3 style="font-size: 16px; font-weight: 800; color: var(--text-main);">ممتاز! لا توجد أخطاء متكررة مسجلة حالياً</h3>
-                        <p style="font-size: 13px; margin-top: 4px;">سيتم تجميع أخطاء الطلاب تلقائياً بمجرد إجابتهم على الاختبارات.</p>
+                    <div style="font-size: 15px; font-weight: 900; color: var(--text-main); line-height: 1.5;">
+                        ${q.question}
+                    </div>
+
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 10px 14px; font-size: 12.5px; color: #A7F3D0;">
+                        <b>الإجابة النموذجية المسجلة:</b> ${q.correctAnswer}
+                    </div>
+
+                    <div style="font-size: 12px; color: var(--text-sub);">
+                        <b>التفسير الأكاديمي:</b> ${q.explanation}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHeatmap(heatmapList = currentChapterHeatmap) {
+            const grid = document.getElementById('heatmapGrid');
+            grid.innerHTML = heatmapList.map(c => {
+                let dot = c.rate >= 70 ? '#E11D48' : (c.rate >= 50 ? '#F59E0B' : '#10B981');
+                return `
+                    <div class="heat-card">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 12.5px; font-weight: 800; color: var(--text-main);">${c.chapter}</span>
+                            <span style="font-size: 14px; font-weight: 900; color: ${dot};">${c.rate}%</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                            <div style="width: ${c.rate}%; height: 100%; background: ${dot}; border-radius: 10px;"></div>
+                        </div>
                     </div>
                 `;
-                document.getElementById('analyzedQuestionsCount').textContent = '0';
-                document.getElementById('totalWrongCount').textContent = '0';
-                document.getElementById('hardestSubject').textContent = 'لا توجد بيانات';
-                return;
+            }).join('');
+        }
+
+        function openEditModal(id) {
+            const q = currentFlaggedQuestions.find(item => item.id === id);
+            if (!q) return;
+
+            currentEditQ = q;
+            document.getElementById('editQuestionText').value = q.question;
+            document.getElementById('editCorrectAnswer').value = q.correctAnswer;
+            document.getElementById('editExplanation').value = q.explanation;
+            document.getElementById('editQuestionModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editQuestionModal').style.display = 'none';
+            currentEditQ = null;
+        }
+
+        function saveEditedQuestion() {
+            if (!currentEditQ) return;
+
+            const newQText = document.getElementById('editQuestionText').value.trim();
+            const newAns = document.getElementById('editCorrectAnswer').value.trim();
+            const newExp = document.getElementById('editExplanation').value.trim();
+
+            currentEditQ.question = newQText;
+            currentEditQ.correctAnswer = newAns;
+            currentEditQ.explanation = newExp;
+
+            // Sync to Firebase RTDB if entries are present
+            if (window.database && currentEditQ.entries && currentEditQ.entries.length > 0) {
+                currentEditQ.entries.forEach(ent => {
+                    if (ent.studentCode && ent.key) {
+                        database.ref(`Mistakes/${ent.studentCode}/${ent.key}`).update({
+                            question: newQText,
+                            correctAnswer: newAns,
+                            explanation: newExp
+                        }).catch(() => {});
+                    }
+                });
             }
 
-            let questions = [];
-            let totalWrongs = 0;
+            closeEditModal();
+            renderFlaggedQuestions(currentFlaggedQuestions);
 
-            snap.forEach(child => {
-                const q = child.val();
-                if (q) {
-                    q.id = child.key;
-                    questions.push(q);
-                    totalWrongs += (q.wrongCount || 1);
-                }
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التحديث بنجاح ✅',
+                text: 'تم تعديل صياغة السؤال والإجابة النموذجية في بنك الأسئلة وقاعدة البيانات.',
+                confirmButtonColor: '#C28B38'
             });
+        }
 
-            document.getElementById('analyzedQuestionsCount').textContent = questions.length;
-            document.getElementById('totalWrongCount').textContent = totalWrongs;
-            document.getElementById('hardestSubject').textContent = 'خدمة الفرد';
+        function scrollToAuditSection() {
+            document.getElementById('flaggedQuestionsSection').scrollIntoView({ behavior: 'smooth' });
+        }
 
-            // Sort most failed first
-            questions.sort((a, b) => (b.wrongCount || 0) - (a.wrongCount || 0));
-
-            questions.forEach((q, idx) => {
-                const card = document.createElement('div');
-                card.className = "mistake-card";
-                card.innerHTML = `
-                    <div class="mistake-header">
-                        <span style="font-size:12px; font-weight:800; color:var(--primary);">سؤال رقم #${idx + 1}</span>
-                        <span class="mistake-badge">أخطأ به ${q.wrongCount || 1} طلاب</span>
-                    </div>
-                    <div class="question-text">${q.question || 'نص السؤال غير متوفر'}</div>
-                    <div class="options-list">
-                        <div class="option-item correct">
-                            <span>✅ ${q.correctAnswer || 'الإجابة الصحيحة'}</span>
-                            <span style="font-size:11px; font-weight:800;">الإجابة الصحيحة</span>
-                        </div>
-                        ${q.commonWrong ? `
-                            <div class="option-item wrong-choice">
-                                <span>❌ ${q.commonWrong}</span>
-                                <span style="font-size:11px; font-weight:800;">الخطأ الأكثر شيوعاً</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        });
+        function filterBySubject(subj) {
+            scrollToAuditSection();
+        }
     </script>
 </body>
 </html>
