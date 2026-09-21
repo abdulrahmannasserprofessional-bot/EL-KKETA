@@ -2435,6 +2435,10 @@
                             if (!chapterGroups[chapName]) chapterGroups[chapName] = [];
                             window.allLessonsMap[firebaseKey] = { ...lesson, subjectName, firebaseKey };
 
+                            const escKey = firebaseKey.replace(/'/g, "\\'");
+                            const escTitle = (lesson.title || 'المحاضرة').replace(/'/g, "\\'");
+                            const escSub = subjectName.replace(/'/g, "\\'");
+
                             const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
                             const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
                             const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
@@ -2444,10 +2448,6 @@
                             const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
                             const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
                             const scheduledTag = isScheduled ? `<span class="meta-tag" style="background:rgba(124, 58, 237, 0.12); color:#7C3AED; border:1px solid rgba(139, 92, 246, 0.35); font-weight:800;" title="موعد إتاحة المحاضرة للطلاب تلقائياً"><i class="fa-solid fa-clock"></i> ⏳ مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
-
-                            const escKey = firebaseKey.replace(/'/g, "\\'");
-                            const escTitle = (lesson.title || 'المحاضرة').replace(/'/g, "\\'");
-                            const escSub = subjectName.replace(/'/g, "\\'");
 
                             chapterGroups[chapName].push(`
                                 <div class="lesson-card-item">
