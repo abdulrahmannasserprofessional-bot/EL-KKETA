@@ -748,11 +748,30 @@
             filterRadarEvents();
         }
 
+        let isRadarInitialized = false;
+
         function initRadarListeners() {
-            if (typeof database === 'undefined') return;
+            if (isRadarInitialized) return;
+            const db = (typeof database !== 'undefined' && database) 
+                    || (window.database) 
+                    || (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length ? firebase.database() : null);
+
+            if (!db) {
+                setTimeout(initRadarListeners, 300);
+                return;
+            }
+
+            isRadarInitialized = true;
+
+            // Fallback timeout to render empty state if no events arrive in 2.5 seconds
+            setTimeout(() => {
+                if (allEvents.length === 0) {
+                    updateKPIsAndRender();
+                }
+            }, 2500);
 
             // 1. Audit Logs (Admin & Supervisor Actions)
-            database.ref('AuditLogs').limitToLast(100).on('value', snap => {
+            db.ref('AuditLogs').limitToLast(100).on('value', snap => {
                 if (!isStreamActive && allEvents.length > 0) return;
                 if (snap.exists()) {
                     snap.forEach(child => {
@@ -764,9 +783,130 @@
                             mergeEvent(val);
                         }
                     });
-                    updateKPIsAndRender();
                 }
+                updateKPIsAndRender();
             });
+
+            // 2. Activity Logs (Student & System Activity)
+            db.ref('ActivityLogs').limitToLast(100).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'act_' + child.key;
+                            val.category = 'student';
+                            val.actorName = val.studentName || val.fullName || val.studentCode || 'طالب';
+                            val.roleTitle = 'طالب مسجل';
+                            val.description = val.action || val.message || val.event || 'نشاط على المنصة';
+                            val.timestamp = val.timestamp || val.createdAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+
+            // 3. Security Alerts
+            db.ref('SecurityAlerts').limitToLast(50).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'sec_' + child.key;
+                            val.category = 'security';
+                            val.actorName = val.actor || val.ip || 'نظام الأمان';
+                            val.roleTitle = 'تنبيه أمني';
+                            val.description = val.message || val.type || 'تنبيه أمان نظامي';
+                            val.timestamp = val.timestamp || val.createdAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+
+            // 4. Exam Results & Submissions
+            db.ref('ExamResults').limitToLast(50).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'exam_' + child.key;
+                            val.category = 'exam';
+                            val.actorName = val.studentName || val.studentCode || 'طالب';
+                            val.roleTitle = 'أداء امتحان';
+                            val.description = `أنهى امتحان (${val.examTitle || val.subject || 'اختبار'}) بنسبة ${val.score}%`;
+                            val.timestamp = val.timestamp || val.submittedAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+
+            // 5. Broadcast Announcements
+            db.ref('Announcements').limitToLast(30).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'ann_' + child.key;
+                            val.category = 'admin';
+                            val.actorName = val.sender || 'الإدارة العامة';
+                            val.roleTitle = 'إشعار / تنبيه';
+                            val.description = `بث إشعار عام: "${val.title || val.message || 'تنبيه إداري'}"`;
+                            val.timestamp = val.timestamp || val.createdAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+
+            // 6. Device Reset & Pairing Requests
+            db.ref('DeviceRequests').limitToLast(30).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'dev_' + child.key;
+                            val.category = 'security';
+                            val.actorName = val.studentName || val.studentCode || 'طالب';
+                            val.roleTitle = 'طلب جهاز';
+                            val.description = `طلب فك/توثيق جهاز جديد (${val.deviceName || val.deviceId || 'هاتف'}) - الحالة: ${val.status || 'معلق'}`;
+                            val.timestamp = val.timestamp || val.createdAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+
+            // 7. Support & Emergency Tickets
+            db.ref('SupportTickets').limitToLast(30).on('value', snap => {
+                if (!isStreamActive && allEvents.length > 0) return;
+                if (snap.exists()) {
+                    snap.forEach(child => {
+                        const val = child.val();
+                        if (val) {
+                            val.radarId = 'sup_' + child.key;
+                            val.category = 'student';
+                            val.actorName = val.studentName || val.studentCode || 'طالب';
+                            val.roleTitle = 'تذكرة دعم';
+                            val.description = `تذكرة دعم جديدة: "${val.subject || val.message || 'استفسار فني'}"`;
+                            val.timestamp = val.timestamp || val.createdAt || Date.now();
+                            mergeEvent(val);
+                        }
+                    });
+                }
+                updateKPIsAndRender();
+            });
+        }
 
             // 2. Activity Logs (Student & System Activity)
             database.ref('ActivityLogs').limitToLast(100).on('value', snap => {
@@ -1067,9 +1207,11 @@
         }
 
         // Init on load
-        window.addEventListener('DOMContentLoaded', () => {
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initRadarListeners);
+        } else {
             initRadarListeners();
-        });
+        }
     </script>
 </body>
 </html>
