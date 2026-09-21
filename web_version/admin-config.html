@@ -1020,6 +1020,9 @@
                     </div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <input id="auditSearchInput" type="text" placeholder="بحث باسم المشرف أو نوع العملية..." style="padding:8px 14px; border-radius:12px; border:1px solid var(--card-border); background:rgba(0,0,0,0.3); color:white; font-family:inherit; font-size:12.5px; outline:none;" onkeyup="window.filterAuditLogList()">
+                        <button class="btn-config" onclick="window.loadAuditLogsManually()">
+                            <i class="fa-solid fa-arrows-rotate"></i> تحديث السجل
+                        </button>
                         <button class="btn-config" onclick="window.exportAuditLogsJSON()">
                             <i class="fa-solid fa-download"></i> تصدير السجل
                         </button>
@@ -1243,35 +1246,82 @@
                 }
             });
 
-            // Stream Activity Logs
-            db.ref('ActivityLogs').on('value', snap => {
+            // Stream Activity Logs with limitToLast, error handling, and API fallback
+            window.attachAuditLogsListener = function() {
+                const database = getDB();
+                if (!database) {
+                    window.loadAuditLogsFallback();
+                    return;
+                }
+
+                database.ref('ActivityLogs').limitToLast(300).on('value', snap => {
+                    const container = document.getElementById('supervisorAuditList');
+                    const statCount = document.getElementById('statAuditLogsCount');
+                    if (!container) return;
+
+                    if (!snap.exists()) {
+                        window.loadAuditLogsFallback();
+                        return;
+                    }
+
+                    const logs = [];
+                    snap.forEach(child => {
+                        logs.push({ id: child.key, ...child.val() });
+                    });
+
+                    logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    if (statCount) statCount.textContent = logs.length.toString();
+
+                    window.cachedAuditLogs = logs;
+                    window.renderAuditLogs(logs);
+                }, error => {
+                    console.warn("RTDB ActivityLogs subscription notice:", error);
+                    window.loadAuditLogsFallback();
+                });
+            };
+
+            window.loadAuditLogsFallback = async function() {
                 const container = document.getElementById('supervisorAuditList');
                 const statCount = document.getElementById('statAuditLogsCount');
-                if (!container) return;
-                container.innerHTML = "";
+                try {
+                    if (window.ElkhetaAPI && typeof window.ElkhetaAPI.getActivityLogs === 'function') {
+                        const res = await window.ElkhetaAPI.getActivityLogs('', '', 100);
+                        if (res && res.success && Array.isArray(res.logs) && res.logs.length > 0) {
+                            if (statCount) statCount.textContent = res.logs.length.toString();
+                            window.cachedAuditLogs = res.logs;
+                            window.renderAuditLogs(res.logs);
+                            return;
+                        }
+                    }
+                } catch(e) {}
 
-                if (!snap.exists()) {
-                    if (statCount) statCount.textContent = "0";
+                if (statCount && (!window.cachedAuditLogs || window.cachedAuditLogs.length === 0)) {
+                    statCount.textContent = "0";
+                }
+                if (container && (!window.cachedAuditLogs || window.cachedAuditLogs.length === 0)) {
                     container.innerHTML = `
                         <div style="text-align:center; padding:35px; color:var(--text-muted);">
                             <i class="fa-solid fa-satellite-dish" style="font-size:36px; color:#818CF8; margin-bottom:8px;"></i>
                             <p style="font-weight:700;">لا توجد أي تحركات مسجلة للمشرفين في الوقت الحالي</p>
                         </div>
                     `;
-                    return;
                 }
+            };
 
-                const logs = [];
-                snap.forEach(child => {
-                    logs.push({ id: child.key, ...child.val() });
-                });
+            window.loadAuditLogsManually = function() {
+                const container = document.getElementById('supervisorAuditList');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:40px; color:var(--text-muted);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size:24px; color:var(--primary); margin-bottom:10px;"></i>
+                            <p>جاري تحديث واستدعاء سجل النشاط المباشر...</p>
+                        </div>
+                    `;
+                }
+                window.attachAuditLogsListener();
+            };
 
-                logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                if (statCount) statCount.textContent = logs.length.toString();
-
-                window.cachedAuditLogs = logs;
-                window.renderAuditLogs(logs);
-            });
+            window.attachAuditLogsListener();
         }
 
         window.renderAuditLogs = function(logsList) {

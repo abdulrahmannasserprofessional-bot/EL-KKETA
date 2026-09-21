@@ -222,6 +222,10 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="openSupervisorManagementModal()" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--gold-gradient); border: none; color: #FFFFFF; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer;">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>إدارة المشرفين والحسابات</span>
+            </button>
             <a href="admin-panel.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #FFFFFF; border-radius: 12px; font-size: 13px; font-weight: 800; text-decoration: none;">
                 <i class="fa-solid fa-arrow-right"></i>
                 <span>العودة للوحة الإدارة</span>
@@ -633,6 +637,445 @@
         a.download = `elkheta_security_audit_${Date.now()}.json`;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    // ============================================================
+    // DYNAMIC SUPERVISOR ACCOUNT MANAGEMENT (إدارة حسابات المشرفين)
+    // ============================================================
+    function openSupervisorManagementModal() {
+        if (!window.database) {
+            createNewSupervisorPrompt();
+            return;
+        }
+
+        database.ref('Supervisors').once('value').then(snapshot => {
+            const data = (snapshot && snapshot.exists()) ? snapshot.val() : {};
+            renderSupervisorModalWithData(data);
+        }).catch(err => {
+            console.warn('[SUPERVISORS LOG] Load fallback:', err);
+            renderSupervisorModalWithData({});
+        });
+    }
+
+    function renderSupervisorModalWithData(data) {
+        let listHTML = '';
+        const keys = Object.keys(data || {});
+
+        if (keys.length === 0) {
+            listHTML = `<div style="padding: 15px; color: #64748B; font-size: 13px; text-align: center;">لا يوجد حسابات مشرفين حالياً. يمكنك إضافة أول حساب مشرف الآن.</div>`;
+        } else {
+            listHTML = keys.map(k => {
+                const sup = data[k];
+                const activeBadge = sup.isActive !== false 
+                    ? `<span style="background: #ECFDF5; color: #10B981; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">مفعل</span>`
+                    : `<span style="background: #FFF1F2; color: #E11D48; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">معطل</span>`;
+                
+                // Human-friendly title check for push keys vs custom usernames
+                const isAutoPushKey = k.startsWith('-') || k.startsWith('P0') || k.length > 15;
+                const displayName = sup.fullName || sup.name || (isAutoPushKey ? ('مشرف نظام تلقائي (' + k.substring(0, 10) + ')') : sup.username || k);
+                const displayUser = sup.username || (isAutoPushKey ? 'معرف تلقائي: ' + k.substring(0, 10) : k);
+
+                // Count granted permissions
+                const perms = sup.permissions || {};
+                const grantedCount = Object.values(perms).filter(Boolean).length || (sup.role === 'master' ? 10 : 5);
+
+                // Check if user is already a Deputy Director or Master
+                const isDeputy = sup.role === 'deputy_master' || sup.roleTitle === 'نائب مدير المنصة';
+                const roleBadge = isDeputy 
+                    ? `<span style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); color: #B45309; padding: 3px 8px; border-radius: 8px; font-weight: 900; font-size: 11px; border: 1px solid #FCD34D;">👑 نائب مدير المنصة</span>`
+                    : `<span style="font-size: 11px; background: #E2E8F0; color: #475569; padding: 3px 8px; border-radius: 8px; font-weight: 800;">👤 مشرف منصة</span>`;
+
+                const promoteBtn = isDeputy 
+                    ? `<span style="font-size: 11px; color: #B45309; font-weight: 800; align-self: center; background: #FFFBEB; padding: 4px 8px; border-radius: 6px; border: 1px dashed #FCD34D;">🌟 نائب مدير معتمد</span>`
+                    : `<button onclick="promoteToDeputyMaster('${k}')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #FCD34D; background: #FEF3C7; color: #B45309; cursor: pointer; font-size: 11px; font-weight: 900;" title="ترقية فورية إلى نائب مدير المنصة مع صلاحيات شاملة">👑 ترقية لنائب مدير</button>`;
+
+                return `
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-bottom: 1px solid #EFE8DC; text-align: right; background: #FFFFFF; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+                                    <span>👤 ${displayName}</span>
+                                    ${roleBadge}
+                                </div>
+                                <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
+                                    اسم المستخدم: <strong style="color: #C28B38;">${displayUser}</strong> | المسمى: ${sup.roleTitle || 'مشرف منصة'} ${activeBadge}
+                                </div>
+                            </div>
+                            <span style="font-size: 11px; background: #FEF3C7; color: #B45309; padding: 3px 8px; border-radius: 8px; font-weight: 800; border: 1px solid #FCD34D;">
+                                🔒 ${grantedCount} صلاحيات
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; border-top: 1px solid #F1F5F9; padding-top: 6px;">
+                            ${promoteBtn}
+                            <button onclick="editSupervisorModal('${k}')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #C084FC; background: #F3E8FF; color: #7C3AED; cursor: pointer; font-size: 11px; font-weight: 800;">
+                                ✏️ الصلاحيات والبيانات
+                            </button>
+                            <button onclick="toggleSupervisorStatus('${k}', ${sup.isActive !== false})" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #CBD5E1; background: #FFF; cursor: pointer; font-size: 11px; font-weight: 700;">
+                                ${sup.isActive !== false ? 'تعطيل' : 'تفعيل'}
+                            </button>
+                            <button onclick="deleteSupervisorAccount('${k}')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #FECDD3; background: #FFF1F2; color: #E11D48; cursor: pointer; font-size: 11px; font-weight: 700;">
+                                🗑️ حذف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        Swal.fire({
+            title: '🔑 إدارة حسابات المشرفين وترقيات الإدارة',
+            html: `
+                <div style="text-align: right; max-height: 480px; overflow-y: auto; padding: 4px;">
+                    <button onclick="createNewSupervisorPrompt()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #D4973B 0%, #B88028 100%); color: #FFF; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; margin-bottom: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(194, 139, 56, 0.25);">
+                        ➕ إضافة حساب مشرف / نائب مدير جديد ومعاينة الصلاحيات
+                    </button>
+                    <div style="font-size: 12px; font-weight: 800; color: #64748B; margin-bottom: 8px;">قائمة المشرفين ونواب المدير الحالية بالمنصة:</div>
+                    <div style="border: 1px solid #EFE8DC; border-radius: 12px; background: #FAF7F2; padding: 8px;">
+                        ${listHTML}
+                    </div>
+                </div>
+            `,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: '720px'
+        });
+    }
+
+    window.promoteToDeputyMaster = function(key) {
+        database.ref('Supervisors/' + key).once('value').then(snap => {
+            if (!snap.exists()) return;
+            const sup = snap.val();
+            const name = sup.fullName || sup.name || sup.username || key;
+
+            Swal.fire({
+                title: '👑 ترقية إلى نائب مدير المنصة',
+                html: `
+                    <div style="font-size: 13px; font-family: 'Cairo', sans-serif; text-align: right; direction: rtl; line-height: 1.6;">
+                        هل أنت متأكد من ترقية المشرف <b style="color: #C28B38;">${name}</b> إلى رتبة <b style="color: #B45309;">نائب مدير المنصة</b>؟
+                        <br><br>
+                        <b>الامتيازات الممنوحة بالترقية:</b>
+                        <ul style="margin-top: 6px; padding-right: 20px; color: #475569; font-weight: 700;">
+                            <li>منح كافة الصلاحيات الـ 10 التفاعلية بالمنصة.</li>
+                            <li>تحديد المسمى الوظيفي رسمياً كـ "نائب مدير المنصة".</li>
+                            <li>إمكانية التحكم وإدارة اللوحات الأكاديمية العليا.</li>
+                        </ul>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'تأكيد الترقية إلى نائب مدير 👑',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#C28B38',
+                cancelButtonColor: '#64748B',
+                width: '580px'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    database.ref('Supervisors/' + key).update({
+                        role: 'deputy_master',
+                        roleTitle: 'نائب مدير المنصة',
+                        permissions: {
+                            all: true, config: true, students: true, courses: true, exams: true,
+                            codes: true, mistakes: true, reports: true, notifications: true,
+                            community: true, troubleshoot: true
+                        }
+                    }).then(() => {
+                        Swal.fire('تمت الترقية بنجاح 👑🌟', `أصبح المشرف <b>${name}</b> الآن برتبة <b>نائب مدير المنصة</b> ومعتمد بكافة الصلاحيات.`, 'success').then(() => {
+                            openSupervisorManagementModal();
+                        });
+                    });
+                }
+            });
+        });
+    };
+
+    window.toggleAllPermsCheckboxes = function(btn) {
+        const cbs = document.querySelectorAll('.sup-perm-cb');
+        const allChecked = Array.from(cbs).every(cb => cb.checked);
+        cbs.forEach(cb => {
+            cb.checked = !allChecked;
+            const parent = cb.closest('.perm-card-item');
+            if (parent) {
+                if (cb.checked) {
+                    parent.style.borderColor = '#C28B38';
+                    parent.style.background = '#FFFBEB';
+                } else {
+                    parent.style.borderColor = '#E2E8F0';
+                    parent.style.background = '#FFFFFF';
+                }
+            }
+        });
+        if (btn) btn.textContent = allChecked ? 'تحديد الكل ⚡' : 'إلغاء الكل ❌';
+    };
+
+    window.updatePermCardStyle = function(cb) {
+        const parent = cb.closest('.perm-card-item');
+        if (parent) {
+            if (cb.checked) {
+                parent.style.borderColor = '#C28B38';
+                parent.style.background = '#FFFBEB';
+            } else {
+                parent.style.borderColor = '#E2E8F0';
+                parent.style.background = '#FFFFFF';
+            }
+        }
+    };
+
+    function getPermissionsFormHTML(defaults = {}) {
+        const p = defaults || {};
+        const isChecked = (key, def = true) => p[key] !== undefined ? (p[key] ? 'checked' : '') : (def ? 'checked' : '');
+
+        const permItems = [
+            { id: 'perm_students', key: 'students', icon: '👨‍🎓', title: 'إدارة الطلاب والحسابات', sub: 'عرض الحسابات والتعديل والحظر', def: true },
+            { id: 'perm_courses', key: 'courses', icon: '📚', title: 'المواد والدروس والكورسات', sub: 'رفع وتنظيم المحتوى والوسائط', def: true },
+            { id: 'perm_exams', key: 'exams', icon: '📝', title: 'الامتحانات والبنك الشامل', sub: 'إنشاء وبنك الأسئلة التفاعلية', def: true },
+            { id: 'perm_codes', key: 'codes', icon: '🔑', title: 'أكواد التفعيل والبطاقات', sub: 'توليد وتصدير كروت التفعيل', def: true },
+            { id: 'perm_mistakes', key: 'mistakes', icon: '❌', title: 'بنك أخطاء الطلاب', sub: 'متابعة أسئلة الطلاب المتكررة', def: true },
+            { id: 'perm_reports', key: 'reports', icon: '📊', title: 'الإحصائيات والتقارير', sub: 'أداء الطلاب ونسب التفاعل', def: true },
+            { id: 'perm_notifications', key: 'notifications', icon: '🔔', title: 'إرسال الإشعارات والرسائل', sub: 'التنبيهات المباشرة والرسائل', def: true },
+            { id: 'perm_community', key: 'community', icon: '💬', title: 'مجتمع الطلاب والمنشورات', sub: 'الإشراف على المنشورات والتعليقات', def: true },
+            { id: 'perm_troubleshoot', key: 'troubleshoot', icon: '🛠️', title: 'الدعم الفني واستكشاف الأخطاء', sub: 'حل مشاكل الأجهزة والأكواد', def: true },
+            { id: 'perm_config', key: 'config', icon: '⚙️', title: 'إعدادات المنصة والأمان العالي', sub: 'إداريات التحكم العليا الحساسة', def: false }
+        ];
+
+        const cardsHTML = permItems.map(item => {
+            const checked = isChecked(item.key, item.def);
+            const borderCol = checked ? '#C28B38' : '#E2E8F0';
+            const bgCol = checked ? '#FFFBEB' : '#FFFFFF';
+
+            return `
+                <label class="perm-card-item" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: ${bgCol}; border: 1.5px solid ${borderCol}; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 17px;">${item.icon}</span>
+                        <div>
+                            <div style="font-size: 12px; font-weight: 800; color: #1E293B;">${item.title}</div>
+                            <div style="font-size: 10.5px; color: #64748B;">${item.sub}</div>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="${item.id}" class="sup-perm-cb" onchange="window.updatePermCardStyle(this)" style="width: 18px; height: 18px; accent-color: #C28B38; cursor: pointer;" ${checked}>
+                </label>
+            `;
+        }).join('');
+
+        return `
+            <div style="margin-top: 14px; border-top: 2px dashed #E2E8F0; padding-top: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-size: 13px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-shield-halved" style="color: #C28B38;"></i>
+                        <span>تحديد الصلاحيات الـ 10 المسموحة للمشرف:</span>
+                    </div>
+                    <button type="button" onclick="window.toggleAllPermsCheckboxes(this)" style="font-size: 11.5px; background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-weight: 800;">تحديد / إلغاء الكل ⚡</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: right; max-height: 270px; overflow-y: auto; padding: 4px 2px;">
+                    ${cardsHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    function createNewSupervisorPrompt() {
+        Swal.fire({
+            title: '➕ إضافة حساب مشرف جديد ومعاينة الصلاحيات',
+            html: `
+                <div style="display: flex; flex-direction: column; gap: 12px; text-align: right; direction: rtl; padding: 4px 0; font-family: 'Cairo', sans-serif;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                <i class="fa-solid fa-user-tag" style="color: #C28B38;"></i>
+                                <span>اسم المستخدم (Username):</span>
+                            </label>
+                            <input id="supUsername" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-radius; background: #FAF7F2; outline: none;" placeholder="مثال: supervisor1">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                <i class="fa-solid fa-lock" style="color: #C28B38;"></i>
+                                <span>كلمة المرور السرية (Password):</span>
+                            </label>
+                            <input id="supPassword" type="password" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" placeholder="كلمة المرور السرية">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                <i class="fa-solid fa-id-card" style="color: #C28B38;"></i>
+                                <span>اسم المشرف الكامل (Full Name):</span>
+                            </label>
+                            <input id="supFullName" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" placeholder="مثال: أ. أحمد محمود">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                <i class="fa-solid fa-briefcase" style="color: #C28B38;"></i>
+                                <span>المسمى الوظيفي (Role Title):</span>
+                            </label>
+                            <input id="supRoleTitle" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" placeholder="مثال: مشرف أكاديمي" value="مشرف منصة">
+                        </div>
+                    </div>
+
+                    ${getPermissionsFormHTML()}
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ الحساب والصلاحيات الآن 🔑',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#C28B38',
+            cancelButtonColor: '#64748B',
+            width: '720px',
+            preConfirm: () => {
+                const username = document.getElementById('supUsername').value.trim();
+                const password = document.getElementById('supPassword').value.trim();
+                const fullName = document.getElementById('supFullName').value.trim();
+                const roleTitle = document.getElementById('supRoleTitle').value.trim();
+
+                if (!username || !password) {
+                    Swal.showValidationMessage('يرجى إدخال اسم المستخدم وكلمة المرور!');
+                    return false;
+                }
+
+                const permissions = {
+                    students: document.getElementById('perm_students').checked,
+                    courses: document.getElementById('perm_courses').checked,
+                    exams: document.getElementById('perm_exams').checked,
+                    codes: document.getElementById('perm_codes').checked,
+                    mistakes: document.getElementById('perm_mistakes').checked,
+                    reports: document.getElementById('perm_reports').checked,
+                    notifications: document.getElementById('perm_notifications').checked,
+                    community: document.getElementById('perm_community').checked,
+                    troubleshoot: document.getElementById('perm_troubleshoot').checked,
+                    config: document.getElementById('perm_config').checked
+                };
+
+                return { username, password, fullName: fullName || username, roleTitle: roleTitle || 'مشرف منصة', permissions };
+            }
+        }).then(res => {
+            if (res.isConfirmed && res.value) {
+                const { username, password, fullName, roleTitle, permissions } = res.value;
+                const cleanKey = username.replace(/[.\$\[\]#]/g, '_').toLowerCase();
+
+                database.ref('Supervisors/' + cleanKey).set({
+                    username: username.toLowerCase(),
+                    password: password,
+                    pin: password,
+                    fullName: fullName,
+                    roleTitle: roleTitle,
+                    role: 'supervisor',
+                    isActive: true,
+                    createdAt: Date.now(),
+                    permissions: permissions
+                }).then(() => {
+                    Swal.fire('تم إضافة حساب المشرف وتوثيق الصلاحيات 🔑', `يمكن للمشرف الدخول الآن باسم المستخدم: ${username}`, 'success').then(() => {
+                        openSupervisorManagementModal();
+                    });
+                });
+            }
+        });
+    }
+
+    function editSupervisorModal(key) {
+        database.ref('Supervisors/' + key).once('value').then(snap => {
+            if (!snap.exists()) return;
+            const sup = snap.val();
+
+            Swal.fire({
+                title: '✏️ تعديل بيانات وصلاحيات المشرف',
+                html: `
+                    <div style="display: flex; flex-direction: column; gap: 12px; text-align: right; direction: rtl; padding: 4px 0; font-family: 'Cairo', sans-serif;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <div>
+                                <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                    <i class="fa-solid fa-id-card" style="color: #C28B38;"></i>
+                                    <span>اسم المشرف الكامل:</span>
+                                </label>
+                                <input id="supFullName" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" value="${sup.fullName || sup.name || ''}">
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                    <i class="fa-solid fa-briefcase" style="color: #C28B38;"></i>
+                                    <span>المسمى الوظيفي:</span>
+                                </label>
+                                <input id="supRoleTitle" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" value="${sup.roleTitle || 'مشرف منصة'}">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 12px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+                                <i class="fa-solid fa-key" style="color: #C28B38;"></i>
+                                <span>كلمة المرور / الـ PIN جديدة:</span>
+                            </label>
+                            <input id="supPassword" style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px; box-sizing: border-box; background: #FAF7F2; outline: none;" value="${sup.password || sup.pin || ''}" placeholder="كلمة المرور أو الـ PIN الحالية">
+                        </div>
+
+                        ${getPermissionsFormHTML(sup.permissions || {})}
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات والصلاحيات 💾',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#C28B38',
+                cancelButtonColor: '#64748B',
+                width: '720px',
+                preConfirm: () => {
+                    const fullName = document.getElementById('supFullName').value.trim();
+                    const roleTitle = document.getElementById('supRoleTitle').value.trim();
+                    const password = document.getElementById('supPassword').value.trim();
+
+                    const permissions = {
+                        students: document.getElementById('perm_students').checked,
+                        courses: document.getElementById('perm_courses').checked,
+                        exams: document.getElementById('perm_exams').checked,
+                        codes: document.getElementById('perm_codes').checked,
+                        mistakes: document.getElementById('perm_mistakes').checked,
+                        reports: document.getElementById('perm_reports').checked,
+                        notifications: document.getElementById('perm_notifications').checked,
+                        community: document.getElementById('perm_community').checked,
+                        troubleshoot: document.getElementById('perm_troubleshoot').checked,
+                        config: document.getElementById('perm_config').checked
+                    };
+
+                    return { fullName, roleTitle, password, permissions };
+                }
+            }).then(res => {
+                if (res.isConfirmed && res.value) {
+                    const { fullName, roleTitle, password, permissions } = res.value;
+                    database.ref('Supervisors/' + key).update({
+                        fullName: fullName,
+                        roleTitle: roleTitle,
+                        password: password,
+                        pin: password,
+                        permissions: permissions
+                    }).then(() => {
+                        Swal.fire('تم حفظ الصلاحيات والتعديلات بنجاح 🎉', '', 'success').then(() => {
+                            openSupervisorManagementModal();
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    function toggleSupervisorStatus(key, currentActive) {
+        database.ref(`Supervisors/${key}/isActive`).set(!currentActive).then(() => {
+            openSupervisorManagementModal();
+        });
+    }
+
+    function deleteSupervisorAccount(key) {
+        Swal.fire({
+            title: 'هل أنت متأكد من حذف حساب هذا المشرف؟',
+            text: 'لن يتمكن هذا المشرف من الدخول مجدداً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف الحساب',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#DC2626'
+        }).then(res => {
+            if (res.isConfirmed) {
+                database.ref(`Supervisors/${key}`).remove().then(() => {
+                    Swal.fire('تم حذف الحساب بنجاح', '', 'success').then(() => {
+                        openSupervisorManagementModal();
+                    });
+                });
+            }
+        });
     }
 </script>
 

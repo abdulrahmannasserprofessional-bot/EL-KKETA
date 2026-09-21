@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ELKHETA — Loading</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@700;800;900&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0D0D2B;
+            color: #fff;
+            font-family: 'Cairo', -apple-system, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-app-region: drag;
+            border-radius: 20px;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -58%);
+            width: 420px; height: 300px;
+            background: radial-gradient(ellipse at center,rgba(99,76,200,0.35) 0%,rgba(58,44,130,0.18) 50%,transparent 75%);
+            pointer-events: none;
+        }
+        .stars { position:absolute; inset:0; pointer-events:none; overflow:hidden; border-radius:20px; }
+        .star {
+            position:absolute; border-radius:50%;
+            background:rgba(255,255,255,0.6);
+            animation: twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);
+        }
+        @keyframes twinkle {
+            0%,100%{opacity:0.2;transform:scale(1)}
+            50%{opacity:1;transform:scale(1.5)}
+        }
+        .splash-card {
+            text-align:center; padding:0 50px; width:100%;
+            position:relative; z-index:10;
+            display:flex; flex-direction:column; align-items:center;
+        }
+        .icon-wrap {
+            width:90px; height:90px; margin-bottom:20px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%,100%{transform:translateY(0px)}
+            50%{transform:translateY(-6px)}
+        }
+        .icon-wrap svg { width:100%; height:100%; filter:drop-shadow(0 0 20px rgba(124,100,255,0.6)) drop-shadow(0 8px 24px rgba(0,0,0,0.4)); }
+        .brand-name {
+            font-family:'Alexandria',sans-serif; font-size:38px; font-weight:900;
+            letter-spacing:4px;
+            background:linear-gradient(135deg,#FFFFFF 0%,#C8BFFF 50%,#A78BFA 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            margin-bottom:8px;
+            animation:fadeSlideUp 0.8s ease-out 0.2s both;
+        }
+        .tagline-ar {
+            font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
+            color:#C9B890; letter-spacing:0.5px; margin-bottom:36px;
+            animation:fadeSlideUp 0.8s ease-out 0.4s both;
+        }
+        .progress-wrap { width:300px; margin-bottom:14px; animation:fadeSlideUp 0.8s ease-out 0.6s both; }
+        .progress-track { width:100%; height:3px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; }
+        .progress-bar {
+            height:100%; width:0%; border-radius:10px;
+            background:linear-gradient(90deg,#7C3AED,#A78BFA,#C4B5FD);
+            transition:width 0.5s cubic-bezier(0.4,0,0.2,1); position:relative;
+        }
+        .progress-bar::after {
+            content:''; position:absolute; top:0; right:0; width:60px; height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent);
+            animation:shimmer 1.5s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%{transform:translateX(60px);opacity:0} 50%{opacity:1} 100%{transform:translateX(-300px);opacity:0} }
+        .status-row {
+            display:flex; align-items:center; justify-content:space-between; width:300px;
+            animation:fadeSlideUp 0.8s ease-out 0.7s both;
+        }
+        .status-label { font-size:11px; color:rgba(255,255,255,0.45); font-weight:600; transition:opacity 0.4s ease; }
+        .version-tag { font-size:10px; color:rgba(255,255,255,0.2); letter-spacing:1px; }
+        .dots-loader { display:flex; gap:5px; margin-top:22px; animation:fadeSlideUp 0.8s ease-out 0.8s both; }
+        .dot { width:5px; height:5px; border-radius:50%; background:rgba(167,139,250,0.5); animation:dotPulse 1.4s ease-in-out infinite; }
+        .dot:nth-child(2){animation-delay:0.2s} .dot:nth-child(3){animation-delay:0.4s}
+        @keyframes dotPulse { 0%,80%,100%{transform:scale(0.8);opacity:0.4} 40%{transform:scale(1.3);opacity:1;background:#A78BFA} }
+        .window-glow {
+            position:absolute; inset:0; border-radius:20px;
+            border:1px solid rgba(124,100,255,0.25); pointer-events:none;
+            box-shadow:inset 0 0 40px rgba(99,76,200,0.08),0 0 40px rgba(99,76,200,0.15);
+        }
+        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+    <div class="window-glow"></div>
+    <div class="stars" id="stars"></div>
+    <div class="splash-card">
+        <div class="icon-wrap">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFFFFF"/>
+                        <stop offset="100%" stop-color="#C4B5FD"/>
+                    </linearGradient>
+                    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#1E1B4B"/>
+                        <stop offset="100%" stop-color="#3730A3"/>
+                    </linearGradient>
+                    <filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                </defs>
+                <circle cx="50" cy="50" r="48" fill="url(#bgGrad)" opacity="0.6"/>
+                <ellipse cx="50" cy="62" rx="26" ry="8" fill="url(#capGrad)" opacity="0.9"/>
+                <polygon points="50,24 82,40 50,52 18,40" fill="url(#capGrad)" filter="url(#glow)"/>
+                <rect x="48" y="40" width="4" height="18" rx="2" fill="#C4B5FD" opacity="0.8"/>
+                <circle cx="68" cy="44" r="4.5" fill="#F59E0B" filter="url(#glow)"/>
+                <circle cx="68" cy="44" r="2.5" fill="#FCD34D"/>
+                <line x1="52" y1="46" x2="64" y2="44" stroke="#F59E0B" stroke-width="1.5" opacity="0.8"/>
+            </svg>
+        </div>
+        <div class="brand-name">ELKHETA</div>
+        <div class="tagline-ar">منصة الخطة التعليمية</div>
+        <div class="progress-wrap">
+            <div class="progress-track">
+                <div class="progress-bar" id="pBar"></div>
+            </div>
+        </div>
+        <div class="status-row">
+            <span class="status-label" id="statusLabel">جاري التهيئة...</span>
+            <span class="version-tag">v2.0.0</span>
+        </div>
+        <div class="dots-loader">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+    </div>
+    <script>
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 40; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.cssText = `top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*3}s;opacity:${0.1+Math.random()*0.5};width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;`;
+            starsContainer.appendChild(s);
+        }
+        const steps = [
+            { label:'جاري تهيئة النظام...',            pct:15 },
+            { label:'مزامنة المواد والمحاضرات...',      pct:40 },
+            { label:'تحميل بنك الأسئلة الذكية...',     pct:68 },
+            { label:'التحقق من الحساب والصلاحيات...',  pct:88 },
+            { label:'جاهز! مرحباً بك في الخطة ✨',     pct:100 },
+        ];
+        const pBar = document.getElementById('pBar');
+        const sLabel = document.getElementById('statusLabel');
+        let step = 0;
+        function nextStep() {
+            if (step >= steps.length) return;
+            const { label, pct } = steps[step++];
+            pBar.style.width = pct + '%';
+            sLabel.textContent = label;
+            if (step < steps.length) setTimeout(nextStep, 600);
+        }
+        setTimeout(nextStep, 300);
+    </script>
+</body>
+</html>

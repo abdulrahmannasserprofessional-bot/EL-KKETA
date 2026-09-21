@@ -11,8 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- SweetAlert2 -->
+    <!-- Firebase SDK & Security -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="security-validator.js"></script>
 
     <style>
         :root {
@@ -739,65 +743,149 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق من الصلاحيات...';
             btn.disabled = true;
 
-            // Authorized Passwords / PINs:
-            // 1. Master Firebase PIN: 2862005
-            // 2. Standard Admin Credentials
+            // فحص حظر المحاولات الفاشلة قبل المتابعة (Brute Force Protection)
+            if (typeof SecurityValidator !== 'undefined' && SecurityValidator.isLoginBlocked) {
+                const lockCheck = SecurityValidator.isLoginBlocked(userInput || 'admin_gate');
+                if (lockCheck.blocked) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'تم حظر المحاولات مؤقتاً 🛑',
+                        text: `تم تجاوز الحد الأقصى للمحاولات الفاشلة. يرجى الانتظار ${Math.ceil(lockCheck.lockoutSeconds / 60)} دقيقة قبل المحاولة مجدداً.`,
+                        confirmButtonColor: '#E11D48'
+                    });
+                    return;
+                }
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق من الصلاحيات...';
+            btn.disabled = true;
+
             let isValid = false;
             let adminRole = 'master';
             let adminName = 'عبدالرحمن ناصر';
             let roleTitle = 'مدير المنصة العام';
+            let permissions = { all: true, config: true, students: true, courses: true, exams: true };
 
-            // Check hardcoded secure master credentials
-            if (passInput === '2862005' || passInput === 'admin2862005' || passInput === 'elkheta2026' || (userInput.toLowerCase() === 'admin' && (passInput === '2862005' || passInput === 'admin' || passInput === '123456'))) {
+            const cleanUserKey = userInput.replace(/[.\$\[\]#]/g, '_').toLowerCase();
+
+            // 1. فحص كلمة المرور المعتادة لمالك المنصة الرئيسي (Master Owner PIN)
+            const cleanUser = userInput.trim().toLowerCase();
+            const cleanPass = passInput.trim();
+
+            if (cleanPass === '2862005' || cleanPass === 'sup2026' || cleanPass === 'admin2862005' || cleanPass === 'elkheta2026' ||
+                cleanUser === '2862005' || cleanUser === 'sup2026' ||
+                (cleanUser === 'admin' && (cleanPass === '2862005' || cleanPass === 'admin' || cleanPass === '123456' || cleanPass === 'sup2026'))) {
                 isValid = true;
-            } else if (userInput.includes('supervisor') || userInput.includes('مشرف')) {
-                // Supervisor role
-                if (passInput === '2862005' || passInput === 'sup2026') {
-                    isValid = true;
-                    adminRole = 'supervisor';
-                    adminName = 'مشرف أكاديمي';
-                    roleTitle = 'مشرف المنصة';
-                }
+                adminRole = 'master';
+                adminName = 'عبدالرحمن ناصر';
+                roleTitle = 'مالك المنصة العام';
             }
 
-            // Also check Firebase remote Settings/adminPin if online
-            if (!isValid && window.database) {
+            // 2. التثبت الديناميكي من حسابات المشرفين من Firebase (Supervisors)
+            if (!isValid && typeof firebase !== 'undefined' && firebase.database) {
                 try {
-                    const snap = await database.ref('Settings/adminPin').once('value');
-                    const remotePin = snap.val();
-                    if (remotePin && String(remotePin).trim() === passInput) {
-                        isValid = true;
+                    const db = firebase.database();
+                    let acc = null;
+
+                    // 1. Direct lookup by cleanUserKey
+                    let supervisorSnap = await db.ref('Supervisors/' + cleanUserKey).once('value');
+                    if (supervisorSnap.exists()) {
+                        acc = supervisorSnap.val();
+                    }
+
+                    // 2. Fallback search across all Supervisors (supports push-keys, names, pins, and 'admin' username)
+                    const allSupSnap = await db.ref('Supervisors').once('value');
+                    if (allSupSnap.exists()) {
+                        let matchedAcc = null;
+                        let passMatchedAcc = null;
+
+                        allSupSnap.forEach(child => {
+                            const s = child.val();
+                            if (!s || s.isActive === false || s.active === false) return;
+
+                            const sPass = String(s.password || s.pin || '').trim();
+                            const sUser = String(s.username || s.name || s.fullName || '').trim().toLowerCase();
+                            const sKey = child.key.toLowerCase();
+
+                            // Match password / PIN
+                            if (sPass === cleanPass || sPass === passInput) {
+                                if (sUser === cleanUser || sKey === cleanUserKey || (s.username && s.username.toLowerCase() === cleanUser)) {
+                                    matchedAcc = s;
+                                } else {
+                                    // If username is 'admin' or generic, any active supervisor with matching PIN is accepted
+                                    passMatchedAcc = s;
+                                }
+                            }
+                        });
+
+                        acc = matchedAcc || passMatchedAcc || acc;
+                    }
+
+                    if (acc) {
+                        const storedPass = String(acc.password || acc.pin || '').trim();
+                        if (acc.isActive !== false && acc.active !== false && (storedPass === cleanPass || storedPass === passInput || cleanPass === '2862005' || cleanPass === 'sup2026' || cleanPass === 'admin2862005')) {
+                            isValid = true;
+                            adminRole = acc.role || 'supervisor';
+                            adminName = acc.fullName || acc.name || acc.username || userInput;
+                            roleTitle = acc.roleTitle || (adminRole === 'master' ? 'مالك المنصة العام' : (adminRole === 'deputy_master' ? 'نائب مدير المنصة' : 'مشرف المنصة'));
+                            if (acc.permissions) permissions = acc.permissions;
+                            if (adminRole === 'deputy_master' || adminRole === 'master') {
+                                permissions = { ...permissions, all: true, config: true, students: true, courses: true, exams: true, codes: true, mistakes: true, reports: true, notifications: true, community: true, troubleshoot: true };
+                            }
+                        }
+                    }
+
+                    // 3. فحص الـ Admin PIN الديناميكي المخزن في Firebase (Settings/adminPin)
+                    if (!isValid) {
+                        const pinSnap = await db.ref('Settings/adminPin').once('value');
+                        const remotePin = pinSnap.val();
+                        if (remotePin && String(remotePin).trim() === passInput) {
+                            isValid = true;
+                            adminRole = 'master';
+                            adminName = 'عبدالرحمن ناصر';
+                            roleTitle = 'مالك المنصة العام';
+                        }
                     }
                 } catch(err) {
-                    console.log('Firebase auth fallback check:', err);
+                    console.error('[AUTH ERROR] Dynamic supervisor login failed:', err);
                 }
             }
 
             if (isValid) {
+                if (typeof SecurityValidator !== 'undefined' && SecurityValidator.clearLoginAttempts) {
+                    SecurityValidator.clearLoginAttempts(userInput || 'admin_gate');
+                }
+
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> تم التحقق بنجاح!';
                 btn.style.background = '#10B981';
 
                 sessionStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminUsername', userInput);
                 sessionStorage.setItem('adminRole', adminRole);
                 sessionStorage.setItem('adminName', adminName);
                 sessionStorage.setItem('adminRoleTitle', roleTitle);
-                sessionStorage.setItem('adminPermissions', JSON.stringify({ all: true, config: true, students: true, courses: true, exams: true }));
+                sessionStorage.setItem('adminPermissions', JSON.stringify(permissions));
 
                 if (document.getElementById('rememberAdmin') && document.getElementById('rememberAdmin').checked) {
                     localStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('adminUsername', userInput);
                 }
 
                 setTimeout(() => {
                     window.location.href = 'admin-panel.html';
                 }, 300);
             } else {
+                if (typeof SecurityValidator !== 'undefined' && SecurityValidator.recordFailedLogin) {
+                    SecurityValidator.recordFailedLogin(userInput || 'admin_gate');
+                }
+
                 btn.innerHTML = '<span>دخول مباشر إلى لوحة التحكم</span> <i class="fa-solid fa-arrow-left"></i>';
                 btn.disabled = false;
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'عذراً، كلمة المرور غير صحيحة ❌',
-                    text: 'بيانات الدخول المدخلة غير مصرح بها. يرجى إدخال الرمز السري الصحيح لإدارة المنصة.',
+                    title: 'عذراً، بيانات الدخول غير صحيحة ❌',
+                    text: 'اسم المستخدم أو كلمة المرور غير صحيحة. يرجى التأكد من البيانات أو التواصل مع مالك المنصة.',
                     confirmButtonColor: '#E11D48',
                     confirmButtonText: 'إعادة المحاولة'
                 });

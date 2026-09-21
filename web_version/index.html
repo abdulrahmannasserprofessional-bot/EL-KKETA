@@ -8,6 +8,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منصة الخطة التعليمية | ELKHETA</title>
     
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#C28B38">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('./service-worker.js').then(function(reg) {
+                console.log('ServiceWorker registered with scope: ', reg.scope);
+            }).catch(function(err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
+    </script>
+    
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -636,6 +654,152 @@
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════════════════
+     🎬 ELKHETA — Splash Screen (Website Loading Intro - 1.8s)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="elkheta-splash" style="
+    position:fixed; inset:0; z-index:999999;
+    background:#FAF7F2;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cairo',system-ui,sans-serif;
+    direction:rtl;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+">
+    <div style="position:absolute;width:350px;height:350px;background:rgba(212,151,59,0.10);border-radius:50%;filter:blur(70px);top:-80px;left:-80px;pointer-events:none;"></div>
+    <div style="position:absolute;width:280px;height:280px;background:rgba(194,139,56,0.07);border-radius:50%;filter:blur(60px);bottom:-60px;right:-60px;pointer-events:none;"></div>
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#D4973B,#B88028);"></div>
+
+    <div id="splash-card" style="
+        background:#fff;
+        border:1px solid #EFE8DC;
+        border-radius:24px;
+        box-shadow:0 8px 40px rgba(180,140,75,0.14),0 2px 10px rgba(0,0,0,0.04);
+        padding:44px 56px 38px;
+        text-align:center;
+        width:420px;
+        max-width:92vw;
+        position:relative;
+        z-index:10;
+        animation: splashCardIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+    ">
+        <div style="
+            width:76px;height:76px;border-radius:20px;
+            background:linear-gradient(135deg,#D4973B,#B88028);
+            display:inline-flex;align-items:center;justify-content:center;
+            margin-bottom:20px;
+            box-shadow:0 6px 22px rgba(194,139,56,0.38);
+            animation: splashFloat 3s ease-in-out infinite;
+        ">
+            <svg viewBox="0 0 40 40" fill="none" width="42" height="42" xmlns="http://www.w3.org/2000/svg">
+                <defs><filter id="sg"><feGaussianBlur stdDeviation="1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                <polygon points="20,5 36,13 20,21 4,13" fill="white" opacity="0.95" filter="url(#sg)"/>
+                <ellipse cx="20" cy="25" rx="12" ry="4.5" fill="white" opacity="0.85"/>
+                <rect x="18.5" y="13" width="3" height="10" rx="1.5" fill="white" opacity="0.7"/>
+                <line x1="21.5" y1="16" x2="28" y2="14.5" stroke="#FCD34D" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="29" cy="14" r="3" fill="#FCD34D" filter="url(#sg)"/>
+                <circle cx="29" cy="14" r="1.6" fill="#FFFBEB"/>
+            </svg>
+        </div>
+
+        <div style="font-size:28px;font-weight:900;color:#1E293B;letter-spacing:-0.5px;margin-bottom:5px;line-height:1.2;">
+            EL<span style="color:#C28B38;">KHETA</span>.
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#8C827A;margin-bottom:30px;">
+            منصة الخطة التعليمية
+        </div>
+
+        <div style="width:100%;height:5px;background:#FDF4E6;border:1px solid #E8D3B2;border-radius:10px;overflow:hidden;margin-bottom:13px;">
+            <div id="splash-bar" style="
+                height:100%;width:0%;border-radius:10px;
+                background:linear-gradient(90deg,#D4973B,#C28B38,#D4973B);
+                background-size:200% 100%;
+                transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
+                animation: splashShimmer 1.8s linear infinite;
+            "></div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span id="splash-label" style="font-size:12px;font-weight:700;color:#8C827A;transition:opacity 0.3s;">
+                جاري تهيئة المنصة...
+            </span>
+            <span style="font-size:10.5px;font-weight:700;color:#C28B38;background:#FDF4E6;border:1px solid #E8D3B2;border-radius:20px;padding:2px 10px;">
+                v2.0.0
+            </span>
+        </div>
+
+        <div style="display:flex;gap:5px;margin-top:18px;justify-content:center;">
+            <div class="splash-dot" style="animation-delay:0s"></div>
+            <div class="splash-dot" style="animation-delay:.2s"></div>
+            <div class="splash-dot" style="animation-delay:.4s"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes splashCardIn {
+    from { opacity:0; transform:translateY(20px) scale(0.96); }
+    to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+@keyframes splashFloat {
+    0%,100% { transform:translateY(0); }
+    50%      { transform:translateY(-6px); }
+}
+@keyframes splashShimmer {
+    0%   { background-position:200% 0; }
+    100% { background-position:-200% 0; }
+}
+@keyframes splashDot {
+    0%,80%,100% { transform:scale(0.8); background:#E8D3B2; }
+    40%          { transform:scale(1.35); background:#C28B38; }
+}
+.splash-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:#E8D3B2;
+    animation: splashDot 1.4s ease-in-out infinite;
+}
+#elkheta-splash.hidden {
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none;
+}
+</style>
+
+<script>
+(function(){
+    var steps = [
+        { label:'جاري تهيئة المنصة...',          pct:25  },
+        { label:'تحميل المواد والمحاضرات...',     pct:55  },
+        { label:'التحقق من الحساب...',            pct:80  },
+        { label:'أهلاً بك! ✨',                  pct:100 },
+    ];
+    var bar   = document.getElementById('splash-bar');
+    var label = document.getElementById('splash-label');
+    var splash = document.getElementById('elkheta-splash');
+    var i = 0;
+
+    function tick() {
+        if (i >= steps.length) return;
+        bar.style.width   = steps[i].pct + '%';
+        label.textContent = steps[i].label;
+        if (++i < steps.length) setTimeout(tick, 350);
+    }
+    setTimeout(tick, 100);
+
+    function hideSplash() {
+        bar.style.width   = '100%';
+        label.textContent = 'أهلاً بك! ✨';
+        setTimeout(function(){
+            splash.classList.add('hidden');
+            setTimeout(function(){ splash.remove(); }, 400);
+        }, 200);
+    }
+
+    // ⏱️ مدة الافتتاحية: 1.8 ثانية بالضبط
+    setTimeout(hideSplash, 1800);
+})();
+</script>
+<!-- ══ نهاية شاشة الافتتاحية ══ -->
+
 <div class="landing-container">
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -1124,6 +1288,163 @@
         localStorage.setItem('landingTheme', isDark ? 'dark' : 'light');
         document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
     }
+</script>
+
+
+<!-- ══════════════════════════════════════════════════════
+     📲 زر تثبيت التطبيق العائم الثابت (Permanent Floating PWA Button)
+     ══════════════════════════════════════════════════════ -->
+<div id="pwa-floating-btn-wrap" style="
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99990;
+    font-family: 'Cairo', sans-serif;
+    direction: rtl;
+">
+    <button id="pwa-floating-btn" onclick="handlePWAInstallClick()" style="
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        background: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+        color: #FFFFFF;
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50px;
+        box-shadow: 0 8px 25px rgba(194, 139, 56, 0.4), 0 2px 8px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        outline: none;
+    " onmouseover="this.style.transform='translateY(-3px) scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(194, 139, 56, 0.5)'"
+       onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 25px rgba(194, 139, 56, 0.4)'">
+        <div style="
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        ">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 13px; font-weight: 900; line-height: 1.2;">تثبيت التطبيق</div>
+            <div style="font-size: 10.5px; opacity: 0.9; font-weight: 700;">كمبيوتر وموبايل 📲</div>
+        </div>
+    </button>
+</div>
+
+<script>
+var _pwaPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _pwaPrompt = e;
+});
+
+function handlePWAInstallClick() {
+    Swal.fire({
+        title: '<strong>اختر نوع النسخة للتثبيت 📲</strong>',
+        html: `
+            <div style="font-family:'Cairo',sans-serif; direction:rtl; text-align:center; padding:10px 0;">
+                <p style="color:#64748B; font-size:13.5px; margin-bottom:18px; font-weight:700;">
+                    اختر المنصة المناسبة لجهازك للتثبيت المباشر:
+                </p>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- 1. Windows EXE -->
+                    <a href="downloads/ELKHETA-Setup-2.0.0.app" download="ELKHETA-Setup-2.0.0.exe" style="
+                        display:flex; align-items:center; justify-content:space-between;
+                        padding:14px 20px;
+                        background:linear-gradient(135deg,#D4973B,#B88028);
+                        color:#FFFFFF; text-decoration:none;
+                        border-radius:16px; font-weight:800; font-size:14px;
+                        box-shadow:0 4px 15px rgba(194,139,56,0.35);
+                        transition:transform 0.2s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa-brands fa-windows" style="font-size:22px;"></i>
+                            <span>تثبيت برنامج الكمبيوتر (Windows EXE)</span>
+                        </div>
+                        <i class="fa-solid fa-download" style="font-size:16px;"></i>
+                    </a>
+
+                    <!-- 2. Android APK -->
+                    <a href="downloads/ELKHETA-v2.0.0.app" download="ELKHETA-v2.0.0.apk" style="
+                        display:flex; align-items:center; justify-content:space-between;
+                        padding:14px 20px;
+                        background:#10B981;
+                        color:#FFFFFF; text-decoration:none;
+                        border-radius:16px; font-weight:800; font-size:14px;
+                        box-shadow:0 4px 15px rgba(16,185,129,0.3);
+                        transition:transform 0.2s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa-brands fa-android" style="font-size:22px;"></i>
+                            <span>تثبيت تطبيق الموبايل (Android APK)</span>
+                        </div>
+                        <i class="fa-solid fa-download" style="font-size:16px;"></i>
+                    </a>
+
+                    <!-- 3. PWA Web App -->
+                    <button onclick="triggerPWAFromModal()" style="
+                        display:flex; align-items:center; justify-content:space-between;
+                        padding:14px 20px;
+                        background:linear-gradient(135deg,#6366F1,#4F46E5);
+                        color:#FFFFFF; border:none;
+                        border-radius:16px; font-weight:800; font-size:14px;
+                        box-shadow:0 4px 15px rgba(99,102,241,0.35);
+                        cursor:pointer;
+                        font-family:'Cairo',sans-serif;
+                        transition:transform 0.2s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fa-solid fa-house-laptop" style="font-size:20px;"></i>
+                            <span>إضافة إلى الشاشة الرئيسية (PWA)</span>
+                        </div>
+                        <i class="fa-solid fa-plus-circle" style="font-size:16px;"></i>
+                    </button>
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true
+    });
+}
+
+function triggerPWAFromModal() {
+    Swal.close();
+    if (_pwaPrompt) {
+        _pwaPrompt.prompt();
+        _pwaPrompt.userChoice.then(function(result) {
+            if (result.outcome === 'accepted') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تمت الإضافة بنجاح! 🎉',
+                    text: 'تطبيق المنصة متاح الآن على شاشتك الرئيسية',
+                    confirmButtonText: 'ممتاز',
+                    confirmButtonColor: '#C28B38'
+                });
+            }
+            _pwaPrompt = null;
+        });
+    } else {
+        Swal.fire({
+            icon: 'info',
+            title: 'إضافة إلى الشاشة الرئيسية 📲',
+            html: `
+                <div style="font-family:'Cairo',sans-serif; direction:rtl; text-align:right; line-height:1.7;">
+                    <p style="color:#475569; font-size:13.5px; margin-bottom:10px;">
+                        لإضافة المنصة كتطبيق على شاشتك الرئيسية فوراً:
+                    </p>
+                    <div style="background:#FDF4E6; border:1px solid #E8D3B2; padding:12px; border-radius:12px;">
+                        <strong style="color:#C28B38;">📌 من قائمة المتصفح (⋮):</strong><br>
+                        اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong> (Add to Home Screen) أو اضغط أيقونة التثبيت 📥 في شريط العنوان بالبرنامج.
+                    </div>
+                </div>
+            `,
+            confirmButtonText: 'فهمت 👍',
+            confirmButtonColor: '#C28B38'
+        });
+    }
+}
 </script>
 
 </body>

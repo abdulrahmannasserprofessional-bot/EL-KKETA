@@ -1,8 +1,11 @@
-const CACHE_NAME = 'elkheta-v-2027-FORCE-NO-CACHE';
+const CACHE_NAME = 'elkheta-v-2027-v3.1';
 const STATIC_ASSETS = [
     'style.css',
     'logo.png',
-    'favicon.ico'
+    'offline.html',
+    'motion-fx.css',
+    'motion-fx.js',
+    'toast.js'
 ];
 
 self.addEventListener('install', event => {

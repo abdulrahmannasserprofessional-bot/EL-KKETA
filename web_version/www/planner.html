@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تقدمي وخطة المذاكرة - ELKHETA | منصة الخطة</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+
+    <style>
+        :root {
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
+            
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
+            
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --text-light: #94A3B8;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 25px -4px rgba(180, 140, 75, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0D1117;
+            --bg-surface: #161B22;
+            --bg-surface-hover: #1F242C;
+            --border-card: #30363D;
+            --border-card-hover: #8B6528;
+            --text-title: #F0F6FC;
+            --text-body: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+            --shadow-subtle: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-title);
+            min-height: 100vh;
+            direction: rtl;
+            text-align: right;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        .student-app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ─── */
+        .student-sidebar {
+            width: 270px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-card);
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 99;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px 18px 10px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
+            text-decoration: none;
+        }
+
+        .brand-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .brand-title-row {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+        .brand-title-row span { color: var(--gold-primary); }
+        .brand-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+
+        .sidebar-nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-section-title { font-size: 11px; font-weight: 800; color: #A37936; margin: 16px 8px 6px 8px; }
+
+        .nav-item-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .nav-item-link i { width: 20px; font-size: 15px; text-align: center; color: var(--text-muted); }
+        .nav-item-link:hover { background: var(--bg-surface-hover); color: var(--text-title); transform: translateX(-3px); }
+        .nav-item-link:hover i { color: var(--gold-primary); }
+        .nav-item-link.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+        }
+        .nav-item-link.active i { color: #FFFFFF; }
+
+        .sidebar-support-card {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .btn-support-chat {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(194, 139, 56, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ─── Main Stage ─── */
+        .student-main-stage {
+            flex: 1;
+            padding: 20px 28px 40px 28px;
+            overflow-y: auto;
+            max-width: 1450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .top-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .header-search-wrap { flex: 1; max-width: 540px; position: relative; }
+        .header-search-input {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 0 44px 0 16px;
+            font-size: 13.5px;
+            color: var(--text-title);
+            outline: none;
+        }
+        .header-search-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15); }
+        .header-search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+
+        .header-actions-group { display: flex; align-items: center; gap: 12px; }
+        .btn-header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .student-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 12px 4px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .student-avatar-img { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--gold-primary); }
+
+        /* ─── Hero Banner ─── */
+        .universal-hero-banner {
+            background: linear-gradient(125deg, #FBF6EC 0%, #F5EAD4 50%, #FAF1DF 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-subtle);
+        }
+        body.dark-mode .universal-hero-banner {
+            background: linear-gradient(125deg, #231C13 0%, #332514 50%, #291D11 100%);
+        }
+        .hero-banner-title { font-size: 24px; font-weight: 900; color: #352514; margin-bottom: 4px; }
+        body.dark-mode .hero-banner-title { color: #F8E5C4; }
+        .hero-banner-sub { font-size: 13.5px; font-weight: 600; color: #7A5B35; }
+        body.dark-mode .hero-banner-sub { color: #CBB18B; }
+
+        /* ─── Luxury Cards ─── */
+        .luxury-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.25s ease;
+        }
+        .luxury-card:hover {
+            border-color: var(--border-card-hover);
+        }
+
+        /* KPI Metrics Grid */
+        .planner-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 992px) {
+            .planner-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .planner-kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        .kpi-card-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow-subtle);
+        }
+        .kpi-icon-square {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Weekly Schedule Table Grid */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 1100px) {
+            .schedule-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .schedule-grid { grid-template-columns: 1fr; }
+        }
+        .schedule-day-box {
+            background: var(--bg-surface-hover);
+            border: 1.5px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .schedule-day-box:hover {
+            border-color: var(--gold-border);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-subtle);
+        }
+        .schedule-day-box.day-completed {
+            background: rgba(16, 185, 129, 0.08) !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+        }
+        .schedule-day-name {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: var(--gold-text);
+            background: var(--gold-light);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--gold-border);
+            display: inline-block;
+        }
+        .schedule-day-task {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-title);
+            line-height: 1.4;
+        }
+        .schedule-duration-pill {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-card);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .schedule-done-toggle {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .schedule-done-toggle:hover {
+            color: var(--text-title);
+        }
+
+        /* Subject Progress Bars Grid */
+        .subjects-progress-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media (max-width: 800px) {
+            .subjects-progress-grid { grid-template-columns: 1fr; }
+        }
+
+        .subject-progress-row {
+            background: var(--bg-surface-hover);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .subject-progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .subject-progress-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .subject-progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: var(--border-card);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .subject-progress-bar-fill {
+            height: 100%;
+            background: var(--gold-gradient);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Pomodoro Focus Timer Widget */
+        .pomodoro-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #FFFDF9 0%, #FFF5E6 100%);
+            border: 1.5px dashed var(--gold-border);
+            border-radius: var(--radius-lg);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        body.dark-mode .pomodoro-box {
+            background: linear-gradient(135deg, #1C1711 0%, #291D11 100%);
+        }
+
+        .pomodoro-digits {
+            font-size: 38px;
+            font-weight: 900;
+            color: var(--gold-primary);
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        /* Floating Support Button */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .floating-support-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7);
+            color: #FFFFFF;
+        }
+        .floating-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .floating-text-box { display: flex; flex-direction: column; text-align: right; }
+        .floating-text-title { font-size: 13px; font-weight: 900; line-height: 1.2; }
+        .floating-text-sub { font-size: 10px; font-weight: 700; color: #FEF3C7; }
+        @media (max-width: 640px) {
+            .floating-support-btn { padding: 10px; border-radius: 50%; bottom: 20px; left: 20px; }
+            .floating-text-box { display: none; }
+            .student-sidebar { display: none; }
+            .student-main-stage { padding: 16px 14px 70px; }
+        }
+
+        /* ─── Custom Schedule Modal Styles ─── */
+        .custom-schedule-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            padding: 16px;
+            animation: fadeInModal 0.25s ease;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .custom-schedule-modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+        .custom-schedule-modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .custom-schedule-modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .custom-schedule-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: var(--bg-surface-hover);
+        }
+        .custom-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 14px;
+        }
+    </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    
+
+
+<style id="elkheta-master-mobile-engine">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 ELKHETA UNIVERSAL MOBILE & DESKTOP ENGINE (v5.0.0 Fluid Grids)       */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop Rules (> 992px) */
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+    .mobile-sidebar-close-row { display: none !important; }
+    .student-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        width: 270px !important;
+        height: 100vh !important;
+        flex-shrink: 0 !important;
+    }
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+}
+
+/* Mobile & Tablet Rules (<= 992px) */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 78px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper,
+    .landing-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 10px 10px 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Off-canvas Mobile Drawer for Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar,
+    aside.student-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 16px 14px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open,
+    aside.student-sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    .mobile-sidebar-close-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        margin-bottom: 12px !important;
+        background: #FDF4E6 !important;
+        border-radius: 12px !important;
+        border: 1px solid #E8D3B2 !important;
+    }
+
+    .drawer-user-info {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        color: #8E5D16 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .btn-drawer-close {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #E11D48 !important;
+        font-size: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 10px 6px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Top Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-search-input {
+        width: 100% !important;
+        height: 42px !important;
+        border-radius: 21px !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-header-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+        position: relative !important;
+    }
+
+    .student-profile-chip {
+        flex-shrink: 0 !important;
+        padding: 4px 10px 4px 6px !important;
+        max-width: 60% !important;
+    }
+
+    .student-avatar-img {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .icon-badge-num {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 100% SINGLE COLUMN GRIDS ON MOBILE ─── */
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer,
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card,
+    #subjectsCardsContainer > div,
+    #notesContainerGrid > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card,
+    .hero-showcase-card {
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title,
+    .hero-main-heading {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub,
+    .hero-sub-title {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 74px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    /* Mobile Drawer Backdrop */
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Universal Mobile Bottom Navigation Dock */
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileSidebar(open) {
+    try {
+        var sb = document.querySelector('.student-sidebar, .dashboard-sidebar, aside.student-sidebar, aside');
+        var bd = document.getElementById('mobileDrawerBackdrop');
+        if (!sb) return;
+        var isCurrentlyOpen = sb.classList.contains('mobile-open');
+        var targetState = (open !== undefined) ? open : !isCurrentlyOpen;
+        if (targetState) {
+            sb.classList.add('mobile-open');
+            if (bd) bd.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sb.classList.remove('mobile-open');
+            if (bd) bd.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch(e) { console.error('Sidebar toggle error:', e); }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+</script>
+</head>
+<body>
+
+<div class="student-app-container">
+
+    <!-- 1. Right Sidebar -->
+    <aside class="student-sidebar">
+        <!-- Mobile Drawer Close Header -->
+        <div class="mobile-sidebar-close-row">
+            <div class="drawer-user-info">
+                <i class="fa-solid fa-graduation-cap" style="color: #C28B38;"></i>
+                <span>قائمة منصة الخطة</span>
+            </div>
+            <button class="btn-drawer-close" onclick="toggleMobileSidebar(false)" title="إغلاق القائمة">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div>
+            <!-- Brand -->
+            <a href="home.html" class="sidebar-brand">
+                <div class="brand-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div class="brand-text-col">
+                    <div class="brand-title-row">ELKHETA <span>|</span> الخطة</div>
+                    <span class="brand-sub">طريقك المنظم نحو التفوق الأكاديمي</span>
+                </div>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="sidebar-nav-list">
+                <li><a href="home.html" class="nav-item-link"><i class="fa-solid fa-house"></i><span>الرئيسية</span></a></li>
+                <li><a href="courses.html" class="nav-item-link"><i class="fa-solid fa-book-open"></i><span>المواد الدراسية</span></a></li>
+                <li><a href="lectures.html" class="nav-item-link"><i class="fa-solid fa-clapperboard"></i><span>المحاضرات</span></a></li>
+                <li><a href="notes-viewer.html" class="nav-item-link"><i class="fa-solid fa-note-sticky"></i><span>كشكول ونوتس</span></a></li>
+                <li><a href="quiz.html" class="nav-item-link"><i class="fa-solid fa-clipboard-list"></i><span>الامتحانات</span></a></li>
+                <li><a href="mistakes.html" class="nav-item-link"><i class="fa-solid fa-circle-xmark"></i><span>أخطائي</span></a></li>
+                <li><a href="planner.html" class="nav-item-link active"><i class="fa-solid fa-chart-line"></i><span>تقدمي</span></a></li>
+                <li><a href="leaderboard.html" class="nav-item-link"><i class="fa-solid fa-trophy"></i><span>لوحة الشرف</span></a></li>
+                <li><a href="community.html" class="nav-item-link"><i class="fa-solid fa-users"></i><span>المجتمع</span></a></li>
+                <li><a href="chat.html" class="nav-item-link"><i class="fa-solid fa-headset"></i><span>الدعم والتواصل</span></a></li>
+
+                <div class="nav-section-title">أدوات إضافية</div>
+
+                <li><a href="profile.html#settings" class="nav-item-link"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a></li>
+                <li><a href="javascript:void(0)" onclick="logoutStudent()" class="nav-item-link" style="color: #E11D48;"><i class="fa-solid fa-arrow-right-from-bracket" style="color: #E11D48;"></i><span>تسجيل الخروج</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="sidebar-support-card">
+                <i class="fa-solid fa-headset" style="font-size: 26px; color: var(--gold-primary);"></i>
+                <div style="font-size: 13px; font-weight: 800; color: var(--text-title);">تواصل مع الإدارة</div>
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">نحن هنا لمساعدتك دائماً</div>
+                <a href="chat.html" class="btn-support-chat">
+                    <span>ابدأ المحادثة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 2. Main Stage -->
+    <main class="student-main-stage">
+
+        <!-- Top Header -->
+        <header class="top-header-bar">
+            <div class="header-search-wrap">
+                <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+                <input type="text" id="globalStudentSearchInput" class="header-search-input" placeholder="ابحث في خطة المذاكرة والمهام..." oninput="if(typeof handlePageSearch === 'function') handlePageSearch(this.value)">
+            </div>
+
+            <div class="header-actions-group">
+                <button class="btn-header-icon" id="themeToggleBtn" onclick="toggleStudentTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <a href="notifications.html" class="btn-header-icon" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                </a>
+                <a href="profile.html" class="student-profile-chip">
+                    <img src="banner-illustration.png" alt="Student" class="student-avatar-img" onerror="this.src='icons/icon.svg'">
+                    <div style="display: flex; flex-direction: column; text-align: right;">
+                        <span id="studentDisplayName" style="font-size: 13px; font-weight: 800;">طالب متميز</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: var(--text-muted);">المرحلة الأكاديمية</span>
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        <!-- Hero Banner -->
+        <section class="universal-hero-banner">
+            <div>
+                <h1 class="hero-banner-title">متابعة التقدم الأكاديمي وخطة المذاكرة</h1>
+                <p class="hero-banner-sub">نظم جدولك الأسبوعي، راقب إنجاز المحاضرات والامتحانات، واضبط مؤقت التركيز اليومي 🎯</p>
+            </div>
+            <div style="font-size: 38px; color: var(--gold-primary); opacity: 0.85;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+        </section>
+
+        <!-- 1. Top KPI Summary Grid -->
+        <div class="planner-kpi-grid">
+            <div class="kpi-card-box">
+                <div class="kpi-icon-square" style="background: var(--gold-light); color: var(--gold-primary);">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-title);" id="kpiProgressPct">0%</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">إجمالي إنجاز المنهج</div>
+                </div>
+            </div>
+
+            <div class="kpi-card-box">
+                <div class="kpi-icon-square" style="background: #DBEAFE; color: #2563EB;">
+                    <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-title);" id="kpiWatchedLecs">0</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">محاضرات مكتملة</div>
+                </div>
+            </div>
+
+            <div class="kpi-card-box">
+                <div class="kpi-icon-square" style="background: #D1FAE5; color: #059669;">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-title);" id="kpiPassedExams">0</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">تقييمات مجتازة</div>
+                </div>
+            </div>
+
+            <div class="kpi-card-box">
+                <div class="kpi-icon-square" style="background: #FFEDD5; color: #EA580C;">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <div>
+                    <div style="font-size: 20px; font-weight: 900; color: var(--text-title);" id="kpiStreakDays">جاهز للبدء ✨</div>
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">أيام الالتزام والتفاعل</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Pomodoro Focus Timer Widget -->
+        <div class="pomodoro-box">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--gold-light); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    <i class="fa-solid fa-stopwatch"></i>
+                </div>
+                <div>
+                    <div style="font-size: 16px; font-weight: 900; color: var(--text-title);">مؤقت التركيز الدراسي (Pomodoro ⏱️)</div>
+                    <div style="font-size: 12px; font-weight: 600; color: var(--text-muted);">جلسات تركيز لمدة 25 دقيقة تعقبها استراحة قصيرة لتثبيت الاستيعاب الذهني</div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div class="pomodoro-digits" id="timerDigits">25:00</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="timerToggleBtn" onclick="togglePomodoroTimer()" style="padding: 9px 20px; border-radius: 20px; background: var(--gold-gradient); color: #fff; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(194,139,56,0.3);">
+                        <i class="fa-solid fa-play"></i> <span id="timerBtnText">ابدأ الجلسة</span>
+                    </button>
+                    <button onclick="resetPomodoroTimer()" style="padding: 9px 14px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-card); color: var(--text-muted); cursor: pointer;" title="إعادة ضبط">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Weekly Study Routine Table (الجدول الأسبوعي المنظم) -->
+        <div class="luxury-card" id="weeklyScheduleCard">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-card); padding-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--gold-light); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 16px; font-weight: 900; color: var(--text-title);" id="scheduleMainTitle">الجدول والخطة الدراسية الأسبوعية</div>
+                        <div style="font-size: 11.5px; font-weight: 600; color: var(--text-muted);" id="scheduleSubTitle">خطة متوازنة لتوزيع المذاكرة على مدار الأسبوع 🎯</div>
+                    </div>
+                </div>
+
+                <!-- Plan Mode Switcher & Actions -->
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <div style="display: flex; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: 20px; padding: 3px; gap: 4px;">
+                        <button type="button" id="btnPlanModeOfficial" onclick="switchPlanMode('official')" style="padding: 6px 14px; border-radius: 16px; border: none; font-size: 12px; font-weight: 800; cursor: pointer; background: var(--gold-gradient); color: #FFFFFF; transition: all 0.2s;">
+                            🏛️ جدول الأكاديمية
+                        </button>
+                        <button type="button" id="btnPlanModeCustom" onclick="switchPlanMode('custom')" style="padding: 6px 14px; border-radius: 16px; border: none; font-size: 12px; font-weight: 800; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">
+                            ✏️ خطتي المخصصة
+                        </button>
+                    </div>
+
+                    <button type="button" onclick="openCustomScheduleModal()" style="padding: 7px 14px; border-radius: 14px; background: var(--gold-light); border: 1px solid var(--gold-border); color: var(--gold-text); font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>تخصيص خطتي ⚙️</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="schedule-grid" id="studentWeeklyScheduleGrid">
+                <!-- Dynamically loaded -->
+            </div>
+        </div>
+
+        <!-- 4. Two Columns: Subjects Breakdown & Interactive Task Checklist -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            
+            <!-- Subject Breakdown -->
+            <div class="luxury-card">
+                <div style="font-size: 16px; font-weight: 900; color: var(--text-title); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-layer-group" style="color: var(--gold-primary);"></i>
+                    <span>معدل إنجاز كل مادة من المقررات الـ 7</span>
+                </div>
+
+                <div class="subjects-progress-grid" style="grid-template-columns: 1fr;" id="subjectsProgressContainer">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Interactive Custom Tasks Checklist -->
+            <div class="luxury-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 16px; font-weight: 900; color: var(--text-title); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-list-check" style="color: var(--gold-primary);"></i>
+                        <span>قائمة المهام الدراسية التفاعلية</span>
+                    </div>
+                    <button onclick="clearCompletedTasks()" style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline;">
+                        تنظيف المكتمل
+                    </button>
+                </div>
+
+                <!-- Add Task Row -->
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="newTaskInput" placeholder="أضف مهمة دراسية جديدة هنا..." style="flex: 1; height: 38px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 0 14px; font-size: 13px; color: var(--text-title); outline: none;" onkeydown="if(event.key==='Enter') addNewStudentTask()">
+                    <button onclick="addNewStudentTask()" style="padding: 0 16px; background: var(--gold-gradient); color: white; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 800; cursor: pointer;">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px; max-height: 280px; overflow-y: auto;" id="tasksListContainer">
+                    <!-- Loaded from localStorage -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Universal Footer -->
+        <footer style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); font-size: 11.5px; font-weight: 600; color: var(--text-muted); flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open" style="color: var(--gold-primary);"></i>
+                <b style="color: var(--text-title);">الخطة | ELKHETA</b>
+                <span>طريقك المنظم نحو التفوق الأكاديمي</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="guide.html" style="color: inherit; text-decoration: none;">شروط الاستخدام</a>
+                <a href="privacy.html" style="color: inherit; text-decoration: none;">سياسة الخصوصية</a>
+                <a href="chat.html" style="color: inherit; text-decoration: none;">دعم فني</a>
+                <span>2026 © جميع الحقوق محفوظة</span>
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+<!-- Floating Support & Academic Center Button -->
+<a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+    <div class="floating-icon-box">
+        <i class="fa-solid fa-headset"></i>
+    </div>
+    <div class="floating-text-box">
+        <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+        <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+    </div>
+</a>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- ⚙️ Custom Schedule Editor Modal (تخصيص الخطة الأسبوعية للطالب) -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="customScheduleModal" class="custom-schedule-modal-overlay" onclick="if(event.target === this) closeCustomScheduleModal()">
+    <div class="custom-schedule-modal-card" onclick="event.stopPropagation()">
+        
+        <!-- Modal Header -->
+        <div class="custom-schedule-modal-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--gold-light); border: 1px solid var(--gold-border); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    <i class="fa-solid fa-pen-ruler"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 900; color: var(--text-title); margin: 0;">تخصيص الخطة والجدول الأسبوعي ⚙️</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">خصص أيام ومواد وساعات ومهمات دراستك بما يناسب وقتك الشخصي</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCustomScheduleModal()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface-hover); border: 1px solid var(--border-card); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.2s;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Action Tools Bar -->
+        <div style="padding: 12px 24px; background: var(--gold-light); border-bottom: 1px solid var(--gold-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--gold-text); display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span>يمكنك استيراد جدول الأكاديمية والتعديل عليه مباشرة، أو تخصيص جدول جديد بالكامل:</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" onclick="importOfficialToCustom()" style="padding: 6px 14px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--gold-border); color: var(--gold-text); font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-file-import"></i>
+                    <span>استيراد جدول المنصة 📥</span>
+                </button>
+                <button type="button" onclick="resetCustomSchedule()" style="padding: 6px 14px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #EF4444; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>استعادة الافتراضي 🔄</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body (7 Days Cards Grid) -->
+        <div class="custom-schedule-modal-body">
+            <div class="custom-modal-grid" id="customModalScheduleGrid">
+                <!-- Dynamically loaded via renderCustomModalEditorGrid -->
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="custom-schedule-modal-footer">
+            <button type="button" onclick="closeCustomScheduleModal()" style="padding: 9px 20px; border-radius: 14px; background: var(--bg-surface); border: 1px solid var(--border-card); color: var(--text-muted); font-size: 13px; font-weight: 800; cursor: pointer;">
+                إلغاء
+            </button>
+            <button type="button" onclick="saveCustomScheduleFromModal()" style="padding: 10px 24px; border-radius: 14px; background: var(--gold-gradient); color: #FFFFFF; border: none; font-size: 13.5px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>حفظ واعتماد خطتي 💾</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const OFFICIAL_SUBJECTS = [
+        { key: 'افراد', name: 'طريقة العمل مع الأفراد', icon: 'fa-user-group', bg: '#FFEDD5', color: '#EA580C' },
+        { key: 'جماعات', name: 'طريقة العمل مع الجماعات', icon: 'fa-users', bg: '#DBEAFE', color: '#2563EB' },
+        { key: 'مجتمعات', name: 'تنظيم وإدارة المجتمعات', icon: 'fa-city', bg: '#D1FAE5', color: '#059669' },
+        { key: 'سياسات الرعاية الاجتماعية', name: 'سياسات الرعاية الاجتماعية', icon: 'fa-scale-balanced', bg: '#F3E8FF', color: '#9333EA' },
+        { key: 'الخدمة الاجتماعية في مجال طبي', name: 'الخدمة الاجتماعية في مجال طبي', icon: 'fa-hospital-user', bg: '#FFE4E6', color: '#E11D48' },
+        { key: 'تدريب ميداني', name: 'التدريب الميداني والتطبيقي', icon: 'fa-briefcase', bg: '#FEF3C7', color: '#D97706' },
+        { key: 'مشروع تخرج', name: 'مشروع التخرج والبحث', icon: 'fa-graduation-cap', bg: '#ECFEFF', color: '#0891B2' }
+    ];
+
+    let studentTasks = [];
+    let pomodoroSeconds = 25 * 60;
+    let pomodoroInterval = null;
+    let isPomodoroRunning = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = student.fullName || student.name || localStorage.getItem('studentName') || 'طالب متميز';
+        document.getElementById('studentDisplayName').textContent = stName;
+
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
+        }
+
+        loadStudentTasks();
+        renderSubjectsBreakdown();
+        loadRealStudentProgress();
+        loadWeeklyScheduleStudent();
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // 📅 Dynamic Weekly Study Schedule Engine (Official + Custom)
+    // ═══════════════════════════════════════════════════════════════════
+    const DEFAULT_WEEKLY_SCHEDULE = [
+        { id: "day_0", dayName: "السبت", subject: "طريقة العمل مع الأفراد", duration: "ساعتان", task: "شروحات وتطبيقات المقابلة", isReview: false },
+        { id: "day_1", dayName: "الأحد", subject: "طريقة العمل مع الجماعات", duration: "ساعتان", task: "ديناميات الجماعة وتصميم الأنشطة", isReview: false },
+        { id: "day_2", dayName: "الإثنين", subject: "تنظيم وإدارة المجتمعات", duration: "ساعتان", task: "نماذج التنمية والمشاركة المحلية", isReview: false },
+        { id: "day_3", dayName: "الثلاثاء", subject: "سياسات الرعاية الاجتماعية", duration: "ساعتان", task: "التشريعات ونظم التأمينات", isReview: false },
+        { id: "day_4", dayName: "الأربعاء", subject: "المجال الطبي والتأهيلي", duration: "ساعتان", task: "التأهيل الصحي والمستشفيات", isReview: false },
+        { id: "day_5", dayName: "الخميس", subject: "تدريب ميداني وتخرج", duration: "3 ساعات", task: "التقارير الإشرافية وأدوات البحث", isReview: false },
+        { id: "day_6", dayName: "الجمعة", subject: "مراجعة وتقييمات", duration: "جلسة مراجعة", task: "حل سجل الأخطاء والامتحانات", isReview: true }
+    ];
+
+    let officialScheduleData = JSON.parse(JSON.stringify(DEFAULT_WEEKLY_SCHEDULE));
+    let customScheduleData = null;
+    let currentPlanMode = localStorage.getItem('elkheta_plan_mode') || 'official';
+    let availablePlatformSubjects = [];
+
+    function loadWeeklyScheduleStudent() {
+        // 1. Load custom schedule from localStorage if exists
+        try {
+            const savedCustom = localStorage.getItem('my_custom_weekly_schedule');
+            if (savedCustom) {
+                const parsed = JSON.parse(savedCustom);
+                if (Array.isArray(parsed) && parsed.length === 7) {
+                    customScheduleData = parsed;
+                }
+            }
+        } catch(e){}
+
+        // 2. Load subjects from Firebase for easy dropdown assignment
+        if (window.database) {
+            database.ref('Subjects').once('value').then(snap => {
+                if (snap.exists()) {
+                    availablePlatformSubjects = [];
+                    snap.forEach(c => {
+                        const sName = c.val()?.name || c.key;
+                        if (sName) availablePlatformSubjects.push(sName);
+                    });
+                }
+            });
+        }
+
+        // 3. Render initial schedule
+        applyPlanModeUI();
+
+        // 4. Realtime sync with Firebase Official WeeklySchedule
+        if (window.database) {
+            database.ref('WeeklySchedule').on('value', snap => {
+                const val = snap.val();
+                let schedule = DEFAULT_WEEKLY_SCHEDULE;
+                if (val && Array.isArray(val) && val.length === 7) {
+                    schedule = val;
+                } else if (val && typeof val === 'object') {
+                    const arr = Object.values(val);
+                    if (arr.length === 7) schedule = arr;
+                }
+                officialScheduleData = schedule;
+                if (currentPlanMode === 'official') {
+                    renderWeeklyScheduleUI(officialScheduleData);
+                }
+            });
+        }
+    }
+
+    function switchPlanMode(mode) {
+        currentPlanMode = mode;
+        localStorage.setItem('elkheta_plan_mode', mode);
+        applyPlanModeUI();
+    }
+
+    function applyPlanModeUI() {
+        const btnOfficial = document.getElementById('btnPlanModeOfficial');
+        const btnCustom = document.getElementById('btnPlanModeCustom');
+        const mainTitle = document.getElementById('scheduleMainTitle');
+        const subTitle = document.getElementById('scheduleSubTitle');
+
+        if (currentPlanMode === 'custom') {
+            if (btnOfficial) {
+                btnOfficial.style.background = 'transparent';
+                btnOfficial.style.color = 'var(--text-muted)';
+            }
+            if (btnCustom) {
+                btnCustom.style.background = 'var(--gold-gradient)';
+                btnCustom.style.color = '#FFFFFF';
+            }
+            if (mainTitle) mainTitle.textContent = 'جدول وخطة المذاكرة الأسبوعية المخصصة ✏️';
+            if (subTitle) subTitle.textContent = 'جدولك الدراسي المخصص حسب أوقاتك وأهدافك الخاصة';
+
+            const activeSchedule = customScheduleData || officialScheduleData;
+            renderWeeklyScheduleUI(activeSchedule);
+        } else {
+            if (btnOfficial) {
+                btnOfficial.style.background = 'var(--gold-gradient)';
+                btnOfficial.style.color = '#FFFFFF';
+            }
+            if (btnCustom) {
+                btnCustom.style.background = 'transparent';
+                btnCustom.style.color = 'var(--text-muted)';
+            }
+            if (mainTitle) mainTitle.textContent = 'الجدول الدراسي الأسبوعي المعتمد من الأكاديمية 🏛️';
+            if (subTitle) subTitle.textContent = 'الخطة الأسبوعية المعتمدة لتغطية المقررات الدراسية بتوازن وتفوق';
+
+            renderWeeklyScheduleUI(officialScheduleData);
+        }
+    }
+
+    function isDayCompletedThisWeek(dayId) {
+        const weekKey = getWeekIdentifierKey();
+        return localStorage.getItem(`routine_done_${weekKey}_${dayId}`) === 'true';
+    }
+
+    function toggleDayCompleted(dayId, event) {
+        if (event) event.stopPropagation();
+        const weekKey = getWeekIdentifierKey();
+        const key = `routine_done_${weekKey}_${dayId}`;
+        const current = localStorage.getItem(key) === 'true';
+        const newVal = !current;
+
+        if (newVal) {
+            localStorage.setItem(key, 'true');
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: '🎉 أحسنت! تم تسجيل إنجاز مذاكرة اليوم'
+                });
+            }
+        } else {
+            localStorage.removeItem(key);
+        }
+
+        const activeSchedule = currentPlanMode === 'custom' ? (customScheduleData || officialScheduleData) : officialScheduleData;
+        renderWeeklyScheduleUI(activeSchedule);
+    }
+
+    function getWeekIdentifierKey() {
+        const now = new Date();
+        const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return `${d.getUTCFullYear()}_w${weekNo}`;
+    }
+
+    function renderWeeklyScheduleUI(schedule) {
+        const container = document.getElementById('studentWeeklyScheduleGrid');
+        if (!container) return;
+
+        container.innerHTML = schedule.map((day, idx) => {
+            const isCompleted = isDayCompletedThisWeek(day.id || `day_${idx}`);
+            const isRev = !!day.isReview;
+
+            return `
+            <div class="schedule-day-box ${isCompleted ? 'day-completed' : ''}" style="${isRev ? 'background: var(--gold-light); border-color: var(--gold-border);' : ''}">
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                    <span class="schedule-day-name" style="${isRev ? 'background: var(--gold-gradient); color: white;' : ''}">
+                        ${day.dayName || ''}
+                    </span>
+                    <span class="schedule-day-task" style="${isRev ? 'color: var(--gold-text);' : ''}">
+                        ${day.subject || ''}
+                    </span>
+                    <span class="schedule-duration-pill">
+                        <i class="fa-solid fa-clock" style="font-size: 10px; color: var(--gold-primary);"></i>
+                        <span>${day.duration || 'ساعتان'}</span>
+                    </span>
+                    <span style="font-size: 11.5px; line-height: 1.4; ${isRev ? 'color: var(--gold-text); font-weight: 700;' : 'color: var(--text-muted);'}">
+                        ${day.task || ''}
+                    </span>
+                </div>
+
+                <div class="schedule-done-toggle" onclick="toggleDayCompleted('${day.id || `day_${idx}`}', event)">
+                    <input type="checkbox" ${isCompleted ? 'checked' : ''} style="accent-color: #10B981; width: 16px; height: 16px; cursor: pointer; pointer-events: none;">
+                    <span style="${isCompleted ? 'color: #059669; font-weight: 900;' : ''}">${isCompleted ? '✅ تم الإنجاز' : '🎯 تسجيل الإنجاز'}</span>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    // ─── Custom Schedule Modal Management ───
+    function openCustomScheduleModal() {
+        const modal = document.getElementById('customScheduleModal');
+        if (!modal) return;
+
+        const baseSchedule = customScheduleData || officialScheduleData || DEFAULT_WEEKLY_SCHEDULE;
+        renderCustomModalEditorGrid(baseSchedule);
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCustomScheduleModal() {
+        const modal = document.getElementById('customScheduleModal');
+        if (modal) modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function renderCustomModalEditorGrid(schedule) {
+        const container = document.getElementById('customModalScheduleGrid');
+        if (!container) return;
+
+        container.innerHTML = schedule.map((item, idx) => {
+            const isRev = !!item.isReview;
+            return `
+            <div style="background: ${isRev ? 'var(--gold-light)' : 'var(--bg-surface-hover)'}; border: 1.5px solid ${isRev ? 'var(--gold-border)' : 'var(--border-card)'}; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 24px; height: 24px; border-radius: 6px; background: var(--gold-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 900;">${idx + 1}</span>
+                        <input type="text" id="cust_dayName_${idx}" value="${item.dayName || ''}" style="padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-card); font-size: 12.5px; font-weight: 800; width: 90px; background: var(--bg-surface); color: var(--text-title);" placeholder="اليوم">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox" id="cust_isReview_${idx}" ${isRev ? 'checked' : ''} style="accent-color: var(--gold-primary); cursor: pointer;">
+                        <span>يوم مراجعة ⭐</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">المادة / المقرر:</label>
+                    <select onchange="document.getElementById('cust_subject_${idx}').value = this.value" style="padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border-card); font-size: 11.5px; width: 100%; margin-bottom: 4px; background: var(--bg-surface); color: var(--text-title);">
+                        <option value="">-- اختر من مواد المنصة --</option>
+                        ${availablePlatformSubjects.map(s => `<option value="${s}" ${s === item.subject ? 'selected' : ''}>${s}</option>`).join('')}
+                        <option value="مراجعة عامة وتقييمات">مراجعة عامة وتقييمات</option>
+                        <option value="يوم راحة واستجمام">يوم راحة واستجمام</option>
+                    </select>
+                    <input type="text" id="cust_subject_${idx}" value="${item.subject || ''}" style="padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-card); font-size: 12.5px; font-weight: 700; width: 100%; background: var(--bg-surface); color: var(--text-title);" placeholder="أو اكتب اسم المادة يدوياً">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">وقت المذاكرة المستهدف:</label>
+                    <input type="text" id="cust_duration_${idx}" value="${item.duration || 'ساعتان'}" style="padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-card); font-size: 12px; width: 100%; background: var(--bg-surface); color: var(--text-title);" placeholder="مثال: ساعتان (7:00 م)">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">المهمة / الهدف المحدد:</label>
+                    <input type="text" id="cust_task_${idx}" value="${item.task || ''}" style="padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-card); font-size: 12px; width: 100%; background: var(--bg-surface); color: var(--text-title);" placeholder="مثال: حل امتحان وتلخيص المحاضرة">
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function importOfficialToCustom() {
+        renderCustomModalEditorGrid(officialScheduleData);
+        Swal.fire({
+            icon: 'info',
+            title: 'تم استيراد جدول المنصة 📥',
+            text: 'تم استيراد الجدول الأكاديمي المعتمد. يمكنك الآن تعديل أي يوم أو مادة والضغط على حفظ.',
+            timer: 2200,
+            showConfirmButton: false
+        });
+    }
+
+    function saveCustomScheduleFromModal() {
+        const updated = [];
+        for (let i = 0; i < 7; i++) {
+            const dayName = document.getElementById(`cust_dayName_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].dayName;
+            const subject = document.getElementById(`cust_subject_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].subject;
+            const duration = document.getElementById(`cust_duration_${i}`)?.value.trim() || 'ساعتان';
+            const task = document.getElementById(`cust_task_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].task;
+            const isReview = document.getElementById(`cust_isReview_${i}`)?.checked || false;
+
+            updated.push({
+                id: `day_${i}`,
+                dayName,
+                subject,
+                duration,
+                task,
+                isReview
+            });
+        }
+
+        customScheduleData = updated;
+        try {
+            localStorage.setItem('my_custom_weekly_schedule', JSON.stringify(updated));
+            const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+            const stCode = (student.studentCode || '').toUpperCase().replace(/[.#$\[\]]/g, '_');
+            if (window.database && stCode) {
+                database.ref(`StudentProfiles/${stCode}/customSchedule`).set(updated);
+            }
+        } catch(e){}
+
+        closeCustomScheduleModal();
+        switchPlanMode('custom');
+
+        Swal.fire({
+            title: 'تم حفظ خطتك الدراسية بنجاح 🎯',
+            text: 'تم تفعيل جدولك المخصص وأصبح جاهزاً لمتابعة إنجازك الأسبوعي خطوة بخطوة!',
+            icon: 'success',
+            confirmButtonColor: '#C28B38'
+        });
+    }
+
+    function resetCustomSchedule() {
+        Swal.fire({
+            title: 'استعادة جدول الأكاديمية؟',
+            text: 'هل تريد إلغاء التعديلات المخصصة والرجوع إلى جدول الأكاديمية المعتمد؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، الرجوع للافتراضي',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#C28B38'
+        }).then(res => {
+            if (res.isConfirmed) {
+                localStorage.removeItem('my_custom_weekly_schedule');
+                customScheduleData = null;
+                closeCustomScheduleModal();
+                switchPlanMode('official');
+                Swal.fire('تم الاسترجاع', 'تم تفعيل جدول الأكاديمية العام بنجاح', 'success');
+            }
+        });
+    }
+
+    function toggleStudentTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    }
+
+    // ─── Real Student Progress ───
+    function loadRealStudentProgress() {
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stCode = (student.studentCode || '').toUpperCase();
+
+        let watchedLecs = 0;
+        let passedExams = 0;
+
+        // Count watched lectures from local storage
+        try {
+            const watchedList = JSON.parse(localStorage.getItem('completed_lectures') || '[]');
+            watchedLecs = watchedList.length;
+        } catch(e){}
+
+        // Count passed exams from local storage
+        try {
+            const passedList = JSON.parse(localStorage.getItem('completed_exams') || '[]');
+            passedExams = passedList.length;
+        } catch(e){}
+
+        if (window.database && stCode) {
+            database.ref('ExamResults').orderByChild('studentCode').equalTo(stCode).once('value', snap => {
+                if (snap.exists()) {
+                    passedExams = Math.max(passedExams, snap.numChildren());
+                }
+                updateProgressUI(watchedLecs, passedExams);
+            });
+        } else {
+            updateProgressUI(watchedLecs, passedExams);
+        }
+    }
+
+    function updateProgressUI(watched, exams) {
+        document.getElementById('kpiWatchedLecs').textContent = watched;
+        document.getElementById('kpiPassedExams').textContent = exams;
+
+        const totalItems = Math.max(1, (watched * 5) + (exams * 10));
+        const progressPct = Math.min(100, Math.round(((watched * 5) + (exams * 10)) / 1.5));
+        
+        document.getElementById('kpiProgressPct').textContent = progressPct + '%';
+        if (progressPct > 0) {
+            document.getElementById('kpiStreakDays').textContent = 'نشط ومستمر 🔥';
+        }
+    }
+
+    // ─── Render Subjects Breakdown ───
+    function renderSubjectsBreakdown() {
+        const container = document.getElementById('subjectsProgressContainer');
+        container.innerHTML = OFFICIAL_SUBJECTS.map(sub => `
+            <div class="subject-progress-row">
+                <div class="subject-progress-header">
+                    <span class="subject-progress-title">
+                        <i class="fa-solid ${sub.icon}" style="color: ${sub.color};"></i>
+                        <span>${sub.name}</span>
+                    </span>
+                    <a href="lectures.html?subject=${encodeURIComponent(sub.key)}" style="font-size: 11.5px; font-weight: 800; color: var(--gold-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        <span>متابعة</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+                <div class="subject-progress-bar-bg">
+                    <div class="subject-progress-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ─── Interactive Tasks Checklist ───
+    function loadStudentTasks() {
+        try {
+            const saved = localStorage.getItem('elkheta_student_tasks');
+            if (saved) {
+                studentTasks = JSON.parse(saved);
+            } else {
+                studentTasks = [
+                    { id: 't1', text: 'متابعة شروحات مادة طريقة العمل مع الأفراد', done: false },
+                    { id: 't2', text: 'حل تقييمات مادة طريقة العمل مع الجماعات', done: false },
+                    { id: 't3', text: 'مراجعة كشكول النوتس والملخصات لمادة تنظيم المجتمع', done: false }
+                ];
+            }
+        } catch(e) {
+            studentTasks = [];
+        }
+        renderTasksList();
+    }
+
+    function saveStudentTasks() {
+        localStorage.setItem('elkheta_student_tasks', JSON.stringify(studentTasks));
+        renderTasksList();
+    }
+
+    function renderTasksList() {
+        const container = document.getElementById('tasksListContainer');
+        if (studentTasks.length === 0) {
+            container.innerHTML = `<div style="text-align: center; padding: 20px; font-size: 13px; color: var(--text-muted);">لا توجد مهام حالياً. أضف مهمتك الدراسية أعلاه ✍️</div>`;
+            return;
+        }
+
+        container.innerHTML = studentTasks.map((t, idx) => `
+            <label style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: var(--bg-surface-hover); border: 1px solid var(--border-card); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone(${idx})" style="accent-color: var(--gold-primary); width: 17px; height: 17px; cursor: pointer;">
+                    <span style="${t.done ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${t.text}</span>
+                </div>
+                <button onclick="deleteStudentTask(${idx}); event.stopPropagation();" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;" title="حذف">
+                    <i class="fa-solid fa-trash-can" style="font-size: 13px;"></i>
+                </button>
+            </label>
+        `).join('');
+    }
+
+    function toggleTaskDone(idx) {
+        if (studentTasks[idx]) {
+            studentTasks[idx].done = !studentTasks[idx].done;
+            saveStudentTasks();
+        }
+    }
+
+    function addNewStudentTask() {
+        const input = document.getElementById('newTaskInput');
+        const text = input.value.trim();
+        if (!text) return;
+        studentTasks.unshift({ id: 't_' + Date.now(), text, done: false });
+        input.value = '';
+        saveStudentTasks();
+    }
+
+    function deleteStudentTask(idx) {
+        studentTasks.splice(idx, 1);
+        saveStudentTasks();
+    }
+
+    function clearCompletedTasks() {
+        studentTasks = studentTasks.filter(t => !t.done);
+        saveStudentTasks();
+    }
+
+    // ─── Pomodoro Focus Timer ───
+    function togglePomodoroTimer() {
+        if (isPomodoroRunning) {
+            clearInterval(pomodoroInterval);
+            isPomodoroRunning = false;
+            document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-play"></i> <span>استئناف</span>';
+        } else {
+            isPomodoroRunning = true;
+            document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-pause"></i> <span>إيقاف مؤقت</span>';
+            pomodoroInterval = setInterval(() => {
+                if (pomodoroSeconds > 0) {
+                    pomodoroSeconds--;
+                    updateTimerDigits();
+                } else {
+                    clearInterval(pomodoroInterval);
+                    isPomodoroRunning = false;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'أحسنت يا بطل! 🎓',
+                        text: 'انتهت جلسة التركيز (25 دقيقة). خذ استراحة لمدة 5 دقائق لتجديد نشاطك الذهني.',
+                        confirmButtonColor: '#C28B38'
+                    });
+                    resetPomodoroTimer();
+                }
+            }, 1000);
+        }
+    }
+
+    function resetPomodoroTimer() {
+        clearInterval(pomodoroInterval);
+        isPomodoroRunning = false;
+        pomodoroSeconds = 25 * 60;
+        updateTimerDigits();
+        document.getElementById('timerToggleBtn').innerHTML = '<i class="fa-solid fa-play"></i> <span>ابدأ الجلسة</span>';
+    }
+
+    function updateTimerDigits() {
+        const m = Math.floor(pomodoroSeconds / 60);
+        const s = pomodoroSeconds % 60;
+        document.getElementById('timerDigits').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+function logoutStudent() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'تسجيل الخروج',
+            text: 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، تسجيل الخروج',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#94A3B8'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sessionStorage.clear();
+                localStorage.removeItem('studentData');
+                localStorage.removeItem('studentCode');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        });
+    } else {
+        if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+            sessionStorage.clear();
+            localStorage.removeItem('studentData');
+            localStorage.removeItem('studentCode');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+</script>
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+
+
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+<div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+<nav id="universalMobileDock" class="universal-mobile-dock">
+    <a href="home.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-house"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="courses.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-book-open"></i>
+        <span>المواد</span>
+    </a>
+    <a href="lectures.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span>المحاضرات</span>
+    </a>
+    <a href="quiz.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>الامتحانات</span>
+    </a>
+    <a href="profile.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>حسابي</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleMobileSidebar()" class="mobile-dock-btn">
+        <i class="fa-solid fa-bars"></i>
+        <span>القائمة</span>
+    </a>
+</nav>
+
+</body>
+</html>

@@ -2438,7 +2438,9 @@
                             const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
                             const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
                             const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
-                            const notesTag = (lesson.hasNotes || lesson.notesCount) ? `<span class="meta-tag" style="background:rgba(37, 99, 235, 0.12); color:#2563EB; border:1px solid rgba(37, 99, 235, 0.35); font-weight:800;" title="كراسة الخطة التفاعلية"><i class="fa-solid fa-layer-group"></i> كراسة (${lesson.notesCount || 0} ص)</span>` : '';
+                            const notesTag = (lesson.hasNotes || lesson.notesCount) 
+                                ? `<span class="meta-tag" style="background:rgba(37, 99, 235, 0.12); color:#2563EB; border:1px solid rgba(37, 99, 235, 0.35); font-weight:800; cursor:pointer;" title="تعديل الكراسة التفاعلية" onclick="event.stopPropagation(); openNotesBuilder('${escSub}', '${escKey}', '${escTitle}')"><i class="fa-solid fa-layer-group"></i> كراسة (${lesson.notesCount || 0} ص)</span>` 
+                                : `<span class="meta-tag" style="background:#F1F5F9; color:#64748B; border:1px solid #CBD5E1; font-weight:700; cursor:pointer;" title="إنشاء كراسة تفاعلية لهذه المحاضرة" onclick="event.stopPropagation(); openNotesBuilder('${escSub}', '${escKey}', '${escTitle}')"><i class="fa-solid fa-plus"></i> كراسة (0 ص)</span>`;
                             const examTag = lesson.jsonCode ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
                             const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
                             const scheduledTag = isScheduled ? `<span class="meta-tag" style="background:rgba(124, 58, 237, 0.12); color:#7C3AED; border:1px solid rgba(139, 92, 246, 0.35); font-weight:800;" title="موعد إتاحة المحاضرة للطلاب تلقائياً"><i class="fa-solid fa-clock"></i> ⏳ مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
@@ -2624,13 +2626,23 @@
 
         function openNotesBuilder(subject, key, title) {
             const lessonTitle = title || document.getElementById('lessonTitle')?.value || 'محاضرة';
-            window.open(`admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}&title=${encodeURIComponent(lessonTitle)}`, '_blank');
+            const targetUrl = `admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}&title=${encodeURIComponent(lessonTitle)}`;
+            try {
+                const win = window.open(targetUrl, '_blank');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    window.location.href = targetUrl;
+                }
+            } catch (e) {
+                window.location.href = targetUrl;
+            }
         }
 
         function openNotesBuilderFromForm() {
-            const subject = document.getElementById('subjectSelect').value;
+            const subjectSelect = document.getElementById('subjectSelect');
+            const subject = subjectSelect ? subjectSelect.value : '';
             const title = document.getElementById('lessonTitle')?.value.trim() || 'محاضرة جديدة';
             if (!subject) {
+                if (subjectSelect) subjectSelect.focus();
                 return showToast("يرجى اختيار المادة الدراسية أولاً ⚠️");
             }
             if (editingLessonId) {

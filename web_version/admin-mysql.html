@@ -909,8 +909,9 @@
                         const arr = [];
                         let idx = 1;
                         snap.forEach(child => {
+                            if (child.key === 'byUid' || child.key === 'byCode') return;
                             const val = child.val();
-                            if (val) {
+                            if (val && typeof val === 'object' && (val.fullName || val.name || val.studentCode || val.phone || val.email)) {
                                 arr.push({
                                     id: val.joinDate || val.createdAt || idx++,
                                     student_code: val.studentCode || val.code || child.key,

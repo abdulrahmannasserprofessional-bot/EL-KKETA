@@ -23,6 +23,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="mysql-api.js"></script>
+    <script src="security-validator.js"></script>
     <link rel="stylesheet" href="motion-fx.css?v=2.5">
     <script src="motion-fx.js?v=2.5" defer></script>
 
@@ -1508,6 +1509,12 @@
                 <div class="nav-section-title">إدارة النظام والأمان</div>
 
                 <li>
+                    <a href="admin-radar.html" class="nav-item-link" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <i class="fa-solid fa-radar" style="color: #34D399;"></i>
+                        <span style="font-weight: 900; color: #34D399;">رادار العمليات اللحظي 📡</span>
+                    </a>
+                </li>
+                <li>
                     <a href="admin-config.html#admins" class="nav-item-link">
                         <i class="fa-solid fa-user-shield"></i>
                         <span>المشرفون والصلاحيات</span>
@@ -2027,8 +2034,9 @@
             if (snap.exists()) {
                 const liveList = [];
                 snap.forEach(child => {
+                    if (child.key === 'byUid' || child.key === 'byCode') return;
                     const st = child.val();
-                    if (st) {
+                    if (st && typeof st === 'object' && (st.fullName || st.name || st.studentCode || st.phone || st.email)) {
                         const code = child.key || st.studentCode;
                         liveList.push({ ...st, code });
                     }

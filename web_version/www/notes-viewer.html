@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>كشكول ونوتس المناهج - ELKHETA | منصة الخطة</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+
+    <style>
+        :root {
+            --bg-page: #FAF7F2;
+            --bg-surface: #FFFFFF;
+            --bg-surface-hover: #FDFBF8;
+            --border-card: #EFE8DC;
+            --border-card-hover: #D9C3A3;
+            
+            --gold-primary: #C28B38;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            --gold-text: #8E5D16;
+            
+            --text-title: #1E293B;
+            --text-body: #475569;
+            --text-muted: #8C827A;
+            --text-light: #94A3B8;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(180, 140, 75, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 10px 25px -4px rgba(180, 140, 75, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0D1117;
+            --bg-surface: #161B22;
+            --bg-surface-hover: #1F242C;
+            --border-card: #30363D;
+            --border-card-hover: #8B6528;
+            --text-title: #F0F6FC;
+            --text-body: #C9D1D9;
+            --text-muted: #8B949E;
+            --gold-light: rgba(194, 139, 56, 0.15);
+            --gold-border: #5C4116;
+            --shadow-subtle: 0 4px 20px rgba(0,0,0,0.4);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-title);
+            min-height: 100vh;
+            direction: rtl;
+            text-align: right;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        .student-app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ─── */
+        .student-sidebar {
+            width: 270px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border-card);
+            padding: 22px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 99;
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px 18px 10px;
+            border-bottom: 1px solid var(--border-card);
+            margin-bottom: 16px;
+            text-decoration: none;
+        }
+
+        .brand-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-primary);
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .brand-title-row {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-title);
+            line-height: 1.2;
+        }
+        .brand-title-row span { color: var(--gold-primary); }
+        .brand-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+
+        .sidebar-nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .nav-section-title { font-size: 11px; font-weight: 800; color: #A37936; margin: 16px 8px 6px 8px; }
+
+        .nav-item-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .nav-item-link i { width: 20px; font-size: 15px; text-align: center; color: var(--text-muted); }
+        .nav-item-link:hover { background: var(--bg-surface-hover); color: var(--text-title); transform: translateX(-3px); }
+        .nav-item-link:hover i { color: var(--gold-primary); }
+        .nav-item-link.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+        }
+        .nav-item-link.active i { color: #FFFFFF; }
+
+        .sidebar-support-card {
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .btn-support-chat {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(194, 139, 56, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ─── Main Stage ─── */
+        .student-main-stage {
+            flex: 1;
+            padding: 20px 28px 40px 28px;
+            overflow-y: auto;
+            max-width: 1450px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .top-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .header-search-wrap { flex: 1; max-width: 540px; position: relative; }
+        .header-search-input {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 24px;
+            padding: 0 44px 0 16px;
+            font-size: 13.5px;
+            color: var(--text-title);
+            outline: none;
+        }
+        .header-search-input:focus { border-color: var(--gold-primary); box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15); }
+        .header-search-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+
+        .header-actions-group { display: flex; align-items: center; gap: 12px; }
+        .btn-header-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .student-profile-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 12px 4px 6px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .student-avatar-img { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--gold-primary); }
+
+        /* ─── Hero Banner ─── */
+        .universal-hero-banner {
+            background: linear-gradient(125deg, #FBF6EC 0%, #F5EAD4 50%, #FAF1DF 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-subtle);
+        }
+        body.dark-mode .universal-hero-banner {
+            background: linear-gradient(125deg, #231C13 0%, #332514 50%, #291D11 100%);
+        }
+        .hero-banner-title { font-size: 24px; font-weight: 900; color: #352514; margin-bottom: 4px; }
+        body.dark-mode .hero-banner-title { color: #F8E5C4; }
+        .hero-banner-sub { font-size: 13.5px; font-weight: 600; color: #7A5B35; }
+        body.dark-mode .hero-banner-sub { color: #CBB18B; }
+
+        /* ─── Filter Pills ─── */
+        .subject-pills-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 6px 2px 10px !important;
+            scrollbar-width: none !important;
+            width: 100% !important;
+            white-space: nowrap !important;
+        }
+        .subject-pills-row::-webkit-scrollbar { display: none !important; }
+        .subject-pill {
+            padding: 8px 18px !important;
+            border-radius: 22px !important;
+            border: 1.5px solid var(--border-card) !important;
+            background: var(--bg-surface) !important;
+            color: var(--text-body) !important;
+            font-size: 12.5px !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            min-width: max-content !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            text-decoration: none !important;
+        }
+        .subject-pill:hover { border-color: var(--gold-border) !important; color: var(--gold-primary) !important; transform: translateY(-1px); }
+        .subject-pill.active {
+            background: var(--gold-gradient) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 12px rgba(194, 139, 56, 0.35) !important;
+        }
+
+        /* ─── White Surface Card ─── */
+        .luxury-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.25s ease;
+        }
+        .luxury-card:hover {
+            border-color: var(--border-card-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Floating Support Button */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .floating-support-btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7);
+            color: #FFFFFF;
+        }
+        .floating-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+        .floating-text-box { display: flex; flex-direction: column; text-align: right; }
+        .floating-text-title { font-size: 13px; font-weight: 900; line-height: 1.2; }
+        .floating-text-sub { font-size: 10px; font-weight: 700; color: #FEF3C7; }
+        @media (max-width: 640px) {
+            .floating-support-btn { padding: 10px; border-radius: 50%; bottom: 20px; left: 20px; }
+            .floating-text-box { display: none; }
+            .student-sidebar { display: none; }
+            .student-main-stage { padding: 16px 14px 70px; }
+        }
+    </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    
+
+
+<style id="elkheta-master-mobile-engine">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 ELKHETA UNIVERSAL MOBILE & DESKTOP ENGINE (v5.0.0 Fluid Grids)       */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop Rules (> 992px) */
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+    .mobile-sidebar-close-row { display: none !important; }
+    .student-sidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: 0 !important;
+        display: flex !important;
+        width: 270px !important;
+        height: 100vh !important;
+        flex-shrink: 0 !important;
+    }
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+    }
+}
+
+/* Mobile & Tablet Rules (<= 992px) */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 78px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper,
+    .landing-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 10px 10px 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Off-canvas Mobile Drawer for Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar,
+    aside.student-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 16px 14px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open,
+    aside.student-sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    .mobile-sidebar-close-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        margin-bottom: 12px !important;
+        background: #FDF4E6 !important;
+        border-radius: 12px !important;
+        border: 1px solid #E8D3B2 !important;
+    }
+
+    .drawer-user-info {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        color: #8E5D16 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .btn-drawer-close {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        background: #FFFFFF !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #E11D48 !important;
+        font-size: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 10px 6px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Top Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-search-input {
+        width: 100% !important;
+        height: 42px !important;
+        border-radius: 21px !important;
+        box-sizing: border-box !important;
+    }
+
+    .btn-header-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #EFE8DC !important;
+        position: relative !important;
+    }
+
+    .student-profile-chip {
+        flex-shrink: 0 !important;
+        padding: 4px 10px 4px 6px !important;
+        max-width: 60% !important;
+    }
+
+    .student-avatar-img {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .icon-badge-num {
+        position: absolute !important;
+        top: -3px !important;
+        right: -3px !important;
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* ─── 100% SINGLE COLUMN GRIDS ON MOBILE ─── */
+    .courses-cards-grid,
+    .notes-cards-grid,
+    #subjectsCardsContainer,
+    #notesContainerGrid,
+    #examsCardsContainer,
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card,
+    #subjectsCardsContainer > div,
+    #notesContainerGrid > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card,
+    .hero-showcase-card {
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title,
+    .hero-main-heading {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub,
+    .hero-sub-title {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 74px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    /* Mobile Drawer Backdrop */
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Universal Mobile Bottom Navigation Dock */
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+}
+</style>
+
+<script>
+function toggleMobileSidebar(open) {
+    try {
+        var sb = document.querySelector('.student-sidebar, .dashboard-sidebar, aside.student-sidebar, aside');
+        var bd = document.getElementById('mobileDrawerBackdrop');
+        if (!sb) return;
+        var isCurrentlyOpen = sb.classList.contains('mobile-open');
+        var targetState = (open !== undefined) ? open : !isCurrentlyOpen;
+        if (targetState) {
+            sb.classList.add('mobile-open');
+            if (bd) bd.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            sb.classList.remove('mobile-open');
+            if (bd) bd.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    } catch(e) { console.error('Sidebar toggle error:', e); }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+</script>
+</head>
+<body>
+
+<div class="student-app-container">
+
+    <!-- 1. Right Sidebar -->
+    <aside class="student-sidebar">
+        <!-- Mobile Drawer Close Header -->
+        <div class="mobile-sidebar-close-row">
+            <div class="drawer-user-info">
+                <i class="fa-solid fa-graduation-cap" style="color: #C28B38;"></i>
+                <span>قائمة منصة الخطة</span>
+            </div>
+            <button class="btn-drawer-close" onclick="toggleMobileSidebar(false)" title="إغلاق القائمة">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div>
+            <!-- Brand -->
+            <a href="home.html" class="sidebar-brand">
+                <div class="brand-icon-wrap">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div class="brand-text-col">
+                    <div class="brand-title-row">ELKHETA <span>|</span> الخطة</div>
+                    <span class="brand-sub">طريقك المنظم نحو التفوق الأكاديمي</span>
+                </div>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="sidebar-nav-list">
+                <li><a href="home.html" class="nav-item-link"><i class="fa-solid fa-house"></i><span>الرئيسية</span></a></li>
+                <li><a href="courses.html" class="nav-item-link"><i class="fa-solid fa-book-open"></i><span>المواد الدراسية</span></a></li>
+                <li><a href="lectures.html" class="nav-item-link"><i class="fa-solid fa-clapperboard"></i><span>المحاضرات</span></a></li>
+                <li><a href="notes-viewer.html" class="nav-item-link active"><i class="fa-solid fa-note-sticky"></i><span>كشكول ونوتس</span></a></li>
+                <li><a href="quiz.html" class="nav-item-link"><i class="fa-solid fa-clipboard-list"></i><span>الامتحانات</span></a></li>
+                <li><a href="mistakes.html" class="nav-item-link"><i class="fa-solid fa-circle-xmark"></i><span>أخطائي</span></a></li>
+                <li><a href="planner.html" class="nav-item-link"><i class="fa-solid fa-chart-line"></i><span>تقدمي</span></a></li>
+                <li><a href="leaderboard.html" class="nav-item-link"><i class="fa-solid fa-trophy"></i><span>لوحة الشرف</span></a></li>
+                <li><a href="community.html" class="nav-item-link"><i class="fa-solid fa-users"></i><span>المجتمع</span></a></li>
+                <li><a href="chat.html" class="nav-item-link"><i class="fa-solid fa-headset"></i><span>الدعم والتواصل</span></a></li>
+
+                <div class="nav-section-title">أدوات إضافية</div>
+
+                <li><a href="profile.html#settings" class="nav-item-link"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a></li>
+                <li><a href="javascript:void(0)" onclick="logoutStudent()" class="nav-item-link" style="color: #E11D48;"><i class="fa-solid fa-arrow-right-from-bracket" style="color: #E11D48;"></i><span>تسجيل الخروج</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="sidebar-support-card">
+                <i class="fa-solid fa-headset" style="font-size: 26px; color: var(--gold-primary);"></i>
+                <div style="font-size: 13px; font-weight: 800; color: var(--text-title);">تواصل مع الإدارة</div>
+                <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);">نحن هنا لمساعدتك دائماً</div>
+                <a href="chat.html" class="btn-support-chat">
+                    <span>ابدأ المحادثة</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 2. Main Stage -->
+    <main class="student-main-stage">
+
+        <!-- Top Header -->
+        <header class="top-header-bar">
+            <div class="header-search-wrap">
+                <i class="fa-solid fa-magnifying-glass header-search-icon"></i>
+                <input type="text" id="globalStudentSearchInput" class="header-search-input" placeholder="ابحث في النوتس والمذكرات والمواد..." oninput="handleNotesSearch(this.value)">
+            </div>
+
+            <div class="header-actions-group">
+                <button class="btn-header-icon" id="themeToggleBtn" onclick="toggleStudentTheme()" title="تبديل المظهر">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
+                <a href="notifications.html" class="btn-header-icon" title="الإشعارات">
+                    <i class="fa-solid fa-bell"></i>
+                </a>
+                <a href="profile.html" class="student-profile-chip">
+                    <img src="banner-illustration.png" alt="Student" class="student-avatar-img" onerror="this.src='icons/icon.svg'">
+                    <div style="display: flex; flex-direction: column; text-align: right;">
+                        <span id="studentDisplayName" style="font-size: 13px; font-weight: 800;">طالب متميز</span>
+                        <span style="font-size: 10.5px; font-weight: 600; color: var(--text-muted);">المرحلة الأكاديمية</span>
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        <!-- Hero Banner -->
+        <section class="universal-hero-banner">
+            <div>
+                <h1 class="hero-banner-title">كشكول ونوتس ومذكرات المواد الدراسية</h1>
+                <p class="hero-banner-sub">تصفح وحمل ملخصات ومذكرات المقررات الأكاديمية المعتمدة بصيغة PDF عالية الجودة</p>
+            </div>
+            <div style="font-size: 38px; color: var(--gold-primary); opacity: 0.85;">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+        </section>
+
+        <!-- Subject Selector Pills -->
+        <div class="subject-pills-row" id="subjectFilterPills">
+            <button class="subject-pill active" onclick="filterNotesSubject('all', this)"><i class="fa-solid fa-border-all"></i> جميع المواد (7)</button>
+            <button class="subject-pill" onclick="filterNotesSubject('افراد', this)"><i class="fa-solid fa-user"></i> طريقة العمل مع الأفراد</button>
+            <button class="subject-pill" onclick="filterNotesSubject('جماعات', this)"><i class="fa-solid fa-users"></i> طريقة العمل مع الجماعات</button>
+            <button class="subject-pill" onclick="filterNotesSubject('مجتمعات', this)"><i class="fa-solid fa-city"></i> تنظيم وإدارة المجتمعات</button>
+            <button class="subject-pill" onclick="filterNotesSubject('سياسات الرعاية الاجتماعية', this)"><i class="fa-solid fa-file-contract"></i> سياسات الرعاية الاجتماعية</button>
+            <button class="subject-pill" onclick="filterNotesSubject('الخدمة الاجتماعية في مجال طبي', this)"><i class="fa-solid fa-hospital-user"></i> الخدمة الاجتماعية في مجال طبي</button>
+            <button class="subject-pill" onclick="filterNotesSubject('تدريب ميداني', this)"><i class="fa-solid fa-briefcase"></i> التدريب الميداني</button>
+            <button class="subject-pill" onclick="filterNotesSubject('مشروع تخرج', this)"><i class="fa-solid fa-graduation-cap"></i> مشروع التخرج</button>
+        </div>
+
+        <!-- Notes Cards Grid -->
+        <div id="notesContainerGrid" class="notes-cards-grid">
+            <!-- Loaded dynamically from Firebase database -->
+        </div>
+
+        <!-- Universal Footer -->
+        <footer style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--bg-surface); border: 1px solid var(--border-card); border-radius: var(--radius-lg); font-size: 11.5px; font-weight: 600; color: var(--text-muted); flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open" style="color: var(--gold-primary);"></i>
+                <b style="color: var(--text-title);">الخطة | ELKHETA</b>
+                <span>طريقك المنظم نحو التفوق الأكاديمي</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="guide.html" style="color: inherit; text-decoration: none;">شروط الاستخدام</a>
+                <a href="privacy.html" style="color: inherit; text-decoration: none;">سياسة الخصوصية</a>
+                <a href="chat.html" style="color: inherit; text-decoration: none;">دعم فني</a>
+                <span>2026 © جميع الحقوق محفوظة</span>
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+<!-- Floating Support & Academic Center Button -->
+<a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+    <div class="floating-icon-box">
+        <i class="fa-solid fa-headset"></i>
+    </div>
+    <div class="floating-text-box">
+        <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+        <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+    </div>
+</a>
+
+<script>
+    let allPdfsList = [];
+    let currentSubjectKey = 'all';
+    let currentSearchTerm = '';
+    let currentModalDeck = null;
+    let currentSlideIndex = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const student = JSON.parse(sessionStorage.getItem('studentData') || localStorage.getItem('studentData') || '{}');
+        const stName = student.fullName || student.name || localStorage.getItem('studentName') || 'طالب متميز';
+        document.getElementById('studentDisplayName').textContent = stName;
+
+        if (localStorage.getItem('studentTheme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
+        }
+
+        // Check URL param for subject & lessonId
+        const params = new URLSearchParams(window.location.search);
+        const subjParam = params.get('subject');
+        if (subjParam) {
+            currentSubjectKey = subjParam;
+            document.querySelectorAll('#subjectFilterPills .subject-pill').forEach(btn => {
+                if (btn.textContent.includes(subjParam)) {
+                    document.querySelectorAll('#subjectFilterPills .subject-pill').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        loadNotesAndPdfs();
+    });
+
+    function toggleStudentTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('studentTheme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+    }
+
+    function filterNotesSubject(key, btn) {
+        currentSubjectKey = key;
+        document.querySelectorAll('#subjectFilterPills .subject-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderNotesCards();
+    }
+
+    function handleNotesSearch(term) {
+        currentSearchTerm = term.trim().toLowerCase();
+        renderNotesCards();
+    }
+
+    function loadNotesAndPdfs() {
+        if (!window.database) {
+            renderNotesCards();
+            return;
+        }
+
+        database.ref('Lectures').on('value', snap => {
+            allPdfsList = [];
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subKey = subSnap.key;
+                    subSnap.forEach(c => {
+                        const l = c.val();
+                        const pdfUrl = l.pdfUrl || l.pdf || l.pdf_url || l.summaryUrl || l.boardUrl || l.fileUrl;
+                        const hasDeck = !!(l.notesDeck || l.hasNotes || l.notesCount);
+
+                        if ((pdfUrl && pdfUrl.trim()) || hasDeck || l.title) {
+                            allPdfsList.push({
+                                id: c.key,
+                                subjectKey: subKey,
+                                title: l.title || 'مذكرة وكراسة دراسية',
+                                subject: l.subjectName || l.subject || subKey,
+                                chapter: l.chapter || 'المقرر الدراسي',
+                                desc: l.description || l.desc || 'تفريغ وكراسة تفاعلية شاملة للمحاضرة تشمل أهم النقاط والأسئلة.',
+                                pdfUrl: (pdfUrl && pdfUrl.trim()) ? pdfUrl.trim() : '',
+                                hasDeck: hasDeck,
+                                notesDeck: l.notesDeck || null,
+                                notesCount: l.notesCount || (l.notesDeck?.slides?.length) || 0
+                            });
+                        }
+                    });
+                });
+            }
+
+            // Also check top-level Notes node
+            database.ref('Notes').once('value', nSnap => {
+                if (nSnap.exists()) {
+                    nSnap.forEach(nc => {
+                        const n = nc.val();
+                        const pdfUrl = n.pdfUrl || n.fileUrl || n.url;
+                        if (pdfUrl && pdfUrl.trim()) {
+                            allPdfsList.push({
+                                id: nc.key,
+                                subjectKey: n.subject || 'عام',
+                                title: n.title || 'مذكرة ونوتس',
+                                subject: n.subject || n.subjectName || 'مادة عامة',
+                                chapter: n.chapter || 'ملخص عام',
+                                desc: n.description || n.desc || 'مذكرة تدريبية ومراجعة شاملة بصيغة PDF.',
+                                pdfUrl: pdfUrl.trim(),
+                                hasDeck: false,
+                                notesDeck: null,
+                                notesCount: 0
+                            });
+                        }
+                    });
+                }
+                renderNotesCards();
+
+                // Check if specific lessonId was requested in URL
+                const params = new URLSearchParams(window.location.search);
+                const targetLecId = params.get('lessonId');
+                if (targetLecId) {
+                    const targetItem = allPdfsList.find(item => item.id === targetLecId);
+                    if (targetItem) openNotesDeckModal(targetItem.id);
+                }
+            });
+        });
+    }
+
+    function renderNotesCards() {
+        const container = document.getElementById('notesContainerGrid');
+        const filtered = allPdfsList.filter(item => {
+            const matchSubj = currentSubjectKey === 'all' || 
+                item.subject.toLowerCase().includes(currentSubjectKey.toLowerCase()) || 
+                (currentSubjectKey === 'افراد' && item.subject.includes('أفراد')) ||
+                (currentSubjectKey === 'جماعات' && item.subject.includes('جماعات')) ||
+                (currentSubjectKey === 'مجتمعات' && (item.subject.includes('مجتمعات') || item.subject.includes('مجتمع')));
+
+            const matchSearch = !currentSearchTerm || 
+                item.title.toLowerCase().includes(currentSearchTerm) || 
+                item.subject.toLowerCase().includes(currentSearchTerm) || 
+                item.chapter.toLowerCase().includes(currentSearchTerm) || 
+                item.desc.toLowerCase().includes(currentSearchTerm);
+
+            return matchSubj && matchSearch;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 1.5px dashed var(--border-card); border-radius: var(--radius-lg);">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--gold-light); color: var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 16px;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 style="font-size: 18px; font-weight: 900; color: var(--text-title); margin-bottom: 6px;">لا توجد كراسات أو مذكرات مرفوعة حالياً</h3>
+                    <p style="font-size: 13.5px; color: var(--text-muted); max-width: 520px; margin: 0 auto 20px;">سيتم إتاحة مذكرات المقررات والكراسات التفاعلية فور نشرها بواسطة إدارة المنصة والأساتذة 🎓</p>
+                    <a href="lectures.html" class="btn-support-chat" style="display: inline-flex; width: auto; padding: 10px 24px;">
+                        <i class="fa-solid fa-clapperboard"></i>
+                        <span>الانتقال إلى استوديو المحاضرات</span>
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+            const hasDeck = item.hasDeck || item.notesDeck;
+            const slideCountBadge = item.notesCount ? `<span style="font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; background:#EFF6FF; color:#2563EB; border:1px solid #BFDBFE;"><i class="fa-solid fa-layer-group"></i> ${item.notesCount} شرائح</span>` : '';
+
+            return `
+                <div class="luxury-card">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width: 44px; height: 44px; border-radius: 12px; background: ${hasDeck ? '#FDF4E6' : '#FFEDD5'}; color: ${hasDeck ? '#C28B38' : '#EA580C'}; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                                <i class="${hasDeck ? 'fa-solid fa-wand-magic-sparkles' : 'fa-solid fa-file-pdf'}"></i>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: var(--gold-light); color: var(--gold-text); border: 1px solid var(--gold-border);">${item.subject}</span>
+                        </div>
+                        ${slideCountBadge}
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 900; color: var(--text-title); line-height: 1.4;">${item.title}</h4>
+                        <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-top: 3px;">${item.chapter}</span>
+                        <p style="font-size: 12.5px; color: var(--text-body); line-height: 1.55; margin-top: 8px;">${item.desc}</p>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto; padding-top:12px; border-top:1px solid var(--border-card);">
+                        <button type="button" onclick="openNotesDeckModal('${item.id}')" class="btn-support-chat" style="width:100%; border:none; cursor:pointer; justify-content:center;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>تصفح الكراسة التفاعلية ✨</span>
+                        </button>
+                        ${item.pdfUrl ? `
+                            <a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:7px 14px; background:var(--bg-surface); border:1px solid var(--border-card); color:var(--text-body); border-radius:18px; font-size:12px; font-weight:800; text-decoration:none;">
+                                <i class="fa-solid fa-download"></i>
+                                <span>تحميل ملخص PDF</span>
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ─── Modal Reader for Notes Viewer ───
+    function openNotesDeckModal(itemId) {
+        const item = allPdfsList.find(i => i.id === itemId);
+        if (!item) return;
+
+        let deck = item.notesDeck;
+        if (!deck || !deck.slides || deck.slides.length === 0) {
+            deck = {
+                title: item.title,
+                subject: item.subject,
+                slides: [
+                    {
+                        title: `📌 مقدمة وأفكار: ${item.title}`,
+                        contentHtml: `<div style="background:#FDF4E6; border-right:4px solid #C28B38; padding:14px; border-radius:10px;"><p style="font-size:14px; line-height:1.7; color:#475569;">${item.desc}</p></div>`
+                    },
+                    {
+                        title: `💡 مراجعة المفاهيم والنقاط الهامة`,
+                        contentHtml: `<div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:14px; border-radius:12px;"><b style="color:#1D4ED8; font-size:14px;">🌟 ملخص مادة ${item.subject}</b><p style="margin-top:6px; font-size:13.5px; color:#334155;">راجع محتوى المحاضرة والتطبيقات لاكتساب الفهم الشامل.</p></div>`
+                    }
+                ]
+            };
+        }
+
+        let slideIdx = 0;
+        const total = deck.slides.length;
+
+        function showSlide(idx) {
+            const s = deck.slides[idx];
+            Swal.fire({
+                title: `<div style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:17px; font-weight:900;"><i class="fa-solid fa-book-open" style="color:#C28B38;"></i> <span>${item.title}</span></div>`,
+                html: `
+                    <div style="text-align:right; font-family:'Cairo',sans-serif; margin-top:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <span style="font-size:12px; font-weight:800; color:#8E5D16; background:#FDF4E6; padding:3px 10px; border-radius:12px; border:1px solid #E8D3B2;">${item.subject}</span>
+                            <span style="font-size:12px; font-weight:800; color:#64748B;">شريحة ${idx + 1} من ${total}</span>
+                        </div>
+                        <div style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:14px; padding:18px; min-height:180px; line-height:1.8; font-size:14px; color:#1E293B;">
+                            <h4 style="color:#C28B38; font-size:16px; margin-bottom:10px; font-weight:900;">${s.title || `شريحة ${idx + 1}`}</h4>
+                            ${s.contentHtml || s.content || '<p>لا يوجد محتوى متاح.</p>'}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:8px;">
+                            <button id="swalPrevBtn" class="swal2-confirm swal2-styled" style="background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === 0 ? 'opacity:0.3; pointer-events:none;' : ''}">السابق ➡️</button>
+                            <span style="font-size:12px; font-weight:800; color:#C28B38;">${idx + 1} / ${total}</span>
+                            <button id="swalNextBtn" class="swal2-confirm swal2-styled" style="background:linear-gradient(135deg, #D4973B, #B88028); color:#fff; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === total - 1 ? 'opacity:0.3; pointer-events:none;' : ''}">التالي ⬅️</button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                width: '650px',
+                didOpen: () => {
+                    const prevB = document.getElementById('swalPrevBtn');
+                    const nextB = document.getElementById('swalNextBtn');
+                    if (prevB && idx > 0) prevB.onclick = () => showSlide(idx - 1);
+                    if (nextB && idx < total - 1) nextB.onclick = () => showSlide(idx + 1);
+                }
+            });
+        }
+
+        showSlide(0);
+    }
+
+function logoutStudent() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'تسجيل الخروج',
+            text: 'هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، تسجيل الخروج',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#94A3B8'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sessionStorage.clear();
+                localStorage.removeItem('studentData');
+                localStorage.removeItem('studentCode');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        });
+    } else {
+        if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+            sessionStorage.clear();
+            localStorage.removeItem('studentData');
+            localStorage.removeItem('studentCode');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+</script>
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+
+
+
+<!-- Universal Mobile Bottom Navigation Dock -->
+<div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+<nav id="universalMobileDock" class="universal-mobile-dock">
+    <a href="home.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-house"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="courses.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-book-open"></i>
+        <span>المواد</span>
+    </a>
+    <a href="lectures.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span>المحاضرات</span>
+    </a>
+    <a href="quiz.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>الامتحانات</span>
+    </a>
+    <a href="profile.html" class="mobile-dock-btn ">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>حسابي</span>
+    </a>
+    <a href="javascript:void(0)" onclick="toggleMobileSidebar()" class="mobile-dock-btn">
+        <i class="fa-solid fa-bars"></i>
+        <span>القائمة</span>
+    </a>
+</nav>
+
+</body>
+</html>

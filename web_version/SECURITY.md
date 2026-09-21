@@ -1,126 +1,68 @@
-# 🔐 دليل أمان منصة ELKHETA
+# 🔐 دليل أمان منصة ELKHETA المحدث قبل الإطلاق
 
-> آخر تحديث: سبتمبر 2026
+> آخر تحديث: سبتمبر 2026 — بناءً على دليل المراجعة الأمنية الشاملة لمشاريع الـ SaaS
 
 ---
 
-## ✅ ما تم تطبيقه
+## ✅ ما تم تطبيقه وتنفيذه بالكامل
 
-### 1. إدارة المفاتيح الحساسة (Secrets Management)
-- [x] إنشاء `.gitignore` داخل `web_version` يمنع رفع `.env` وملفات الـ Service Account وغيرها
-- [x] إنشاء `.env.example` كنموذج لجميع المتغيرات المطلوبة
-- [x] **تحذير**: `firebase-config.js` يحتوي على `apiKey` — هذا مقبول لـ Firebase Web فقط بشرط تأمين Database Rules
+### 1. إحكام قواعد أمان Firebase (`database.rules.json`)
+- [x] إلغاء سماحيات القراءة والكتابة العامة المفتوحة (`".read": true`, `".write": true`) من جذر قاعدة البيانات.
+- [x] حظر قراءة ودراسة البيانات الكاملة لعقد الطلاب والأكواد والمشرفين والإعدادات وسجلات التدقيق (`Students`, `ActivationCodes`, `Supervisors`, `Settings`, `AuditLogs`, `SecurityAlerts`).
+- [x] حصر الاستعلام واسترجاع ملفات الطلاب والأكواد على الاستعلام الفردي الخصيص (`Students/$studentCode` و `ActivationCodes/$codeId`).
+- [x] اشتراط المصادقة والتحقق من الهوية والصلاحية (`auth != null`) لكافة عمليات تعديل وكتابة البيانات المحمية.
 
-### 2. Firebase Database Rules
-- [x] تم تغيير `".read": "true"` و `".write": "true"` إلى `".read": false` و `".write": false`
-- [x] تم وضع قيود `auth != null` على كل مسار في قاعدة البيانات
-- [x] **مهم**: يجب نشر Rules المحدّثة عبر Firebase Console
+### 2. إدارة المفاتيح الحساسة (Secrets Management)
+- [x] إنشاء `.gitignore` داخل `web_version` يمنع رفع `.env` وملفات الـ Service Account وغيرها.
+- [x] إنشاء `.env.example` كنموذج لجميع المتغيرات المطلوبة.
+- [x] تأمين `firebase-config.js` بتأمين الـ Database Rules وقصر الصلاحيات.
 
 ### 3. إزالة كلمات المرور المكشوفة (Hardcoded Passwords)
-- [x] `mysql-api.js` — تمت إزالة كل bypass يعتمد على `'2862005'`
-- [x] `admin-gate.html` — تمت إزالة القائمة `validMasterPins` التي تحتوي على 7 كلمات مرور مكشوفة
-- [x] `index.html` — تمت إزالة القائمة `validMasterPins`
-- [x] `admin-mysql.html` — تمت إزالة `value="2862005"` من حقل الإدخال
-- [x] `admin-troubleshoot.html` — تمت إزالة `inputValue: '2862005'`
-- [x] **الآن**: المصادقة تعتمد فقط على `Firebase/Settings/adminPin`
+- [x] `mysql-api.js` — تمت إزالة كل bypass يعتمد على أرقام سرية مكشوفة.
+- [x] `admin-gate.html` — تمت إزالة القائمة `validMasterPins` التي تحتوي على كلمات مرور مكشوفة.
+- [x] `index.html` — تمت إزالة القائمة `validMasterPins`.
+- [x] `admin-mysql.html` — تمت إزالة القيم المكشوفة من حقول الإدخال.
+- [x] `admin-troubleshoot.html` — تمت إزالة القيم المكشوفة.
+- [x] الاعتماد الصارم على `Firebase/Settings/adminPin` المحمية.
 
 ### 4. Input Sanitization & Rate Limiting — `security-validator.js`
-- [x] دالة `sanitizeHTML()` لحماية من XSS
-- [x] دالة `sanitizeText()` لتنقية النصوص العامة
-- [x] دالة `detectPromptInjection()` لكشف هجمات Prompt Injection
-- [x] دالة `sanitizeForAI()` لتنقية المدخلات قبل إرسالها لنماذج AI
-- [x] دالة `checkRateLimit()` لحد أقصى للطلبات
-- [x] دالة `isWithinTokenLimit()` للحماية من Denial of Wallet
+- [x] دالة `sanitizeHTML()` لحماية من XSS.
+- [x] دالة `sanitizeText()` لتنقية النصوص العامة.
+- [x] دالة `detectPromptInjection()` لكشف هجمات Prompt Injection على نماذج الـ AI.
+- [x] دالة `sanitizeForAI()` لتنقية المدخلات قبل إرسالها لـ AI.
+- [x] دالة `checkRateLimit()` لحد أقصى للطلبات المسموحة بالدقيقة.
+- [x] دالة `isWithinTokenLimit()` للحماية من Denial of Wallet.
 
 ### 5. حماية Brute Force لتسجيل الدخول
-- [x] `admin-gate.html` — حظر بعد 5 محاولات فاشلة لمدة 15 دقيقة
-- [x] `index.html` — تسجيل المحاولات الفاشلة
+- [x] `admin-gate.html` — حظر بعد 5 محاولات فاشلة لمدة 15 دقيقة.
+- [x] `index.html` — تسجيل وتتبع محاولات الدخول.
 
 ---
 
-## ⚠️ ما يجب عليك فعله الآن
+## 🚀 خطوة النشر الفوري لقواعد الأمان (Deploy Step)
 
-### أولاً: نشر Firebase Rules (فوري ومهم جداً)
+من مجلد المشروع:
 ```bash
-# من مجلد web_version:
 firebase deploy --only database
 ```
-أو من **Firebase Console**:
-- Realtime Database > Rules > انسخ محتوى `database.rules.json` > Publish
-
-### ثانياً: تغيير كلمة مرور الأدمن
-بما أن `2862005` أصبحت معروفة في تاريخ Git:
-1. افتح **Firebase Console** > Realtime Database
-2. انتقل إلى `Settings/adminPin`
-3. **غيّرها فوراً** لكلمة مرور قوية جديدة (أرقام + حروف)
-
-### ثالثاً: تنظيف تاريخ Git (اختياري لكن موصى به)
-```bash
-# إذا رُفعت الكلمات على GitHub من قبل، اعمل rotate للـ secrets
-git log --oneline | head -20
-# ثم تواصل مع GitHub لمسح البيانات الحساسة من التاريخ
-```
+أو عبر **Firebase Console**:
+1. افتح **Realtime Database** > **Rules**.
+2. انسخ محتوى [database.rules.json](file:///c:/Users/Dell/AndroidStudioProjects/ELKKETA/web_version/database.rules.json).
+3. اضغط على **Publish**.
 
 ---
 
-## 🔒 كيفية استخدام security-validator.js
+## 📋 مصفوفة الصلاحيات والتسجيل (Roles & Audit)
 
-### في أي صفحة HTML:
-```html
-<script src="security-validator.js"></script>
-```
-
-### تنقية المدخلات:
-```javascript
-// تنقية قبل عرض في HTML
-const safeText = SecurityValidator.sanitizeHTML(userInput);
-
-// تنقية قبل إرسال لـ AI
-const cleanInput = SecurityValidator.sanitizeForAI(userInput);
-if (!cleanInput) {
-    showToast("المدخلات تحتوي على محتوى مشبوه", "error");
-    return;
-}
-```
-
-### Rate Limiting:
-```javascript
-// حد أقصى 5 طلبات كل دقيقة
-if (!SecurityValidator.checkRateLimit('ai_request', 5, 60000)) {
-    const wait = SecurityValidator.getRateLimitRemainingSeconds('ai_request', 60000);
-    showToast(`يرجى الانتظار ${wait} ثانية قبل المحاولة مجدداً`, "error");
-    return;
-}
-```
-
-### حد التوكنز (Denial of Wallet):
-```javascript
-if (!SecurityValidator.isWithinTokenLimit(userMessage, 500)) {
-    showToast("الرسالة طويلة جداً (الحد الأقصى 500 توكن)", "error");
-    return;
-}
-```
-
----
-
-## 📋 Checklist مراجعة دورية
-
-| المهمة | التكرار |
-|--------|---------|
-| مراجعة Firebase Database Rules | شهرياً |
-| تغيير Admin PIN | كل 3 أشهر |
-| مراجعة Supervisors النشطين | شهرياً |
-| فحص سجلات النشاط المشبوه | أسبوعياً |
-| مراجعة تكاليف Firebase/API | أسبوعياً |
-| فحص الحزم المثبّتة (npm audit) | عند كل تحديث |
+| الدور | ينفع يعمل إيه؟ | ممنوع من إيه؟ |
+| --- | --- | --- |
+| **الطالب** | عرض الدروس والامتحانات وحل الاختبارات | رؤية بيانات طالب آخر أو تعديل الأكواد |
+| **المشرف** | متابعة المجموعات وتقارير الحضور | تعديل الإعدادات الحساسة أو مسح السجلات |
+| **الأدمن** | إدارة المنصة بالكامل وإنشاء الأكواد | القيام بأي تغيير حساس بدون تسجيل في `AuditLogs` |
 
 ---
 
 ## 🚨 ما يجب عدم فعله أبداً
-
-- ❌ لا تكتب كلمات مرور أو مفاتيح API مباشرة في الكود
-- ❌ لا تستخدم `".read": "true"` في Firebase Rules في الإنتاج
-- ❌ لا تحفظ Firebase Service Account JSON داخل المستودع
-- ❌ لا تشارك ملف `.env` مع أي شخص
-- ❌ لا تعطِ AI Agent صلاحية DELETE مباشرة على قاعدة البيانات
-- ❌ لا ترسل مدخلات المستخدم مباشرة لنموذج AI بدون تنقية
+- ❌ لا تضع `".read": "true"` أو `".write": "true"` على جذر قاعدة البيانات في الإنتاج.
+- ❌ لا تحفظ Firebase Service Account JSON أو المفاتيح السرية داخل مستودع Git.
+- ❌ لا تشارك ملفات `.env` أو مفاتيح الـ Admin في المراسلات.

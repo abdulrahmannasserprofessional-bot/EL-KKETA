@@ -1,0 +1,267 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "Students": {
+      ".indexOn": [
+        "email",
+        "phone",
+        "isBanned",
+        "deviceId",
+        "lastActive",
+        "joinDate",
+        "role"
+      ],
+      "$studentCode": {
+        ".read": true,
+        ".write": "auth != null || newData.hasChildren(['fullName'])",
+        ".validate": "newData.hasChildren(['fullName']) && newData.child('fullName').isString()"
+      }
+    },
+    "ActivationCodes": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "code",
+        "isUsed",
+        "batch",
+        "createdAt"
+      ],
+      "$codeId": {
+        ".read": true
+      }
+    },
+    "ActivatedCodes": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "isUsed",
+        "code"
+      ]
+    },
+    "Supervisors": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "isActive",
+        "role"
+      ]
+    },
+    "Lectures": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "LectureNotes": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "StudentNotes": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "StudentBookmarks": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "Chapters": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "Content": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "Subjects": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "name",
+        "order"
+      ]
+    },
+    "Exams": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "subjectKey",
+        "lessonId",
+        "title"
+      ]
+    },
+    "Announcements": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "createdAt",
+        "batch"
+      ]
+    },
+    "Mistakes": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "studentCode",
+        "subjectId",
+        "timestamp"
+      ],
+      "$mistakeId": {
+        ".validate": "newData.hasChildren(['studentCode'])"
+      }
+    },
+    "Leaderboard": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "score",
+        "lastUpdated"
+      ]
+    },
+    "PushTokens": {
+      ".read": "auth != null",
+      ".write": true
+    },
+    "Settings": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "PlatformSettings": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "EmergencyIssues": {
+      ".read": "auth != null",
+      ".write": true,
+      ".indexOn": [
+        "status",
+        "timestamp",
+        "studentCode"
+      ]
+    },
+    "Community": {
+      ".read": true,
+      ".write": "auth != null",
+      "$postId": {
+        ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length <= 2000"
+      }
+    },
+    "Chat": {
+      ".read": true,
+      ".write": "auth != null",
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'timestamp']) && newData.child('text').isString() && newData.child('text').val().length <= 1000"
+      }
+    },
+    "AuditLogs": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "timestamp",
+        "admin",
+        "action",
+        "target"
+      ],
+      "$logId": {
+        ".validate": "newData.hasChildren(['action', 'timestamp'])"
+      }
+    },
+    "SecurityAlerts": {
+      ".read": "auth != null",
+      ".write": true,
+      ".indexOn": [
+        "timestamp",
+        "severity",
+        "type",
+        "status"
+      ],
+      "$alertId": {
+        ".validate": "newData.hasChildren(['type', 'timestamp'])"
+      }
+    },
+    "ActivityLogs": {
+      ".read": "auth != null",
+      ".write": true,
+      ".indexOn": [
+        "timestamp",
+        "studentCode"
+      ]
+    },
+    "DeviceRequests": {
+      ".read": "auth != null",
+      ".write": true,
+      ".indexOn": [
+        "status",
+        "studentCode",
+        "timestamp"
+      ]
+    },
+    "SupportTickets": {
+      ".read": "auth != null",
+      ".write": true,
+      ".indexOn": [
+        "status",
+        "priority",
+        "studentCode",
+        "timestamp"
+      ]
+    },
+    "PlatformIncidents": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "status",
+        "severity",
+        "timestamp"
+      ]
+    },
+    "DirectChats": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "lastTimestamp",
+        "status",
+        "unreadForAdmin",
+        "unreadForStudent"
+      ]
+    },
+    "AdminSupport": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "ListeningProgress": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "ActiveSessions": {
+      ".read": "auth != null",
+      ".write": true,
+      "$studentCode": {
+        "devices": {
+          "$deviceToken": {
+            ".validate": "newData.hasChildren(['token', 'lastSeen'])"
+          }
+        }
+      }
+    },
+    "StudentDrawings": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "WeeklySchedule": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "ExamResults": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "studentCode",
+        "examId",
+        "timestamp"
+      ]
+    },
+    "StudentProfiles": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

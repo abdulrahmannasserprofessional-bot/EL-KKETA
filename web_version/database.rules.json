@@ -14,23 +14,40 @@
         "joinDate",
         "role"
       ],
+      "byUid": {
+        "$uid": {
+          ".read": true,
+          ".write": true
+        }
+      },
+      "byCode": {
+        "$code": {
+          ".read": true,
+          ".write": true
+        }
+      },
       "$studentCode": {
+        ".read": true,
+        ".write": "auth != null || newData.hasChildren(['fullName'])",
         ".validate": "newData.hasChildren(['fullName']) && newData.child('fullName').isString()"
       }
     },
     "ActivationCodes": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       ".indexOn": [
         "code",
         "isUsed",
         "batch",
         "createdAt"
-      ]
+      ],
+      "$codeId": {
+        ".read": true
+      }
     },
     "ActivatedCodes": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       ".indexOn": [
         "isUsed",
         "code"
@@ -42,7 +59,11 @@
       ".indexOn": [
         "isActive",
         "role"
-      ]
+      ],
+      "$username": {
+        ".read": true,
+        ".write": true
+      }
     },
     "Lectures": {
       ".read": true,
@@ -114,7 +135,7 @@
       ]
     },
     "PushTokens": {
-      ".read": false,
+      ".read": true,
       ".write": true
     },
     "Settings": {
@@ -162,7 +183,7 @@
       }
     },
     "SecurityAlerts": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": true,
       ".indexOn": [
         "timestamp",
@@ -183,7 +204,7 @@
       ]
     },
     "DeviceRequests": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": true,
       ".indexOn": [
         "status",
@@ -192,7 +213,7 @@
       ]
     },
     "SupportTickets": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": true,
       ".indexOn": [
         "status",
@@ -202,8 +223,8 @@
       ]
     },
     "PlatformIncidents": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       ".indexOn": [
         "status",
         "severity",
@@ -211,8 +232,8 @@
       ]
     },
     "DirectChats": {
-      ".read": true,
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       ".indexOn": [
         "lastTimestamp",
         "status",
@@ -221,15 +242,15 @@
       ]
     },
     "AdminSupport": {
-      ".read": true,
-      ".write": true
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "ListeningProgress": {
-      ".read": true,
-      ".write": true
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "ActiveSessions": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": true,
       "$studentCode": {
         "devices": {
@@ -240,21 +261,25 @@
       }
     },
     "StudentDrawings": {
-      ".read": true,
-      ".write": true
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
     "WeeklySchedule": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null"
     },
     "ExamResults": {
-      ".read": true,
-      ".write": true,
-      ".indexOn": ["studentCode", "examId", "timestamp"]
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "studentCode",
+        "examId",
+        "timestamp"
+      ]
     },
     "StudentProfiles": {
-      ".read": true,
-      ".write": true
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }

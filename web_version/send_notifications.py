@@ -3,20 +3,18 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+import os
+
 # ========================================================
 # إعدادات قاعدة البيانات (Firebase)
 # ========================================================
-FIREBASE_DB_URL = "https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app"
+FIREBASE_DB_URL = os.environ.get("FIREBASE_DB_URL", "https://elkhotta-default-rtdb.europe-west1.firebasedatabase.app")
 
 # ========================================================
 # إعدادات البريد الإلكتروني (المرسل)
 # ========================================================
-# ضع هنا إيميل الـ Gmail الخاص بالمنصة
-SENDER_EMAIL = "ضع_ايميل_المنصة_هنا@gmail.com"
-
-# ضع هنا "كلمة مرور التطبيقات" (App Password) وليس الباسورد العادي
-# (يجب تفعيل التحقق بخطوتين في جوجل لإنشاء App Password)
-SENDER_PASSWORD = "ضع_كلمة_مرور_التطبيقات_هنا"
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "ضع_ايميل_المنصة_هنا@gmail.com")
+SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "ضع_كلمة_مرور_التطبيقات_هنا")
 
 def get_registered_emails():
     """يجلب جميع الإيميلات المسجلة للطلاب من قاعدة البيانات"""
