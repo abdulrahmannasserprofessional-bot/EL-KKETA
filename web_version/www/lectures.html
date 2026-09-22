@@ -900,6 +900,124 @@
             flex-wrap: wrap;
         }
 
+        /* ─── Accordion Continuous Notebook Mode Styles ─── */
+        .notes-view-mode-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 18px;
+            background: var(--bg-surface-hover);
+            border-bottom: 1px solid var(--border-card);
+            flex-wrap: wrap;
+        }
+        .view-mode-toggle-group {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 3px;
+            border-radius: 20px;
+            border: 1px solid var(--border-card);
+        }
+        body.dark-mode .view-mode-toggle-group {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .view-mode-btn {
+            padding: 6px 14px;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .view-mode-btn.active {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(194, 139, 56, 0.3);
+        }
+        .accordion-notebook-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .accordion-topic-card {
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border-card);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .accordion-topic-card.open {
+            border-color: var(--gold-border);
+            box-shadow: 0 4px 16px rgba(194, 139, 56, 0.12);
+        }
+        .accordion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--bg-surface);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+        .accordion-header:hover {
+            background: var(--gold-light);
+        }
+        .accordion-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .accordion-num-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            color: var(--gold-primary);
+            font-weight: 900;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .accordion-title-text {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--text-title);
+        }
+        .accordion-toggle-icon {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+        .accordion-topic-card.open .accordion-toggle-icon {
+            transform: rotate(180deg);
+            color: var(--gold-primary);
+        }
+        .accordion-body {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid var(--border-card);
+            background: var(--bg-surface-hover);
+            line-height: 1.85;
+            font-size: 14px;
+            color: var(--text-title);
+        }
+        .accordion-topic-card.open .accordion-body {
+            display: block;
+        }
+
         /* ─── Interactive Quiz Modal & Runner ─── */
         .quiz-modal-backdrop {
             position: fixed;
@@ -2067,30 +2185,50 @@ window.toggleMobileSidebar = toggleMobileSidebar;
     </main>
 </div>
 
-<!-- Interactive Notes Modal Reader (الكراسة التفاعلية) -->
+<!-- Interactive Notes Modal Reader (الكراسة التفاعلية - نمط الأقسام القابلة للطي والدفتر) -->
 <div id="interactiveNotesModal" class="notes-modal-backdrop" onclick="if(event.target === this) closeInteractiveNotesModal()">
     <div class="notes-modal-content">
         <div class="notes-modal-header">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 38px; height: 38px; border-radius: 50%; background: var(--gold-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <i class="fa-solid fa-book-open-reader"></i>
                 </div>
                 <div>
                     <h3 id="modalDeckTitle" style="font-size: 16px; font-weight: 900; color: var(--text-title); margin-bottom: 2px;">الكراسة التفاعلية للمحاضرة</h3>
                     <span id="modalDeckSubj" style="font-size: 11.5px; font-weight: 700; color: var(--gold-text);">مقرر دراسي معتمد</span>
                 </div>
             </div>
-            <button onclick="closeInteractiveNotesModal()" style="background: transparent; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 8px;">
+            <button onclick="closeInteractiveNotesModal()" style="background: transparent; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 8px;" title="إغلاق">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
+        <!-- Mode Toggle Bar -->
+        <div class="notes-view-mode-bar">
+            <div class="view-mode-toggle-group">
+                <button id="btnViewAccordion" class="view-mode-btn active" onclick="setNotesViewMode('accordion')">
+                    <i class="fa-solid fa-list-check"></i> 📜 دفتر متصل (Accordion)
+                </button>
+                <button id="btnViewSlides" class="view-mode-btn" onclick="setNotesViewMode('slides')">
+                    <i class="fa-solid fa-film"></i> 📽️ شرائح (Slides)
+                </button>
+            </div>
+            <div id="accordionGlobalActions" style="display: flex; align-items: center; gap: 6px;">
+                <button onclick="toggleAllAccordionTopics(true)" class="view-mode-btn" style="background: var(--bg-surface); border: 1px solid var(--border-card);" title="فتح كل المحاور">
+                    <i class="fa-solid fa-angles-down"></i> فتح الكل
+                </button>
+                <button onclick="toggleAllAccordionTopics(false)" class="view-mode-btn" style="background: var(--bg-surface); border: 1px solid var(--border-card);" title="طي كل المحاور">
+                    <i class="fa-solid fa-angles-up"></i> طي الكل
+                </button>
+            </div>
+        </div>
+
         <div class="notes-modal-body" id="modalDeckBody">
-            <!-- Slide Content Injected Dynamically -->
+            <!-- Injected dynamically -->
         </div>
 
         <div class="notes-modal-footer">
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="slidesNavigationGroup" style="display: flex; align-items: center; gap: 8px;">
                 <button id="modalPrevSlideBtn" onclick="prevNoteSlide()" class="sub-filter-pill" style="background: var(--bg-surface-hover); border-color: var(--border-card); color: var(--text-title);">
                     <i class="fa-solid fa-arrow-right"></i> السابق
                 </button>
@@ -2102,9 +2240,9 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                 </button>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-right: auto;">
                 <a id="modalFullNotesLink" href="notes-viewer.html" class="sub-filter-pill" style="background: var(--gold-gradient); color: #FFFFFF; border-color: transparent;">
-                    <i class="fa-solid fa-up-right-from-square"></i> عرض في كشكول ونوتس
+                    <i class="fa-solid fa-up-right-from-square"></i> فتح في الكشكول
                 </a>
             </div>
         </div>
@@ -3333,14 +3471,38 @@ window.toggleMobileSidebar = toggleMobileSidebar;
         });
     }
 
-    // ─── Interactive Notes Modal (الكراسة التفاعلية) ───
+    // ─── Interactive Notes Modal (الكراسة التفاعلية - Accordion & Slide Dual Mode) ───
+    let notesViewMode = localStorage.getItem('elk_notes_view_mode') || 'accordion';
+
+    function setNotesViewMode(mode) {
+        notesViewMode = mode;
+        localStorage.setItem('elk_notes_view_mode', mode);
+
+        const btnAcc = document.getElementById('btnViewAccordion');
+        const btnSld = document.getElementById('btnViewSlides');
+        const accActions = document.getElementById('accordionGlobalActions');
+        const sldNav = document.getElementById('slidesNavigationGroup');
+
+        if (mode === 'accordion') {
+            if (btnAcc) btnAcc.classList.add('active');
+            if (btnSld) btnSld.classList.remove('active');
+            if (accActions) accActions.style.display = 'flex';
+            if (sldNav) sldNav.style.display = 'none';
+        } else {
+            if (btnSld) btnSld.classList.add('active');
+            if (btnAcc) btnAcc.classList.remove('active');
+            if (accActions) accActions.style.display = 'none';
+            if (sldNav) sldNav.style.display = 'flex';
+        }
+        renderModalNotesContent();
+    }
+
     function openInteractiveNotesModal(lecId) {
         const found = realLecturesList.find(l => l.id === lecId) || activeLecture;
         if (!found) return;
 
         let deck = found.notesDeck;
         if (!deck || !deck.slides || deck.slides.length === 0) {
-            // Generate friendly interactive fallback deck
             deck = {
                 title: found.title || 'كراسة المحاضرة التفاعلية',
                 subject: found.subjectName || found.subjectKey,
@@ -3401,10 +3563,54 @@ window.toggleMobileSidebar = toggleMobileSidebar;
         document.getElementById('modalDeckSubj').textContent = `مقرر: ${found.subjectName}`;
         document.getElementById('modalFullNotesLink').href = `notes-viewer.html?subject=${encodeURIComponent(found.subjectKey)}&lessonId=${encodeURIComponent(found.id)}&title=${encodeURIComponent(found.title)}`;
 
-        renderModalSlide();
+        setNotesViewMode(notesViewMode);
 
         const modal = document.getElementById('interactiveNotesModal');
         modal.style.display = 'flex';
+    }
+
+    function renderModalNotesContent() {
+        if (!currentModalDeck || !currentModalDeck.slides || currentModalDeck.slides.length === 0) return;
+
+        const body = document.getElementById('modalDeckBody');
+
+        if (notesViewMode === 'accordion') {
+            body.innerHTML = `
+                <div class="accordion-notebook-container">
+                    ${currentModalDeck.slides.map((s, idx) => `
+                        <div class="accordion-topic-card open" id="accTopicCard_${idx}">
+                            <div class="accordion-header" onclick="toggleAccordionTopic(${idx})">
+                                <div class="accordion-title-wrap">
+                                    <div class="accordion-num-badge">${idx + 1}</div>
+                                    <div class="accordion-title-text">${s.title || `المحور ${idx + 1}`}</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-down accordion-toggle-icon"></i>
+                            </div>
+                            <div class="accordion-body">
+                                ${s.contentHtml || s.content || '<p>لا يوجد محتوى متاح لطلب هذا المحور.</p>'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            renderModalSlide();
+        }
+    }
+
+    function toggleAccordionTopic(idx) {
+        const card = document.getElementById(`accTopicCard_${idx}`);
+        if (card) {
+            card.classList.toggle('open');
+        }
+    }
+
+    function toggleAllAccordionTopics(expand) {
+        const cards = document.querySelectorAll('.accordion-topic-card');
+        cards.forEach(c => {
+            if (expand) c.classList.add('open');
+            else c.classList.remove('open');
+        });
     }
 
     function renderModalSlide() {
@@ -3450,6 +3656,11 @@ window.toggleMobileSidebar = toggleMobileSidebar;
             currentSlideIndex++;
             renderModalSlide();
         }
+    }
+
+    function closeInteractiveNotesModal() {
+        const modal = document.getElementById('interactiveNotesModal');
+        if (modal) modal.style.display = 'none';
     }
 
     function closeInteractiveNotesModal() {

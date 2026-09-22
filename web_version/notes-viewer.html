@@ -1140,6 +1140,11 @@ window.toggleMobileSidebar = toggleMobileSidebar;
     }
 
     // ─── Modal Reader for Notes Viewer ───
+    // ─── Modal Reader for Notes Viewer (Continuous Accordion & Slides) ───
+    let currentViewerDeck = null;
+    let currentViewerSlideIdx = 0;
+    let viewerMode = localStorage.getItem('elk_notes_view_mode') || 'accordion';
+
     function openNotesDeckModal(itemId) {
         const item = allPdfsList.find(i => i.id === itemId);
         if (!item) return;
@@ -1162,43 +1167,90 @@ window.toggleMobileSidebar = toggleMobileSidebar;
             };
         }
 
-        let slideIdx = 0;
-        const total = deck.slides.length;
+        currentViewerDeck = deck;
+        currentViewerSlideIdx = 0;
+        showViewerModal(item);
+    }
 
-        function showSlide(idx) {
-            const s = deck.slides[idx];
-            Swal.fire({
-                title: `<div style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:17px; font-weight:900;"><i class="fa-solid fa-book-open" style="color:#C28B38;"></i> <span>${item.title}</span></div>`,
-                html: `
-                    <div style="text-align:right; font-family:'Cairo',sans-serif; margin-top:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span style="font-size:12px; font-weight:800; color:#8E5D16; background:#FDF4E6; padding:3px 10px; border-radius:12px; border:1px solid #E8D3B2;">${item.subject}</span>
-                            <span style="font-size:12px; font-weight:800; color:#64748B;">شريحة ${idx + 1} من ${total}</span>
-                        </div>
-                        <div style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:14px; padding:18px; min-height:180px; line-height:1.8; font-size:14px; color:#1E293B;">
-                            <h4 style="color:#C28B38; font-size:16px; margin-bottom:10px; font-weight:900;">${s.title || `شريحة ${idx + 1}`}</h4>
-                            ${s.contentHtml || s.content || '<p>لا يوجد محتوى متاح.</p>'}
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:8px;">
-                            <button id="swalPrevBtn" class="swal2-confirm swal2-styled" style="background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === 0 ? 'opacity:0.3; pointer-events:none;' : ''}">السابق ➡️</button>
-                            <span style="font-size:12px; font-weight:800; color:#C28B38;">${idx + 1} / ${total}</span>
-                            <button id="swalNextBtn" class="swal2-confirm swal2-styled" style="background:linear-gradient(135deg, #D4973B, #B88028); color:#fff; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === total - 1 ? 'opacity:0.3; pointer-events:none;' : ''}">التالي ⬅️</button>
-                        </div>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showCloseButton: true,
-                width: '650px',
-                didOpen: () => {
-                    const prevB = document.getElementById('swalPrevBtn');
-                    const nextB = document.getElementById('swalNextBtn');
-                    if (prevB && idx > 0) prevB.onclick = () => showSlide(idx - 1);
-                    if (nextB && idx < total - 1) nextB.onclick = () => showSlide(idx + 1);
-                }
-            });
+    function showViewerModal(item) {
+        const total = currentViewerDeck.slides.length;
+
+        function buildAccordionHtml() {
+            return `
+                <div style="display:flex; flex-direction:column; gap:10px; max-height:55vh; overflow-y:auto; padding:6px 2px; text-align:right;">
+                    ${currentViewerDeck.slides.map((s, idx) => `
+                        <details open style="background:#FAF7F2; border:1.5px solid #EFE8DC; border-radius:12px; padding:10px 14px; transition:all 0.2s ease;">
+                            <summary style="font-size:14.5px; font-weight:900; color:#1E293B; cursor:pointer; outline:none; display:flex; align-items:center; gap:8px;">
+                                <span style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:#FDF4E6; color:#C28B38; border:1px solid #E8D3B2; font-size:12px; font-weight:800;">${idx + 1}</span>
+                                <span>${s.title || `المحور ${idx + 1}`}</span>
+                            </summary>
+                            <div style="margin-top:12px; padding-top:10px; border-top:1px solid #EFE8DC; font-size:13.5px; line-height:1.8; color:#334155;">
+                                ${s.contentHtml || s.content || '<p>لا يوجد محتوى متاح.</p>'}
+                            </div>
+                        </details>
+                    `).join('')}
+                </div>
+            `;
         }
 
-        showSlide(0);
+        function buildSlideHtml(idx) {
+            const s = currentViewerDeck.slides[idx];
+            return `
+                <div style="text-align:right; font-family:'Cairo',sans-serif; margin-top:8px;">
+                    <div style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:14px; padding:18px; min-height:180px; line-height:1.8; font-size:14px; color:#1E293B;">
+                        <h4 style="color:#C28B38; font-size:16px; margin-bottom:10px; font-weight:900;">${s.title || `شريحة ${idx + 1}`}</h4>
+                        ${s.contentHtml || s.content || '<p>لا يوجد محتوى متاح.</p>'}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:8px;">
+                        <button id="swalPrevBtn" class="swal2-confirm swal2-styled" style="background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === 0 ? 'opacity:0.3; pointer-events:none;' : ''}">السابق ➡️</button>
+                        <span style="font-size:12px; font-weight:800; color:#C28B38;">${idx + 1} / ${total}</span>
+                        <button id="swalNextBtn" class="swal2-confirm swal2-styled" style="background:linear-gradient(135deg, #D4973B, #B88028); color:#fff; padding:8px 16px; font-size:12.5px; border-radius:16px; ${idx === total - 1 ? 'opacity:0.3; pointer-events:none;' : ''}">التالي ⬅️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        Swal.fire({
+            title: `
+                <div style="display:flex; flex-direction:column; gap:6px; font-family:'Cairo',sans-serif;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:17px; font-weight:900; color:#1E293B;">
+                        <i class="fa-solid fa-book-open" style="color:#C28B38;"></i>
+                        <span>${item.title}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <button id="toggleAccBtn" style="padding:4px 12px; border-radius:14px; font-size:11.5px; font-weight:800; border:1px solid #C28B38; cursor:pointer; background:${viewerMode === 'accordion' ? '#C28B38' : '#FFF'}; color:${viewerMode === 'accordion' ? '#FFF' : '#C28B38'};">📜 دفتر متصل</button>
+                        <button id="toggleSldBtn" style="padding:4px 12px; border-radius:14px; font-size:11.5px; font-weight:800; border:1px solid #C28B38; cursor:pointer; background:${viewerMode === 'slides' ? '#C28B38' : '#FFF'}; color:${viewerMode === 'slides' ? '#FFF' : '#C28B38'};">📽️ شرائح</button>
+                    </div>
+                </div>
+            `,
+            html: `<div id="swalViewerContent">${viewerMode === 'accordion' ? buildAccordionHtml() : buildSlideHtml(currentViewerSlideIdx)}</div>`,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '720px',
+            didOpen: () => {
+                const accBtn = document.getElementById('toggleAccBtn');
+                const sldBtn = document.getElementById('toggleSldBtn');
+                
+                if (accBtn) accBtn.onclick = () => {
+                    viewerMode = 'accordion';
+                    localStorage.setItem('elk_notes_view_mode', 'accordion');
+                    showViewerModal(item);
+                };
+
+                if (sldBtn) sldBtn.onclick = () => {
+                    viewerMode = 'slides';
+                    localStorage.setItem('elk_notes_view_mode', 'slides');
+                    showViewerModal(item);
+                };
+
+                if (viewerMode === 'slides') {
+                    const prevB = document.getElementById('swalPrevBtn');
+                    const nextB = document.getElementById('swalNextBtn');
+                    if (prevB && currentViewerSlideIdx > 0) prevB.onclick = () => { currentViewerSlideIdx--; showViewerModal(item); };
+                    if (nextB && currentViewerSlideIdx < total - 1) nextB.onclick = () => { currentViewerSlideIdx++; showViewerModal(item); };
+                }
+            }
+        });
     }
 
 function logoutStudent() {
