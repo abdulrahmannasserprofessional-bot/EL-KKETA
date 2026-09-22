@@ -2387,6 +2387,10 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                     <i class="fa-solid fa-up-right-from-square"></i> شاشة كاملة
                 </a>
             </div>
+        </div>
+    </div>
+</div>
+
 <!-- Interactive PowerPoint Presentation Viewer Modal -->
 <div id="interactivePptModal" class="ppt-modal-backdrop" onclick="if(event.target === this) closePptViewerModal()">
     <div class="ppt-modal-content">
@@ -2508,7 +2512,17 @@ window.toggleMobileSidebar = toggleMobileSidebar;
     }
 
     function openPptViewerModal(pptUrl, title) {
-        if (!pptUrl) return;
+        if (!pptUrl) {
+            Swal.fire({
+                icon: 'info',
+                title: 'سلايدات الباوربوينت',
+                text: 'لم يتم إرفاق ملف عرض باوربوينت لهذه المحاضرة بعد.',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#D97706'
+            });
+            return;
+        }
+
         const embedUrl = getEmbeddablePptUrl(pptUrl);
         const modal = document.getElementById('interactivePptModal');
         const iframe = document.getElementById('pptViewerIframe');
@@ -2521,19 +2535,24 @@ window.toggleMobileSidebar = toggleMobileSidebar;
         if (extLink) extLink.href = pptUrl;
         
         // Force Links to Google Slides / Microsoft Office Online
-        if (googleLink) {
-            if (pptUrl.includes('docs.google.com/presentation') || pptUrl.includes('drive.google.com')) {
-                googleLink.href = pptUrl;
-            } else {
-                googleLink.href = `https://docs.google.com/viewer?url=${encodeURIComponent(pptUrl)}&embedded=false`;
-            }
+        let gUrl = pptUrl;
+        if (pptUrl.includes('docs.google.com/presentation') || pptUrl.includes('drive.google.com')) {
+            gUrl = pptUrl;
+        } else {
+            gUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pptUrl)}&embedded=false`;
         }
-        if (officeLink) {
-            officeLink.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
-        }
+        if (googleLink) googleLink.href = gUrl;
 
-        if (iframe) iframe.src = embedUrl;
-        if (modal) modal.style.display = 'flex';
+        let oUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
+        if (officeLink) officeLink.href = oUrl;
+
+        if (modal && iframe) {
+            iframe.src = embedUrl;
+            modal.style.display = 'flex';
+        } else {
+            // Fallback direct window open if modal element is not in DOM
+            window.open(embedUrl || pptUrl, '_blank');
+        }
     }
 
     function closePptViewerModal() {
@@ -2544,7 +2563,7 @@ window.toggleMobileSidebar = toggleMobileSidebar;
     }
 
     function togglePptFullscreen() {
-        const content = document.querySelector('.ppt-modal-content');
+        const content = document.querySelector('.ppt-modal-content') || document.getElementById('interactivePptModal');
         if (!content) return;
         if (!document.fullscreenElement) {
             if (content.requestFullscreen) content.requestFullscreen();
@@ -2554,6 +2573,26 @@ window.toggleMobileSidebar = toggleMobileSidebar;
             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
     }
+
+    function openCurrentLecturePpt() {
+        if (!activeLecture || !activeLecture.pptUrl) {
+            Swal.fire({
+                icon: 'info',
+                title: 'سلايدات الباوربوينت',
+                text: 'سلايدات وعرض الباوربوينت غير متوفر لهذه المحاضرة حالياً.',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#D97706'
+            });
+            return;
+        }
+        openPptViewerModal(activeLecture.pptUrl, activeLecture.title);
+    }
+
+    // Expose functions globally to ensure window/button access anywhere
+    window.openPptViewerModal = openPptViewerModal;
+    window.closePptViewerModal = closePptViewerModal;
+    window.togglePptFullscreen = togglePptFullscreen;
+    window.openCurrentLecturePpt = openCurrentLecturePpt;
 
     function extractYouTubeId(url) {
         if (!url || typeof url !== 'string') return null;
@@ -3633,7 +3672,7 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             <p style="font-size: 12.5px; color: #78350F; margin: 0; line-height: 1.6; font-weight: 600;">شرائح وعروض الباوربوينت التفاعلية الخاصة بالشرح مع إمكانية التقليب والتكبير.</p>
                             ${found.pptUrl ? `
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button type="button" onclick="openPptViewerModal('${found.pptUrl.replace(/'/g, "\\'")}', '${(found.title || '').replace(/'/g, "\\'")}')" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; background: #D97706; color: #FFFFFF; border-radius: 12px; font-size: 12.5px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(217,119,6,0.35);">
+                                    <button type="button" onclick="openCurrentLecturePpt()" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; background: #D97706; color: #FFFFFF; border-radius: 12px; font-size: 12.5px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(217,119,6,0.35);">
                                         <i class="fa-solid fa-sliders"></i>
                                         <span>عرض وتقليب السلايدات 📊</span>
                                     </button>
