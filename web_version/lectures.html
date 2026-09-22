@@ -2546,8 +2546,12 @@ window.toggleMobileSidebar = toggleMobileSidebar;
         let oUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
         if (officeLink) officeLink.href = oUrl;
 
+        if (typeof closeInteractiveQuizModal === 'function') closeInteractiveQuizModal();
+        if (typeof closeInteractiveNotesModal === 'function') closeInteractiveNotesModal();
+
         if (modal && iframe) {
             iframe.src = embedUrl;
+            modal.style.zIndex = '100000';
             modal.style.display = 'flex';
         } else {
             // Fallback direct window open if modal element is not in DOM
@@ -4014,11 +4018,18 @@ window.toggleMobileSidebar = toggleMobileSidebar;
             scoreBadge.textContent = `الدرجة: 0 / ${objectiveTotal}`;
         }
 
+        // Ensure all other modals are closed before opening the exam
+        if (typeof closePptViewerModal === 'function') closePptViewerModal();
+        if (typeof closeInteractiveNotesModal === 'function') closeInteractiveNotesModal();
+
         document.getElementById('modalQuizFooter').style.display = 'flex';
         renderModalQuizQuestion();
 
         const modal = document.getElementById('interactiveQuizModal');
-        modal.style.display = 'flex';
+        if (modal) {
+            modal.style.zIndex = '100005';
+            modal.style.display = 'flex';
+        }
     }
 
     function renderModalQuizQuestion() {
