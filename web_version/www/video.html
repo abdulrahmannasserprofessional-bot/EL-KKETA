@@ -634,9 +634,103 @@
         }
 
         .btn-quick-notes {
-            background: rgba(139, 92, 246, 0.12);
-            color: #C084FC;
-            border-color: rgba(139, 92, 246, 0.3);
+            background: rgba(245, 158, 11, 0.12);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .btn-quick-notes:hover {
+            background: rgba(245, 158, 11, 0.22);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+        }
+
+        /* ─── Interactive PowerPoint Presentation Viewer Modal ─── */
+        .ppt-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .ppt-modal-content {
+            background: #0F172A;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 1150px;
+            height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
+        }
+        .ppt-modal-header {
+            background: #1E293B;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ppt-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #F8FAFC;
+        }
+        .ppt-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ppt-action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .ppt-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+        .ppt-action-btn.close-btn {
+            background: rgba(225, 29, 72, 0.2);
+            color: #FB7185;
+            border-color: rgba(225, 29, 72, 0.4);
+            padding: 6px 10px;
+        }
+        .ppt-action-btn.close-btn:hover {
+            background: #E11D48;
+            color: #FFFFFF;
+        }
+        .ppt-modal-body {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000000;
+        }
+        .ppt-modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         .btn-quick-notes:hover {
             background: rgba(139, 92, 246, 0.22);
@@ -1375,6 +1469,40 @@
 
     </main>
 
+    <!-- Interactive PowerPoint Presentation Viewer Modal -->
+    <div id="interactivePptModal" class="ppt-modal-backdrop" onclick="if(event.target === this) closePptViewerModal()">
+        <div class="ppt-modal-content">
+            <div class="ppt-modal-header">
+                <div class="ppt-modal-title">
+                    <i class="fa-solid fa-file-powerpoint" style="color: #F59E0B; font-size: 20px;"></i>
+                    <span id="pptModalLectureTitle">عرض سلايدات الباوربوينت التفاعلي</span>
+                </div>
+                <div class="ppt-modal-actions">
+                    <a id="pptModalGoogleSlidesLink" href="#" target="_blank" class="ppt-action-btn" title="فتح في Google Slides">
+                        <i class="fa-brands fa-google"></i>
+                        <span>فتح في جوجل سلايدز</span>
+                    </a>
+                    <a id="pptModalOfficeLink" href="#" target="_blank" class="ppt-action-btn" title="فتح في Microsoft PowerPoint Online">
+                        <i class="fa-brands fa-microsoft"></i>
+                        <span>فتح في باوربوينت أونلاين</span>
+                    </a>
+                    <button onclick="togglePptFullscreen()" title="ملء الشاشة" class="ppt-action-btn">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                    <a id="pptModalExternalLink" href="#" target="_blank" title="تحميل / فتح الرابط المباشر" class="ppt-action-btn">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                    <button onclick="closePptViewerModal()" title="إغلاق" class="ppt-action-btn close-btn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="ppt-modal-body" id="pptModalBody">
+                <iframe id="pptViewerIframe" src="" allowfullscreen frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- Floating Live Chat Support Widget (صفحة الشات المباشر) -->
     <a href="chat.html" class="support-float-btn" title="تواصل مع إدارة المنصة (الشات المباشر)">
         <div class="chat-icon-wrap">
@@ -1527,10 +1655,10 @@
                 if (notesBtn) {
                     if (pptUrl) {
                         notesBtn.onclick = () => {
-                            window.open(pptUrl, '_blank');
+                            openPptViewerModal(pptUrl, title);
                         };
                         const notesTag = document.getElementById('notesStatusTag');
-                        if (notesTag) notesTag.innerText = 'تصفح الباوربوينت 📊';
+                        if (notesTag) notesTag.innerText = 'عرض السلايدات 📊';
                         notesBtn.style.opacity = '1';
                     } else {
                         const notesTag = document.getElementById('notesStatusTag');
@@ -1570,6 +1698,88 @@
                     let found = allLessons.find(l => (targetId && l.id === targetId) || (targetTitle && l.title === targetTitle)) || allLessons[0];
                     if (found) applyLesson(found);
                 });
+            }
+        }
+
+        // ─── Interactive PowerPoint Slide Viewer Logic ───
+        function getEmbeddablePptUrl(rawUrl) {
+            if (!rawUrl || typeof rawUrl !== 'string') return '';
+            let url = rawUrl.trim();
+
+            // 1. Google Drive Link: drive.google.com/file/d/ID/view
+            if (url.includes('drive.google.com')) {
+                const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (fileIdMatch && fileIdMatch[1]) {
+                    return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+                }
+            }
+
+            // 2. Google Slides Link: docs.google.com/presentation/d/ID/edit
+            if (url.includes('docs.google.com/presentation')) {
+                const presIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (presIdMatch && presIdMatch[1]) {
+                    return `https://docs.google.com/presentation/d/${presIdMatch[1]}/embed?start=false&loop=false&delayms=3000`;
+                }
+            }
+
+            // 3. Microsoft Office Web Viewer (Forces embedded slide presentation for PPT, PPTX)
+            if (url.endsWith('.pptx') || url.endsWith('.ppt') || url.includes('.pptx?') || url.includes('.ppt?')) {
+                return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+            }
+
+            if (url.includes('view.officeapps.live.com') || url.includes('preview') || url.includes('embed')) {
+                return url;
+            }
+
+            // 4. Default: Microsoft Office Web Viewer or raw URL
+            return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        }
+
+        function openPptViewerModal(pptUrl, title) {
+            if (!pptUrl) return;
+            const embedUrl = getEmbeddablePptUrl(pptUrl);
+            const modal = document.getElementById('interactivePptModal');
+            const iframe = document.getElementById('pptViewerIframe');
+            const titleEl = document.getElementById('pptModalLectureTitle');
+            const extLink = document.getElementById('pptModalExternalLink');
+            const googleLink = document.getElementById('pptModalGoogleSlidesLink');
+            const officeLink = document.getElementById('pptModalOfficeLink');
+
+            if (titleEl) titleEl.innerText = title ? `سلايدات العرض: ${title}` : 'عرض سلايدات الباوربوينت التفاعلي';
+            if (extLink) extLink.href = pptUrl;
+            
+            // Force Links to Google Slides / Microsoft Office Online
+            if (googleLink) {
+                if (pptUrl.includes('docs.google.com/presentation') || pptUrl.includes('drive.google.com')) {
+                    googleLink.href = pptUrl;
+                } else {
+                    googleLink.href = `https://docs.google.com/viewer?url=${encodeURIComponent(pptUrl)}&embedded=false`;
+                }
+            }
+            if (officeLink) {
+                officeLink.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
+            }
+
+            if (iframe) iframe.src = embedUrl;
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closePptViewerModal() {
+            const modal = document.getElementById('interactivePptModal');
+            const iframe = document.getElementById('pptViewerIframe');
+            if (iframe) iframe.src = '';
+            if (modal) modal.style.display = 'none';
+        }
+
+        function togglePptFullscreen() {
+            const content = document.querySelector('.ppt-modal-content');
+            if (!content) return;
+            if (!document.fullscreenElement) {
+                if (content.requestFullscreen) content.requestFullscreen();
+                else if (content.webkitRequestFullscreen) content.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
 
