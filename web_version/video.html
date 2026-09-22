@@ -1320,10 +1320,10 @@
                     <span>📝 الامتحان والتقييم التدريبي</span>
                     <span id="examStatusTag">بدء الامتحان 👈</span>
                 </a>
-                <!-- 3. كشكول ونوتس المحاضرة -->
+                <!-- 3. عرض وسلايدات الباوربوينت -->
                 <a id="btnRelatedNotes" href="javascript:void(0)" class="roadmap-quick-btn btn-quick-notes">
-                    <span>📓 كشكول ونوتس المحاضرة</span>
-                    <span id="notesStatusTag">فتح الكشكول 👈</span>
+                    <span>📊 عرض وسلايدات الباوربوينت</span>
+                    <span id="notesStatusTag">تصفح الباوربوينت 👈</span>
                 </a>
             </div>
         </div>
@@ -1336,7 +1336,7 @@
             </button>
             <button class="studio-tab-btn" onclick="switchStudioTab('notepad', this)">
                 <i class="fa-solid fa-pencil"></i>
-                <span>كشكول التلخيص المباشر</span>
+                <span>ملاحظاتك الشخصية</span>
             </button>
         </div>
 
@@ -1522,13 +1522,28 @@
                     examBtn.onclick = () => Swal.fire({ title: 'الامتحان غير متوفر', text: 'الامتحان والتقييم التدريبي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
                 }
 
+                const pptUrl = lesson.pptUrl || lesson.powerpointUrl || lesson.ppt;
                 const notesBtn = document.getElementById('btnRelatedNotes');
                 if (notesBtn) {
-                    notesBtn.onclick = () => {
-                        window.location.href = `notes-viewer.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(lesson.id || '')}&title=${encodeURIComponent(title)}`;
-                    };
-                    const notesTag = document.getElementById('notesStatusTag');
-                    if (notesTag) notesTag.innerText = 'فتح الكشكول 📓';
+                    if (pptUrl) {
+                        notesBtn.onclick = () => {
+                            window.open(pptUrl, '_blank');
+                        };
+                        const notesTag = document.getElementById('notesStatusTag');
+                        if (notesTag) notesTag.innerText = 'تصفح الباوربوينت 📊';
+                        notesBtn.style.opacity = '1';
+                    } else {
+                        const notesTag = document.getElementById('notesStatusTag');
+                        if (notesTag) notesTag.innerText = 'غير متوفر';
+                        notesBtn.style.opacity = '0.5';
+                        notesBtn.onclick = () => Swal.fire({ 
+                            title: 'عرض الباوربوينت غير متوفر', 
+                            text: 'سلايدات وعرض الباوربوينت (PPTX) غير متوفرة لهذه المحاضرة حالياً.', 
+                            icon: 'info', 
+                            confirmButtonText: 'حسناً', 
+                            confirmButtonColor: '#2563EB' 
+                        });
+                    }
                 }
 
                 setupQA(title, lesson.id || title);

@@ -2438,6 +2438,7 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             videoUrl: val.videoUrl || val.url || '',
                             pdfUrl: val.pdfUrl || '',
                             pdfSize: val.pdfSize || '',
+                            pptUrl: val.pptUrl || val.powerpointUrl || val.ppt || '',
                             desc: val.desc || val.description || 'شرح وتدريبات أكاديمية موجهة لطلاب المادة.',
                             hasNotes: !!val.hasNotes || !!val.notesDeck,
                             notesCount: val.notesCount || (val.notesDeck?.slides?.length) || 0,
@@ -2537,11 +2538,18 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             </span>
                         `}
 
-                        <!-- كشكول ونوتس -->
-                        <button type="button" class="lec-pillar-badge pillar-notes ${isScheduled ? 'pending' : 'available'}" onclick="event.stopPropagation(); ${isScheduled ? `showScheduledAlert('${lec.title}', '${unlockDateFormatted}')` : `openInteractiveNotesModal('${lec.id}')`}" title="${isScheduled ? 'يفتح الكشكول مع موعد المحاضرة' : `تصفح الكراسة التفاعلية والنوتس (${notesCountText})`}">
-                            <i class="fa-solid ${isScheduled ? 'fa-lock' : 'fa-wand-magic-sparkles'}"></i>
-                            <span>${isScheduled ? 'كشكول (مجدول)' : 'كشكول ونوتس'}</span>
-                        </button>
+                        <!-- عرض الباوربوينت -->
+                        ${(!isScheduled && lec.pptUrl) ? `
+                            <a href="${lec.pptUrl}" target="_blank" rel="noopener" class="lec-pillar-badge available" style="background:#FFFBEB !important; color:#D97706 !important; border-color:#FDE68A !important;" onclick="event.stopPropagation()" title="تحميل وعرض ملف الباوربوينت (PPTX)">
+                                <i class="fa-solid fa-file-powerpoint"></i>
+                                <span>عرض PPTX 📊</span>
+                            </a>
+                        ` : `
+                            <span class="lec-pillar-badge pending" title="${isScheduled ? 'يفتح العرض مع موعد المحاضرة' : 'عرض الباوربوينت'}">
+                                <i class="fa-solid ${isScheduled ? 'fa-lock' : 'fa-file-powerpoint'}"></i>
+                                <span>${isScheduled ? 'باوربوينت (مجدول)' : 'عرض PPTX'}</span>
+                            </span>
+                        `}
 
                         <!-- امتحان المحاضرة -->
                         <button type="button" class="lec-pillar-badge pillar-quiz ${isScheduled ? 'pending' : 'available'}" onclick="event.stopPropagation(); ${isScheduled ? `showScheduledAlert('${lec.title}', '${unlockDateFormatted}')` : `startLectureExamModal('${lec.id}')`}" title="${isScheduled ? 'يفتح الامتحان مع موعد المحاضرة' : `خوض امتحان المحاضرة (${qCount > 0 ? `${qCount} أسئلة` : 'امتحان فوري'})`}">
@@ -3407,27 +3415,29 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             `}
                         </div>
 
-                        <!-- كشكول ونوتس -->
-                        <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(147, 51, 234, 0.06); transition: transform 0.2s ease;">
+                        <!-- عرض الباوربوينت -->
+                        <div style="background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.06); transition: transform 0.2s ease;">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <span style="font-size: 14px; font-weight: 900; color: #6B21A8; display: flex; align-items: center; gap: 8px;">
-                                    <div style="width: 32px; height: 32px; border-radius: 10px; background: #F3E8FF; color: #9333EA; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span style="font-size: 14px; font-weight: 900; color: #92400E; display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 10px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-file-powerpoint"></i>
                                     </div>
-                                    <span>كشكول ونوتس</span>
+                                    <span>عرض الباوربوينت</span>
                                 </span>
-                                <span style="font-size: 11px; font-weight: 800; background: #F3E8FF; color: #7E22CE; padding: 3px 10px; border-radius: 10px; border: 1px solid #E9D5FF;">${notesCountText}</span>
+                                <span style="font-size: 11px; font-weight: 800; background: #FEF3C7; color: #B45309; padding: 3px 10px; border-radius: 10px; border: 1px solid #FDE68A;">${found.pptUrl ? 'PPTX متاح' : 'سلايدات القاعة'}</span>
                             </div>
-                            <p style="font-size: 12.5px; color: #581C87; margin: 0; line-height: 1.6; font-weight: 600;">شرائح تفاعلية ذكية لتسجيل الملاحظات ومراجعة أهم المفاهيم.</p>
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <button type="button" onclick="openInteractiveNotesModal('${found.id}')" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 12px; background: #7C3AED; color: #FFFFFF; border: none; border-radius: 12px; font-size: 12.5px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(124,58,237,0.35);">
-                                    <i class="fa-solid fa-book-open-reader"></i>
-                                    <span>فتح الكراسة التفاعلية ✨</span>
-                                </button>
-                                <a href="notes-viewer.html?subject=${encodeURIComponent(found.subjectKey)}&lessonId=${encodeURIComponent(found.id)}&title=${encodeURIComponent(found.title)}" title="عرض في صفحة كشكول ونوتس الكاملة" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #FFFFFF; border: 1.5px solid #DDD6FE; color: #7C3AED; border-radius: 12px; font-size: 13px; text-decoration: none;">
-                                    <i class="fa-solid fa-up-right-from-square"></i>
+                            <p style="font-size: 12.5px; color: #78350F; margin: 0; line-height: 1.6; font-weight: 600;">شرائح وعروض الباوربوينت الخاصة بالشرح والمحاضرة لسهولة المراجعة.</p>
+                            ${found.pptUrl ? `
+                                <a href="${found.pptUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; background: #D97706; color: #FFFFFF; border-radius: 12px; font-size: 12.5px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 12px rgba(217,119,6,0.35);">
+                                    <i class="fa-solid fa-display"></i>
+                                    <span>فتح وتحميل الباوربوينت (PPTX) 📊</span>
                                 </a>
-                            </div>
+                            ` : `
+                                <button type="button" disabled style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; border-radius: 12px; font-size: 12px; font-weight: 800; opacity: 0.7; cursor: default;">
+                                    <i class="fa-solid fa-file-powerpoint"></i>
+                                    <span>ملف العرض قيد الرفع ⏳</span>
+                                </button>
+                            `}
                         </div>
 
                         <!-- امتحان المحاضرة -->

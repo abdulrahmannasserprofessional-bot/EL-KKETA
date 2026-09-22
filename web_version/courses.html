@@ -1535,6 +1535,7 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             title: l.title || '',
                             videoUrl: l.videoUrl || l.url || '',
                             pdfUrl: l.pdfUrl || l.pdf || l.summaryUrl || l.fileUrl || '',
+                            pptUrl: l.pptUrl || l.powerpointUrl || l.ppt || '',
                             hasNotes: !!(l.hasNotes || l.notesDeck || l.notesCount),
                             notesDeck: l.notesDeck || null,
                             questions: qList,
@@ -1555,8 +1556,9 @@ window.toggleMobileSidebar = toggleMobileSidebar;
 
             const lecturesCount = subLectures.length;
             const videoCount = subLectures.filter(l => !!(l.videoUrl && l.videoUrl.trim())).length;
-            const deckCount = subLectures.filter(l => l.hasNotes || l.notesDeck).length;
+            const deckCount = subLectures.filter(l => l.hasNotes || l.notesDeck || l.pptUrl).length;
             const pdfCount = subLectures.filter(l => !!(l.pdfUrl && l.pdfUrl.trim())).length;
+            const pptCount = subLectures.filter(l => !!(l.pptUrl && l.pptUrl.trim())).length;
 
             // 2. Standalone Exams matching this subject
             const subExams = rawExamsData.filter(ex => 
@@ -1767,9 +1769,9 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                             <i class="fa-solid fa-clipboard-list"></i>
                             ${exCount > 0 ? `<span class="badge-count-bubble">${exCount}</span>` : ''}
                         </a>
-                        <a href="notes-viewer.html?subject=${encodeURIComponent(sub.rawName)}" class="btn-subject-icon" title="الكشكول والمذكرات (${pdfCount || deckCount} ملخص)">
-                            <i class="fa-solid fa-note-sticky"></i>
-                            ${(pdfCount > 0 || deckCount > 0) ? `<span class="badge-count-bubble" style="background: #2563EB;">${pdfCount || deckCount}</span>` : ''}
+                        <a href="notes-viewer.html?subject=${encodeURIComponent(sub.rawName)}" class="btn-subject-icon" title="المذكرات وعروض الباوربوينت (${pdfCount || pptCount || deckCount} ملفات)">
+                            <i class="fa-solid fa-file-powerpoint"></i>
+                            ${(pdfCount > 0 || pptCount > 0 || deckCount > 0) ? `<span class="badge-count-bubble" style="background: #D97706;">${pdfCount + pptCount || deckCount}</span>` : ''}
                         </a>
                     </div>
                 </div>
