@@ -1466,16 +1466,25 @@ function logoutStudent() {
         if (titleEl) titleEl.innerText = title ? `سلايدات العرض: ${title}` : 'عرض سلايدات الباوربوينت التفاعلي';
         if (extLink) extLink.href = pptUrl;
         
+        const isGoogleDocOrDrive = pptUrl.includes('docs.google.com') || pptUrl.includes('drive.google.com');
+
         // Force Links to Google Slides / Microsoft Office Online
         if (googleLink) {
-            if (pptUrl.includes('docs.google.com/presentation') || pptUrl.includes('drive.google.com')) {
+            if (isGoogleDocOrDrive) {
                 googleLink.href = pptUrl;
+                googleLink.style.display = 'inline-flex';
             } else {
                 googleLink.href = `https://docs.google.com/viewer?url=${encodeURIComponent(pptUrl)}&embedded=false`;
+                googleLink.style.display = 'inline-flex';
             }
         }
         if (officeLink) {
-            officeLink.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
+            if (isGoogleDocOrDrive) {
+                officeLink.style.display = 'none';
+            } else {
+                officeLink.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
+                officeLink.style.display = 'inline-flex';
+            }
         }
 
         if (iframe) iframe.src = embedUrl;
