@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>تسجيل الدخول | ELKHETA</title>
+    <meta name="theme-color" content="#090D16">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="motion-fx.css?v=3.0.0">
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+    <style>
+        :root {
+            --bg-base: #FAF7F2;
+            --card-bg: #FFFFFF;
+            --gold-primary: #C28B38;
+            --gold-light: #FDF4E6;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --btn-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --blue-gradient: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            --text-main: #1E293B;
+            --text-sub: #475569;
+            --text-dim: #8C827A;
+            --border-glass: #EFE8DC;
+            --border-gold: #E8D3B2;
+            --input-bg: #FAF7F2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 12px 14px 40px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .ambient-glow-top {
+            position: fixed;
+            top: -100px;
+            right: -60px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(50px);
+        }
+
+        .ambient-glow-bottom {
+            position: fixed;
+            bottom: -100px;
+            left: -60px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(50px);
+        }
+
+        /* ─── Compact Top Header ─── */
+        .app-header {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 4px 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+
+        .brand-crest {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            border: 1.5px solid var(--border-gold);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--gold-light);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            color: #1E293B;
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 10.5px;
+            color: var(--gold-primary);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .header-action-btn {
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-gold);
+            color: #8E5D16 !important;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(194, 139, 56, 0.12);
+            transition: all 0.25s ease;
+        }
+        .header-action-btn:hover {
+            background: var(--gold-light);
+            border-color: var(--gold-primary);
+            color: #8E5D16 !important;
+            transform: translateY(-2px);
+        }
+
+        /* ─── Luxury Auth Card ─── */
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-gold);
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+                /* Card Top Badge */
+        .card-top-badge {
+            align-self: flex-start;
+            background: #FEF3C7;
+            border: 1.5px solid #F59E0B;
+            color: #92400E !important;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 5px 14px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+        }
+        .card-top-badge i {
+            color: #D97706 !important;
+        }
+
+        .auth-hero-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #1E293B;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-hero-subtitle {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.55;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Returning Student Chip */
+        .recent-account-chip {
+            background: #FAF7F2;
+            border: 1.5px solid #E8D3B2;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .recent-account-chip:hover {
+            border-color: var(--gold-primary);
+            background: #FDF4E6;
+            transform: translateY(-1px);
+        }
+
+        /* Remember Me Luxury Toggle */
+        .remember-me-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #FAF7F2;
+            border: 1px solid #EFE8DC;
+            border-radius: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .remember-me-row:hover {
+            background: #FDF4E6;
+            border-color: #E8D3B2;
+        }
+        .remember-me-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1E293B;
+            cursor: pointer;
+        }
+        .remember-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #C28B38;
+            cursor: pointer;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1E293B;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-label i { color: #C28B38; font-size: 14px; }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 50px;
+            background: #FAF7F2;
+            border: 1.5px solid #E2D9CC;
+            border-radius: 14px;
+            padding: 0 42px 0 14px;
+            color: #1E293B;
+            font-size: 15px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.25s ease;
+            letter-spacing: 0.5px;
+        }
+        .form-input::placeholder {
+            color: #94A3B8;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: normal;
+        }
+        .form-input:focus {
+            border-color: #C28B38;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.18);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 15px;
+            transition: color 0.25s;
+            pointer-events: none;
+        }
+        .form-input:focus + .input-icon { color: #C28B38; }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            background: var(--btn-gradient);
+            border: none;
+            border-radius: 14px;
+            color: #FFFFFF;
+            font-size: 15.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(245, 158, 11, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-submit:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 12px 28px rgba(245, 158, 11, 0.45);
+        }
+        .btn-submit:active { transform: scale(0.98); }
+
+        /* Motivational Note Box */
+        .motivational-box {
+            margin-top: 18px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 12px;
+            color: #CBD5E1;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        /* Bottom Links */
+        .card-footer-links {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .switch-auth-link {
+            color: #93C5FD;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+        .switch-auth-link:hover { color: #FFFFFF; text-decoration: underline; }
+
+        .admin-gate-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-dim);
+            font-size: 11.5px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+        .admin-gate-pill:hover {
+            color: #E2E8F0;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Floating Support Button */
+        .floating-support-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 999;
+            background: var(--gold-gradient);
+            color: #FFFFFF !important;
+            padding: 10px 18px 10px 14px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 30px rgba(194, 139, 56, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: floatGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes floatGlow {
+            0% { box-shadow: 0 8px 25px rgba(194, 139, 56, 0.4); transform: translateY(0); }
+            100% { box-shadow: 0 12px 35px rgba(194, 139, 56, 0.7); transform: translateY(-3px); }
+        }
+        .floating-support-btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 14px 40px rgba(194, 139, 56, 0.75);
+            color: #FFFFFF !important;
+        }
+        .floating-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .floating-text-box { display: flex; flex-direction: column; text-align: right; }
+        .floating-text-title { font-size: 13px; font-weight: 900; line-height: 1.2; color: #FFFFFF; }
+        .floating-text-sub { font-size: 10.5px; font-weight: 700; color: #FEF3C7; }
+        @media (max-width: 640px) {
+            .floating-support-btn { padding: 10px; border-radius: 50%; bottom: 20px; left: 20px; }
+            .floating-text-box { display: none; }
+        }
+        .floating-chat-btn .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Hide floating button completely when any SweetAlert modal is open */
+        body.swal2-shown .floating-chat-btn,
+        html.swal2-shown .floating-chat-btn {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px 12px 36px; }
+            .auth-card { padding: 20px 16px; border-radius: 20px; }
+            .auth-hero-title { font-size: 19px; }
+            .auth-hero-subtitle { font-size: 12.5px; }
+            .form-input { height: 46px; font-size: 14.5px; }
+            .btn-submit { height: 48px; font-size: 15px; }
+            .floating-chat-btn { bottom: 14px; left: 14px; padding: 8px 14px; font-size: 12px; }
+        }
+
+        /* Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 280px;
+            max-width: 90%;
+            background: rgba(14, 20, 36, 0.96);
+            backdrop-filter: blur(14px);
+            color: #FFF;
+            text-align: center;
+            border-radius: 14px;
+            padding: 12px 18px;
+            position: fixed;
+            z-index: 999999;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 13.5px;
+            font-weight: 800;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 4px solid var(--gold-primary);
+        }
+        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+    <div class="ambient-glow-top"></div>
+    <div class="ambient-glow-bottom"></div>
+
+    <!-- Header Navbar -->
+        <header class="app-header">
+        <a href="index.html" class="brand-link">
+            <div class="brand-crest">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <div class="brand-title">ELKHETA</div>
+                <div class="brand-subtitle">منصة الخطة التعليمية</div>
+            </div>
+        </a>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="register.html" class="header-action-btn" title="إنشاء حساب جديد">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>حساب جديد</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Card -->
+    <main class="auth-card">
+        
+        <div class="card-top-badge">
+            <i class="fa-solid fa-crown"></i>
+            <span>منصة الأبطال والمتفوقين | 2026-2027</span>
+        </div>
+
+        <h1 class="auth-hero-title">
+            <span>أهلاً بعودتك يا بطل</span>
+            <span style="color: var(--gold-light); font-size: 20px;">🎓</span>
+        </h1>
+
+        <p class="auth-hero-subtitle">
+            كودك الدراسي هو مفتاح تفوقك.. محاضراتك واختباراتك جاهزة لتحقيق هدفك وصناعة مستقبلك 🚀
+        </p>
+
+        <!-- Quick Auto-detect Returning Student Chip -->
+        <div id="recentAccountChip" class="recent-account-chip" onclick="loginWithRecentCode()">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px; color: #C28B38;">👤</span>
+                <div>
+                    <div style="font-size: 12.5px; font-weight: 800; color: #1E293B;" id="recentAccountName">مرحباً بعودتك!</div>
+                    <div style="font-size: 11px; color: #64748B; font-weight: 700;" id="recentAccountCode">الكود: ---</div>
+                </div>
+            </div>
+            <span style="font-size: 12px; font-weight: 900; color: #8E5D16; background: #FEF3C7; padding: 4px 10px; border-radius: 12px; border: 1px solid #FCD34D;">دخول سريع ⚡</span>
+        </div>
+
+        <!-- Student Code Input -->
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fa-solid fa-key"></i>
+                <span>كود الطالب الدراسي</span>
+            </label>
+            <div class="input-wrapper">
+                <input type="text" id="studentCode" class="form-input" placeholder="اكتب كودك هنا (مثال: KH1234)" autofocus autocomplete="off" onkeypress="if(event.key==='Enter') login()">
+                <i class="fa-solid fa-arrow-left-to-bracket input-icon"></i>
+            </div>
+            <!-- Remember Me Option -->
+            <label class="remember-me-row" for="rememberMeCheckbox">
+                <div class="remember-me-label">
+                    <input type="checkbox" id="rememberMeCheckbox" class="remember-checkbox" checked>
+                    <span>تذكر بيانات الدخول على هذا الجهاز</span>
+                </div>
+                <i class="fa-solid fa-shield-check" style="color: #10B981; font-size: 15px;"></i>
+            </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="btn-submit" id="btnLogin" onclick="login()">
+            <span>انطلق نحو دروسك</span>
+            <i class="fa-solid fa-rocket"></i>
+        </button>
+
+        <!-- Motivational Wisdom & Quotes Widget -->
+        <div id="motivationalQuotesWidget"></div>
+
+        <!-- Footer Links -->
+        <div class="card-footer-links" style="display: flex; flex-direction: column; gap: 8px;">
+            <a href="register.html" class="switch-auth-link">
+                <span>طالب جديد؟ لا تشيل هم، انضم إلينا مجاناً</span>
+                <span>👈</span>
+            </a>
+            <a href="admin-gate.html" class="switch-auth-link" style="color: #7C3AED; background: #F3E8FF; padding: 10px 14px; border-radius: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed #C084FC;">
+                <span>👑 دخول المشرفين والإدارة (Supervisor & Admin Gate)</span>
+                <i class="fa-solid fa-shield-halved"></i>
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Floating Support & Academic Center Button -->
+    <a href="chat.html" class="floating-support-btn" id="floatingSupportBtn" title="الدعم الفني والمركز الأكاديمي">
+        <div class="floating-icon-box">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+        <div class="floating-text-box">
+            <span class="floating-text-title">الدعم الفني والمركز الأكاديمي</span>
+            <span class="floating-text-sub">تواصل واستفسارات داخل المنصة 🟢</span>
+        </div>
+    </a>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="firebase-config.js"></script>
+    <script src="security-validator.js"></script>
+    <script src="auth-migration.js"></script>
+    <script src="api-client.js"></script>
+    <script src="motivational-quotes.js?v=20260917_15s_v2"></script>
+    <script>
+        function showToast(message, type = "info") {
+            const toast = document.getElementById("toast");
+            if (!toast) return;
+            toast.innerHTML = message;
+            if (type === 'success') toast.style.borderBottomColor = '#10B981';
+            else if (type === 'error') toast.style.borderBottomColor = '#EF4444';
+            else if (type === 'warning') toast.style.borderBottomColor = '#F59E0B';
+            else toast.style.borderBottomColor = '#3B82F6';
+            toast.className = "show";
+            if (window._toastTimeout) clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3200);
+        }
+
+        // Auto-detect returning student & Initialize Motivational Quotes
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.QuotesEngine) {
+                QuotesEngine.renderWidget('motivationalQuotesWidget');
+            }
+            const savedCode = localStorage.getItem('studentCode');
+            const rememberMePref = localStorage.getItem('elkheta_remember_me');
+            const remCheckbox = document.getElementById('rememberMeCheckbox');
+            if (remCheckbox && rememberMePref !== null) {
+                remCheckbox.checked = (rememberMePref === 'true');
+            }
+
+            let savedUser = null;
+            try {
+                savedUser = JSON.parse(localStorage.getItem('user'));
+            } catch(e){}
+
+            // Clear any lingering bogus fallback sessions
+            if (savedUser && (savedUser.fullName === 'طالب منصة الخطة' || savedUser.fullName === 'طالب المنصة')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('studentCode');
+                sessionStorage.clear();
+                savedUser = null;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const isLogout = urlParams.get('logout') === 'true';
+
+            // Seamless Auto-Login if user already has an active session and Remember Me is on
+            if (!isLogout && savedCode && savedUser && (rememberMePref === 'true' || rememberMePref === null)) {
+                const upperSaved = savedCode.toUpperCase();
+                if (savedUser.studentCode && savedUser.studentCode.toUpperCase() === upperSaved && !savedUser.isBanned && !savedUser.is_banned && savedUser.fullName !== 'طالب منصة الخطة' && savedUser.fullName !== 'طالب المنصة') {
+                    sessionStorage.setItem('studentData', JSON.stringify(savedUser));
+                    sessionStorage.setItem('studentCode', upperSaved);
+                    location.replace("home.html");
+                    return;
+                }
+            }
+
+            if (savedCode) {
+                const codeInput = document.getElementById('studentCode');
+                if (codeInput && !codeInput.value) {
+                    codeInput.value = savedCode;
+                }
+
+                const chip = document.getElementById('recentAccountChip');
+                const nameEl = document.getElementById('recentAccountName');
+                const codeEl = document.getElementById('recentAccountCode');
+                if (chip && nameEl && codeEl) {
+                    const studentName = (savedUser && (savedUser.fullName || savedUser.full_name)) ? (savedUser.fullName || savedUser.full_name) : 'طالب الخطة';
+                    nameEl.textContent = 'مرحباً بعودتك: ' + studentName;
+                    codeEl.textContent = 'الكود المحفوظ: ' + savedCode;
+                    chip.style.display = 'flex';
+                }
+            }
+        });
+
+        function loginWithRecentCode() {
+            const savedCode = localStorage.getItem('studentCode');
+            if (savedCode) {
+                document.getElementById('studentCode').value = savedCode;
+                login();
+            }
+        }
+
+        // Push Notifications Logic
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js?v=3').then((registration) => {
+                    const messaging = firebase.messaging();
+                    const vapidKey = 'BK2Het_ENvBkD0uvH4niGTNActwGg2kA23DHjczA45Q10a_nkUyTSJnOrsyORkq61A17SAbeGvkcBm1NCm0qP90';
+                    
+                    if (Notification.permission === 'granted') {
+                        messaging.getToken({ vapidKey: vapidKey, serviceWorkerRegistration: registration }).then(token => {
+                            if(token) database.ref('PushTokens/' + token).set(true);
+                        }).catch(err => console.log('Token error', err));
+                    }
+
+                    messaging.onMessage((payload) => {
+                        showToast("🔔 إشعار جديد: " + (payload.notification?.title || ''), "info");
+                    });
+                }).catch(()=>{});
+            });
+        }
+
+        function generateDeviceId() {
+            if (!localStorage.getItem('deviceId')) {
+                localStorage.setItem('deviceId', 'device_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
+            }
+            return localStorage.getItem('deviceId');
+        }
+
+        function logActivity(studentCode, studentName, actionDetails, details) {
+            try {
+                const logRef = database.ref('ActivityLogs').push();
+                logRef.set({
+                    studentCode: studentCode,
+                    studentName: studentName,
+                    action: actionDetails || 'تسجيل الدخول للمنصة',
+                    details: details || '🟢 دخول ناجح للمنصة وتصفح المواد',
+                    userAgent: navigator.userAgent || '',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch(e){}
+        }
+        
+        function normalizeDigits(str) {
+            if (str === undefined || str === null) return '';
+            const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+            const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /٨/g, /۹/g];
+            let result = str.toString().trim();
+            for (let i = 0; i < 10; i++) {
+                result = result.replace(arabicNumbers[i], i.toString()).replace(persianNumbers[i], i.toString());
+            }
+            return result;
+        }
+
+                async function login() {
+            const rawCode = document.getElementById('studentCode').value.trim();
+            const code = normalizeDigits(rawCode);
+            if (!code) { showToast("يرجى إدخال كود الطالب أو المشرف أولاً 🔑", "warning"); return; }
+
+            const btn = document.getElementById('btnLogin');
+            btn.innerHTML = '<span>جاري التحقق الفوري... ⚡</span>';
+            btn.style.opacity = "0.85";
+            btn.disabled = true;
+
+            const resetBtn = () => {
+                btn.innerHTML = '<span>انطلق نحو دروسك</span> <i class="fa-solid fa-rocket"></i>';
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            };
+
+            const upperCode = code.toUpperCase();
+
+            // Helper to clear admin auth
+            function clearAdminAuth() {
+                sessionStorage.removeItem('isAdmin');
+                sessionStorage.removeItem('adminRole');
+                sessionStorage.removeItem('adminSupervisorId');
+                sessionStorage.removeItem('adminName');
+                sessionStorage.removeItem('adminRoleTitle');
+                sessionStorage.removeItem('adminPermissions');
+                sessionStorage.removeItem('isMysqlAdmin');
+                sessionStorage.removeItem('adminPreviewMode');
+                localStorage.removeItem('isAdmin');
+                localStorage.removeItem('adminRole');
+                localStorage.removeItem('isMysqlAdmin');
+            }
+
+            function grantStudentAccess(studentObj) {
+                clearAdminAuth();
+                if (window.ElkhetaSecurity && window.ElkhetaSecurity.clearFailedLogins) {
+                    window.ElkhetaSecurity.clearFailedLogins(upperCode);
+                }
+
+                // Check Remember Me Choice
+                const rememberEl = document.getElementById('rememberMeCheckbox');
+                const isRemember = rememberEl ? rememberEl.checked : true;
+                localStorage.setItem('elkheta_remember_me', isRemember ? 'true' : 'false');
+
+                // Save student session & local data
+                sessionStorage.setItem('studentData', JSON.stringify(studentObj));
+                sessionStorage.setItem('studentCode', upperCode);
+
+                if (isRemember) {
+                    localStorage.setItem('user', JSON.stringify(studentObj));
+                    localStorage.setItem('studentCode', upperCode);
+                    localStorage.setItem('studentData', JSON.stringify(studentObj));
+                    localStorage.setItem('lastKnownStudent_' + upperCode, JSON.stringify(studentObj));
+                } else {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('studentCode');
+                    localStorage.removeItem('studentData');
+                }
+                
+                // 🚀 استدعاء ترقية الحساب في الخلفية بدون تعطيل واجهة الدخول (Non-blocking Async Migration)
+                setTimeout(() => {
+                    if (window.ElkhetaAuthMigration && typeof ElkhetaAuthMigration.upgradeLegacyAccount === 'function') {
+                        const userEmail = studentObj.email || studentObj.whatsapp || studentObj.phone || upperCode;
+                        const defaultPass = 'pass_' + upperCode.toLowerCase();
+                        ElkhetaAuthMigration.upgradeLegacyAccount(upperCode, userEmail, defaultPass)
+                            .then(migRes => {
+                                if (migRes && migRes.uid) {
+                                    console.log('✅ [MIGRATION SUCCESS] Account upgraded to Firebase Auth UID:', migRes.uid);
+                                }
+                            })
+                            .catch(migErr => console.warn('[MIGRATION LOG] Background migration info:', migErr));
+                    }
+                }, 10);
+
+                // Background async log
+                try {
+                    logActivity(upperCode, studentObj.fullName || studentObj.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', '🟢 دخول ناجح للمنصة وتصفح المواد');
+                    if (window.ElkhetaAPI && ElkhetaAPI.logActivity) {
+                        ElkhetaAPI.logActivity(upperCode, studentObj.fullName || studentObj.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', 'دخول ناجح للمنصة');
+                    }
+                } catch(e){}
+
+                showToast("تم التحقق بنجاح وتأمين حسابك 🛡️", "success");
+                setTimeout(() => location.href = "home.html", 150);
+            }
+
+            function grantAdminAccess(roleName, dest = "admin-panel.html") {
+                sessionStorage.setItem('isAdmin', 'true');
+                localStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminRole', roleName);
+                showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
+                setTimeout(() => location.href = dest, 150);
+            }
+
+            // ─── 0. FAST PATH: Instant local validation (0ms) ───
+            // A) Master Admin Default / Cached PINs
+            const cachedPin = localStorage.getItem('cachedAdminPin');
+            if (code === '2862005' || code === 'sup2026' || code === 'admin2862005' || code === 'elkheta2026' || code === '011124' || code === '7777' || (cachedPin && code === cachedPin)) {
+                localStorage.setItem('cachedAdminPin', code);
+                grantAdminAccess('super_admin');
+                return;
+            }
+
+            // B) Local Cached Student Check (Instant Response)
+            const cachedStudent = localStorage.getItem('lastKnownStudent_' + upperCode);
+            const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+            if (currentUser && currentUser.studentCode && currentUser.studentCode.toUpperCase() === upperCode && currentUser.fullName !== 'طالب منصة الخطة' && currentUser.fullName !== 'طالب المنصة') {
+                grantStudentAccess(currentUser);
+                return;
+            }
+            if (cachedStudent) {
+                try {
+                    const parsed = JSON.parse(cachedStudent);
+                    if (parsed && !parsed.isBanned && !parsed.is_banned && parsed.fullName !== 'طالب منصة الخطة' && parsed.fullName !== 'طالب المنصة') {
+                        grantStudentAccess(parsed);
+                        return;
+                    }
+                } catch(e){}
+            }
+
+            // ─── 1. PARALLEL FAST CLOUD LOOKUP (Max 2.0s Race) ───
+            try {
+                // Brute force check
+                if (window.SecurityValidator && SecurityValidator.isLoginBlocked) {
+                    const bruteCheck = SecurityValidator.isLoginBlocked('index_login');
+                    if (bruteCheck && bruteCheck.blocked) {
+                        resetBtn();
+                        showToast('🔒 تم قفل الحساب مؤقتاً. حاول بعد ' + bruteCheck.lockoutSeconds + ' ثانية.', 'error');
+                        return;
+                    }
+                }
+
+                const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ timedOut: true }), 2200));
+
+                // Parallel lookups
+                const studentFirebasePromise = database.ref('Students/' + upperCode).once('value')
+                    .then(snap => snap.exists() ? { source: 'firebase_student', data: snap.val() } : null)
+                    .catch(() => null);
+
+                const studentCodePromise = database.ref('ActivationCodes/' + upperCode).once('value')
+                    .then(snap => snap.exists() ? { source: 'activation_code', data: snap.val() } : null)
+                    .catch(() => null);
+
+                const adminPinPromise = database.ref('Settings/adminPin').once('value')
+                    .then(snap => snap.exists() ? { source: 'admin_pin', val: normalizeDigits(snap.val()) } : null)
+                    .catch(() => null);
+
+                const supervisorsPromise = database.ref('Supervisors').once('value')
+                    .then(snap => {
+                        if (!snap.exists()) return null;
+                        let found = null;
+                        const lowerInput = code.trim().toLowerCase();
+                        snap.forEach(c => {
+                            const s = c.val();
+                            if (s && s.isActive !== false) {
+                                const sPin = normalizeDigits(String(s.pin || s.password || ''));
+                                const sUser = String(s.username || '').toLowerCase();
+                                if (sPin === code || sPin === lowerInput || sUser === lowerInput || c.key.toLowerCase() === lowerInput) {
+                                    found = { ...s, id: c.key };
+                                }
+                            }
+                        });
+                        return found ? { source: 'supervisor', data: found } : null;
+                    })
+                    .catch(() => null);
+
+                // Run fast parallel checks
+                const results = await Promise.race([
+                    Promise.all([studentFirebasePromise, studentCodePromise, adminPinPromise, supervisorsPromise]),
+                    timeoutPromise
+                ]);
+
+                if (results && !results.timedOut && Array.isArray(results)) {
+                    const [fbStudent, fbCode, fbPin, fbSup] = results;
+
+                    // 1. Admin PIN
+                    if (code === '2862005' || code === 'sup2026' || code === 'admin2862005' || (fbPin && fbPin.val === code)) {
+                        localStorage.setItem('cachedAdminPin', code);
+                        grantAdminAccess('super_admin');
+                        return;
+                    }
+
+                    // 2. Supervisor
+                    if (fbSup && fbSup.data) {
+                        const sup = fbSup.data;
+                        sessionStorage.setItem('adminSupervisorId', sup.id);
+                        sessionStorage.setItem('adminName', sup.name || 'مشرف');
+                        sessionStorage.setItem('adminRoleTitle', sup.roleTitle || 'مشرف المنصة');
+                        sessionStorage.setItem('adminPermissions', JSON.stringify(sup.permissions || {}));
+                        grantAdminAccess('supervisor');
+                        return;
+                    }
+
+                    // 3. Student Direct Record
+                    if (fbStudent && fbStudent.data) {
+                        const stData = fbStudent.data;
+                        if (stData.isBanned === true || stData.is_banned == 1) {
+                            resetBtn();
+                            Swal.fire({
+                                title: '🚫 حسابك موقوف ومعطل',
+                                text: 'عزيزي الطالب ' + (stData.fullName || '') + '، تم إيقاف حسابك من قبل الإدارة.',
+                                icon: 'error',
+                                confirmButtonText: 'حسناً',
+                                confirmButtonColor: '#EF4444'
+                            });
+                            return;
+                        }
+                        grantStudentAccess(stData);
+                        return;
+                    }
+
+                    // 4. Activation Code Match
+                    if (fbCode && fbCode.data) {
+                        const codeData = fbCode.data;
+                        const constructedStudent = {
+                            studentCode: upperCode,
+                            fullName: codeData.usedBy || codeData.studentName || 'طالب متميز',
+                            whatsapp: codeData.phone || '',
+                            joinDate: codeData.activatedAt || Date.now()
+                        };
+                        grantStudentAccess(constructedStudent);
+                        return;
+                    }
+                }
+
+                // If not found in primary keys, try MySQL API fast check (1.2s timeout)
+                if (window.ElkhetaAPI && ElkhetaAPI.getStudents) {
+                    try {
+                        const sqlRes = await Promise.race([
+                            ElkhetaAPI.getStudents(upperCode),
+                            new Promise(resolve => setTimeout(() => resolve(null), 1200))
+                        ]);
+                        if (sqlRes && sqlRes.success && sqlRes.students && sqlRes.students.length > 0) {
+                            const sqlSt = sqlRes.students.find(s => s.student_code && s.student_code.toUpperCase() === upperCode);
+                            if (sqlSt) {
+                                if (sqlSt.is_banned == 1) {
+                                    resetBtn();
+                                    Swal.fire({ title: '🚫 حسابك موقوف', text: 'تم إيقاف حسابك من قبل الإدارة.', icon: 'error' });
+                                    return;
+                                }
+                                grantStudentAccess(sqlSt);
+                                return;
+                            }
+                        }
+                    } catch(e){}
+                }
+
+                // 🚨 FAILED: UNREGISTERED / RANDOM CODE DETECTED!
+                resetBtn();
+
+                // 1. Send Security Alert to Watchtowers & Radar in Realtime!
+                const db = window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+                if (db) {
+                    db.ref('SecurityAlerts').push({
+                        type: 'محاولة اختراق / كود عشوائي غير مسجل 🚨',
+                        studentCode: upperCode,
+                        severity: 'critical',
+                        source: 'login_watchtower',
+                        device: (navigator.userAgent.includes('Mobile') || navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone')) ? 'هاتف محمول' : 'جهاز كمبيوتر',
+                        userAgent: navigator.userAgent || '',
+                        details: `رصد محاولة دخول فاشلة بكود عشوائي غير مسجل في النظام [${upperCode}]. تم اعتراض المحاولة بواسطة أبراج المراقبة ورادار الأمان.`,
+                        timestamp: Date.now()
+                    }).catch(() => {});
+
+                    db.ref('ActivityLogs').push({
+                        action: '⚠️ رصد محاولة دخول غير مصرح بها (كود عشوائي)',
+                        studentCode: upperCode,
+                        studentName: 'مجهول (كود غير مسجل)',
+                        details: `محاولة دخول فاشلة بكود عشوائي [${upperCode}] - تم حظر الدخول فورياً وإشعار رادار العمليات المباشر`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).catch(() => {});
+                }
+
+                if (window.SecurityValidator && SecurityValidator.recordFailedLogin) {
+                    SecurityValidator.recordFailedLogin('index_login');
+                }
+
+                // 2. Track consecutive failed attempts
+                let fails = parseInt(sessionStorage.getItem('elkheta_login_fails') || '0', 10) + 1;
+                sessionStorage.setItem('elkheta_login_fails', fails.toString());
+
+                // 3. Display High-Alert Security Modal (أبراج المراقبة والإنذارات)
+                Swal.fire({
+                    icon: 'error',
+                    title: '<span style="font-size:18px; font-weight:900; color:#DC2626; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fa-solid fa-tower-broadcast"></i> تنبيه أمني: رادار وأبراج المراقبة 🚨</span>',
+                    html: `
+                        <div style="font-family:'Cairo',sans-serif; text-align:right; direction:rtl; font-size:13px; color:#334155; line-height:1.6;">
+                            <p style="margin-bottom:10px; font-size:14px; font-weight:800; color:#1E293B; text-align:center;">
+                                الكود المدخل <span style="font-family:monospace; color:#DC2626; background:#FEE2E2; padding:3px 10px; border-radius:6px; font-weight:900;">${upperCode}</span> غير مسجل في النظام!
+                            </p>
+                            <div style="background:#FFF1F2; border:1px solid #FECDD3; border-radius:14px; padding:12px 14px; margin-bottom:12px; color:#9F1239;">
+                                <div style="font-weight:900; display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:13px;">
+                                    <i class="fa-solid fa-shield-halved"></i> تم إرسال إشارة إنذار فورية لغرفة العمليات:
+                                </div>
+                                <div style="font-size:12px; line-height:1.5;">
+                                    تم رصد وتوثيق المحاولة وتوجيه إشعار مباشر إلى <b>رادار الأمان، أبراج المراقبة، ومركز الرقابة الإداري</b>. الدخول مقتصر حصراً على الأكواد المشتركة المعتمدة.
+                                </div>
+                            </div>
+                            <p style="font-size:12px; color:#64748B; text-align:center; margin:0;">
+                                يرجى كتابة كود اشتراكك المعتمد أو مراجعة إدارة المنصة والدعم الفني.
+                            </p>
+                        </div>
+                    `,
+                    confirmButtonText: 'حسناً، سأتحقق من الكود',
+                    confirmButtonColor: '#C28B38'
+                });
+
+            } catch (err) {
+                console.error("Login verification error:", err);
+                resetBtn();
+                showToast("الكود المدخل غير مسجل ⚠️ يرجى التأكد من كود الطالب والمحاولة مرة أخرى.", "error");
+            }
+        }
+
+        window.login = login;
+        window.loginWithRecentCode = loginWithRecentCode;
+    </script>
+</body>
+</html>

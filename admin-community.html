@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المجتمع والمناقشات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .filter-tab-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .filter-tab-pill:hover, .filter-tab-pill.active {
+            background: var(--gold-dim);
+            border-color: rgba(212,151,59,0.3);
+            color: var(--gold);
+        }
+
+        .view-switcher-wrap {
+            display: flex;
+            background: var(--surface2);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            gap: 4px;
+        }
+        .view-switch-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text2);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .view-switch-btn.active {
+            background: var(--surface);
+            color: var(--gold);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+        }
+
+        .question-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .question-card:hover {
+            border-color: var(--border-focus);
+        }
+        .question-card.urgent {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, var(--surface) 100%);
+        }
+
+        .inline-reply-box {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 6px;
+        }
+        .inline-reply-box.open {
+            display: flex;
+        }
+
+        .reply-card {
+            background: var(--surface2);
+            border-right: 3px solid var(--gold);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .reply-card.admin-reply {
+            border-right-color: var(--green);
+            background: rgba(16, 185, 129, 0.06);
+        }
+
+        .voice-bar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #F87171;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .media-preview-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9);">
+                <i class="fa-solid fa-users-rectangle"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Community Center</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-comments"></i>
+            <span>مجتمع وتساؤلات الطلاب</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">00:00:00</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<div class="os-body">
+    <!-- ════ SIDEBAR (Populated via admin-os-layout.js) ════ -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ════ MAIN WORKSPACE ════ -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--purple); background: var(--purple-bg); border-color: rgba(124,58,237,0.2);">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">مركز مجتمع المنصة وتساؤلات المحاضرات</h1>
+                        <p class="page-subtitle">متابعة أسئلة واستفسارات الطلاب تحت كل محاضرة والرد الفوري عليها صوتياً أو كتابياً</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <div style="display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:6px 12px; box-shadow: var(--shadow-card);">
+                        <span style="font-size:12px; color:var(--text3); font-weight:700;">اسم المشرف:</span>
+                        <input type="text" id="adminCustomNameInput" class="form-input" style="padding:4px 8px; font-size:12px; width:130px; height:30px;" value="إدارة المنصة">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">إجمالي التساؤلات</div>
+                        <div class="kpi-val" id="kpiTotalQuestions" style="color:var(--blue2);">0</div>
+                    </div>
+                    <div class="kpi-icon-box blue">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">بانتظار الرد (معلقة)</div>
+                        <div class="kpi-val" id="kpiUnanswered" style="color:var(--red);">0</div>
+                    </div>
+                    <div class="kpi-icon-box red">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">أسئلة عاجلة</div>
+                        <div class="kpi-val" id="kpiUrgent" style="color:var(--yellow);">0</div>
+                    </div>
+                    <div class="kpi-icon-box gold">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">تم الرد وحسمها</div>
+                        <div class="kpi-val" id="kpiAnswered" style="color:var(--green);">0</div>
+                    </div>
+                    <div class="kpi-icon-box green">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Switcher -->
+            <div class="view-switcher-wrap">
+                <button class="view-switch-btn active" id="tabBtnInbox" onclick="switchHubTab('inbox')">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>الوارد الموحد (كافة المحاضرات)</span>
+                    <span class="badge badge-gold" id="inboxBadgeCount">0</span>
+                </button>
+                <button class="view-switch-btn" id="tabBtnChat" onclick="switchHubTab('chat')">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>تصفح حسب المادة والمحاضرة</span>
+                </button>
+            </div>
+
+            <!-- Subjects Filter Bar -->
+            <div class="card" style="padding:12px 16px;">
+                <div style="font-size:11px; font-weight:800; color:var(--text3); margin-bottom:8px; font-family:var(--mono);">
+                    🎯 تصفية حسب المادة الدراسية:
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; overflow-x:auto; padding-bottom:4px;" id="subjectsPillsList">
+                    <button class="filter-tab-pill active" onclick="filterBySubject('', this)">الكل (<span id="countSubAll">0</span>)</button>
+                    <!-- Dynamically generated for subjects -->
+                </div>
+            </div>
+
+            <!-- ════════════ VIEW 1: UNIFIED INBOX ════════════ -->
+            <div id="inboxView" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- Search & Filters Toolbar -->
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:260px;">
+                        <input type="text" id="inboxSearchInput" class="dark-input" placeholder="🔍 ابحث في الأسئلة باسم الطالب، نص السؤال، أو عنوان المحاضرة..." oninput="filterInboxQuestions()">
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button class="filter-tab-pill active" id="btnFilterPending" onclick="setInboxStatusFilter('unanswered', this)">
+                            <i class="fa-solid fa-clock" style="color:var(--yellow);"></i> لم يُرد عليها
+                        </button>
+                        <button class="filter-tab-pill" id="btnFilterAllStatus" onclick="setInboxStatusFilter('all', this)">
+                            كافة الحالات
+                        </button>
+                        <button class="filter-tab-pill" id="btnFilterAnswered" onclick="setInboxStatusFilter('answered', this)">
+                            <i class="fa-solid fa-check-double" style="color:var(--green);"></i> تم الرد
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Questions Container -->
+                <div id="inboxQuestionsContainer" style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="text-align:center; padding:50px 20px; color:var(--text2); background:var(--surface); border-radius:var(--radius); border:1px solid var(--border);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px; color:var(--gold); margin-bottom:10px;"></i>
+                        <div style="font-size:15px; font-weight:800;">جاري تحميل ومزامنة تساؤلات الطلاب...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════ VIEW 2: LECTURE TREE CHAT ════════════ -->
+            <div id="chatView" style="display:none; flex-direction:column; gap:16px;">
+                <div class="card" style="padding:16px;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text2); display:block; margin-bottom:4px;">المادة الدراسية:</label>
+                            <select id="subjectSelect" class="dark-input" onchange="loadLectures()">
+                                <option value="">اختر المادة...</option>
+                                <option value="تخطيط">تخطيط اجتماعي</option>
+                                <option value="ادارة">إدارة وتنمية</option>
+                                <option value="مسنين">رعاية مسنين</option>
+                                <option value="طبي">مجال طبي وتأهيلي</option>
+                                <option value="سكان">دراسات سكانية</option>
+                                <option value="دفاع">دفاع اجتماعي</option>
+                                <option value="تنمية">تنمية مجتمعات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:700; color:var(--text2); display:block; margin-bottom:4px;">المحاضرة:</label>
+                            <select id="lectureSelect" class="dark-input" onchange="loadLectureChat()">
+                                <option value="">اختر المحاضرة أولاً...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lecture Chat Stage -->
+                <div class="card" id="lectureChatCard" style="display:none;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-clapperboard" style="color:var(--gold);"></i>
+                            <span id="activeLectureTitle">المحاضرة المختارة</span>
+                        </div>
+                    </div>
+
+                    <div id="lectureMessagesArea" style="padding:16px; display:flex; flex-direction:column; gap:12px; max-height:550px; overflow-y:auto;">
+                        <!-- Message items -->
+                    </div>
+
+                    <!-- Direct Send Reply Area -->
+                    <div style="padding:16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:8px;">
+                        <!-- Voice Recording Bar -->
+                        <div class="voice-bar" id="adminVoiceRecordingBar">
+                            <span class="live-dot-pulse" style="background:#EF4444; box-shadow:0 0 8px #EF4444;"></span>
+                            <span>جاري تسجيل الرد الصوتي: </span>
+                            <span id="adminVoiceTimer" style="font-family:var(--mono); font-weight:900;">00:00</span>
+                            <button class="btn-ghost" onclick="stopAdminVoiceRecording()" style="margin-right:auto; padding:3px 8px; font-size:11px;">إيقاف واعتماد</button>
+                            <button class="btn-danger" onclick="cancelAdminVoiceRecording()" style="padding:3px 8px; font-size:11px;">إلغاء</button>
+                        </div>
+
+                        <!-- Media Preview Bar -->
+                        <div class="media-preview-bar" id="adminMediaPreviewBox">
+                            <div id="adminMediaPreviewContent" style="display:flex; align-items:center; gap:8px;"></div>
+                            <button class="btn-icon" onclick="clearAdminMediaAttachment()" style="border:none; width:26px; height:26px;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="text" id="adminMsgInput" class="dark-input" placeholder="اكتب رد إدارة المنصة هنا..." onkeydown="if(event.key==='Enter')sendAdminReply()">
+                            <input type="file" id="adminImageFileInput" accept="image/*" style="display:none;" onchange="handleAdminImageSelected(this)">
+                            
+                            <button class="btn-icon" onclick="document.getElementById('adminImageFileInput').click()" title="إرفاق صورة">
+                                <i class="fa-solid fa-image"></i>
+                            </button>
+                            <button class="btn-icon" onclick="startAdminVoiceRecording()" title="تسجيل رد صوتي">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button class="btn-gold" onclick="sendAdminReply()">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>إرسال</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // State
+    let allCommunityQuestions = [];
+    let currentSubjectFilter = '';
+    let currentStatusFilter = 'unanswered';
+    let currentSubject = '';
+    let currentLectureId = '';
+    let lecturesMap = {};
+    let inlineMediaAttachments = {};
+    let inlineVoiceRecorders = {};
+    let pendingAdminImageBase64 = null;
+    let pendingAdminAudioBase64 = null;
+    let adminVoiceMediaRecorder = null;
+    let adminRecordingTimer = null;
+    let adminAudioChunks = [];
+
+    const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', () => {
+        loadLecturesMap();
+        listenToAllCommunity();
+    });
+
+    function loadLecturesMap() {
+        if (!db) return;
+        db.ref('Lectures').once('value', snap => {
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subName = subSnap.key;
+                    subSnap.forEach(lecSnap => {
+                        const l = lecSnap.val();
+                        if (l) {
+                            lecturesMap[`${subName}_${lecSnap.key}`] = l.title || l.name || 'محاضرة';
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    function listenToAllCommunity() {
+        if (!db) return;
+
+        db.ref('Community').on('value', snap => {
+            const list = [];
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subj = subSnap.key;
+                    subSnap.forEach(lecSnap => {
+                        const lecId = lecSnap.key;
+                        lecSnap.forEach(msgSnap => {
+                            const msg = msgSnap.val();
+                            if (msg && !msg.isAdmin) {
+                                const replies = [];
+                                if (msg.replies) {
+                                    Object.entries(msg.replies).forEach(([rId, rVal]) => {
+                                        replies.push({ id: rId, ...rVal });
+                                    });
+                                }
+
+                                list.push({
+                                    id: msgSnap.key,
+                                    subject: subj,
+                                    lectureId: lecId,
+                                    lectureTitle: lecturesMap[`${subj}_${lecId}`] || 'محاضرة في ' + subj,
+                                    senderName: msg.senderName || msg.studentName || 'طالب',
+                                    senderCode: msg.senderCode || msg.studentCode || '',
+                                    text: msg.text || '',
+                                    type: msg.type || 'text',
+                                    mediaUrl: msg.mediaUrl || '',
+                                    timestamp: msg.timestamp || Date.now(),
+                                    replies: replies,
+                                    hasReplies: replies.length > 0
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+
+            allCommunityQuestions = list.sort((a, b) => b.timestamp - a.timestamp);
+            updateKPIs();
+            renderSubjectPills();
+            renderInboxQuestions();
+        });
+    }
+
+    function updateKPIs() {
+        const total = allCommunityQuestions.length;
+        const unanswered = allCommunityQuestions.filter(q => !q.hasReplies).length;
+        const answered = allCommunityQuestions.filter(q => q.hasReplies).length;
+        const urgent = allCommunityQuestions.filter(q => !q.hasReplies && (Date.now() - q.timestamp) > 24 * 3600 * 1000).length;
+
+        document.getElementById('kpiTotalQuestions').textContent = total;
+        document.getElementById('kpiUnanswered').textContent = unanswered;
+        document.getElementById('kpiUrgent').textContent = urgent;
+        document.getElementById('kpiAnswered').textContent = answered;
+        document.getElementById('inboxBadgeCount').textContent = unanswered;
+    }
+
+    function renderSubjectPills() {
+        const bar = document.getElementById('subjectsPillsList');
+        const subjects = ['تخطيط', 'ادارة', 'مسنين', 'طبي', 'سكان', 'دفاع', 'تنمية'];
+        
+        let html = `
+            <button class="filter-tab-pill ${currentSubjectFilter === '' ? 'active' : ''}" onclick="filterBySubject('', this)">
+                الكل (<span id="countSubAll">${allCommunityQuestions.length}</span>)
+            </button>
+        `;
+
+        subjects.forEach(s => {
+            const count = allCommunityQuestions.filter(q => q.subject === s).length;
+            const unans = allCommunityQuestions.filter(q => q.subject === s && !q.hasReplies).length;
+            const isAct = currentSubjectFilter === s;
+            html += `
+                <button class="filter-tab-pill ${isAct ? 'active' : ''}" onclick="filterBySubject('${s}', this)">
+                    ${s} (${count})
+                    ${unans > 0 ? `<span class="badge badge-red" style="padding:1px 5px; font-size:10px;">${unans}</span>` : ''}
+                </button>
+            `;
+        });
+
+        bar.innerHTML = html;
+    }
+
+    function filterBySubject(subj, btn) {
+        currentSubjectFilter = subj;
+        document.querySelectorAll('#subjectsPillsList .filter-tab-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderInboxQuestions();
+    }
+
+    function setInboxStatusFilter(status, btn) {
+        currentStatusFilter = status;
+        document.querySelectorAll('.filter-tab-pill').forEach(b => {
+            if (b.id === 'btnFilterPending' || b.id === 'btnFilterAllStatus' || b.id === 'btnFilterAnswered') {
+                b.classList.remove('active');
+            }
+        });
+        if (btn) btn.classList.add('active');
+        renderInboxQuestions();
+    }
+
+    function filterInboxQuestions() {
+        renderInboxQuestions();
+    }
+
+    function renderInboxQuestions() {
+        const container = document.getElementById('inboxQuestionsContainer');
+        if (!container) return;
+
+        const qSearch = (document.getElementById('inboxSearchInput')?.value || '').trim().toLowerCase();
+
+        let filtered = allCommunityQuestions;
+
+        if (currentSubjectFilter) {
+            filtered = filtered.filter(q => q.subject === currentSubjectFilter);
+        }
+
+        if (currentStatusFilter === 'unanswered') {
+            filtered = filtered.filter(q => !q.hasReplies);
+        } else if (currentStatusFilter === 'answered') {
+            filtered = filtered.filter(q => q.hasReplies);
+        }
+
+        if (qSearch) {
+            filtered = filtered.filter(q => {
+                return (q.senderName || '').toLowerCase().includes(qSearch) ||
+                       (q.senderCode || '').toLowerCase().includes(qSearch) ||
+                       (q.text || '').toLowerCase().includes(qSearch) ||
+                       (q.lectureTitle || '').toLowerCase().includes(qSearch);
+            });
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:50px 20px; color:var(--text3); background:var(--surface); border-radius:var(--radius); border:2px dashed var(--border);">
+                    <i class="fa-solid fa-clipboard-check" style="font-size:36px; color:var(--green); margin-bottom:10px; opacity:0.8;"></i>
+                    <h4 style="font-size:15px; font-weight:800; color:var(--text); margin-bottom:4px;">لا توجد تساؤلات مطابقة حالياً</h4>
+                    <p style="font-size:12.5px; color:var(--text2);">كافة الأسئلة في هذا النطاق تم الرد عليها أو لا توجد استفسارات جديدة</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(q => {
+            const timeAgo = formatTimeAgo(q.timestamp);
+            const isUrgent = !q.hasReplies && (Date.now() - q.timestamp) > 24 * 3600 * 1000;
+
+            let repliesHTML = '';
+            if (q.replies && q.replies.length > 0) {
+                repliesHTML = `
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+                        <div style="font-size:11.5px; font-weight:800; color:var(--gold);"><i class="fa-solid fa-reply-all"></i> ردود الإدارة والمشرفين:</div>
+                        ${q.replies.map(r => `
+                            <div class="reply-card admin-reply">
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <span style="font-size:12px; font-weight:800; color:var(--green);"><i class="fa-solid fa-shield-check"></i> ${r.senderName} (${r.adminRoleTitle || 'مشرف'})</span>
+                                    <span style="font-size:10px; color:var(--text3); font-family:var(--mono);">${formatTimeAgo(r.timestamp)}</span>
+                                </div>
+                                <div style="font-size:12.5px; color:var(--text);">${r.text || ''}</div>
+                                ${r.mediaUrl ? (r.type === 'audio' ? `<audio controls src="${r.mediaUrl}" style="height:28px; margin-top:4px; max-width:260px;"></audio>` : `<img src="${r.mediaUrl}" style="max-width:180px; border-radius:6px; margin-top:4px;">`) : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="question-card ${isUrgent ? 'urgent' : ''}" id="qcard_${q.id}">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:40px; height:40px; border-radius:12px; background:var(--gold-dim); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900;">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px;">
+                                    <span>${q.senderName}</span>
+                                    ${q.senderCode ? `<span class="badge badge-gold">${q.senderCode}</span>` : ''}
+                                    ${isUrgent ? `<span class="badge badge-red">عاجل • أكثر من 24 ساعة</span>` : ''}
+                                </div>
+                                <div style="font-size:11.5px; color:var(--text3); margin-top:2px;">
+                                    <i class="fa-solid fa-book-bookmark" style="color:var(--gold);"></i> ${q.subject} • 
+                                    <i class="fa-solid fa-clapperboard"></i> ${q.lectureTitle}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:11.5px; color:var(--text3); font-family:var(--mono);">${timeAgo}</span>
+                            <button class="btn-ghost" onclick="toggleInlineReply('${q.id}')" style="padding:6px 12px; font-size:12px;">
+                                <i class="fa-solid fa-reply"></i>
+                                <span>رد مباشر</span>
+                            </button>
+                            <button class="btn-danger" onclick="deleteCommunityQuestion('${q.subject}', '${q.lectureId}', '${q.id}')" style="padding:6px 10px;" title="حذف">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="font-size:14px; font-weight:700; color:var(--text); line-height:1.6; background:var(--surface2); padding:12px 14px; border-radius:10px; border:1px solid var(--border);">
+                        ${q.text}
+                    </div>
+
+                    ${q.mediaUrl ? (q.type === 'audio' ? `<audio controls src="${q.mediaUrl}" style="height:32px; max-width:300px;"></audio>` : `<img src="${q.mediaUrl}" style="max-width:240px; border-radius:8px;">`) : ''}
+
+                    ${repliesHTML}
+
+                    <!-- Inline Reply Form -->
+                    <div class="inline-reply-box" id="inlineReplyBox_${q.id}">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:var(--text2);"><i class="fa-solid fa-pen"></i> كتابة رد فوري على الطالب:</span>
+                            <button onclick="toggleInlineReply('${q.id}')" class="btn-icon" style="width:22px; height:22px; border:none;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <!-- Voice bar for inline -->
+                        <div class="voice-bar" id="inlineVoiceBar_${q.id}">
+                            <span class="live-dot-pulse" style="background:#EF4444; box-shadow:0 0 8px #EF4444;"></span>
+                            <span>تسجيل صوتي: </span>
+                            <span id="inlineVoiceTimer_${q.id}" style="font-family:var(--mono);">00:00</span>
+                            <button class="btn-ghost" onclick="stopInlineVoice('${q.id}')" style="margin-right:auto; padding:2px 8px; font-size:11px;">اعتماد</button>
+                            <button class="btn-danger" onclick="cancelInlineVoice('${q.id}')" style="padding:2px 8px; font-size:11px;">إلغاء</button>
+                        </div>
+
+                        <div class="media-preview-bar" id="inlineMediaPreview_${q.id}">
+                            <div id="inlineMediaPreviewContent_${q.id}"></div>
+                            <button class="btn-icon" onclick="clearInlineAttachment('${q.id}')" style="border:none; width:24px; height:24px;"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="text" id="inlineReplyText_${q.id}" class="dark-input" placeholder="اكتب ردك هنا..." onkeydown="if(event.key==='Enter')sendInlineReply('${q.subject}', '${q.lectureId}', '${q.id}')">
+                            <input type="file" id="inlineImageInput_${q.id}" accept="image/*" style="display:none;" onchange="handleInlineImage('${q.id}', this)">
+                            
+                            <button class="btn-icon" onclick="document.getElementById('inlineImageInput_${q.id}').click()" title="إرفاق صورة">
+                                <i class="fa-solid fa-image"></i>
+                            </button>
+                            <button class="btn-icon" onclick="startInlineVoice('${q.id}')" title="تسجيل صوتي">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button class="btn-gold" onclick="sendInlineReply('${q.subject}', '${q.lectureId}', '${q.id}')">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>إرسال</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleInlineReply(msgId) {
+        const box = document.getElementById('inlineReplyBox_' + msgId);
+        if (box) box.classList.toggle('open');
+    }
+
+    function switchHubTab(tabName) {
+        const btnInbox = document.getElementById('tabBtnInbox');
+        const btnChat = document.getElementById('tabBtnChat');
+        const viewInbox = document.getElementById('inboxView');
+        const viewChat = document.getElementById('chatView');
+
+        if (tabName === 'inbox') {
+            btnInbox.classList.add('active');
+            btnChat.classList.remove('active');
+            viewInbox.style.display = 'flex';
+            viewChat.style.display = 'none';
+        } else {
+            btnChat.classList.add('active');
+            btnInbox.classList.remove('active');
+            viewChat.style.display = 'flex';
+            viewInbox.style.display = 'none';
+        }
+    }
+
+    // Inline Media Handlers
+    function handleInlineImage(msgId, input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = e => {
+            inlineMediaAttachments[msgId] = { type: 'image', base64: e.target.result };
+            const box = document.getElementById('inlineMediaPreview_' + msgId);
+            const content = document.getElementById('inlineMediaPreviewContent_' + msgId);
+            if (box && content) {
+                content.innerHTML = `<img src="${e.target.result}" style="width:34px; height:34px; border-radius:6px; object-fit:cover;"> <span style="font-size:12px; color:var(--green);">صورة مرفقة</span>`;
+                box.style.display = 'flex';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearInlineAttachment(msgId) {
+        delete inlineMediaAttachments[msgId];
+        const box = document.getElementById('inlineMediaPreview_' + msgId);
+        if (box) box.style.display = 'none';
+    }
+
+    async function startInlineVoice(msgId) {
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                return Swal.fire('غير مدعوم', 'المتصفح لا يدعم تسجيل الصوت المباشر', 'warning');
+            }
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            const chunks = [];
+
+            recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    inlineMediaAttachments[msgId] = { type: 'audio', base64: reader.result };
+                    const box = document.getElementById('inlineMediaPreview_' + msgId);
+                    const content = document.getElementById('inlineMediaPreviewContent_' + msgId);
+                    if (box && content) {
+                        content.innerHTML = `<audio controls src="${reader.result}" style="height:28px; max-width:200px;"></audio>`;
+                        box.style.display = 'flex';
+                    }
+                };
+                reader.readAsDataURL(blob);
+                stream.getTracks().forEach(t => t.stop());
+            };
+
+            recorder.start();
+            let seconds = 0;
+            document.getElementById('inlineVoiceBar_' + msgId).style.display = 'flex';
+            const timer = setInterval(() => {
+                seconds++;
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                const el = document.getElementById('inlineVoiceTimer_' + msgId);
+                if (el) el.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+            }, 1000);
+
+            inlineVoiceRecorders[msgId] = { recorder, timer };
+        } catch(err) {
+            Swal.fire('خطأ بالميكروفون', 'يرجى إعطاء الإذن لاستخدام الميكروفون', 'error');
+        }
+    }
+
+    function stopInlineVoice(msgId) {
+        const rData = inlineVoiceRecorders[msgId];
+        if (rData) {
+            clearInterval(rData.timer);
+            if (rData.recorder && rData.recorder.state !== 'inactive') rData.recorder.stop();
+        }
+        const bar = document.getElementById('inlineVoiceBar_' + msgId);
+        if (bar) bar.style.display = 'none';
+    }
+
+    function cancelInlineVoice(msgId) {
+        const rData = inlineVoiceRecorders[msgId];
+        if (rData) {
+            clearInterval(rData.timer);
+            if (rData.recorder && rData.recorder.state !== 'inactive') rData.recorder.stop();
+        }
+        delete inlineMediaAttachments[msgId];
+        const bar = document.getElementById('inlineVoiceBar_' + msgId);
+        if (bar) bar.style.display = 'none';
+    }
+
+    function sendInlineReply(subject, lectureId, msgId) {
+        const txtInput = document.getElementById('inlineReplyText_' + msgId);
+        const text = txtInput ? txtInput.value.trim() : '';
+        const media = inlineMediaAttachments[msgId];
+        const responderName = document.getElementById('adminCustomNameInput').value.trim() || 'إدارة المنصة';
+
+        if (!text && !media) {
+            return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'يرجى كتابة رد أو إرفاق صوت/صورة' });
+        }
+
+        const replyPayload = {
+            senderName: responderName,
+            senderCode: 'admin',
+            isAdmin: true,
+            adminRoleTitle: 'المسؤول العام',
+            text: text,
+            type: media ? media.type : 'text',
+            mediaUrl: media ? media.base64 : '',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        db.ref(`Community/${subject}/${lectureId}/${msgId}/replies`).push(replyPayload).then(() => {
+            if (txtInput) txtInput.value = '';
+            clearInlineAttachment(msgId);
+            const box = document.getElementById('inlineReplyBox_' + msgId);
+            if (box) box.classList.remove('open');
+            Swal.fire({
+                icon: 'success',
+                title: 'تم إرسال الرد بنجاح!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }).catch(err => {
+            Swal.fire({ icon: 'error', title: 'خطأ', text: err.message });
+        });
+    }
+
+    function deleteCommunityQuestion(subject, lectureId, msgId) {
+        Swal.fire({
+            title: "حذف السؤال نهائياً؟",
+            text: "سيتم حذف هذا التساؤل وجميع الردود المرتبطة به",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "نعم، احذف",
+            cancelButtonText: "إلغاء",
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#8C827A"
+        }).then(r => {
+            if (r.isConfirmed && db) {
+                db.ref(`Community/${subject}/${lectureId}/${msgId}`).remove();
+            }
+        });
+    }
+
+    // View 2: Lecture Chat logic
+    function loadLectures() {
+        currentSubject = document.getElementById('subjectSelect').value;
+        const lSelect = document.getElementById('lectureSelect');
+        lSelect.innerHTML = '<option value="">اختر المحاضرة...</option>';
+        document.getElementById('lectureChatCard').style.display = 'none';
+
+        if (!currentSubject || !db) return;
+
+        db.ref(`Lectures/${currentSubject}`).once('value', snap => {
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const l = c.val();
+                    const opt = document.createElement('option');
+                    opt.value = c.key;
+                    opt.textContent = l.title || l.name || c.key;
+                    lSelect.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    function loadLectureChat() {
+        currentLectureId = document.getElementById('lectureSelect').value;
+        if (!currentSubject || !currentLectureId) {
+            document.getElementById('lectureChatCard').style.display = 'none';
+            return;
+        }
+
+        const lTitle = document.getElementById('lectureSelect').selectedOptions[0].textContent;
+        document.getElementById('activeLectureTitle').textContent = `${currentSubject} - ${lTitle}`;
+        document.getElementById('lectureChatCard').style.display = 'flex';
+
+        db.ref(`Community/${currentSubject}/${currentLectureId}`).on('value', snap => {
+            const area = document.getElementById('lectureMessagesArea');
+            area.innerHTML = '';
+            if (snap.exists()) {
+                snap.forEach(ch => {
+                    const m = ch.val();
+                    const div = document.createElement('div');
+                    div.className = m.isAdmin ? 'reply-card admin-reply' : 'question-card';
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <b>${m.senderName || 'طالب'}</b>
+                            <span style="font-size:11px; color:var(--text3); font-family:var(--mono);">${formatTimeAgo(m.timestamp)}</span>
+                        </div>
+                        <div>${m.text || ''}</div>
+                        ${m.mediaUrl ? (m.type === 'audio' ? `<audio controls src="${m.mediaUrl}"></audio>` : `<img src="${m.mediaUrl}" style="max-width:200px;">`) : ''}
+                    `;
+                    area.appendChild(div);
+                });
+            } else {
+                area.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text3);">لا توجد رسائل في هذه المحاضرة بعد.</div>';
+            }
+        });
+    }
+
+    function sendAdminReply() {
+        const txtInput = document.getElementById('adminMsgInput');
+        const text = txtInput ? txtInput.value.trim() : '';
+        const responderName = document.getElementById('adminCustomNameInput').value.trim() || 'إدارة المنصة';
+
+        if (!text && !pendingAdminImageBase64 && !pendingAdminAudioBase64) return;
+        if (!currentSubject || !currentLectureId) return;
+
+        const payload = {
+            senderName: responderName,
+            senderCode: 'admin',
+            isAdmin: true,
+            adminRoleTitle: 'المسؤول العام',
+            text: text,
+            type: pendingAdminAudioBase64 ? 'audio' : (pendingAdminImageBase64 ? 'image' : 'text'),
+            mediaUrl: pendingAdminAudioBase64 || pendingAdminImageBase64 || '',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        db.ref(`Community/${currentSubject}/${currentLectureId}`).push(payload).then(() => {
+            if (txtInput) txtInput.value = '';
+            clearAdminMediaAttachment();
+        });
+    }
+
+    function handleAdminImageSelected(input) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            pendingAdminImageBase64 = e.target.result;
+            document.getElementById('adminMediaPreviewContent').innerHTML = `<img src="${e.target.result}" style="width:30px; height:30px; border-radius:4px;"> <span>صورة مرفقة</span>`;
+            document.getElementById('adminMediaPreviewBox').style.display = 'flex';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function clearAdminMediaAttachment() {
+        pendingAdminImageBase64 = null;
+        pendingAdminAudioBase64 = null;
+        document.getElementById('adminMediaPreviewBox').style.display = 'none';
+    }
+
+    async function startAdminVoiceRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            adminVoiceMediaRecorder = new MediaRecorder(stream);
+            adminAudioChunks = [];
+            adminVoiceMediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) adminAudioChunks.push(e.data); };
+            adminVoiceMediaRecorder.onstop = () => {
+                const blob = new Blob(adminAudioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    pendingAdminAudioBase64 = reader.result;
+                    document.getElementById('adminMediaPreviewContent').innerHTML = `<audio controls src="${reader.result}" style="height:28px; max-width:200px;"></audio>`;
+                    document.getElementById('adminMediaPreviewBox').style.display = 'flex';
+                };
+                reader.readAsDataURL(blob);
+                stream.getTracks().forEach(t => t.stop());
+            };
+            adminVoiceMediaRecorder.start();
+            let sec = 0;
+            document.getElementById('adminVoiceRecordingBar').style.display = 'flex';
+            adminRecordingTimer = setInterval(() => {
+                sec++;
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                document.getElementById('adminVoiceTimer').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+            }, 1000);
+        } catch(e) {
+            Swal.fire('خطأ', 'يرجى إعطاء صلاحية الميكروفون', 'error');
+        }
+    }
+
+    function stopAdminVoiceRecording() {
+        clearInterval(adminRecordingTimer);
+        if (adminVoiceMediaRecorder && adminVoiceMediaRecorder.state !== 'inactive') adminVoiceMediaRecorder.stop();
+        document.getElementById('adminVoiceRecordingBar').style.display = 'none';
+    }
+
+    function cancelAdminVoiceRecording() {
+        clearInterval(adminRecordingTimer);
+        if (adminVoiceMediaRecorder && adminVoiceMediaRecorder.state !== 'inactive') adminVoiceMediaRecorder.stop();
+        pendingAdminAudioBase64 = null;
+        document.getElementById('adminVoiceRecordingBar').style.display = 'none';
+    }
+
+    function formatTimeAgo(ts) {
+        if (!ts) return 'الآن';
+        const diff = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+        if (diff < 60) return `منذ ${diff} ثانية`;
+        const mins = Math.floor(diff / 60);
+        if (mins < 60) return `منذ ${mins} دقيقة`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    }
+</script>
+</body>
+</html>

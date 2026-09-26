@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة الامتحانات وبنك الأسئلة - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .exam-item-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .exam-item-card:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
+        .exam-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+            margin-top: 14px;
+        }
+        .exam-meta-val {
+            font-size: 15px;
+            font-weight: 900;
+            font-family: var(--mono);
+            color: var(--text);
+        }
+        .exam-meta-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        /* ════ Question Bank Studio Component Styles ════ */
+        .q-bank-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s ease;
+        }
+        .q-bank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .q-bank-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .q-bank-subtitle {
+            font-size: 12.5px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+        .q-count-badge {
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--blue-bg);
+            color: var(--blue);
+            font-weight: 800;
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            transition: all 0.2s;
+        }
+        .exam-meta-inputs-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            gap: 14px;
+            background: var(--surface2);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        @media (max-width: 900px) {
+            .exam-meta-inputs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-label-dark {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .form-input-dark {
+            width: 100%;
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid var(--border2);
+            background: #FFFFFF;
+            color: var(--text);
+            padding: 0 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: border 0.15s;
+        }
+        .form-input-dark:focus {
+            border-color: var(--gold);
+        }
+        .q-adder-strip {
+            margin-bottom: 12px;
+        }
+        .q-strip-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--purple);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .q-pills-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .q-pill-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid transparent;
+        }
+        .q-pill-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .q-pill-purple {
+            background: var(--purple-bg);
+            border-color: rgba(124, 58, 237, 0.25);
+            color: #7C3AED;
+        }
+        .q-pill-purple:hover {
+            background: rgba(124, 58, 237, 0.18);
+            border-color: #7C3AED;
+        }
+        .q-pill-amber {
+            background: var(--orange-bg);
+            border-color: rgba(245, 158, 11, 0.25);
+            color: #D97706;
+        }
+        .q-pill-amber:hover {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: #F59E0B;
+        }
+        .q-pill-green {
+            background: var(--green-bg);
+            border-color: rgba(5, 150, 105, 0.25);
+            color: #059669;
+        }
+        .q-pill-green:hover {
+            background: rgba(5, 150, 105, 0.18);
+            border-color: #059669;
+        }
+        .q-pill-blue {
+            background: var(--blue-bg);
+            border-color: rgba(37, 99, 235, 0.25);
+            color: #2563EB;
+        }
+        .q-pill-blue:hover {
+            background: rgba(37, 99, 235, 0.18);
+            border-color: #2563EB;
+        }
+        .q-pill-rose {
+            background: var(--red-bg);
+            border-color: rgba(220, 38, 38, 0.25);
+            color: #DC2626;
+        }
+        .q-pill-rose:hover {
+            background: rgba(220, 38, 38, 0.18);
+            border-color: #DC2626;
+        }
+        .q-generator-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .q-generator-label {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--purple);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .q-toolbar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .q-toolbar-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .q-tool-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            color: var(--text2);
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .q-tool-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .q-tool-btn-danger {
+            color: var(--red);
+            border-color: rgba(239, 68, 68, 0.25);
+            background: rgba(239, 68, 68, 0.08);
+        }
+        .q-tool-btn-danger:hover {
+            border-color: var(--red);
+            color: #fff;
+            background: var(--red);
+        }
+        .q-tool-btn-info {
+            color: var(--cyan);
+            border-color: rgba(34, 211, 238, 0.25);
+        }
+        .q-tool-btn-info:hover {
+            border-color: var(--cyan);
+            color: #fff;
+        }
+        .exam-code-editor {
+            width: 100%;
+            min-height: 220px;
+            max-height: 600px;
+            direction: ltr;
+            text-align: left;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            background: #0F172A;
+            color: #38BDF8;
+            border: 1px solid rgba(212, 151, 59, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            outline: none;
+            transition: all 0.25s ease;
+            resize: vertical;
+        }
+        .exam-code-editor:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 151, 59, 0.2);
+        }
+        .studio-footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9);">
+                <i class="fa-solid fa-file-pen"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Exams & Question Bank</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>إدارة الامتحانات الجامعية</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--purple);">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إدارة الامتحانات وبنك القوالب الجاهزة</h1>
+                        <p class="page-subtitle">إنشاء وتعديل وتعيين الامتحانات لجميع المواد الجامعية التخصصية</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button onclick="openPrebuiltTemplatesModal()" class="btn-ghost" style="border-color: rgba(139, 92, 246, 0.4); color: var(--purple);">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>قوالب جاهزة (1-Click)</span>
+                    </button>
+                    <button onclick="openCreateCustomExamModal()" class="btn-gold">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>إنشاء امتحان مخصص</span>
+                    </button>
+                    <button onclick="wipeAllExamsFromDB()" class="btn-danger" title="تصفير بنك الامتحانات">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ════ UNLIMITED QUESTION BANK & EXAM STUDIO ════ -->
+            <div class="q-bank-card" id="questionBankStudioCard">
+                <div class="q-bank-header">
+                    <div>
+                        <div class="q-bank-title">
+                            <i class="fa-solid fa-file-circle-question" style="color:var(--purple); font-size:18px;"></i>
+                            <span>بنك الأسئلة والامتحانات (سعة غير محدودة • يدعم 100+ سؤال):</span>
+                        </div>
+                        <div class="q-bank-subtitle">
+                            أضف أي عدد تريده من الأسئلة (30، 50، 100+ سؤال) بضغطة زر أو خصص النموذج
+                        </div>
+                    </div>
+                    <span id="examQuestionsCountBadge" class="q-count-badge">0 أسئلة مضافة</span>
+                </div>
+
+                <!-- Exam Metadata Form -->
+                <div class="exam-meta-inputs-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; background: var(--surface2); padding: 18px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px;">
+                    <!-- Title -->
+                    <div style="grid-column: 1 / -1;">
+                        <label class="form-label-dark"><i class="fa-solid fa-heading" style="color:var(--gold);"></i> عنوان / اسم الامتحان:</label>
+                        <input type="text" id="studioExamTitle" class="form-input-dark" placeholder="مثال: الاختبار الشامل لمادة خدمة الفرد - الأسبوع الرابع">
+                    </div>
+
+                    <!-- Subject -->
+                    <div>
+                        <label class="form-label-dark"><i class="fa-solid fa-book" style="color:var(--purple);"></i> المادة الدراسية التخصصية:</label>
+                        <select id="studioExamSubject" class="form-input-dark" onchange="onStudioSubjectChange()">
+                            <option value="طريقة العمل مع الأفراد">طريقة العمل مع الأفراد</option>
+                            <option value="طريقة العمل مع الجماعات">طريقة العمل مع الجماعات</option>
+                            <option value="تنظيم وإدارة المجتمعات">تنظيم وإدارة المجتمعات</option>
+                            <option value="سياسات الرعاية الاجتماعية">سياسات الرعاية الاجتماعية</option>
+                            <option value="الخدمة الاجتماعية في مجال طبي">الخدمة الاجتماعية في مجال طبي</option>
+                            <option value="تدريب ميداني">تدريب ميداني</option>
+                            <option value="مشروع تخرج">مشروع تخرج</option>
+                        </select>
+                    </div>
+
+                    <!-- Chapter / Section (نشر في فصل كذا) -->
+                    <div>
+                        <label class="form-label-dark" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fa-solid fa-bookmark" style="color:var(--gold);"></i> نشر في فصل دراسي (Chapter):</span>
+                            <span id="studioChapterCountBadge" style="font-size:11px; color:var(--text3); font-weight:700;"></span>
+                        </label>
+                        <select id="studioExamChapter" class="form-input-dark" onchange="onStudioChapterChange()">
+                            <option value="">-- بدون تحديد فصل (امتحان عام للمادة) --</option>
+                            <option value="__NEW__">➕ كتابة / إنشاء فصل جديد...</option>
+                        </select>
+                        <div id="studioNewChapterWrap" style="display:none; margin-top:6px;">
+                            <input type="text" id="studioExamNewChapter" class="form-input-dark" placeholder="اكتب اسم الفصل الجديد هنا...">
+                        </div>
+                    </div>
+
+                    <!-- Uploaded Lecture (نشر امتحان حسب محاضرة مرفوعة) -->
+                    <div>
+                        <label class="form-label-dark" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fa-solid fa-clapperboard" style="color:var(--blue);"></i> ربط بمحاضرة مرفوعة:</span>
+                            <span id="studioLectureCountBadge" style="font-size:11px; color:var(--blue); font-weight:700;"></span>
+                        </label>
+                        <select id="studioExamLecture" class="form-input-dark" onchange="onStudioLectureChange()">
+                            <option value="">-- امتحان مستقل (غير مرتبط بمحاضرة محددة) --</option>
+                        </select>
+                        <div id="selectedLectureNotice" style="display:none; margin-top:6px; font-size:11.5px; font-weight:700; color:var(--green); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:6px 10px;">
+                            <i class="fa-solid fa-circle-check"></i> <span id="selectedLectureNoticeText">مرتبط بمحاضرة</span>
+                        </div>
+                    </div>
+
+                    <!-- Duration -->
+                    <div style="grid-column: span 2;">
+                        <label class="form-label-dark" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fa-solid fa-stopwatch" style="color:var(--cyan);"></i> تحديد وقت الامتحان ومؤقت الحل (بالدقائق):</span>
+                            <span id="studioDurationBadge" style="font-size:11px; color:var(--cyan); font-weight:800;">30 دقيقة</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <input type="number" id="studioExamDurationMinutes" class="form-input-dark" min="1" max="300" value="30" style="width:85px; text-align:center; font-weight:900; font-family:var(--mono); color:var(--cyan); padding:8px;" oninput="onStudioDurationMinutesChange()">
+                                <span style="font-size:12px; font-weight:800; color:var(--text2);">دقيقة</span>
+                            </div>
+                            <input type="hidden" id="studioExamDuration" value="30 دقيقة">
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;" id="studioExamDurPills">
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(10)">10 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(15)">15 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(20)">20 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(25)">25 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue active-pill" onclick="setStudioDuration(30)" style="border-color:var(--cyan); color:var(--cyan); background:rgba(34,211,238,0.15);">30 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(45)">45 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(60)">60 د</button>
+                                <button type="button" class="q-pill-btn q-pill-blue" onclick="setStudioDuration(90)">90 د</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passing Score -->
+                    <div>
+                        <label class="form-label-dark"><i class="fa-solid fa-award" style="color:var(--green);"></i> درجة النجاح:</label>
+                        <input type="text" id="studioExamPassingScore" class="form-input-dark" value="70%" placeholder="مثال: 70%">
+                    </div>
+                </div>
+                <input type="hidden" id="editingExamId" value="">
+
+                <!-- Individual Question Adders -->
+                <div class="q-adder-strip">
+                    <span class="q-strip-label">➕ إضافة أسئلة فردية:</span>
+                    <div class="q-pills-row">
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('mcq', 1)">
+                            <i class="fa-solid fa-plus"></i> 1 اختيار من متعدد
+                        </button>
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('tf', 1)">
+                            <i class="fa-solid fa-plus"></i> 1 صح أم خطأ
+                        </button>
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('essay', 1)">
+                            <i class="fa-solid fa-plus"></i> 1 سؤال مقالي
+                        </button>
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('matching', 1)">
+                            <i class="fa-solid fa-plus"></i> 1 سؤال توصيل
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Batch / Bulk Generators -->
+                <div class="q-generator-box">
+                    <span class="q-generator-label">🚀 توليد نماذج ضخمة وسريعة بضغطة زر:</span>
+                    <div class="q-pills-row">
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('mcq', 5)">⚡ +5 اختياري</button>
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('mcq', 10)">⚡ +10 اختياري</button>
+                        <button type="button" class="q-pill-btn q-pill-purple" onclick="insertQuestionTemplate('tf', 10)">⚡ +10 صح/خطأ</button>
+                        <button type="button" class="q-pill-btn q-pill-amber" onclick="generatePresetExam('30_mixed')">🎯 امتحان كامل (30 سؤال متنوع)</button>
+                        <button type="button" class="q-pill-btn q-pill-green" onclick="generatePresetExam('50_mixed')">🏆 بنك شامل (50 سؤال)</button>
+                        <button type="button" class="q-pill-btn q-pill-blue" onclick="generatePresetExam('100_mixed')">👑 ماراثون (100 سؤال شامل)</button>
+                        <button type="button" class="q-pill-btn q-pill-rose" onclick="promptCustomQuestionCount()">🔢 توليد عدد مخصص...</button>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar -->
+                <div class="q-toolbar-row">
+                    <div class="q-toolbar-actions">
+                        <button type="button" class="q-tool-btn" onclick="formatAndValidateExamJson()"><i class="fa-solid fa-code"></i> تدقيق وتنسيق JSON</button>
+                        <button type="button" class="q-tool-btn" onclick="copyExamJson()"><i class="fa-solid fa-copy"></i> نسخ الكود</button>
+                        <button type="button" class="q-tool-btn q-tool-btn-danger" onclick="clearExamJson()"><i class="fa-solid fa-trash-can"></i> مسح الأسئلة</button>
+                    </div>
+                    <button type="button" class="q-tool-btn q-tool-btn-info" onclick="toggleEditorExpand()" id="expandEditorBtn">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i> <span id="expandEditorTxt">تكبير المحرر</span>
+                    </button>
+                </div>
+
+                <!-- Interactive Code Textarea -->
+                <textarea id="examJson" class="exam-code-editor" placeholder="[
+  {
+    &quot;text&quot;: &quot;نص السؤال هنا؟&quot;,
+    &quot;options&quot;: [&quot;الخيار الأول&quot;, &quot;الخيار الثاني&quot;, &quot;الخيار الثالث&quot;, &quot;الخيار الرابع&quot;],
+    &quot;correctAnswerIndex&quot;: 0
+  }
+]" oninput="updateQuestionCountLive()"></textarea>
+
+                <!-- Studio Footer CTA Bar -->
+                <div class="studio-footer-bar">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <button type="button" class="btn-gold" id="saveStudioExamBtn" onclick="saveStudioExamToFirebase()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span id="saveStudioExamBtnText">حفظ ونشر هذا الامتحان وبنك الأسئلة في المنصة</span>
+                        </button>
+                        <button type="button" class="btn-ghost" onclick="resetStudioForm()">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>تفريغ وبدء امتحان جديد</span>
+                        </button>
+                    </div>
+                    <div id="editingModeIndicator" style="display:none; font-size:12.5px; font-weight:800; color:var(--gold); padding:6px 12px; background:var(--gold-dim); border:1px solid rgba(212,151,59,0.25); border-radius:8px;">
+                        <i class="fa-solid fa-pen-to-square"></i> أنت الآن في وضع تعديل امتحان حالي
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Exams Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-clipboard-list" style="color: var(--purple);"></i>
+                        <span>الامتحانات المنشورة حالياً على المنصة</span>
+                    </div>
+                    <span class="badge badge-purple" id="examsCounterBadge"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</span>
+                </div>
+
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px;" id="adminExamsGrid">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text3);">
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                            جاري جلب الامتحانات من قاعدة البيانات...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // PREBUILT TEMPLATES FOR ALL 7 REAL UNIVERSITY SUBJECTS
+    const PREBUILT_EXAM_TEMPLATES = [
+        {
+            subject: 'طريقة العمل مع الأفراد',
+            subjectKey: 'افراد',
+            title: 'امتحان شامل - نظريات ومبادئ خدمة الفرد',
+            duration: '30 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'ما هي الركيزة الأساسية للعلاقة المهنية في خدمة الفرد؟', options: ['التقبل والسرية التامة والموضوعية', 'التعاطف الشخصي وفرض القرارات', 'تقديم المساعدات العينية فقط', 'توجيه اللوم للمسترشد'], correct: 0 },
+                { q: 'مبدأ حق تقرير المصير يضمن للمسترشد:', options: ['حرية اختيار البدائل والحلول المناسبة لحياته', 'عدم الالتزام بالقوانين العامة', 'الاعتماد الكلي على الأخصائي', 'رفض الجلسات دون سبب'], correct: 0 },
+                { q: 'الخطوة الأولى في عملية التدخل المهني الفردي هي:', options: ['استقبال الحالة وبناء العلاقة المهنية ودراسة الموقف', 'وضع خطة العلاج فوراً دون دراسة', 'إصدار الحكم على المسترشد', 'تحويل المسترشد إلى مؤسسة أخرى'], correct: 0 },
+                { q: 'أي النظريات التالية تركز على السلوك الظاهر واستجابات الفرد؟', options: ['النظرية السلوكية المعرفية', 'نظرية التحليل النفسي الكلاسيكي', 'نظرية الأنساق العامة', 'النظرية البنائية الوظيفية'], correct: 0 },
+                { q: 'التشخيص الاجتماعي الدقيق يتضمن:', options: ['تحديد أسباب المشكلة وطبيعة التفاعل بين الفرد وبيئته', 'وصف المظهر الخارجي فقط', 'الاعتماد على رأي شخصي واحد', 'كتابة تقرير مختصر دون أدلة'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'طريقة العمل مع الجماعات',
+            subjectKey: 'جماعات',
+            title: 'تقييم شامل - ديناميات الجماعة وتطور الأدوار',
+            duration: '30 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'الهدف الأساسي لطريقة العمل مع الجماعات هو:', options: ['مساعدة الأفراد على النمو والتكيف الاجتماعي من خلال خبرة الجماعة', 'إلغاء الفروق الفردية بين الأعضاء', 'تنفيذ الأنشطة الترفيهية فقط دون أهداف', 'السيطرة على تصرفات الأعضاء'], correct: 0 },
+                { q: 'مرحلة الصراع وتوزيع الأدوار في نمو الجماعة تعتبر:', options: ['مرحلة طبيعية تمهد للتماسك والنضج التنظيمي', 'علامة على فشل الأخصائي', 'سبباً لحل الجماعة فوراً', 'ظاهرة سلبية يجب معاقبة المشاركين عليها'], correct: 0 },
+                { q: 'القيادة الديمقراطية في الجماعة تسهم في:', options: ['تشجيع المشاركة والمبادرة والشعور بالمسؤولية', 'حدوث فوضى دائمة', 'إلغاء دور الأخصائي الاجتماعي', 'تقليل الإنتاجية والتعاون'], correct: 0 },
+                { q: 'برامج الجماعة يجب أن تصمم بناءً على:', options: ['احتياجات ورغبات أعضاء الجماعة المشتركة', 'رغبة الأخصائي بمفرده', 'برامج سابقة منسوخة دون تعديل', 'التكلفة الأقل دائماً'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'تنظيم وإدارة المجتمعات',
+            subjectKey: 'مجتمعات',
+            title: 'اختبار استراتيجيات تنمية المجتمعات المحلية',
+            duration: '25 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'استثارة المشاركة الشعبية تعتمد بالأساس على:', options: ['إشراك المواطنين في تحديد احتياجاتهم وصنع القرارات', 'فرض الخطط الجاهزة من الخارج', 'توزيع المساعدات المؤقتة', 'الدعاية والإعلانات فقط'], correct: 0 },
+                { q: 'نموذج تنمية المجتمع المحلي لروثمان يركز على:', options: ['الاعتماد على الذات والتعاون بين فئات المجتمع المحلي', 'الصراع السياسي المباشر', 'التخطيط الفوقي البحت', 'تقديم خدمات طبية فقط'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'سياسات الرعاية الاجتماعية',
+            subjectKey: 'سياسات الرعاية الاجتماعية',
+            title: 'اختبار تشريعات ونظم الضمان الاجتماعي',
+            duration: '25 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'الفرق بين التأمينات الاجتماعية والمساعدات العامة هو:', options: ['التأمينات تقوم على اشتراكات مسبقة والمساعدات تمولها الدولة للمحتاجين', 'لا يوجد أي فرق بينهما', 'المساعدات تتطلب اشتراك مالي', 'التأمينات تقدم لغير العاملين'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'الخدمة الاجتماعية في مجال طبي',
+            subjectKey: 'الخدمة الاجتماعية في مجال طبي',
+            title: 'امتحان الخدمة الاجتماعية في المجال الطبي والتأهيلي',
+            duration: '25 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'دور الأخصائي الاجتماعي الطبي في المستشفى يشمل:', options: ['المساندة النفسية والاجتماعية وتسهيل خطة العلاج والتأهيل', 'إجراء الفحوصات والعمليات الجراحية', 'صرف الأدوية فقط', 'التحصيل المالي'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'تدريب ميداني',
+            subjectKey: 'تدريب ميداني',
+            title: 'تقييم التوثيق المهني والتقارير الميدانية',
+            duration: '20 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'أهم معايير كتابة السجل الميداني الإشرافي هي:', options: ['الموضوعية والدقة والالتزام بالسرية والمصطلحات المهنية', 'كتابة الآراء الشخصية غير الموثقة', 'الإيجاز المخل دون تفاصيل علمية', 'تغيير الحقائق لإرضاء المشرف'], correct: 0 }
+            ]
+        },
+        {
+            subject: 'مشروع تخرج',
+            subjectKey: 'مشروع تخرج',
+            title: 'اختبار مناهج وأدوات البحث العلمي التطبيقي',
+            duration: '30 دقيقة',
+            passingScore: '70%',
+            questions: [
+                { q: 'التحقق من صدق وثبات استمارة جمع البيانات يتطلب:', options: ['عرضها على محكمين متخصصين وإجراء دراسة استطلاعية', 'تطبيقها فوراً دون مراجعة', 'نسخ استمارة من الإنترنت دون تعديل', 'سؤال الطلاب فقط'], correct: 0 }
+            ]
+        }
+    ];
+
+    let currentLoadedExams = [];
+    window.rawLecturesBySubject = {};
+    window.rawChaptersBySubject = {};
+
+    function getDB() {
+        return window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+    }
+
+    const DEFAULT_SUBJECTS = [
+        "طريقة العمل مع الأفراد",
+        "طريقة العمل مع الجماعات",
+        "تنظيم وإدارة المجتمعات",
+        "سياسات الرعاية الاجتماعية",
+        "الخدمة الاجتماعية في مجال طبي",
+        "تدريب ميداني",
+        "مشروع تخرج"
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initSubjects();
+        initLecturesAndChaptersListeners();
+        loadExamsList();
+    });
+
+    function initSubjects() {
+        const db = getDB();
+        if (!db) return setTimeout(initSubjects, 300);
+
+        db.ref('Subjects').on('value', snap => {
+            const select = document.getElementById('studioExamSubject');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '';
+            const seen = new Set();
+
+            if (snap.exists() && snap.numChildren() > 0) {
+                snap.forEach(child => {
+                    const sub = child.val();
+                    const name = typeof sub === 'string' ? sub : (sub.name || child.key);
+                    if (name && name.trim() && !seen.has(name.trim())) {
+                        seen.add(name.trim());
+                        select.innerHTML += `<option value="${name.trim()}">📘 ${name.trim()}</option>`;
+                    }
+                });
+            }
+
+            DEFAULT_SUBJECTS.forEach(name => {
+                if (!seen.has(name)) {
+                    seen.add(name);
+                    select.innerHTML += `<option value="${name}">📘 ${name}</option>`;
+                }
+            });
+
+            if (currentVal && seen.has(currentVal)) {
+                select.value = currentVal;
+            }
+            updateStudioLecturesAndChapters();
+        });
+    }
+
+    function initLecturesAndChaptersListeners() {
+        const db = getDB();
+        if (!db) return setTimeout(initLecturesAndChaptersListeners, 300);
+
+        db.ref('Lectures').on('value', snap => {
+            window.rawLecturesBySubject = {};
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const sub = subSnap.key;
+                    window.rawLecturesBySubject[sub] = {};
+                    subSnap.forEach(lecSnap => {
+                        window.rawLecturesBySubject[sub][lecSnap.key] = { id: lecSnap.key, ...lecSnap.val() };
+                    });
+                });
+            }
+            updateStudioLecturesAndChapters();
+        });
+
+        db.ref('Chapters').on('value', snap => {
+            window.rawChaptersBySubject = {};
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const sub = subSnap.key;
+                    window.rawChaptersBySubject[sub] = [];
+                    subSnap.forEach(chSnap => {
+                        const val = chSnap.val();
+                        const name = typeof val === 'string' ? val : (val.name || chSnap.key);
+                        if (name && name.trim() && !window.rawChaptersBySubject[sub].includes(name.trim())) {
+                            window.rawChaptersBySubject[sub].push(name.trim());
+                        }
+                    });
+                });
+            }
+            updateStudioLecturesAndChapters();
+        });
+    }
+
+    // Helper to find matching subject key across aliases (e.g., 'افراد' vs 'طريقة العمل مع الأفراد')
+    function cleanArabicSubject(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/^(طريقة العمل مع|طريقة|تنظيم وإدارة|تنظيم و إدارة|مادة|خدمة)\s*/g, '')
+            .replace(/^ال/g, '') // remove leading 'ال'
+            .replace(/[أإآٱ]/g, 'ا') // normalize alef
+            .replace(/ة/g, 'ه') // normalize ta marbouta
+            .replace(/ى/g, 'ي') // normalize ya
+            .replace(/\s+/g, '') // remove spaces
+            .trim();
+    }
+
+    const SUBJECT_ALIAS_MAP = {
+        'افراد': ['افراد', 'طريقة العمل مع الأفراد', 'الأفراد', 'خدمة فرد', 'فرد', 'الافراد'],
+        'جماعات': ['جماعات', 'طريقة العمل مع الجماعات', 'الجماعات', 'خدمة جماعة', 'جماعة', 'الجماعه'],
+        'تنظيم': ['تنظيم', 'تنظيم وإدارة المؤسسات', 'تنظيم المجتمع', 'المؤسسات', 'ادارة', 'مؤسسات'],
+        'تخطيط': ['تخطيط', 'التخطيط الاجتماعي', 'تخطيط اجتماعي', 'التخطيط'],
+        'بحث': ['بحث', 'مناهج البحث العلمي', 'البحث الاجتماعي', 'البحث العلمي', 'مناهج البحث'],
+        'انجليزي': ['انجليزي', 'اللغة الإنجليزية', 'انجليزي اجتماعي', 'English', 'english', 'مصطلحات'],
+        'احصاء': ['احصاء', 'الإحصاء الاجتماعي', 'احصاء اجتماعي', 'الاحصاء']
+    };
+
+    function matchSubjectKey(dict, subject) {
+        if (!dict || !subject) return null;
+        if (dict[subject]) return subject;
+
+        // 1. Direct Alias Check
+        for (const [canonical, aliases] of Object.entries(SUBJECT_ALIAS_MAP)) {
+            if (aliases.includes(subject) || aliases.some(a => subject.includes(a))) {
+                if (dict[canonical]) return canonical;
+                for (const k of Object.keys(dict)) {
+                    if (aliases.includes(k) || cleanArabicSubject(k) === cleanArabicSubject(canonical)) {
+                        return k;
+                    }
+                }
+            }
+        }
+
+        // 2. Normalized Arabic String Match
+        const normSub = cleanArabicSubject(subject);
+        for (const k of Object.keys(dict)) {
+            const normK = cleanArabicSubject(k);
+            if (normK === normSub || normK.includes(normSub) || normSub.includes(normK)) {
+                return k;
+            }
+        }
+
+        return null;
+    }
+
+    function onStudioSubjectChange() {
+        updateStudioLecturesAndChapters(false);
+    }
+
+    function onStudioChapterChange() {
+        const sel = document.getElementById('studioExamChapter');
+        const wrap = document.getElementById('studioNewChapterWrap');
+        const inp = document.getElementById('studioExamNewChapter');
+        if (sel && sel.value === '__NEW__') {
+            if (wrap) wrap.style.display = 'block';
+            if (inp) inp.focus();
+        } else {
+            if (wrap) wrap.style.display = 'none';
+            if (inp) inp.value = '';
+        }
+    }
+
+    function setStudioDuration(mins, notify = true) {
+        const input = document.getElementById('studioExamDurationMinutes');
+        const hidden = document.getElementById('studioExamDuration');
+        const badge = document.getElementById('studioDurationBadge');
+        if (input) input.value = mins;
+        if (hidden) hidden.value = `${mins} دقيقة`;
+        if (badge) badge.textContent = `${mins} دقيقة`;
+
+        const pills = document.querySelectorAll('#studioExamDurPills .q-pill-btn');
+        pills.forEach(p => {
+            const pMins = parseInt(p.textContent, 10);
+            if (pMins === mins) {
+                p.style.borderColor = 'var(--cyan)';
+                p.style.color = 'var(--cyan)';
+                p.style.background = 'rgba(34,211,238,0.15)';
+            } else {
+                p.style.borderColor = '';
+                p.style.color = '';
+                p.style.background = '';
+            }
+        });
+        if (notify) showToast(`تم ضبط مدة الامتحان: ${mins} دقيقة ⏱️`, 'info');
+    }
+
+    function onStudioDurationMinutesChange() {
+        const input = document.getElementById('studioExamDurationMinutes');
+        const val = parseInt(input ? input.value : 0, 10) || 30;
+        const hidden = document.getElementById('studioExamDuration');
+        const badge = document.getElementById('studioDurationBadge');
+        if (hidden) hidden.value = `${val} دقيقة`;
+        if (badge) badge.textContent = `${val} دقيقة`;
+
+        const pills = document.querySelectorAll('#studioExamDurPills .q-pill-btn');
+        pills.forEach(p => {
+            const pMins = parseInt(p.textContent, 10);
+            if (pMins === val) {
+                p.style.borderColor = 'var(--cyan)';
+                p.style.color = 'var(--cyan)';
+                p.style.background = 'rgba(34,211,238,0.15)';
+            } else {
+                p.style.borderColor = '';
+                p.style.color = '';
+                p.style.background = '';
+            }
+        });
+    }
+
+    function onStudioLectureChange() {
+        const lecSel = document.getElementById('studioExamLecture');
+        const notice = document.getElementById('selectedLectureNotice');
+        const noticeTxt = document.getElementById('selectedLectureNoticeText');
+        const titleInp = document.getElementById('studioExamTitle');
+        const chapSel = document.getElementById('studioExamChapter');
+
+        if (!lecSel || !lecSel.value) {
+            if (notice) notice.style.display = 'none';
+            return;
+        }
+
+        const subject = document.getElementById('studioExamSubject')?.value || '';
+        const matchedKey = matchSubjectKey(window.rawLecturesBySubject, subject);
+        const lecturesMap = (matchedKey && window.rawLecturesBySubject[matchedKey]) ? window.rawLecturesBySubject[matchedKey] : {};
+        const lecture = lecturesMap[lecSel.value];
+
+        if (!lecture) return;
+
+        if (notice && noticeTxt) {
+            noticeTxt.innerHTML = `تم ربط الامتحان بمحاضرة: <b>${lecture.title || 'محاضرة'}</b> (سيظهر للطلاب مباشرة في صفحة المحاضرة)`;
+            notice.style.display = 'block';
+        }
+
+        // Auto-suggest title if empty or default
+        if (titleInp && (!titleInp.value.trim() || titleInp.value.startsWith('امتحان:'))) {
+            titleInp.value = `امتحان: ${lecture.title || 'محاضرة'}`;
+        }
+
+        // Auto-select chapter if lecture has a chapter
+        if (lecture.chapter && chapSel) {
+            let found = false;
+            for (let opt of chapSel.options) {
+                if (opt.value === lecture.chapter) {
+                    chapSel.value = lecture.chapter;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                chapSel.value = '__NEW__';
+                const wrap = document.getElementById('studioNewChapterWrap');
+                const inp = document.getElementById('studioExamNewChapter');
+                if (wrap) wrap.style.display = 'block';
+                if (inp) inp.value = lecture.chapter;
+            } else {
+                const wrap = document.getElementById('studioNewChapterWrap');
+                if (wrap) wrap.style.display = 'none';
+            }
+        }
+
+        // If the lecture already has questions and studio textarea is empty, load them!
+        const textarea = document.getElementById('examJson');
+        const currentCount = parseCurrentQuestions().length;
+        if (textarea && currentCount === 0) {
+            let existingQ = lecture.questions || [];
+            if (!existingQ.length && lecture.jsonCode) {
+                try { existingQ = JSON.parse(lecture.jsonCode); } catch(e){}
+            }
+            if (Array.isArray(existingQ) && existingQ.length > 0) {
+                textarea.value = JSON.stringify(existingQ, null, 2);
+                updateQuestionCountLive();
+                showToast(`تم تحميل أسئلة المحاضرة الحالية (${existingQ.length} سؤال) تلقائياً 📋`, 'info');
+            }
+        }
+    }
+
+    function updateStudioLecturesAndChapters(keepSelectedValues = true) {
+        const subject = document.getElementById('studioExamSubject')?.value || '';
+        const chapSel = document.getElementById('studioExamChapter');
+        const lecSel = document.getElementById('studioExamLecture');
+        const chapBadge = document.getElementById('studioChapterCountBadge');
+        const lecBadge = document.getElementById('studioLectureCountBadge');
+
+        const prevChap = keepSelectedValues && chapSel ? chapSel.value : '';
+        const prevLec = keepSelectedValues && lecSel ? lecSel.value : '';
+
+        // 1. Populate Chapters
+        if (chapSel) {
+            const matchedChapKey = matchSubjectKey(window.rawChaptersBySubject, subject);
+            const matchedLecKey = matchSubjectKey(window.rawLecturesBySubject, subject);
+
+            const chaptersSet = new Set();
+            const counts = {};
+
+            if (matchedChapKey && window.rawChaptersBySubject[matchedChapKey]) {
+                window.rawChaptersBySubject[matchedChapKey].forEach(c => {
+                    if (c && c.trim()) chaptersSet.add(c.trim());
+                });
+            }
+
+            if (matchedLecKey && window.rawLecturesBySubject[matchedLecKey]) {
+                Object.values(window.rawLecturesBySubject[matchedLecKey]).forEach(lec => {
+                    const c = (lec.chapter || '').trim();
+                    if (c && c !== 'محاضرات عامة') {
+                        chaptersSet.add(c);
+                        counts[c] = (counts[c] || 0) + 1;
+                    }
+                });
+            }
+
+            chapSel.innerHTML = '<option value="">-- بدون تحديد فصل (امتحان عام للمادة) --</option>';
+
+            const chapters = Array.from(chaptersSet);
+            if (chapters.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = `الفصول المتاحة في (${subject}):`;
+                chapters.forEach(c => {
+                    const cnt = counts[c] || 0;
+                    optGroup.innerHTML += `<option value="${c}">📖 ${c} ${cnt > 0 ? `(${cnt} محاضرة)` : ''}</option>`;
+                });
+                chapSel.appendChild(optGroup);
+                if (chapBadge) chapBadge.textContent = `${chapters.length} فصول`;
+            } else {
+                if (chapBadge) chapBadge.textContent = '';
+            }
+
+            chapSel.innerHTML += '<option value="__NEW__">➕ كتابة / إنشاء فصل جديد...</option>';
+
+            if (prevChap && (chapters.includes(prevChap) || prevChap === '__NEW__')) {
+                chapSel.value = prevChap;
+            } else {
+                chapSel.value = '';
+                const wrap = document.getElementById('studioNewChapterWrap');
+                if (wrap) wrap.style.display = 'none';
+            }
+        }
+
+        // 2. Populate Uploaded Lectures
+        if (lecSel) {
+            const matchedLecKey = matchSubjectKey(window.rawLecturesBySubject, subject);
+            const lecturesMap = (matchedLecKey && window.rawLecturesBySubject[matchedLecKey]) ? window.rawLecturesBySubject[matchedLecKey] : {};
+            const lecturesList = Object.values(lecturesMap);
+
+            lecSel.innerHTML = '<option value="">-- امتحان مستقل (غير مرتبط بمحاضرة محددة) --</option>';
+
+            if (lecturesList.length > 0) {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = `المحاضرات المرفوعة في (${subject}):`;
+                lecturesList.forEach(lec => {
+                    const t = lec.title || 'محاضرة بدون عنوان';
+                    const c = lec.chapter ? ` [${lec.chapter}]` : '';
+                    const hasQ = (lec.questions && lec.questions.length > 0) || lec.hasQuiz;
+                    const qBadge = hasQ ? ` (مرفق بها ${lec.questionsCount || (lec.questions ? lec.questions.length : '')} سؤال)` : '';
+                    optGroup.innerHTML += `<option value="${lec.id}">🎬 ${t}${c}${qBadge}</option>`;
+                });
+                lecSel.appendChild(optGroup);
+                if (lecBadge) lecBadge.textContent = `${lecturesList.length} محاضرة متاحة`;
+            } else {
+                if (lecBadge) lecBadge.textContent = 'لا توجد محاضرات';
+            }
+
+            if (prevLec && lecturesMap[prevLec]) {
+                lecSel.value = prevLec;
+                const notice = document.getElementById('selectedLectureNotice');
+                if (notice) notice.style.display = 'block';
+            } else {
+                lecSel.value = '';
+                const notice = document.getElementById('selectedLectureNotice');
+                if (notice) notice.style.display = 'none';
+            }
+        }
+    }
+
+    function loadExamsList() {
+        const db = getDB();
+        if (!db) {
+            setTimeout(loadExamsList, 300);
+            return;
+        }
+
+        // Safety fallback timer to prevent infinite spinner
+        const fallbackTimer = setTimeout(() => {
+            const container = document.getElementById('adminExamsGrid');
+            if (container && container.innerHTML.includes('fa-spinner') && (!currentLoadedExams || currentLoadedExams.length === 0)) {
+                renderExams([]);
+            }
+        }, 7500);
+
+        db.ref('Exams').on('value', snap => {
+            clearTimeout(fallbackTimer);
+            let exams = [];
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const val = c.val();
+                    if (val && typeof val === 'object') {
+                        exams.push({ id: c.key, ...val });
+                    }
+                });
+            }
+            currentLoadedExams = exams;
+            renderExams(exams);
+        }, err => {
+            clearTimeout(fallbackTimer);
+            console.error("Exams error:", err);
+            const container = document.getElementById('adminExamsGrid');
+            if (container) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--red);">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; margin-bottom: 8px; display:block;"></i>
+                        <p>حدث خطأ أثناء تحميل الامتحانات: ${err.message || 'خطأ في الاتصال'}</p>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    function renderExams(list) {
+        const badge = document.getElementById('examsCounterBadge');
+        if (badge) badge.textContent = `${list.length} امتحانات نشطة`;
+        const container = document.getElementById('adminExamsGrid');
+        if (!container) return;
+
+        if (!list || list.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; background: var(--surface2); border: 1.5px dashed var(--border); border-radius: var(--radius);">
+                    <div style="font-size: 40px; margin-bottom: 12px;">📝</div>
+                    <h3 style="font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 6px;">لا توجد أي امتحانات منشورة حالياً</h3>
+                    <p style="font-size: 13px; color: var(--text2); margin-bottom: 18px;">بنك الامتحانات جاهز. يمكنك نشر قوالب جاهزة بنقرة واحدة أو إضافة امتحان مخصص أعلاه.</p>
+                    <button onclick="openPrebuiltTemplatesModal()" class="btn-gold">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>نشر القوالب الجامعية الجاهزة (1-Click)</span>
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = list.map((exam, i) => {
+            const chapBadge = exam.chapter ? `<span class="badge" style="background:var(--gold-dim); color:var(--gold); border:1px solid rgba(212,151,59,0.3); font-size:11px;" title="الفصل: ${exam.chapter}"><i class="fa-solid fa-bookmark"></i> ${exam.chapter}</span>` : '';
+            const lecBadge = (exam.lessonTitle || exam.lessonId) ? `<span class="badge badge-blue" style="font-size:11px;" title="${exam.lessonTitle || 'محاضرة مرتبطة'}"><i class="fa-solid fa-clapperboard"></i> ${exam.lessonTitle || 'محاضرة مرتبطة'}</span>` : '';
+
+            return `
+            <div class="exam-item-card">
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                        <span class="badge badge-gold">${exam.subject || 'مقرر عام'}</span>
+                        <span class="badge badge-green"><i class="fa-solid fa-check"></i> منشور</span>
+                    </div>
+
+                    <h3 style="font-size: 15.5px; font-weight: 900; color: var(--text); margin-top: 14px; line-height: 1.4;">${exam.title || 'امتحان تخصصي'}</h3>
+
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;">
+                        ${chapBadge}
+                        ${lecBadge}
+                    </div>
+
+                    <div class="exam-meta-grid">
+                        <div>
+                            <div class="exam-meta-val">${exam.questions ? exam.questions.length : (exam.questionsCount || 0)}</div>
+                            <div class="exam-meta-lbl">أسئلة</div>
+                        </div>
+                        <div>
+                            <div class="exam-meta-val">${exam.duration || '25 د'}</div>
+                            <div class="exam-meta-lbl">المدة</div>
+                        </div>
+                        <div>
+                            <div class="exam-meta-val" style="color:var(--green);">${exam.passingScore || '70%'}</div>
+                            <div class="exam-meta-lbl">النجاح</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                    <button onclick="previewExamQuestions(${i})" class="btn-ghost" style="flex: 1; min-width: 70px; padding: 8px 12px; font-size: 12px;">
+                        <i class="fa-solid fa-eye"></i> معاينة
+                    </button>
+                    <button onclick="loadExamIntoStudio(${i})" class="btn-ghost" style="flex: 1.2; min-width: 110px; padding: 8px 12px; font-size: 12px; border-color: rgba(167, 139, 250, 0.4); color: var(--purple);" title="فتح وتعديل أسئلة الامتحان بالبنك">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل بالبنك
+                    </button>
+                    <button onclick="deleteExamFromDB('${exam.id}')" class="btn-danger" style="padding: 8px 12px;" title="حذف الامتحان">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function previewExamQuestions(idx) {
+        const exam = currentLoadedExams[idx];
+        if (!exam) return;
+        const qList = exam.questions || [];
+
+        const questionsHtml = qList.length ? qList.map((q, i) => `
+            <div style="text-align: right; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px;">
+                <div style="font-weight: 800; color: var(--text); font-size: 13.5px; margin-bottom: 8px;">س${i+1}: ${q.text || q.q || 'نص السؤال'}</div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    ${(q.options || []).map((opt, oIdx) => `
+                        <div style="padding: 6px 10px; border-radius: 6px; font-size: 12px; background: ${(oIdx === q.correct || oIdx === q.correctAnswerIndex) ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.02)'}; border: 1px solid ${(oIdx === q.correct || oIdx === q.correctAnswerIndex) ? 'rgba(16, 185, 129, 0.4)' : 'transparent'}; color: ${(oIdx === q.correct || oIdx === q.correctAnswerIndex) ? 'var(--green)' : 'var(--text2)'}; font-weight: ${(oIdx === q.correct || oIdx === q.correctAnswerIndex) ? '800' : '600'};">
+                            ${(oIdx === q.correct || oIdx === q.correctAnswerIndex) ? '✓ ' : '• '} ${opt}
+                        </div>
+                    `).join('')}
+                    ${q.type === 'essay' ? `
+                        <div style="padding: 8px 10px; border-radius: 6px; font-size: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--blue2);">
+                            <b>الإجابة النموذجية:</b> ${q.modelAnswer || '—'}
+                        </div>
+                    ` : ''}
+                    ${q.pairs ? `
+                        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                            ${q.pairs.map(p => `
+                                <div style="display:flex; justify-content:space-between; font-size:12px; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px;">
+                                    <span>${p.left}</span>
+                                    <span style="color:var(--gold);">← ${p.right}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('') : '<p style="color:var(--text3); text-align:center;">لا توجد أسئلة مسجلة في هذا النموذج.</p>';
+
+        Swal.fire({
+            title: exam.title || 'معاينة أسئلة الامتحان',
+            html: `<div style="max-height: 420px; overflow-y: auto; padding: 5px;">${questionsHtml}</div>`,
+            confirmButtonText: 'إغلاق',
+            confirmButtonColor: '#D4973B',
+            width: '650px'
+        });
+    }
+
+    function openPrebuiltTemplatesModal() {
+        Swal.fire({
+            title: 'نشر قوالب الامتحانات الجامعية الجاهزة 🚀',
+            text: 'سيتم رفع 7 امتحانات تخصصية متكاملة بجميع الأسئلة والخيارات والدرجات إلى بنك الامتحانات فوراً.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، نشر الـ 7 امتحانات الآن',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#8B5CF6'
+        }).then(async (res) => {
+            if (res.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                try {
+                    for (const tpl of PREBUILT_EXAM_TEMPLATES) {
+                        await db.ref('Exams').push({
+                            ...tpl,
+                            questionsCount: (tpl.questions || []).length,
+                            createdAt: Date.now()
+                        });
+                    }
+                    Swal.fire('تم النشر بنجاح 🎉', 'تم تفعيل جميع الامتحانات الجامعية على المنصة!', 'success');
+                } catch(e) {
+                    Swal.fire('خطأ', 'تعذر رفع القوالب: ' + e.message, 'error');
+                }
+            }
+        });
+    }
+
+    async function wipeAllExamsFromDB() {
+        const confirm = await Swal.fire({
+            title: 'حذف جميع الامتحانات وتصفير البنك؟',
+            text: 'هل أنت متأكد من رغبتك في حذف وتصفير جميع الامتحانات الحالية نهائياً؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف الكل',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444'
+        });
+
+        if (confirm.isConfirmed) {
+            const db = getDB();
+            if (!db) return;
+            try {
+                await db.ref('Exams').remove();
+                Swal.fire('تم الحذف', 'تم تصفير وحذف جميع الامتحانات بنجاح 🗑️', 'success');
+            } catch(e) {
+                Swal.fire('خطأ', 'تعذر حذف الامتحانات: ' + e.message, 'error');
+            }
+        }
+    }
+
+    function deleteExamFromDB(id) {
+        const db = getDB();
+        if (!db) return;
+
+        Swal.fire({
+            title: 'حذف الامتحان',
+            text: 'هل أنت متأكد من رغبتك في حذف هذا الامتحان؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444'
+        }).then(res => {
+            if (res.isConfirmed) {
+                db.ref('Exams/' + id).remove();
+            }
+        });
+    }
+
+    function openCreateCustomExamModal() {
+        resetStudioForm();
+        const studioEl = document.getElementById('questionBankStudioCard');
+        if (studioEl) {
+            studioEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const titleInp = document.getElementById('studioExamTitle');
+                if (titleInp) titleInp.focus();
+            }, 300);
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       QUESTION BANK STUDIO LOGIC (Unlimited Capacity & Rapid Generators)
+       ═══════════════════════════════════════════════════════════════════ */
+
+    function showToast(msg, icon = 'success') {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-start',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: 'var(--surface2)',
+            color: 'var(--text)'
+        });
+        Toast.fire({ icon, title: msg });
+    }
+
+    function parseCurrentQuestions() {
+        const textarea = document.getElementById('examJson');
+        if (!textarea) return [];
+        const val = textarea.value.trim();
+        if (!val) return [];
+        try {
+            let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+            let parsed = JSON.parse(cleaned);
+            if (Array.isArray(parsed)) return parsed;
+        } catch(e) {}
+        return [];
+    }
+
+    function insertQuestionTemplate(type, count = 1) {
+        const textarea = document.getElementById('examJson');
+        if (!textarea) return;
+        let questionsArray = parseCurrentQuestions();
+        const startNum = questionsArray.length;
+
+        for (let i = 1; i <= count; i++) {
+            const nextNum = startNum + i;
+            let newQ = null;
+
+            if (type === 'mcq') {
+                newQ = {
+                    text: `سؤال ${nextNum} (اختيار من متعدد): اكتب نص السؤال هنا؟`,
+                    q: `سؤال ${nextNum} (اختيار من متعدد): اكتب نص السؤال هنا؟`,
+                    options: ["الخيار الأول (أ)", "الخيار الثاني (ب)", "الخيار الثالث (ج)", "الخيار الرابع (د)"],
+                    correctAnswerIndex: 0,
+                    correct: 0,
+                    explanation: "تفسير وشرح الإجابة النموذجية..."
+                };
+            } else if (type === 'tf') {
+                newQ = {
+                    text: `سؤال ${nextNum} (صح أم خطأ): اكتب العبارة هنا للمراجعة والتقييم؟`,
+                    q: `سؤال ${nextNum} (صح أم خطأ): اكتب العبارة هنا للمراجعة والتقييم؟`,
+                    options: ["صح", "خطأ"],
+                    correctAnswerIndex: 0,
+                    correct: 0,
+                    explanation: "التعليل والتصويب العلمي..."
+                };
+            } else if (type === 'essay') {
+                newQ = {
+                    type: "essay",
+                    text: `سؤال ${nextNum} (سؤال مقالي): اذكر المفهوم أو اشرح بالتفصيل؟`,
+                    q: `سؤال ${nextNum} (سؤال مقالي): اذكر المفهوم أو اشرح بالتفصيل؟`,
+                    modelAnswer: "اكتب عناصر الإجابة النموذجية والتفسير هنا..."
+                };
+            } else if (type === 'matching') {
+                newQ = {
+                    type: "matching",
+                    text: `سؤال ${nextNum} (سؤال توصيل): صل كل عنصر من العمود (أ) بما يناسبه من العمود (ب):`,
+                    q: `سؤال ${nextNum} (سؤال توصيل): صل كل عنصر من العمود (أ) بما يناسبه من العمود (ب):`,
+                    pairs: [
+                        { left: "العنصر الأول (أ)", right: "المطابق له (1)" },
+                        { left: "العنصر الثاني (ب)", right: "المطابق له (2)" },
+                        { left: "العنصر الثالث (ج)", right: "المطابق له (3)" }
+                    ]
+                };
+            }
+
+            if (newQ) {
+                questionsArray.push(newQ);
+            }
+        }
+
+        textarea.value = JSON.stringify(questionsArray, null, 2);
+        updateQuestionCountLive();
+        showToast(count === 1 ? `تمت إضافة سؤال ${type.toUpperCase()} بنجاح ✅` : `تمت إضافة ${count} أسئلة دفعة واحدة بنجاح 🚀`);
+    }
+
+    function generatePresetExam(presetType) {
+        let mcq = 0, tf = 0, essay = 0, matching = 0, titleDesc = "";
+
+        if (presetType === '30_mixed') {
+            mcq = 15; tf = 10; essay = 3; matching = 2;
+            titleDesc = "نموذج اختبار كامل (30 سؤال متنوع)";
+        } else if (presetType === '50_mixed') {
+            mcq = 25; tf = 15; essay = 5; matching = 5;
+            titleDesc = "بنك أسئلة شامل (50 سؤال)";
+        } else if (presetType === '100_mixed') {
+            mcq = 50; tf = 30; essay = 10; matching = 10;
+            titleDesc = "ماراثون امتحاني ضخم (100 سؤال شامل)";
+        }
+
+        const currentCount = parseCurrentQuestions().length;
+        const totalNew = mcq + tf + essay + matching;
+
+        Swal.fire({
+            title: `توليد ${titleDesc}؟ 🚀`,
+            html: `سيتم توليد <b>${totalNew} سؤال</b> بالترقيم التلقائي المتسلسل:<br>
+                   <ul style="text-align:right; margin:10px auto; display:inline-block; font-size:13px; color:var(--text2);">
+                       <li>🔹 <b>${mcq}</b> اختيار من متعدد</li>
+                       <li>🔹 <b>${tf}</b> صح أم خطأ</li>
+                       <li>🔹 <b>${essay}</b> أسئلة مقالية</li>
+                       <li>🔹 <b>${matching}</b> أسئلة توصيل</li>
+                   </ul><br>
+                   ${currentCount > 0 ? `<b style="color:var(--blue2);">سيتم إضافتها بعد الأسئلة الحالية (${currentCount} سؤال) لتصبح الحصيلة ${currentCount + totalNew} سؤال.</b>` : ''}`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#8B5CF6',
+            cancelButtonColor: '#4A607A',
+            confirmButtonText: '⚡ نعم، توليد الأسئلة الآن',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                const textarea = document.getElementById('examJson');
+                let questionsArray = parseCurrentQuestions();
+                let cur = questionsArray.length;
+
+                for (let i = 1; i <= mcq; i++) {
+                    cur++;
+                    questionsArray.push({
+                        text: `سؤال ${cur} (اختيار من متعدد): اكتب نص السؤال هنا؟`,
+                        q: `سؤال ${cur} (اختيار من متعدد): اكتب نص السؤال هنا؟`,
+                        options: ["الخيار الأول (أ)", "الخيار الثاني (ب)", "الخيار الثالث (ج)", "الخيار الرابع (د)"],
+                        correctAnswerIndex: 0,
+                        correct: 0,
+                        explanation: "تفسير وشرح الإجابة النموذجية..."
+                    });
+                }
+
+                for (let i = 1; i <= tf; i++) {
+                    cur++;
+                    questionsArray.push({
+                        text: `سؤال ${cur} (صح أم خطأ): اكتب العبارة هنا للتقييم؟`,
+                        q: `سؤال ${cur} (صح أم خطأ): اكتب العبارة هنا للتقييم؟`,
+                        options: ["صح", "خطأ"],
+                        correctAnswerIndex: 0,
+                        correct: 0,
+                        explanation: "التعليل والتصويب العلمي..."
+                    });
+                }
+
+                for (let i = 1; i <= essay; i++) {
+                    cur++;
+                    questionsArray.push({
+                        type: "essay",
+                        text: `سؤال ${cur} (سؤال مقالي): اذكر المفهوم أو اشرح بالتفصيل؟`,
+                        q: `سؤال ${cur} (سؤال مقالي): اذكر المفهوم أو اشرح بالتفصيل؟`,
+                        modelAnswer: "اكتب عناصر الإجابة النموذجية هنا..."
+                    });
+                }
+
+                for (let i = 1; i <= matching; i++) {
+                    cur++;
+                    questionsArray.push({
+                        type: "matching",
+                        text: `سؤال ${cur} (سؤال توصيل): صل كل عنصر من العمود (أ) بما يناسبه من العمود (ب):`,
+                        q: `سؤال ${cur} (سؤال توصيل): صل كل عنصر من العمود (أ) بما يناسبه من العمود (ب):`,
+                        pairs: [
+                            { left: "العنصر الأول (أ)", right: "المطابق له (1)" },
+                            { left: "العنصر الثاني (ب)", right: "المطابق له (2)" },
+                            { left: "العنصر الثالث (ج)", right: "المطابق له (3)" }
+                        ]
+                    });
+                }
+
+                textarea.value = JSON.stringify(questionsArray, null, 2);
+                updateQuestionCountLive();
+                Swal.fire({
+                    title: 'تم التوليد بنجاح! 🎉',
+                    html: `أصبح لديك الآن <b style="color:var(--gold); font-size:18px;">${questionsArray.length} سؤال</b> جاهز في النموذج.`,
+                    icon: 'success',
+                    confirmButtonColor: '#D4973B',
+                    timer: 2000
+                });
+            }
+        });
+    }
+
+    function promptCustomQuestionCount() {
+        Swal.fire({
+            title: 'توليد عدد مخصص من الأسئلة 🔢',
+            html: `
+                <div style="text-align:right; font-size:13px;">
+                    <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text);">نوع الأسئلة المراد توليدها:</label>
+                    <select id="customQType" style="width:100%; height:40px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text); padding:0 10px; margin-bottom:12px; font-family:'Cairo';">
+                        <option value="mcq">اختيار من متعدد (MCQ)</option>
+                        <option value="tf">صح أم خطأ</option>
+                        <option value="essay">أسئلة مقالية</option>
+                        <option value="matching">أسئلة توصيل</option>
+                    </select>
+                    <label style="font-weight:700; display:block; margin-bottom:4px; color:var(--text);">العدد المطلوب (مثال: 20 أو 30 أو 100):</label>
+                    <input type="number" id="customQCount" value="30" min="1" max="500" style="width:100%; height:40px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text); text-align:center; font-weight:800; font-size:16px;">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '⚡ توليد الأسئلة فوراً',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            preConfirm: () => {
+                const type = document.getElementById('customQType').value;
+                const count = parseInt(document.getElementById('customQCount').value) || 10;
+                return { type, count };
+            }
+        }).then((res) => {
+            if (res.isConfirmed && res.value) {
+                insertQuestionTemplate(res.value.type, res.value.count);
+            }
+        });
+    }
+
+    function clearExamJson() {
+        const textarea = document.getElementById('examJson');
+        if (!textarea || !textarea.value.trim()) return showToast("حقل الأسئلة فارغ بالفعل", "info");
+
+        Swal.fire({
+            title: 'مسح جميع الأسئلة؟ 🗑️',
+            text: 'هل أنت متأكد من رغبتك في إفراغ حقل الأسئلة؟ لن يمكنك التراجع.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#4A607A',
+            confirmButtonText: 'نعم، إفراغ الحقل',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                textarea.value = '';
+                updateQuestionCountLive();
+                showToast("تم إفراغ الأسئلة بنجاح 🗑️");
+            }
+        });
+    }
+
+    function toggleEditorExpand() {
+        const textarea = document.getElementById('examJson');
+        const btnTxt = document.getElementById('expandEditorTxt');
+        if (!textarea) return;
+
+        if (textarea.style.minHeight === '520px') {
+            textarea.style.minHeight = '220px';
+            if (btnTxt) btnTxt.textContent = 'تكبير المحرر';
+        } else {
+            textarea.style.minHeight = '520px';
+            if (btnTxt) btnTxt.textContent = 'تصغير المحرر';
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function formatAndValidateExamJson() {
+        const textarea = document.getElementById('examJson');
+        const val = textarea.value.trim();
+        if (!val) return showToast("حقل الأسئلة فارغ حالياً", "info");
+
+        try {
+            let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+            let parsed = JSON.parse(cleaned);
+            if (!Array.isArray(parsed)) throw new Error("يجب أن تكون الأسئلة محاطة بمصفوفة [ ]");
+            textarea.value = JSON.stringify(parsed, null, 2);
+            updateQuestionCountLive();
+            Swal.fire({
+                title: "تم التحقق والتنسيق بنجاح! ✨",
+                html: `الكود سليم 100% ويحتوي على <b style="color:var(--gold); font-size:18px;">${parsed.length} سؤال</b> جاهز ومطابق للمعايير.`,
+                icon: "success",
+                confirmButtonColor: "#D4973B",
+                confirmButtonText: "رائع"
+            });
+        } catch(err) {
+            Swal.fire({
+                title: "خطأ في صياغة الكود",
+                text: err.message,
+                icon: "error",
+                confirmButtonColor: "#EF4444"
+            });
+        }
+    }
+
+    function copyExamJson() {
+        const textarea = document.getElementById('examJson');
+        const val = textarea.value.trim();
+        if (!val) return showToast("لا يوجد كود أسئلة لنسخه", "info");
+        navigator.clipboard.writeText(val).then(() => {
+            showToast("تم نسخ كود الأسئلة إلى الحافظة 📋");
+        }).catch(() => {
+            showToast("تعذر النسخ التلقائي", "error");
+        });
+    }
+
+    function updateQuestionCountLive() {
+        const textarea = document.getElementById('examJson');
+        const badge = document.getElementById('examQuestionsCountBadge');
+        if (!textarea || !badge) return;
+
+        const val = textarea.value.trim();
+        if (!val) {
+            badge.textContent = "0 أسئلة مضافة";
+            badge.style.background = "rgba(59, 130, 246, 0.12)";
+            badge.style.color = "var(--blue2)";
+            badge.style.borderColor = "rgba(59, 130, 246, 0.25)";
+            return;
+        }
+
+        try {
+            let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+            let parsed = JSON.parse(cleaned);
+            if (Array.isArray(parsed)) {
+                const total = parsed.length;
+                let mcq = 0, tf = 0, essay = 0, matching = 0;
+                parsed.forEach(q => {
+                    if (q.type === 'essay') essay++;
+                    else if (q.type === 'matching') matching++;
+                    else if (q.options && q.options.length === 2 && (q.options.includes('صح') || q.options.includes('صواب') || q.options.includes('خطأ'))) tf++;
+                    else mcq++;
+                });
+
+                badge.innerHTML = `<b>${total} سؤال مضاف ✅</b> (${mcq} اختياري • ${tf} صح/خطأ • ${essay} مقالي • ${matching} توصيل)`;
+                badge.style.background = "rgba(16, 185, 129, 0.15)";
+                badge.style.color = "var(--green)";
+                badge.style.borderColor = "rgba(16, 185, 129, 0.35)";
+            }
+        } catch(e) {
+            badge.textContent = "تنسيق الكود قيد التعديل... ✍️";
+            badge.style.background = "rgba(245, 158, 11, 0.15)";
+            badge.style.color = "var(--gold)";
+            badge.style.borderColor = "rgba(245, 158, 11, 0.35)";
+        }
+    }
+
+    function resetStudioForm() {
+        document.getElementById('editingExamId').value = '';
+        document.getElementById('studioExamTitle').value = '';
+        setStudioDuration(30, false);
+        document.getElementById('studioExamPassingScore').value = '70%';
+        document.getElementById('examJson').value = '';
+
+        const chapSel = document.getElementById('studioExamChapter');
+        if (chapSel) chapSel.value = '';
+        const chapWrap = document.getElementById('studioNewChapterWrap');
+        if (chapWrap) chapWrap.style.display = 'none';
+        const chapInp = document.getElementById('studioExamNewChapter');
+        if (chapInp) chapInp.value = '';
+
+        const lecSel = document.getElementById('studioExamLecture');
+        if (lecSel) lecSel.value = '';
+        const notice = document.getElementById('selectedLectureNotice');
+        if (notice) notice.style.display = 'none';
+
+        updateQuestionCountLive();
+
+        const ind = document.getElementById('editingModeIndicator');
+        if (ind) ind.style.display = 'none';
+        const saveBtn = document.getElementById('saveStudioExamBtnText');
+        if (saveBtn) saveBtn.textContent = 'حفظ ونشر هذا الامتحان وبنك الأسئلة في المنصة';
+        showToast('تم تفريغ الاستوديو لبدء نموذج جديد ✨');
+    }
+
+    function loadExamIntoStudio(idx) {
+        const exam = currentLoadedExams[idx];
+        if (!exam) return;
+
+        document.getElementById('editingExamId').value = exam.id || '';
+        document.getElementById('studioExamTitle').value = exam.title || '';
+        if (exam.subject) {
+            document.getElementById('studioExamSubject').value = exam.subject;
+        }
+        updateStudioLecturesAndChapters(false);
+
+        // Restore chapter
+        const chapSel = document.getElementById('studioExamChapter');
+        const chapWrap = document.getElementById('studioNewChapterWrap');
+        const chapInp = document.getElementById('studioExamNewChapter');
+        if (exam.chapter && chapSel) {
+            let found = false;
+            for (let opt of chapSel.options) {
+                if (opt.value === exam.chapter) {
+                    chapSel.value = exam.chapter;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                chapSel.value = '__NEW__';
+                if (chapWrap) chapWrap.style.display = 'block';
+                if (chapInp) chapInp.value = exam.chapter;
+            } else {
+                if (chapWrap) chapWrap.style.display = 'none';
+            }
+        } else if (chapSel) {
+            chapSel.value = '';
+            if (chapWrap) chapWrap.style.display = 'none';
+        }
+
+        // Restore lecture
+        const lecSel = document.getElementById('studioExamLecture');
+        const notice = document.getElementById('selectedLectureNotice');
+        const noticeTxt = document.getElementById('selectedLectureNoticeText');
+        if (exam.lessonId && lecSel) {
+            lecSel.value = exam.lessonId;
+            if (notice && noticeTxt) {
+                noticeTxt.innerHTML = `مرتبط بمحاضرة: <b>${exam.lessonTitle || 'محاضرة مرفوعة'}</b>`;
+                notice.style.display = 'block';
+            }
+        } else if (lecSel) {
+            lecSel.value = '';
+            if (notice) notice.style.display = 'none';
+        }
+
+        const durMins = exam.durationMinutes || (parseInt(exam.duration) ? parseInt(exam.duration) : 30);
+        setStudioDuration(durMins, false);
+        document.getElementById('studioExamPassingScore').value = exam.passingScore || '70%';
+
+        const qList = exam.questions || [];
+        document.getElementById('examJson').value = JSON.stringify(qList, null, 2);
+        updateQuestionCountLive();
+
+        const ind = document.getElementById('editingModeIndicator');
+        if (ind) {
+            ind.style.display = 'inline-flex';
+            ind.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> جاري تعديل: <b>${exam.title || 'امتحان'}</b>`;
+        }
+        const saveBtn = document.getElementById('saveStudioExamBtnText');
+        if (saveBtn) saveBtn.textContent = '💾 تحديث وحفظ تعديلات الامتحان في المنصة';
+
+        document.getElementById('questionBankStudioCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showToast('تم تحميل أسئلة الامتحان في بنك الأسئلة 📝');
+    }
+
+    async function saveStudioExamToFirebase() {
+        const title = document.getElementById('studioExamTitle').value.trim();
+        const subject = document.getElementById('studioExamSubject').value;
+        const durationMinutes = parseInt(document.getElementById('studioExamDurationMinutes')?.value) || 30;
+        const duration = `${durationMinutes} دقيقة`;
+        const passingScore = document.getElementById('studioExamPassingScore').value.trim() || '70%';
+        const editingId = document.getElementById('editingExamId').value.trim();
+
+        // Resolve chapter
+        const chapSel = document.getElementById('studioExamChapter');
+        let chapter = '';
+        if (chapSel && chapSel.value === '__NEW__') {
+            chapter = document.getElementById('studioExamNewChapter')?.value.trim() || '';
+        } else if (chapSel && chapSel.value) {
+            chapter = chapSel.value.trim();
+        }
+
+        // Resolve lecture
+        const lecSel = document.getElementById('studioExamLecture');
+        const selectedLectureId = lecSel ? lecSel.value.trim() : '';
+        let selectedLectureTitle = '';
+
+        if (selectedLectureId) {
+            const matchedKey = matchSubjectKey(window.rawLecturesBySubject, subject);
+            const lecturesMap = (matchedKey && window.rawLecturesBySubject[matchedKey]) ? window.rawLecturesBySubject[matchedKey] : {};
+            const lecObj = lecturesMap[selectedLectureId];
+            if (lecObj) {
+                selectedLectureTitle = lecObj.title || '';
+            }
+        }
+
+        if (!title) {
+            return Swal.fire({
+                icon: 'warning',
+                title: 'عنوان الامتحان مطلوب',
+                text: 'يرجى كتابة عنوان أو اسم الامتحان أولاً قبل الحفظ',
+                confirmButtonColor: '#D4973B'
+            });
+        }
+
+        const rawJson = document.getElementById('examJson').value.trim();
+        let questions = [];
+        if (rawJson) {
+            try {
+                let cleaned = rawJson.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+                let parsed = JSON.parse(cleaned);
+                if (!Array.isArray(parsed)) throw new Error('يجب أن تكون الأسئلة مصفوفة JSON تبدأ بـ [ وتنتهي بـ ]');
+                questions = parsed.map((q, i) => {
+                    let correct = 0;
+                    if (typeof q.correct === 'number') correct = q.correct;
+                    else if (typeof q.correctAnswerIndex === 'number') correct = q.correctAnswerIndex;
+                    const text = q.text || q.q || `سؤال ${i+1}`;
+                    return {
+                        ...q,
+                        text: text,
+                        q: text,
+                        correct: correct,
+                        correctAnswerIndex: correct
+                    };
+                });
+            } catch(err) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ في صياغة JSON للأسئلة',
+                    text: err.message,
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        }
+
+        const db = getDB();
+        if (!db) return Swal.fire({ icon:'error', title:'خطأ', text:'قاعدة البيانات غير متصلة' });
+
+        const payload = {
+            title,
+            subject,
+            duration,
+            durationMinutes,
+            isCustomShort: true,
+            passingScore,
+            questions,
+            questionsCount: questions.length,
+            chapter: chapter || '',
+            lessonId: selectedLectureId || '',
+            lessonTitle: selectedLectureTitle || '',
+            updatedAt: Date.now()
+        };
+
+        const saveBtn = document.getElementById('saveStudioExamBtn');
+        const origBtnHtml = saveBtn ? saveBtn.innerHTML : '';
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>جاري الحفظ والنشر...</span>';
+        }
+
+        try {
+            let targetExamId = editingId;
+
+            if (editingId) {
+                payload.id = editingId;
+                await db.ref('Exams/' + editingId).update(payload);
+            } else {
+                payload.createdAt = Date.now();
+                const newRef = await db.ref('Exams').push(payload);
+                targetExamId = newRef.key;
+                payload.id = targetExamId;
+                await db.ref('Exams/' + targetExamId + '/id').set(targetExamId);
+            }
+
+            // Sync with Lecture if linked
+            if (selectedLectureId) {
+                const matchedKey = matchSubjectKey(window.rawLecturesBySubject, subject) || subject;
+                const lecUpdates = {
+                    hasQuiz: questions.length > 0,
+                    questions: questions,
+                    questionsCount: questions.length,
+                    jsonCode: JSON.stringify(questions, null, 2),
+                    examId: targetExamId,
+                    examDuration: duration,
+                    examDurationMinutes: durationMinutes,
+                    updatedAt: Date.now()
+                };
+                if (chapter) lecUpdates.chapter = chapter;
+
+                await db.ref(`Lectures/${matchedKey}/${selectedLectureId}`).update(lecUpdates);
+
+                // Also maintain Exams/${selectedLectureId} so quiz.html?lessonId=... finds it immediately
+                await db.ref(`Exams/${selectedLectureId}`).update({
+                    ...payload,
+                    id: selectedLectureId,
+                    examId: targetExamId
+                }).catch(() => {});
+            }
+
+            // Save Chapter in Chapters node if provided
+            if (chapter) {
+                const matchedKey = matchSubjectKey(window.rawChaptersBySubject, subject) || subject;
+                const chapKey = chapter.replace(/[.#$[\]/]/g, '_');
+                await db.ref(`Chapters/${matchedKey}/${chapKey}`).set({
+                    name: chapter,
+                    updatedAt: Date.now()
+                }).catch(() => {});
+            }
+
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = origBtnHtml;
+            }
+
+            let detailMsg = `تم حفظ الامتحان بنجاح مع <b>${questions.length} سؤال</b>!`;
+            if (selectedLectureTitle) {
+                detailMsg += `<br><span style="color:var(--blue); font-size:13px;"><i class="fa-solid fa-clapperboard"></i> مربوط بمحاضرة: <b>${selectedLectureTitle}</b></span>`;
+            }
+            if (chapter) {
+                detailMsg += `<br><span style="color:var(--gold); font-size:13px;"><i class="fa-solid fa-bookmark"></i> الفصل الدراسي: <b>${chapter}</b></span>`;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: editingId ? 'تم التحديث بنجاح 🎉' : 'تم النشر بنجاح 🚀',
+                html: detailMsg,
+                confirmButtonColor: '#D4973B'
+            });
+
+            resetStudioForm();
+        } catch(e) {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = origBtnHtml;
+            }
+            Swal.fire({ icon:'error', title:'فشل الحفظ', text: e.message });
+        }
+    }
+</script>
+</body>
+</html>

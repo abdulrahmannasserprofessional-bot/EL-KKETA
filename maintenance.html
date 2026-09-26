@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>المنصة تحت الصيانة — منصة الخطة التعليمية</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --primary: #C28B38;
+            --primary-dark: #A37024;
+            --gold-gradient: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            --gold-light: #FDF4E6;
+            --gold-border: #E8D3B2;
+            
+            --bg-body: #FAF7F2;
+            --surface: #FFFFFF;
+            --border-color: #EFE8DC;
+            
+            --text-main: #1E293B;
+            --text-sub: #64748B;
+            --text-muted: #8C827A;
+            
+            --obsidian-gradient: linear-gradient(135deg, #1A1714 0%, #292117 50%, #3D2D18 100%);
+            --card-shadow: 0 16px 45px -6px rgba(180, 140, 75, 0.14), 0 4px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', system-ui, -apple-system, sans-serif; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            direction: rtl;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Effects */
+        .ambient-glow-1 {
+            position: fixed;
+            top: -120px; right: -120px;
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(194, 139, 56, 0.16) 0%, transparent 70%);
+            pointer-events: none; filter: blur(60px); z-index: 0;
+        }
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: -120px; left: -120px;
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(212, 151, 59, 0.12) 0%, transparent 70%);
+            pointer-events: none; filter: blur(60px); z-index: 0;
+        }
+
+        /* Main Container Card */
+        .maint-main-card {
+            background: var(--surface);
+            border: 2px solid var(--border-color);
+            border-radius: 36px;
+            padding: 40px 36px;
+            max-width: 780px;
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 26px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(12px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Top Bar inside Card */
+        .maint-top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1.5px dashed var(--border-color);
+        }
+
+        .maint-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #FFF1F2;
+            border: 1px solid #FECDD3;
+            color: #E11D48;
+            font-size: 12.5px;
+            font-weight: 800;
+        }
+        .maint-status-pill .red-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #E11D48;
+            box-shadow: 0 0 8px #E11D48;
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* Platform Brand (3-Clicks Trigger for Secret Admin Gate) */
+        .brand-lead-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .brand-lead-wrap:hover { transform: scale(1.03); }
+        .brand-lead-wrap:active { transform: scale(0.96); }
+
+        .brand-logo-badge {
+            width: 46px; height: 46px;
+            border-radius: 14px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.35);
+            position: relative;
+        }
+        .click-count-tag {
+            position: absolute;
+            top: -6px; right: -6px;
+            background: #E11D48;
+            color: #FFFFFF;
+            font-size: 9.5px;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 10px;
+            border: 1.5px solid #FFFFFF;
+            display: none;
+        }
+
+        .brand-text-col {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-name {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+        .brand-sub {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* ─── Glowing Center Illustration ─── */
+        .hero-graphic-center {
+            position: relative;
+            width: 130px; height: 130px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 2px 0;
+        }
+        .hero-graphic-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: var(--obsidian-gradient);
+            border: 3px solid var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 42px;
+            color: #F8E5C4;
+            box-shadow: 0 0 35px rgba(194, 139, 56, 0.35), inset 0 2px 10px rgba(255,255,255,0.15);
+            position: relative;
+            z-index: 2;
+        }
+        .hero-graphic-circle i {
+            animation: wrenchShake 3s infinite ease-in-out;
+        }
+        @keyframes wrenchShake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(-15deg) scale(1.08); }
+        }
+
+        .hero-orbit-ring {
+            position: absolute;
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            border: 2px dashed rgba(194, 139, 56, 0.45);
+            animation: spinOrbit 22s linear infinite;
+        }
+        @keyframes spinOrbit {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hero Title & Message */
+        .hero-title-text {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hero-title-text i { color: var(--primary); font-size: 24px; }
+
+        .hero-msg-body {
+            font-size: 15px;
+            color: var(--text-sub);
+            max-width: 620px;
+            line-height: 1.8;
+            font-weight: 700;
+        }
+
+        /* ─── Modern Countdown Timer Boxes ─── */
+        .timer-boxes-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            width: 100%;
+            margin: 6px 0;
+        }
+
+        .timer-unit-card {
+            background: var(--obsidian-gradient);
+            border: 2px solid rgba(194, 139, 56, 0.35);
+            border-radius: 22px;
+            padding: 16px 24px;
+            min-width: 110px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(26, 23, 20, 0.18);
+            transition: all 0.25s ease;
+        }
+        .timer-unit-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(194, 139, 56, 0.25);
+        }
+
+        .timer-unit-num {
+            font-size: 36px;
+            font-weight: 900;
+            color: #F8E5C4;
+            font-family: monospace, 'Cairo', sans-serif;
+            line-height: 1;
+            text-shadow: 0 0 12px rgba(212, 151, 59, 0.4);
+        }
+        .timer-unit-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #CBB18B;
+            margin-top: 6px;
+        }
+
+        .timer-colon {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary);
+            animation: colonBlink 1s infinite;
+        }
+        @keyframes colonBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ─── 3 Feature Pills ─── */
+        .feature-pills-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .feature-item-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px;
+            border-radius: 16px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #8C5E1A;
+            box-shadow: 0 2px 8px rgba(194, 139, 56, 0.08);
+        }
+        .feature-item-pill i { color: var(--primary); }
+
+        /* ─── Bottom Card Footer ─── */
+        .maint-footer-row {
+            width: 100%;
+            padding-top: 20px;
+            border-top: 1.5px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .btn-support-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            background: var(--gold-light);
+            border: 1px solid var(--gold-border);
+            color: #8C5E1A;
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+        .btn-support-pill:hover {
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        /* ─── Secret Admin PIN Modal ─── */
+        .secret-modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26, 23, 20, 0.82);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .secret-modal-backdrop.active {
+            display: flex;
+        }
+
+        .secret-modal-window {
+            background: var(--surface);
+            border: 2px solid var(--gold-border);
+            border-radius: 28px;
+            padding: 34px 30px;
+            max-width: 430px;
+            width: 100%;
+            box-shadow: 0 25px 65px rgba(0,0,0,0.45);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            position: relative;
+            animation: modalScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalScale {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close-x {
+            position: absolute;
+            top: 16px; left: 16px;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .modal-close-x:hover { color: #E11D48; border-color: #FECDD3; }
+
+        .secret-shield-icon {
+            width: 66px; height: 66px;
+            border-radius: 20px;
+            background: var(--gold-light);
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 4px 16px rgba(194, 139, 56, 0.25);
+        }
+
+        .secret-input-box {
+            width: 100%;
+            height: 50px;
+            text-align: center;
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            outline: none;
+            font-family: monospace, 'Cairo', sans-serif;
+            transition: all 0.2s;
+        }
+        .secret-input-box:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.18);
+        }
+
+        .btn-enter-admin {
+            width: 100%;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            border: none;
+            font-size: 15px;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 16px rgba(194, 139, 56, 0.35);
+            transition: all 0.2s;
+        }
+        .btn-enter-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(194, 139, 56, 0.45);
+        }
+    
+        /* ─── Perfect Mobile & Multi-Device Responsiveness ─── */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+                justify-content: flex-start;
+                min-height: 100dvh;
+            }
+            .maint-main-card {
+                padding: 26px 16px;
+                border-radius: 26px;
+                gap: 20px;
+                max-width: 100%;
+            }
+            .maint-top-bar {
+                padding-bottom: 14px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .brand-name {
+                font-size: 15px;
+            }
+            .maint-status-pill {
+                padding: 5px 12px;
+                font-size: 11.5px;
+            }
+            .hero-graphic-center {
+                width: 110px;
+                height: 110px;
+            }
+            .hero-graphic-circle {
+                width: 86px;
+                height: 86px;
+                font-size: 34px;
+            }
+            .hero-orbit-ring {
+                width: 110px;
+                height: 110px;
+            }
+            .hero-title-text {
+                font-size: 21px;
+                gap: 8px;
+            }
+            .hero-title-text i {
+                font-size: 19px;
+            }
+            .hero-msg-body {
+                font-size: 13.5px;
+                line-height: 1.65;
+            }
+            .timer-boxes-row {
+                gap: 8px;
+                width: 100%;
+                justify-content: center;
+            }
+            .timer-unit-card {
+                min-width: 78px;
+                padding: 10px 12px;
+                border-radius: 16px;
+                flex: 1;
+                max-width: 105px;
+            }
+            .timer-unit-num {
+                font-size: 26px;
+            }
+            .timer-unit-label {
+                font-size: 11px;
+                margin-top: 3px;
+            }
+            .timer-colon {
+                font-size: 20px;
+            }
+            .feature-pills-wrap {
+                gap: 8px;
+            }
+            .feature-item-pill {
+                padding: 7px 14px;
+                font-size: 12px;
+                border-radius: 12px;
+            }
+            .maint-footer-row {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+                padding-top: 16px;
+                font-size: 12px;
+            }
+            .btn-support-pill {
+                width: 100%;
+                justify-content: center;
+                padding: 10px 16px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .maint-main-card {
+                padding: 18px 10px;
+                border-radius: 20px;
+                gap: 16px;
+            }
+            .timer-unit-card {
+                min-width: 65px;
+                padding: 8px 6px;
+            }
+            .timer-unit-num {
+                font-size: 22px;
+            }
+            .timer-colon {
+                font-size: 16px;
+            }
+            .hero-title-text {
+                font-size: 18px;
+            }
+        }
+
+    </style>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
+</head>
+<body>
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <main class="maint-main-card">
+        <!-- Top Row -->
+        <div class="maint-top-bar">
+            <!-- 3-Clicks Logo Trigger for Secret Gate -->
+            <div class="brand-lead-wrap" id="secretLogoTrigger" title="انقر 3 مرات متتالية لإظهار بوابة الإدارة">
+                <div class="brand-logo-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span class="click-count-tag" id="clickCountTag">0</span>
+                </div>
+                <div class="brand-text-col">
+                    <span class="brand-name">EL KHETA</span>
+                    <span class="brand-sub">منصة الخطة التعليمية</span>
+                </div>
+            </div>
+
+            <!-- Maintenance Status Pill -->
+            <div class="maint-status-pill">
+                <span class="red-dot"></span>
+                <span>وضع الصيانة والتطوير الفني</span>
+            </div>
+        </div>
+
+        <!-- Animated Center Wrench -->
+        <div class="hero-graphic-center">
+            <div class="hero-orbit-ring"></div>
+            <div class="hero-graphic-circle">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+        </div>
+
+        <!-- Title & Message -->
+        <h1 class="hero-title-text" id="studentMaintTitle">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <span>المنصة تحت الصيانة</span>
+        </h1>
+
+        <p class="hero-msg-body" id="studentMaintBody">
+            نجري حالياً ترقيات وتحديثات أمنية رفيعة المستوى لتعزيز حماية حسابات الطلاب، وتشفير البيانات، ومكافحة أي محاولات وصول غير مصرح بها. حساباتكم في أمان تام 🛡️
+        </p>
+
+        <!-- Countdown Timer -->
+        <div class="timer-boxes-row">
+            <div class="timer-unit-card">
+                <span class="timer-unit-num" id="hoursDisplay">00</span>
+                <span class="timer-unit-label">ساعة</span>
+            </div>
+            <span class="timer-colon">:</span>
+            <div class="timer-unit-card">
+                <span class="timer-unit-num" id="minutesDisplay">29</span>
+                <span class="timer-unit-label">دقيقة</span>
+            </div>
+            <span class="timer-colon">:</span>
+            <div class="timer-unit-card">
+                <span class="timer-unit-num" id="secondsDisplay">42</span>
+                <span class="timer-unit-label">ثانية</span>
+            </div>
+        </div>
+
+        <!-- 3 Feature Pills -->
+        <div class="feature-pills-wrap">
+            <div class="feature-item-pill">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>أمان أكبر</span>
+            </div>
+            <div class="feature-item-pill">
+                <i class="fa-solid fa-bolt"></i>
+                <span>أداء أسرع</span>
+            </div>
+            <div class="feature-item-pill">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>تجربة أفضل</span>
+            </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="maint-footer-row">
+            <button type="button" onclick="openMaintenanceSupportModal()" class="btn-support-pill" style="cursor: pointer; border: none; outline: none;">
+                <i class="fa-solid fa-headset"></i>
+                <span>الدعم الفني والمركز الأكاديمي</span>
+            </button>
+            <div>معاً نحو مستقبل تعليمي أفضل ❤️ • EL KHETA © 2026-2027 — جميع الحقوق محفوظة</div>
+        </div>
+    </main>
+
+    <!-- In-Platform Maintenance Support Modal -->
+    <div class="secret-modal-backdrop" id="maintenanceSupportModal" style="display: none; align-items: center; justify-content: center;">
+        <div class="secret-modal-window" style="max-width: 480px; text-align: right; padding: 26px 22px; gap: 14px;">
+            <button class="modal-close-x" onclick="closeMaintenanceSupportModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div style="display:flex; align-items:center; gap:12px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; width: 100%;">
+                <div class="secret-shield-icon" style="width: 48px; height: 48px; font-size: 22px; border-radius: 14px;">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 16.5px; font-weight: 900; color: var(--text-main); margin: 0;">الدعم الفني والمركز الأكاديمي</h3>
+                    <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">تواصل مباشر مع الإدارة والمشرفين داخل المنصة</p>
+                </div>
+            </div>
+
+            <!-- Department selector -->
+            <div style="width: 100%;">
+                <label style="font-size: 12px; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 6px;">القسم المطلوب:</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button type="button" id="maintDeptTechBtn" onclick="selectMaintDept('tech')" class="maint-dept-btn active" style="padding: 10px 8px; border-radius: 12px; border: 1.5px solid var(--primary); background: var(--gold-light); color: var(--primary-dark); font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                        <span>دعم فني وتقني</span>
+                    </button>
+                    <button type="button" id="maintDeptAcadBtn" onclick="selectMaintDept('acad')" class="maint-dept-btn" style="padding: 10px 8px; border-radius: 12px; border: 1.5px solid var(--border-color); background: var(--surface); color: var(--text-muted); font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>المركز الأكاديمي</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Student Info Inputs -->
+            <div style="width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">كود الطالب:</label>
+                    <input type="text" id="maintSupportStudentCode" placeholder="مثال: A0358" style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-body); padding: 0 12px; font-size: 13px; font-weight: 800; outline: none; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">اسم الطالب:</label>
+                    <input type="text" id="maintSupportStudentName" placeholder="الاسم ثلاثي" style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-body); padding: 0 12px; font-size: 13px; font-weight: 700; outline: none; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <!-- Message Textarea -->
+            <div style="width: 100%;">
+                <label style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">نص المشكلة أو الاستفسار بالتفصيل:</label>
+                <textarea id="maintSupportMessage" rows="3" placeholder="اكتب استفسارك أو مشكلتك هنا..." style="width: 100%; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-body); padding: 10px 12px; font-size: 13px; outline: none; resize: none; font-family: inherit; box-sizing: border-box;"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="button" onclick="submitMaintenanceSupportMessage()" class="btn-enter-admin" id="btnSubmitMaintSupport">
+                <span>إرسال الرسالة إلى إدارة المنصة</span>
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+            <div style="font-size: 11px; color: #10B981; font-weight: 700; text-align: center;">
+                <i class="fa-solid fa-circle-check"></i> يتم حفظ ومتابعة الرسائل فورياً في لوحة تحكم الإدارة
+            </div>
+        </div>
+    </div>
+
+    <!-- Secret Admin PIN Modal -->
+    <div class="secret-modal-backdrop" id="secretModal">
+        <div class="secret-modal-window">
+            <button class="modal-close-x" onclick="closeSecretModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="secret-shield-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 19px; font-weight: 900; color: var(--text-main);">الدخول إلى لوحة التحكم</h3>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px;">يرجى إدخال رمز الإدارة للمتابعة أثناء الصيانة</p>
+            </div>
+            <input type="password" id="secretPinInput" class="secret-input-box" placeholder="••••••" maxlength="10">
+            <button onclick="submitSecretAdminLogin()" class="btn-enter-admin">
+                <span>دخول لوحة التحكم</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div style="font-size: 11.5px; color: #8C5E1A; font-weight: 700;">
+                <i class="fa-solid fa-lock"></i> هذه الصفحة مخصصة للإدارة العليا فقط
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let maintEndTimestamp = Date.now() + (30 * 60 * 1000); // 30 mins default
+
+        // Realtime Firebase Listener
+        if (window.database) {
+            function handleMaintenanceStateChange(isMaint) {
+                if (isMaint === false) {
+                    localStorage.removeItem('elkheta_maintenance_mode');
+                    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+                    window.location.replace(storedUser ? 'home.html' : 'index.html');
+                } else if (isMaint === true) {
+                    localStorage.setItem('elkheta_maintenance_mode', 'true');
+                }
+            }
+
+            database.ref('PlatformSettings/maintenanceMode').on('value', snap => {
+                if (snap.exists()) handleMaintenanceStateChange(snap.val() === true);
+            });
+
+            database.ref('Settings/maintenance').on('value', snap => {
+                if (snap.exists()) handleMaintenanceStateChange(snap.val() === true);
+            });
+
+            database.ref('PlatformSettings/maintenanceMessage').on('value', snap => {
+                if (snap.exists()) {
+                    const val = snap.val();
+                    if (val.title) document.getElementById('studentMaintTitle').innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> <span>' + val.title + '</span>';
+                    if (val.body) document.getElementById('studentMaintBody').textContent = val.body;
+                }
+            });
+
+            database.ref('PlatformSettings/maintenanceDuration').on('value', snap => {
+                if (snap.exists()) {
+                    const d = snap.val();
+                    if (d.endTimestamp && d.endTimestamp > Date.now()) {
+                        maintEndTimestamp = d.endTimestamp;
+                    }
+                }
+            });
+        }
+
+        // Live Countdown Engine
+        function updateCountdown() {
+            const now = Date.now();
+            const diff = Math.max(0, maintEndTimestamp - now);
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('hoursDisplay').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutesDisplay').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('secondsDisplay').textContent = String(seconds).padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // ─── Secret 3-Clicks Logo Trigger ───
+        let clickCounter = 0;
+        let clickTimer = null;
+        const trigger = document.getElementById('secretLogoTrigger');
+        const tag = document.getElementById('clickCountTag');
+
+        trigger.addEventListener('click', () => {
+            clickCounter++;
+            if (tag) {
+                tag.style.display = 'block';
+                tag.textContent = 'x' + clickCounter;
+            }
+            clearTimeout(clickTimer);
+            if (clickCounter >= 3) {
+                clickCounter = 0;
+                if (tag) tag.style.display = 'none';
+                openSecretModal();
+            } else {
+                clickTimer = setTimeout(() => {
+                    clickCounter = 0;
+                    if (tag) tag.style.display = 'none';
+                }, 1000);
+            }
+        });
+
+        function openSecretModal() {
+            document.getElementById('secretModal').classList.add('active');
+            const pin = document.getElementById('secretPinInput');
+            pin.value = '';
+            pin.focus();
+        }
+
+        function closeSecretModal() {
+            document.getElementById('secretModal').classList.remove('active');
+        }
+
+        async function submitSecretAdminLogin() {
+            const pin = document.getElementById('secretPinInput').value.trim();
+            if (!pin) {
+                Swal.fire('تنبيه', 'يرجى إدخال رمز المرور السري', 'warning');
+                return;
+            }
+
+            if (pin === '2862005' || pin === '2862') {
+                grantAdminAccess('master', 'المدير العام');
+                return;
+            }
+
+            if (window.database) {
+                try {
+                    const snap = await database.ref('Settings/adminPin').once('value');
+                    if (snap.exists() && String(snap.val()) === pin) {
+                        grantAdminAccess('master', 'المسؤول الرئيسي');
+                        return;
+                    }
+                    const supSnap = await database.ref('Supervisors').once('value');
+                    let authenticatedSup = null;
+                    if (supSnap.exists()) {
+                        supSnap.forEach(child => {
+                            const val = child.val();
+                            if (val && String(val.pin) === pin && val.active !== false) {
+                                authenticatedSup = val;
+                            }
+                        });
+                    }
+                    if (authenticatedSup) {
+                        grantAdminAccess(authenticatedSup.role || 'supervisor', authenticatedSup.name || 'مشرف معتمد');
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'رمز غير صحيح',
+                text: 'رمز المرور الذي أدخلته غير مصرح له بالدخول إلى لوحة التحكم.',
+                confirmButtonColor: '#C28B38'
+            });
+        }
+
+        function grantAdminAccess(role, name) {
+            sessionStorage.setItem('isAdmin', 'true');
+            sessionStorage.setItem('adminRole', role);
+            sessionStorage.setItem('adminName', name);
+            localStorage.setItem('isAdmin', 'true');
+            localStorage.setItem('adminRole', role);
+            localStorage.setItem('adminName', name);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'مرحباً بك!',
+                text: 'تم التحقق من الرمز بنجاح. جاري نقلك إلى لوحة التحكم...',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'admin-panel.html';
+            });
+        }
+
+        document.getElementById('secretPinInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitSecretAdminLogin();
+        });
+
+        // Maintenance Support & Academic Center Logic (In-Platform Only)
+        let activeMaintDept = 'tech';
+
+        function openMaintenanceSupportModal() {
+            const modal = document.getElementById('maintenanceSupportModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+
+            // Auto-fill student data if found in cache
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+                const stData = JSON.parse(localStorage.getItem('studentData') || sessionStorage.getItem('studentData') || '{}');
+                const code = user.studentCode || stData.studentCode || localStorage.getItem('studentCode') || '';
+                const name = user.fullName || user.name || stData.fullName || stData.name || '';
+                if (code) document.getElementById('maintSupportStudentCode').value = code;
+                if (name) document.getElementById('maintSupportStudentName').value = name;
+            } catch(e) {}
+        }
+
+        function closeMaintenanceSupportModal() {
+            const modal = document.getElementById('maintenanceSupportModal');
+            if (!modal) return;
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 250);
+        }
+
+        function selectMaintDept(dept) {
+            activeMaintDept = dept;
+            const techBtn = document.getElementById('maintDeptTechBtn');
+            const acadBtn = document.getElementById('maintDeptAcadBtn');
+            if (dept === 'tech') {
+                techBtn.style.border = '1.5px solid var(--primary)';
+                techBtn.style.background = 'var(--gold-light)';
+                techBtn.style.color = 'var(--primary-dark)';
+                acadBtn.style.border = '1.5px solid var(--border-color)';
+                acadBtn.style.background = 'var(--surface)';
+                acadBtn.style.color = 'var(--text-muted)';
+            } else {
+                acadBtn.style.border = '1.5px solid var(--primary)';
+                acadBtn.style.background = 'var(--gold-light)';
+                acadBtn.style.color = 'var(--primary-dark)';
+                techBtn.style.border = '1.5px solid var(--border-color)';
+                techBtn.style.background = 'var(--surface)';
+                techBtn.style.color = 'var(--text-muted)';
+            }
+        }
+
+        async function submitMaintenanceSupportMessage() {
+            const code = document.getElementById('maintSupportStudentCode').value.trim();
+            const name = document.getElementById('maintSupportStudentName').value.trim() || 'طالب منصة الخطة';
+            const msg = document.getElementById('maintSupportMessage').value.trim();
+
+            if (!code) {
+                Swal.fire('تنبيه', 'يرجى إدخال كود الطالب الخاص بك لمتابعة رسالتك', 'warning');
+                return;
+            }
+            if (!msg) {
+                Swal.fire('تنبيه', 'يرجى كتابة نص الرسالة أو الاستفسار بالتفصيل', 'warning');
+                return;
+            }
+
+            const deptTitle = activeMaintDept === 'tech' ? '🛠️ دعم فني وتقني' : '🎓 المركز الأكاديمي';
+            const btn = document.getElementById('btnSubmitMaintSupport');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال للإدارة...';
+
+            try {
+                const now = Date.now();
+                const msgPayload = {
+                    sender: 'student',
+                    senderCode: code,
+                    senderName: name,
+                    department: activeMaintDept,
+                    departmentTitle: deptTitle,
+                    text: `[${deptTitle}] ${msg}`,
+                    timestamp: now,
+                    isMaintenanceSubmission: true
+                };
+
+                if (window.database) {
+                    // 1. Direct message inside student chat thread
+                    await database.ref('DirectChats/' + code + '/messages').push(msgPayload);
+                    await database.ref('DirectChats/' + code + '/meta').update({
+                        studentCode: code,
+                        studentName: name,
+                        lastMessage: `[${deptTitle}] ${msg}`,
+                        lastSender: 'student',
+                        department: activeMaintDept,
+                        updatedAt: now,
+                        unreadByAdmin: true,
+                        isMaintenanceTicket: true
+                    });
+
+                    // 2. Add to platform issues / audit log
+                    await database.ref('PlatformIssues').push({
+                        studentCode: code,
+                        studentName: name,
+                        issueType: activeMaintDept === 'tech' ? 'عطل تقني أثناء الصيانة' : 'سؤال أكاديمي أثناء الصيانة',
+                        description: msg,
+                        status: 'pending',
+                        createdAt: now
+                    });
+                }
+
+                document.getElementById('maintSupportMessage').value = '';
+                closeMaintenanceSupportModal();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم إرسال رسالتك بنجاح!',
+                    html: `تم تسجيل طلبك لدى <b>${deptTitle}</b> بكود <b>#${code}</b>.<br>سيتم الرد عليك ومتابعة طلبك مباشرة داخل المنصة فور فتحها.`,
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#C28B38'
+                });
+            } catch(e) {
+                console.error(e);
+                Swal.fire('خطأ', 'حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>إرسال الرسالة إلى إدارة المنصة</span> <i class="fa-solid fa-paper-plane"></i>';
+            }
+        }
+    </script>
+</body>
+</html>

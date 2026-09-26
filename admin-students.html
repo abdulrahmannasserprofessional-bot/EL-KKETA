@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>إدارة الطلاب والاشتراكات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .filter-chip {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .filter-chip:hover {
+            border-color: var(--gold);
+            color: var(--text);
+        }
+        .filter-chip.active {
+            background: var(--gold-dim);
+            border-color: rgba(212, 151, 59, 0.4);
+            color: var(--gold);
+        }
+
+        .student-item-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .student-item-card:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
+
+        .avatar-ring {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--gold-gradient);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(212, 151, 59, 0.3);
+        }
+
+        .student-code-badge {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--gold);
+            background: var(--gold-dim);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px dashed rgba(212, 151, 59, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .student-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-card-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 4px;
+            border-radius: var(--radius-sm);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-card-action:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .btn-card-action.ban {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+        .btn-card-action.ban:hover {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn-card-action.unban {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+        .btn-card-action.unban:hover {
+            background: var(--green);
+            color: #fff;
+        }
+        .btn-card-action.delete {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+        .btn-card-action.delete:hover {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            display: inline-block;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem"><i class="fa-solid fa-users"></i></div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Students Directory</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-user-graduate"></i>
+            <span>إدارة الطلاب والاشتراكات</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إدارة الطلاب وسجلات الدفعة</h1>
+                        <p class="page-subtitle">التحكم الكامل في حسابات الطلاب، الأجهزة المقترنة، الحظر، والتواصل المباشر</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn-gold" onclick="openAddStudentModal()">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إضافة طالب جديد</span>
+                    </button>
+                    <button class="btn-ghost" onclick="sendBulkEncouragementNotification()" style="color: var(--yellow); border-color: rgba(245, 158, 11, 0.4);" title="بث تنبيه تشجيعي للغائبين">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>تنبيه الغائبين</span>
+                    </button>
+                    <button class="btn-ghost" onclick="exportStudentsCSV()" title="تصدير بيانات الطلاب Excel / CSV">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>تصدير CSV</span>
+                    </button>
+                    <a href="admin-radar.html" class="btn-ghost" style="color: var(--green); border-color: rgba(16, 185, 129, 0.4);" title="رادار النشاط المباشر">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>رادار مباشر</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 8px;">
+                <div class="kpi-card" style="padding: 14px 16px; min-height: 90px;">
+                    <div>
+                        <div class="kpi-label">إجمالي الطلاب المسجلين</div>
+                        <div class="kpi-val" id="totalStudents">0</div>
+                    </div>
+                    <div class="kpi-icon-box gold">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="padding: 14px 16px; min-height: 90px;">
+                    <div>
+                        <div class="kpi-label">متواجد الآن مباشر</div>
+                        <div class="kpi-val" style="display:flex; align-items:center; gap:8px;">
+                            <span id="onlineStudents">0</span>
+                            <span class="pulse-dot"></span>
+                        </div>
+                    </div>
+                    <div class="kpi-icon-box green">
+                        <i class="fa-solid fa-signal"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="padding: 14px 16px; min-height: 90px;">
+                    <div>
+                        <div class="kpi-label">نشط اليوم بالمنصة</div>
+                        <div class="kpi-val" id="activeToday">0</div>
+                    </div>
+                    <div class="kpi-icon-box blue">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="padding: 14px 16px; min-height: 90px;">
+                    <div>
+                        <div class="kpi-label">الأجهزة المقترنة</div>
+                        <div class="kpi-val" id="devicesCount">0</div>
+                    </div>
+                    <div class="kpi-icon-box purple">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card" style="padding: 14px 16px; min-height: 90px;">
+                    <div>
+                        <div class="kpi-label">متوسط درجات الطلاب</div>
+                        <div class="kpi-val" id="avgScore">89%</div>
+                    </div>
+                    <div class="kpi-icon-box red">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls & Filters Card -->
+            <div class="card" style="padding: 18px 20px; margin-top: 6px; position: relative; z-index: 5;">
+                <div style="display: flex; gap: 14px; flex-direction: column;">
+                    <div style="position: relative; width: 100%;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 15px; pointer-events: none; z-index: 2;"></i>
+                        <input type="text" id="searchInput" placeholder="🔍 ابحث بالاسم، كود الطالب (مثل A0358)، أو رقم الهاتف..." style="width: 100%; height: 46px; padding: 10px 46px 10px 16px; font-size: 13.5px; border-radius: 10px; border: 1.5px solid var(--border2); background: #FFFFFF; color: var(--text); outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.03);" oninput="filterStudents()">
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <button class="filter-chip active" id="chip-all" onclick="setStatusFilter('all')">
+                                <i class="fa-solid fa-list-ul"></i> الكل (<span id="countFilterAll">0</span>)
+                            </button>
+                            <button class="filter-chip" id="chip-online" onclick="setStatusFilter('online')">
+                                <span class="pulse-dot"></span> متواجد الآن (<span id="countFilterOnline">0</span>)
+                            </button>
+                            <button class="filter-chip" id="chip-active" onclick="setStatusFilter('active')">
+                                <i class="fa-solid fa-circle-check" style="color:var(--green);"></i> نشط
+                            </button>
+                            <button class="filter-chip" id="chip-banned" onclick="setStatusFilter('banned')">
+                                <i class="fa-solid fa-ban" style="color:var(--red);"></i> محظور
+                            </button>
+                            <button class="filter-chip" id="chip-warnings" onclick="setStatusFilter('warnings')">
+                                <i class="fa-solid fa-triangle-exclamation" style="color:var(--yellow);"></i> إنذارات
+                            </button>
+                        </div>
+
+                        <button class="btn-ghost" onclick="toggleSortOrder()" style="font-size: 12px; padding: 6px 14px;">
+                            <i class="fa-solid fa-arrow-down-wide-short"></i>
+                            <span id="sortLabel">الأحدث تسجيلاً</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Cards Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;" id="studentsList">
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text3);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    جاري جلب سجلات الطلاب من قاعدة البيانات...
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const API_BASE = "https://backendapi-pi.vercel.app/api";
+    let allStudents = [];
+    let currentStatusFilter = 'all';
+    let sortDesc = true;
+
+    function getDB() {
+        return window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+    }
+
+    function showToast(msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: msg,
+            showConfirmButton: false,
+            timer: 2500
+        });
+    }
+
+    function copyCode(code) {
+        if (!code) return;
+        navigator.clipboard.writeText(code).then(() => {
+            showToast(`تم نسخ كود الطالب: ${code}`);
+        });
+    }
+
+    function toggleSortOrder() {
+        sortDesc = !sortDesc;
+        const el = document.getElementById('sortLabel');
+        if (el) el.textContent = sortDesc ? 'الأحدث تسجيلاً' : 'الأقدم تسجيلاً';
+        filterStudents();
+    }
+
+    function isStudentOnline(st) {
+        if (st.isOnline === true) return true;
+        if (st.lastActive && (Date.now() - st.lastActive < 300000)) return true;
+        return false;
+    }
+
+    function isStudentInactive(st) {
+        if (!st.lastActive) return true;
+        return (Date.now() - st.lastActive > 604800000);
+    }
+
+    function setStatusFilter(filter) {
+        currentStatusFilter = filter;
+        ['all', 'online', 'active', 'banned', 'warnings'].forEach(id => {
+            const el = document.getElementById(`chip-${id}`);
+            if (el) el.classList.toggle('active', id === filter);
+        });
+        filterStudents();
+    }
+
+    // Instant load from localStorage cache
+    try {
+        const cachedData = localStorage.getItem('cached_admin_students');
+        if (cachedData) {
+            const parsed = JSON.parse(cachedData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                allStudents = parsed.filter(s => s.studentCode !== 'byUid' && s.studentCode !== 'byCode' && s.firebaseKey !== 'byUid' && s.firebaseKey !== 'byCode');
+                updateKPIsAndRender();
+            }
+        }
+    } catch(e) {}
+
+    function updateKPIsAndRender() {
+        let totalScore = 0, scoreCount = 0;
+        allStudents.forEach(val => {
+            if (val.exams) {
+                Object.values(val.exams).forEach(ex => {
+                    const score = parseFloat(ex.score || ex.degree || 0);
+                    const total = parseFloat(ex.total || ex.totalQuestions || 10);
+                    if (total > 0) {
+                        totalScore += (score / total) * 100;
+                        scoreCount++;
+                    }
+                });
+            }
+        });
+
+        const avg = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 100;
+        const total = allStudents.length;
+        const online = allStudents.filter(isStudentOnline).length;
+        const activeToday = allStudents.filter(s => {
+            const t = s.lastActive || s.joinDate || s.createdAt || 0;
+            const midnight = new Date(); midnight.setHours(0,0,0,0);
+            return t >= midnight.getTime();
+        }).length;
+
+        const totalDevices = allStudents.reduce((acc, s) => {
+            return acc + (s.authorizedDevices ? Object.keys(s.authorizedDevices).length : (s.deviceId ? 1 : 0));
+        }, 0);
+
+        document.getElementById('totalStudents').textContent = total;
+        document.getElementById('onlineStudents').textContent = online;
+        document.getElementById('activeToday').textContent = activeToday;
+        document.getElementById('devicesCount').textContent = totalDevices || total;
+        document.getElementById('avgScore').textContent = `${avg}%`;
+
+        document.getElementById('countFilterAll').textContent = total;
+        document.getElementById('countFilterOnline').textContent = online;
+
+        filterStudents();
+    }
+
+    function loadStudents() {
+        const db = getDB();
+        if (!db) {
+            setTimeout(loadStudents, 300);
+            return;
+        }
+
+        db.ref('Students').on('value', snap => {
+            allStudents = [];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    if (child.key === 'byUid' || child.key === 'byCode') return;
+                    const val = child.val();
+                    if (val && typeof val === 'object') {
+                        val.firebaseKey = child.key;
+                        val.studentCode = val.studentCode || val.code || child.key;
+                        val.fullName = val.fullName || val.name || 'طالب مسجل';
+                        val.whatsapp = val.whatsapp || val.phone || val.parentWhatsapp || '';
+                        allStudents.push(val);
+                    }
+                });
+            }
+
+            try {
+                localStorage.setItem('cached_admin_students', JSON.stringify(allStudents));
+            } catch(e) {}
+
+            updateKPIsAndRender();
+        });
+    }
+
+    function getFormattedJoinDate(st) {
+        const val = st.joinDate || st.createdAt || st.registeredAt || st.timestamp || st.activatedAt;
+        if (!val) return 'غير محدد';
+        try {
+            const d = new Date(val);
+            if (isNaN(d.getTime())) return 'غير محدد';
+            return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+        } catch(e) {
+            return 'غير محدد';
+        }
+    }
+
+    function filterStudents() {
+        const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+        let filtered = allStudents;
+
+        if (currentStatusFilter === 'online') {
+            filtered = filtered.filter(isStudentOnline);
+        } else if (currentStatusFilter === 'active') {
+            filtered = filtered.filter(s => !isStudentInactive(s) && !s.isBanned);
+        } else if (currentStatusFilter === 'banned') {
+            filtered = filtered.filter(s => s.isBanned);
+        } else if (currentStatusFilter === 'warnings') {
+            filtered = filtered.filter(s => s.warnings && s.warnings > 0);
+        }
+
+        if (q) {
+            filtered = filtered.filter(s => 
+                (s.fullName || '').toLowerCase().includes(q) ||
+                (s.studentCode || '').toLowerCase().includes(q) ||
+                (s.whatsapp || '').includes(q) ||
+                (s.email || '').toLowerCase().includes(q)
+            );
+        }
+
+        filtered.sort((a, b) => {
+            const timeA = a.joinDate || a.createdAt || a.registeredAt || a.timestamp || 0;
+            const timeB = b.joinDate || b.createdAt || b.registeredAt || b.timestamp || 0;
+            return sortDesc ? (timeB - timeA) : (timeA - timeB);
+        });
+
+        const container = document.getElementById('studentsList');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; background: var(--surface); border: 1.5px dashed var(--border); border-radius: var(--radius);">
+                    <i class="fa-solid fa-user-slash" style="font-size: 30px; color: var(--text3); margin-bottom: 10px; display: block;"></i>
+                    <h3 style="font-size: 16px; font-weight: 800; color: var(--text);">لم يتم العثور على أي طلاب</h3>
+                    <p style="font-size: 12.5px; color: var(--text3); margin-top: 4px;">جرب تغيير كلمة البحث أو الفلتر المختار</p>
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach((st) => {
+            const isOnline = isStudentOnline(st);
+            const isBanned = !!st.isBanned;
+            const hasWarnings = st.warnings && st.warnings > 0;
+            const joinDateText = getFormattedJoinDate(st);
+
+            let statusBadge = '<span class="badge badge-gold">طالب معتمد</span>';
+            if (isBanned) {
+                statusBadge = '<span class="badge badge-red"><i class="fa-solid fa-ban"></i> محظور</span>';
+            } else if (hasWarnings) {
+                statusBadge = `<span class="badge badge-gold"><i class="fa-solid fa-triangle-exclamation"></i> إنذار (${st.warnings})</span>`;
+            } else if (isOnline) {
+                statusBadge = '<span class="badge badge-green"><span class="pulse-dot"></span> متصل الآن</span>';
+            }
+
+            const escName = (st.fullName || 'طالب').replace(/'/g, "\\'");
+            const escCode = (st.studentCode || '').replace(/'/g, "\\'");
+            const cleanPhone = (st.whatsapp || st.phone || '').replace(/[^0-9]/g, '');
+
+            const card = document.createElement('div');
+            card.className = "student-item-card";
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                        <div class="avatar-ring">${(st.fullName || 'ط')[0]}</div>
+                        <div style="min-width: 0;">
+                            <div style="font-size: 14.5px; font-weight: 900; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${st.fullName || 'طالب مسجل'}</div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
+                                <span class="student-code-badge">${st.studentCode}</span>
+                                <button onclick="copyCode('${escCode}')" style="background: none; border: none; color: var(--text3); cursor: pointer;" title="نسخ الكود"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    ${statusBadge}
+                </div>
+
+                <div>
+                    <div class="student-info-row">
+                        <span><i class="fa-solid fa-calendar-day" style="color:var(--gold);"></i> الانضمام:</span>
+                        <span style="font-family:var(--mono);">${joinDateText}</span>
+                    </div>
+                    <div class="student-info-row">
+                        <span><i class="fa-solid fa-mobile-screen" style="color:var(--blue2);"></i> الجهاز:</span>
+                        <span>${st.registeredDevice || st.deviceId ? 'جهاز موثق ✓' : 'غير مقترن'}</span>
+                    </div>
+                </div>
+
+                ${cleanPhone ? `
+                    <a href="https://wa.me/2${cleanPhone}?text=${encodeURIComponent('أهلاً بك في منصة الخطة التعليمية 🎓')}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 8px; background: linear-gradient(135deg, #10B981, #059669); color: #fff; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none;">
+                        <i class="fa-brands fa-whatsapp"></i> مراسلة بالواتساب (${st.whatsapp})
+                    </a>
+                ` : `
+                    <div style="text-align: center; font-size: 11px; color: var(--text3); padding: 4px;">بدون رقم هاتف مسجل</div>
+                `}
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                    <button class="btn-card-action" onclick="editStudentModal('${escCode}')" title="تعديل">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>تعديل</span>
+                    </button>
+                    <button class="btn-card-action" onclick="resetStudentDevice('${escCode}')" title="تصفير الجهاز">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>تصفير</span>
+                    </button>
+                    <button class="btn-card-action ${isBanned ? 'unban' : 'ban'}" onclick="toggleStudentBan('${escCode}', ${isBanned})" title="${isBanned ? 'فك الحظر' : 'حظر'}">
+                        <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                        <span>${isBanned ? 'فك حظر' : 'حظر'}</span>
+                    </button>
+                    <button class="btn-card-action delete" onclick="deleteStudentDirect('${escCode}', '${escName}')" title="حذف الطالب">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>حذف</span>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function generateStudentCodeFromProfile(name, phone) {
+        const cleanName = (name || '').trim();
+        let ch = "S";
+        if (cleanName.length > 0) {
+            ch = cleanName.charAt(0).toUpperCase();
+        }
+        const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+        const phoneSuffix = cleanPhone.length >= 4 ? cleanPhone.slice(-4) : Math.floor(1000 + Math.random() * 9000).toString();
+        return (ch + phoneSuffix).toUpperCase();
+    }
+
+    function openAddStudentModal() {
+        const initialCode = 'S' + Math.floor(1000 + Math.random() * 9000);
+        Swal.fire({
+            title: 'إضافة طالب جديد 🎓',
+            html: `
+                <div style="text-align:right; font-size:13px; color:var(--text); display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">اسم الطالب الكامل:</label>
+                        <input id="swalStudentName" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:8px;" placeholder="مثال: أحمد محمد علي">
+                    </div>
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">رقم الواتساب / الهاتف:</label>
+                        <input id="swalStudentPhone" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:8px;" placeholder="مثال: 01012345678">
+                    </div>
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">كود الدخول:</label>
+                        <input id="swalStudentCode" value="${initialCode}" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--gold); border:1px solid var(--gold); border-radius:8px; font-family:var(--mono); font-weight:900; font-size:16px; text-align:center;">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'إضافة الطالب الآن',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            preConfirm: () => {
+                const name = document.getElementById('swalStudentName').value.trim();
+                const phone = document.getElementById('swalStudentPhone').value.trim();
+                const code = document.getElementById('swalStudentCode').value.trim().toUpperCase();
+
+                if (!name) {
+                    Swal.showValidationMessage('يرجى إدخال اسم الطالب');
+                    return false;
+                }
+                if (!code) {
+                    Swal.showValidationMessage('يرجى تحديد كود الطالب');
+                    return false;
+                }
+                return { fullName: name, whatsapp: phone, phone: phone, studentCode: code };
+            }
+        }).then(async (res) => {
+            if (res.isConfirmed && res.value) {
+                const db = getDB();
+                if (!db) return;
+
+                const payload = {
+                    ...res.value,
+                    isBanned: false,
+                    warnings: 0,
+                    joinDate: Date.now(),
+                    createdAt: Date.now()
+                };
+
+                await db.ref('Students/' + res.value.studentCode).set(payload);
+                await db.ref('ActivationCodes/' + res.value.studentCode).set({
+                    code: res.value.studentCode,
+                    isUsed: true,
+                    usedBy: res.value.fullName,
+                    phone: res.value.whatsapp,
+                    createdAt: Date.now()
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تمت إضافة الطالب بنجاح 🎉',
+                    text: `كود دخول الطالب هو: ${res.value.studentCode}`,
+                    confirmButtonColor: '#D4973B'
+                });
+            }
+        });
+    }
+
+    function editStudentModal(code) {
+        const student = allStudents.find(s => (s.studentCode || s.firebaseKey) === code);
+        if (!student) return;
+
+        Swal.fire({
+            title: 'تعديل بيانات الطالب ✏️',
+            html: `
+                <div style="text-align:right; font-size:13px; color:var(--text); display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">اسم الطالب:</label>
+                        <input id="swalEditName" value="${student.fullName || ''}" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:8px;">
+                    </div>
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">رقم الهاتف / الواتساب:</label>
+                        <input id="swalEditPhone" value="${student.whatsapp || ''}" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:8px;">
+                    </div>
+                    <div>
+                        <label style="font-weight:800; display:block; margin-bottom:4px;">عدد الإنذارات:</label>
+                        <input id="swalEditWarnings" type="number" min="0" max="3" value="${student.warnings || 0}" style="width:100%; height:40px; padding:0 12px; background:var(--surface2); color:var(--text); border:1px solid var(--border2); border-radius:8px;">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ التعديلات',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            preConfirm: () => {
+                const name = document.getElementById('swalEditName').value.trim();
+                const phone = document.getElementById('swalEditPhone').value.trim();
+                const warnings = parseInt(document.getElementById('swalEditWarnings').value) || 0;
+                if (!name) {
+                    Swal.showValidationMessage('يرجى إدخال اسم الطالب');
+                    return false;
+                }
+                return { fullName: name, whatsapp: phone, phone: phone, warnings: warnings };
+            }
+        }).then(async (res) => {
+            if (res.isConfirmed && res.value) {
+                const db = getDB();
+                if (!db) return;
+                await db.ref('Students/' + code).update(res.value);
+                showToast("تم تحديث بيانات الطالب بنجاح!");
+            }
+        });
+    }
+
+    async function toggleStudentBan(code, isCurrentlyBanned) {
+        const newBanState = !isCurrentlyBanned;
+        const actionText = newBanState ? 'حظر حساب الطالب' : 'فك حظر حساب الطالب';
+
+        Swal.fire({
+            title: `${actionText}؟`,
+            text: newBanState ? 'لن يتمكن الطالب من دخول المنصة حتى يتم فك الحظر.' : 'سيتمكن الطالب من الدخول فوراً واستئناف الدراسة.',
+            icon: newBanState ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: newBanState ? '#EF4444' : '#10B981',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، نفذ الإجراء',
+            cancelButtonText: 'إلغاء'
+        }).then(async (res) => {
+            if (res.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                await db.ref('Students/' + code).update({
+                    isBanned: newBanState,
+                    warnings: newBanState ? 3 : 0,
+                    bannedAt: newBanState ? Date.now() : null
+                });
+                showToast(`تم ${actionText} بنجاح!`);
+            }
+        });
+    }
+
+    async function resetStudentDevice(code) {
+        Swal.fire({
+            title: 'تصفير جهاز الطالب؟',
+            text: 'سيتم مسح بصمة الجهاز الحالية والسماح للطالب بتسجيل الدخول من جهاز جديد.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3B82F6',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، تصفير الجهاز',
+            cancelButtonText: 'إلغاء'
+        }).then(async (res) => {
+            if (res.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                await db.ref('Students/' + code).update({
+                    registeredDevice: null,
+                    deviceId: null,
+                    warnings: 0
+                });
+                showToast("تم تصفير جهاز الطالب بنجاح!");
+            }
+        });
+    }
+
+    function deleteStudentDirect(code, name) {
+        Swal.fire({
+            title: 'حذف حساب الطالب نهائياً؟',
+            html: `هل أنت متأكد تماماً من حذف حساب الطالب:<br><b style="color:#EF4444; font-size:16px;">${name}</b> (${code})؟`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، حذف نهائياً',
+            cancelButtonText: 'إلغاء'
+        }).then(async (res) => {
+            if (res.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                await db.ref('Students/' + code).remove();
+                showToast("تم حذف حساب الطالب بنجاح");
+            }
+        });
+    }
+
+    function exportStudentsCSV() {
+        if (!allStudents || allStudents.length === 0) {
+            return showToast("لا يوجد طلاب مسجلين لتصديرهم");
+        }
+
+        let csvContent = "\uFEFF";
+        csvContent += "م,اسم الطالب,كود الدخول,رقم الهاتف,الحالة,تاريخ التسجيل\n";
+
+        allStudents.forEach((st, i) => {
+            const isBanned = st.isBanned ? "محظور" : "نشط";
+            const date = getFormattedJoinDate(st);
+            const row = [
+                i + 1,
+                `"${(st.fullName || '').replace(/"/g, '""')}"`,
+                `"${st.studentCode || ''}"`,
+                `"${st.whatsapp || ''}"`,
+                `"${isBanned}"`,
+                `"${date}"`
+            ];
+            csvContent += row.join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `سجل_الطلاب_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("تم تصدير ملف CSV بنجاح 📊");
+    }
+
+    function sendBulkEncouragementNotification() {
+        Swal.fire({
+            title: 'بث تنبيه تشجيعي للطلاب 📢',
+            text: 'سيتم إرسال إشعار تذكير وتشجيع عام عبر المنصة لتحفيز الطلاب على المذاكرة واستكمال المحاضرات.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#D4973B',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: '🚀 نعم، إرسال التنبيه الآن',
+            cancelButtonText: 'إلغاء'
+        }).then(async (res) => {
+            if (res.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                await db.ref('Announcements').push({
+                    title: '🌟 رسالة تذكير وتشجيع من إدارة المنصة',
+                    message: 'أعزاءنا الطلاب، لا تدعوا المحاضرات والامتحانات تتراكم! الوقت ما زال ملككم والفرصة أمامكم للتألق 🏆.',
+                    type: 'encouragement',
+                    timestamp: Date.now(),
+                    sender: 'إدارة الخطة التعليمية'
+                });
+                showToast("تم بث التنبيه التشجيعي بنجاح 🚀");
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadStudents();
+    });
+</script>
+</body>
+</html>

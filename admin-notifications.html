@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مركز البث والإشعارات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .templates-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+        .template-pill {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .template-pill:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        .filter-tabs-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .filter-tab-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .filter-tab-btn:hover, .filter-tab-btn.active {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #0284C7, #0369A1);">
+                <i class="fa-solid fa-bullhorn"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Broadcast & Push Center</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-tower-broadcast"></i>
+            <span>مركز البث والإشعارات المباشرة</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--cyan);">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">مركز البث والإشعارات والتنبيهات</h1>
+                        <p class="page-subtitle">إرسال إشعارات فورية لجميع هواتف ومتصفحات الطلاب، ومتابعة الأجهزة المقترنة</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-ghost" onclick="loadSubscribersList()">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>تحديث قائمة الأجهزة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">الأجهزة النشطة المقترنة</span>
+                        <div class="stat-icon-wrap" style="color: var(--green); background: rgba(16, 185, 129, 0.1);">
+                            <i class="fa-solid fa-tower-broadcast"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="activeTokensBadge" style="color: var(--green);">0</div>
+                    <div class="stat-sub">تستقبل الإشعارات الفورية (Push)</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">إجمالي الطلاب المسجلين</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalStudentsBadge">0</div>
+                    <div class="stat-sub">حسابات نشطة بالمنصة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">المشتركون بالتنبيهات</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="countSubStat">0</div>
+                    <div class="stat-sub">فعلوا استقبال الإشعارات</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">يحتاجون تنبيه اشتراك</span>
+                        <div class="stat-icon-wrap" style="color: var(--orange); background: rgba(249, 115, 22, 0.1);">
+                            <i class="fa-solid fa-bell-slash"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="countUnsubStat" style="color: var(--orange);">0</div>
+                    <div class="stat-sub">يمكن إرسال تذكير تفعيل لهم</div>
+                </div>
+            </div>
+
+            <!-- Two Column Layout: Broadcast Composer + Subscribers List -->
+            <div class="two-col" id="notifTwoColGrid">
+
+                <!-- Left Column: Composer -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-paper-plane" style="color: var(--gold);"></i>
+                            <span>صياغة وبث إشعار عام للدفعة</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                        
+                        <!-- Quick Templates Bar -->
+                        <div class="templates-bar">
+                            <span style="font-size: 11px; font-weight: 800; color: var(--text3);">قوالب سريعة:</span>
+                            <span class="template-pill" onclick="applyTemplate('lecture')">✨ محاضرة جديدة</span>
+                            <span class="template-pill" onclick="applyTemplate('exam')">🏆 اختبار متاح</span>
+                            <span class="template-pill" onclick="applyTemplate('alert')">📌 تنبيه عام</span>
+                            <span class="template-pill" onclick="applyTemplate('tip')">💡 نصيحة مذاكرة</span>
+                        </div>
+
+                        <div>
+                            <label class="form-label">عنوان الإشعار <span style="color:var(--red);">*</span></label>
+                            <input type="text" id="notifTitle" class="form-input" placeholder="مثال: تم إضافة محاضرة جديدة الآن! ✨">
+                        </div>
+
+                        <div>
+                            <label class="form-label">محتوى ونص الإشعار <span style="color:var(--red);">*</span></label>
+                            <textarea id="notifBody" class="form-textarea" rows="4" placeholder="مثال: ادخل الآن لمشاهدة شرح الفصل الجديد وحل الاختبار التقييمي..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="form-label">رابط صورة الإشعار (اختياري 🖼️)</label>
+                            <input type="url" id="notifImage" class="form-input" placeholder="https://..." style="direction: ltr; text-align: left;">
+                        </div>
+
+                        <button class="btn btn-gold" onclick="sendNotification()" style="padding: 12px; justify-content: center; font-size: 14px; margin-top: 6px;">
+                            <i class="fa-solid fa-rocket"></i>
+                            <span>بث الإشعار لجميع هواتف ومتصفحات الطلاب 🚀</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Subscribers & Device Status -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-mobile-screen-button" style="color: var(--green);"></i>
+                            <span>حالة أجهزة واشتراكات الطلاب</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <!-- Filter Tabs -->
+                        <div class="filter-tabs-wrap">
+                            <button class="filter-tab-btn active" id="btnTabAll" onclick="setSubscribersFilter('all')">📋 الكل (<span id="countAll">0</span>)</button>
+                            <button class="filter-tab-btn" id="btnTabSubscribed" onclick="setSubscribersFilter('subscribed')">🟢 المشتركون (<span id="countSub">0</span>)</button>
+                            <button class="filter-tab-btn" id="btnTabUnsubscribed" onclick="setSubscribersFilter('unsubscribed')">⚪ غير المشتركين (<span id="countUnsub">0</span>)</button>
+                        </div>
+
+                        <!-- Search -->
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 12px;"></i>
+                            <input type="text" id="searchSubscribers" oninput="filterSubscribers()" placeholder="بحث باسم الطالب أو الكود..." class="form-input" style="padding-right: 36px; padding-top: 7px; padding-bottom: 7px; font-size: 12.5px;">
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-container" style="max-height: 480px; overflow-y: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align: center;">#</th>
+                                        <th>كود الطالب</th>
+                                        <th>اسم الطالب</th>
+                                        <th>حالة الاشتراك</th>
+                                        <th style="text-align: center;">إجراء مباشر</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subscribersTableBody">
+                                    <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text3);">جاري تحميل بيانات الأجهزة... ⏳</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    var database = getDB();
+    let allStudentsList = [];
+    let currentTabFilter = 'all';
+
+    function showToast(msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: msg,
+            showConfirmButton: false,
+            timer: 2500
+        });
+    }
+
+    function applyTemplate(type) {
+        if (type === 'lecture') {
+            document.getElementById('notifTitle').value = '✨ محاضرة جديدة متوفرة الآن!';
+            document.getElementById('notifBody').value = 'تم رفع محاضرة جديدة، ادخل الآن وشاهد الشرح مع التلخيص.';
+        } else if (type === 'exam') {
+            document.getElementById('notifTitle').value = '🏆 اختبار جديد بانتظارك!';
+            document.getElementById('notifBody').value = 'اختبر معلوماتك الآن وتصدر قائمة المتفوقين في لوحة الشرف!';
+        } else if (type === 'alert') {
+            document.getElementById('notifTitle').value = '📌 تنبيه هام لطلاب الدفعة';
+            document.getElementById('notifBody').value = 'يرجى مراجعة الجدول الدراسي والتأكد من إنجاز كافة التكليفات.';
+        } else if (type === 'tip') {
+            document.getElementById('notifTitle').value = '💡 نصيحة للمذاكرة الفعالة';
+            document.getElementById('notifBody').value = 'تخصيص 30 دقيقة يومياً لحل الاختبارات يرفع معدل استيعابك بنسبة 80%.';
+        }
+    }
+
+    async function sendNotification() {
+        const title = document.getElementById('notifTitle')?.value.trim();
+        const body = document.getElementById('notifBody')?.value.trim();
+        const img = document.getElementById('notifImage')?.value.trim();
+
+        if (!title || !body) return showToast("يرجى إدخال عنوان ومحتوى الإشعار");
+
+        const db = database || getDB();
+        if (!db) return Swal.fire('خطأ', 'تعذر الاتصال بالسيرفر.', 'error');
+
+        await db.ref('Announcements').push({
+            title: title,
+            body: body,
+            imageUrl: img || null,
+            createdAt: Date.now(),
+            batch: '2027'
+        });
+
+        const snap = await db.ref('PushTokens').once('value');
+        const count = snap.numChildren() || 0;
+
+        Swal.fire({
+            title: 'تم إرسال الإشعار بنجاح! 🎉',
+            html: `تم بث الإشعار في لوحة الإعلانات وتوجيهه للأجهزة المقترنة (<b style="color:var(--gold);">${count} جهاز نشط</b>).`,
+            icon: 'success',
+            confirmButtonColor: '#2563EB',
+            confirmButtonText: 'حسناً'
+        });
+
+        document.getElementById('notifTitle').value = '';
+        document.getElementById('notifBody').value = '';
+        document.getElementById('notifImage').value = '';
+    }
+
+    function loadSubscribersList() {
+        const db = database || getDB();
+        if (!db) return setTimeout(loadSubscribersList, 300);
+
+        db.ref('PushTokens').once('value').then(snapTokens => {
+            const tokenCount = snapTokens.numChildren() || 0;
+            document.getElementById('activeTokensBadge').textContent = tokenCount;
+            document.getElementById('countSubStat').textContent = tokenCount;
+
+            db.ref('Students').once('value').then(snapStudents => {
+                allStudentsList = [];
+                snapStudents.forEach(child => {
+                    if (child.key === 'byCode' || child.key === 'byUid') return;
+
+                    const st = child.val() || {};
+                    const isSubscribed = Boolean(st.fcmToken || st.pushToken || st.hasPush);
+                    allStudentsList.push({
+                        code: child.key,
+                        isSubscribed: isSubscribed,
+                        ...st
+                    });
+                });
+
+                document.getElementById('totalStudentsBadge').textContent = allStudentsList.length;
+                document.getElementById('countAll').textContent = allStudentsList.length;
+                document.getElementById('countSub').textContent = tokenCount;
+                const unsubCount = Math.max(0, allStudentsList.length - tokenCount);
+                document.getElementById('countUnsub').textContent = unsubCount;
+                document.getElementById('countUnsubStat').textContent = unsubCount;
+
+                renderSubscribersTable();
+            });
+        });
+    }
+
+    function setSubscribersFilter(tab) {
+        currentTabFilter = tab;
+        ['btnTabAll', 'btnTabSubscribed', 'btnTabUnsubscribed'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        });
+        if (tab === 'all') document.getElementById('btnTabAll')?.classList.add('active');
+        else if (tab === 'subscribed') document.getElementById('btnTabSubscribed')?.classList.add('active');
+        else if (tab === 'unsubscribed') document.getElementById('btnTabUnsubscribed')?.classList.add('active');
+
+        renderSubscribersTable();
+    }
+
+    function renderSubscribersTable() {
+        const tbody = document.getElementById('subscribersTableBody');
+        const q = document.getElementById('searchSubscribers')?.value.toLowerCase().trim() || '';
+        if (!tbody) return;
+
+        let list = allStudentsList;
+        if (currentTabFilter === 'subscribed') list = list.filter(s => s.isSubscribed);
+        else if (currentTabFilter === 'unsubscribed') list = list.filter(s => !s.isSubscribed);
+
+        if (q) {
+            list = list.filter(st => 
+                (st.code && st.code.toLowerCase().includes(q)) ||
+                (st.fullName && st.fullName.toLowerCase().includes(q))
+            );
+        }
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text3);">لا توجد بيانات مطابقة</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map((st, idx) => {
+            const statusBadge = st.isSubscribed
+                ? `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> مفعل</span>`
+                : `<span class="badge badge-red"><i class="fa-solid fa-circle-xmark"></i> غير مفعل</span>`;
+
+            const escCode = (st.code || '').replace(/'/g, "\\'");
+            const escName = (st.fullName || 'طالب').replace(/'/g, "\\'");
+
+            const actionBtn = st.isSubscribed
+                ? `<button class="btn btn-ghost btn-sm" onclick="sendPersonalNotice('${escCode}', '${escName}')" style="color:var(--blue);"><i class="fa-solid fa-envelope"></i> رسالة خاصة</button>`
+                : `<button class="btn btn-ghost btn-sm" onclick="sendPushReminder('${escCode}', '${escName}')" style="color:var(--orange);"><i class="fa-solid fa-bell"></i> تذكير بالاشتراك</button>`;
+
+            return `
+                <tr>
+                    <td style="text-align: center; font-weight: 800; color: var(--text3);">${idx + 1}</td>
+                    <td><span class="badge" style="background: rgba(249, 115, 22, 0.12); color: var(--orange); font-family: var(--mono);">${st.code}</span></td>
+                    <td style="font-weight: 800; color: var(--text);">${st.fullName || 'طالب مسجل'}</td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align: center;">${actionBtn}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterSubscribers() { renderSubscribersTable(); }
+
+    window.sendPushReminder = function(code, name) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('Students/' + code + '/personalNotice').set({
+            text: 'يرجى تفعيل الإشعارات وتثبيت تطبيق المنصة ليصلك كل درس وامتحان جديد فوراً! 🔔📲',
+            createdAt: Date.now()
+        }).then(() => {
+            showToast(`تم إرسال تنبيه تفعيل الإشعارات للطالب (${name}) بنجاح! 📢`);
+        });
+    };
+
+    window.sendPersonalNotice = function(code, name) {
+        Swal.fire({
+            title: `إرسال رسالة خاصة للطالب: ${name}`,
+            input: 'textarea',
+            inputPlaceholder: 'اكتب نص الرسالة هنا...',
+            showCancelButton: true,
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'إرسال الرسالة',
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref('Students/' + code + '/personalNotice').set({
+                    text: result.value.trim(),
+                    createdAt: Date.now()
+                }).then(() => {
+                    showToast(`تم إرسال الرسالة للطالب (${name}) بنجاح! 📩`);
+                });
+            }
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', loadSubscribersList);
+</script>
+
+</body>
+</html>

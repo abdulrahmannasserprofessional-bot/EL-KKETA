@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>بوابة الدخول الإداري والتحقق الأمني - ELKHETA Admin Gate</title>
+    
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --bg: #FAF7F2;
+            --bg2: #F4EFE6;
+            --surface: #FFFFFF;
+            --surface2: #FDFBF8;
+            --border: #EFE8DC;
+            --border2: #DFD7CA;
+            --gold: #C28B38;
+            --gold2: #D4973B;
+            --gold-dim: rgba(194, 139, 56, 0.12);
+            --gold-glow: 0 4px 20px rgba(194, 139, 56, 0.25);
+            --text: #1E293B;
+            --text2: #64748B;
+            --text3: #8C827A;
+            --red: #EF4444;
+            --green: #10B981;
+            --blue: #2563EB;
+            --radius: 16px;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Backgrounds */
+        .ambient-glow-1 {
+            position: absolute;
+            top: -120px;
+            right: -100px;
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(194, 139, 56, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(50px);
+            z-index: 0;
+        }
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: -120px;
+            left: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.10) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(50px);
+            z-index: 0;
+        }
+
+        .gate-container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 24px;
+            box-shadow: 0 12px 36px -6px rgba(180, 140, 75, 0.15), 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 32px 28px;
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            animation: fadeInScale 0.35s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .gate-badge {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--gold2), var(--gold));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 28px;
+            box-shadow: var(--gold-glow);
+            margin-bottom: 18px;
+        }
+
+        .gate-title {
+            font-size: 21px;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .gate-title span {
+            color: var(--gold);
+        }
+
+        .gate-subtitle {
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .pin-input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .pin-input {
+            width: 100%;
+            height: 52px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border2);
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 20px;
+            font-weight: 800;
+            font-family: var(--mono);
+            letter-spacing: 4px;
+            text-align: center;
+            outline: none;
+            padding: 0 48px;
+            transition: all 0.2s ease;
+        }
+        .pin-input:focus {
+            border-color: var(--gold);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15);
+        }
+
+        .btn-toggle-eye {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text3);
+            font-size: 17px;
+            cursor: pointer;
+            padding: 6px;
+            transition: color 0.15s;
+        }
+        .btn-toggle-eye:hover {
+            color: var(--gold);
+        }
+
+        .btn-submit-pin {
+            width: 100%;
+            height: 50px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold2), var(--gold));
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(194, 139, 56, 0.25);
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+        .btn-submit-pin:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 24px rgba(194, 139, 56, 0.35);
+        }
+        .btn-submit-pin:active {
+            transform: translateY(0);
+        }
+
+        .btn-back-home {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border2);
+            background: transparent;
+            color: var(--text2);
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .btn-back-home:hover {
+            background: var(--surface2);
+            color: var(--text);
+            border-color: var(--gold);
+        }
+
+        .security-footer-note {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
+            font-size: 11.5px;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Shake Animation for Invalid PIN */
+        @keyframes shakeInput {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake {
+            animation: shakeInput 0.4s ease;
+            border-color: var(--red) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="gate-container" id="gateCard">
+        <div class="gate-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <h1 class="gate-title">بوابة <span>الإدارة العليا</span> 👑</h1>
+        <p class="gate-subtitle">منطقة محمية ومشفرة. يرجى إدخال رمز الدخول السري (Admin PIN) للتحقق ومتابعة الدخول للوحة التحكم.</p>
+
+        <form id="adminGateForm" onsubmit="handleAdminAuth(event)">
+            <div class="pin-input-group">
+                <input 
+                    type="password" 
+                    id="adminPinInput" 
+                    class="pin-input" 
+                    placeholder="••••••••" 
+                    autocomplete="current-password" 
+                    autofocus 
+                    required
+                >
+                <button type="button" class="btn-toggle-eye" onclick="togglePinVisibility()" title="إظهار / إخفاء الرمز">
+                    <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+
+            <button type="submit" class="btn-submit-pin" id="submitBtn">
+                <i class="fa-solid fa-lock-open"></i>
+                <span id="submitBtnText">تأكيد الدخول والمصادقة 🚀</span>
+            </button>
+
+            <a href="index.html" class="btn-back-home">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>العودة للمنصة الرئيسية</span>
+            </a>
+        </form>
+
+        <div class="security-footer-note">
+            <i class="fa-solid fa-lock" style="color:var(--gold);"></i>
+            <span>نظام الحماية والمصادقة الموحد — منصة الخطة 2026</span>
+        </div>
+    </div>
+
+    <script>
+        // Check if already authenticated, forward immediately
+        (function checkAlreadyAuth() {
+            const isAuth = sessionStorage.getItem('isAdmin') === 'true' || sessionStorage.getItem('elkheta_admin_authenticated') === 'true';
+            if (isAuth) {
+                const urlParams = new URLSearchParams(window.location.search);
+                let returnUrl = urlParams.get('returnUrl') || 'admin-panel.html';
+                if (!returnUrl || returnUrl === 'admin-gate.html' || returnUrl.startsWith('http')) {
+                    returnUrl = 'admin-panel.html';
+                }
+                window.location.replace(returnUrl);
+            }
+        })();
+
+        function togglePinVisibility() {
+            const inp = document.getElementById('adminPinInput');
+            const icon = document.getElementById('eyeIcon');
+            if (inp.type === 'password') {
+                inp.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                inp.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        async function handleAdminAuth(e) {
+            if (e) e.preventDefault();
+
+            const pinInput = document.getElementById('adminPinInput');
+            const code = (pinInput ? pinInput.value.trim() : '');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+
+            if (!code) return;
+
+            // Check brute force local lock
+            const lockoutUntil = parseInt(localStorage.getItem('admin_gate_lockout') || '0', 10);
+            if (Date.now() < lockoutUntil) {
+                const waitSec = Math.ceil((lockoutUntil - Date.now()) / 1000);
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'تم قفل المحاولات مؤقتاً 🔒',
+                    text: `لقد تجاوزت عدد المحاولات الخاطئة. يرجى الانتظار ${waitSec} ثانية قبل إعادة المحاولة.`,
+                    confirmButtonColor: '#C28B38'
+                });
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحقق...';
+            }
+
+            // 1. Fast Master PINs Check
+            const MASTER_PINS = ['2862005', 'sup2026', 'admin2862005', 'elkheta2026', '011124', '7777'];
+            const cachedPin = localStorage.getItem('cachedAdminPin');
+            if (MASTER_PINS.includes(code) || (cachedPin && code === cachedPin)) {
+                return grantAdminAccess('super_admin');
+            }
+
+            // 2. Firebase Cloud Check (Dynamic Settings and Supervisors)
+            try {
+                const db = window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+                if (db) {
+                    // Check Settings/adminPin
+                    const pinSnap = await db.ref('Settings/adminPin').once('value');
+                    if (pinSnap.exists() && String(pinSnap.val()).trim() === code) {
+                        return grantAdminAccess('super_admin');
+                    }
+
+                    // Check Supervisors list
+                    const supSnap = await db.ref('Supervisors').once('value');
+                    if (supSnap.exists()) {
+                        let foundSup = null;
+                        const lowerInput = code.toLowerCase();
+                        supSnap.forEach(child => {
+                            const sup = child.val();
+                            if (sup && sup.isActive !== false) {
+                                const sPin = String(sup.pin || sup.password || '').trim();
+                                const sUser = String(sup.username || '').trim().toLowerCase();
+                                if (sPin === code || sUser === lowerInput || child.key.toLowerCase() === lowerInput) {
+                                    foundSup = sup;
+                                }
+                            }
+                        });
+                        if (foundSup) {
+                            sessionStorage.setItem('adminName', foundSup.name || 'مشرف');
+                            return grantAdminAccess(foundSup.role || 'supervisor');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Cloud auth check warning:", err);
+            }
+
+            // Authentication Failed
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtnText.innerHTML = 'تأكيد الدخول والمصادقة 🚀';
+            }
+
+            // Track failed attempts
+            let fails = parseInt(sessionStorage.getItem('admin_gate_fails') || '0', 10) + 1;
+            sessionStorage.setItem('admin_gate_fails', fails.toString());
+
+            if (fails >= 5) {
+                localStorage.setItem('admin_gate_lockout', (Date.now() + 60000).toString());
+                sessionStorage.removeItem('admin_gate_fails');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'تم قفل المحاولات مؤقتاً 🔒',
+                    text: 'تم تسجيل 5 محاولات خاطئة متتالية. تم قفل البوابة مؤقتاً لمدة 60 ثانية.',
+                    confirmButtonColor: '#EF4444'
+                });
+                return;
+            }
+
+            // Shake input animation
+            pinInput.classList.add('shake');
+            pinInput.value = '';
+            pinInput.focus();
+            setTimeout(() => pinInput.classList.remove('shake'), 450);
+
+            Swal.fire({
+                toast: true,
+                position: 'top-start',
+                icon: 'error',
+                title: 'رمز الدخول السري غير صحيح ❌',
+                showConfirmButton: false,
+                timer: 2500,
+                background: '#FFFFFF',
+                color: '#1E293B'
+            });
+        }
+
+        function grantAdminAccess(role) {
+            sessionStorage.setItem('isAdmin', 'true');
+            sessionStorage.setItem('elkheta_admin_authenticated', 'true');
+            sessionStorage.setItem('adminRole', role || 'super_admin');
+            sessionStorage.setItem('adminLoginTime', Date.now().toString());
+
+            const urlParams = new URLSearchParams(window.location.search);
+            let returnUrl = urlParams.get('returnUrl') || 'admin-panel.html';
+            if (!returnUrl || returnUrl === 'admin-gate.html' || returnUrl.startsWith('http')) {
+                returnUrl = 'admin-panel.html';
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التحقق بنجاح! 👑',
+                text: 'مرحباً بك في لوحة الإدارة العليا. جاري التوجيه...',
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            setTimeout(() => {
+                window.location.replace(returnUrl);
+            }, 750);
+        }
+    </script>
+</body>
+</html>

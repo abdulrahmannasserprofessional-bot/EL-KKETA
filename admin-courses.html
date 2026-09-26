@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة المواد والكورسات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .subject-item-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .subject-item-card:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
+        .subject-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .schedule-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .schedule-card.review {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .preset-badge {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 12px;
+            padding: 3px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .preset-badge:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--gold-dim);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #F97316, #EA580C);">
+                <i class="fa-solid fa-book-bookmark"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Courses & Weekly Schedule</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-book-open"></i>
+            <span>المواد والكورسات الجامعية</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--orange);">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إدارة المواد والكورسات والجدول الأسبوعي</h1>
+                        <p class="page-subtitle">تخصيص المواد المعتمدة للدفعة وإدارة خطة المذاكرة الأسبوعية (Planner)</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <a href="#weeklyScheduleAdminSection" class="btn-ghost" style="color: var(--yellow); border-color: rgba(245, 158, 11, 0.4);">
+                        <i class="fa-solid fa-calendar-week"></i>
+                        <span>الجدول الأسبوعي</span>
+                    </a>
+                    <span class="badge badge-gold" id="subjectCountPill" style="font-size: 13px; padding: 6px 14px;">7 مواد</span>
+                </div>
+            </div>
+
+            <!-- Add New Subject Form Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-plus-circle" style="color: var(--gold);"></i>
+                        <span>إضافة مادة دراسية جديدة</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <input type="text" id="newSubjectName" placeholder="اكتب اسم المادة الجديدة (مثال: الخدمة الاجتماعية في المجال الطبي)..." style="flex: 1; min-width: 260px;">
+                        <button onclick="addSubject()" class="btn-gold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>إضافة المادة واعتمادها</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Grid Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-layer-group" style="color: var(--orange);"></i>
+                        <span>المقررات الدراسية المعتمدة حالياً</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;" id="subjectsList">
+                        <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text3);">
+                            <i class="fa-solid fa-spinner fa-spin" style="font-size: 20px; margin-bottom: 8px; display: block;"></i>
+                            جاري جلب المواد من قاعدة البيانات...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule Management Section -->
+            <div class="card" id="weeklyScheduleAdminSection">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-calendar-week" style="color: var(--yellow);"></i>
+                        <span>إدارة وتخصيص الجدول الدراسي الأسبوعي (Planner)</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" onclick="previewWeeklyScheduleModal()" class="btn-ghost" style="font-size: 12px; padding: 6px 12px;">
+                            <i class="fa-solid fa-eye"></i> معاينة للطلاب
+                        </button>
+                        <button type="button" onclick="resetWeeklyScheduleToDefault()" class="btn-danger" style="font-size: 12px; padding: 6px 12px;">
+                            <i class="fa-solid fa-rotate-left"></i> استعادة الافتراضي
+                        </button>
+                        <button type="button" onclick="saveAllWeeklySchedule()" class="btn-gold" style="background: linear-gradient(135deg, #10B981, #059669); font-size: 12px; padding: 6px 16px;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> حفظ ونشر الجدول
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div id="adminScheduleGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const icons = ['📚','🔬','🧮','🌍','📝','⚗️','🎨','📐','💻','🏫','📖','⚖️'];
+    let availableSubjectsList = [];
+    let currentScheduleData = [];
+
+    function getDB() {
+        return window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+    }
+
+    function addSubject() {
+        const name = document.getElementById('newSubjectName').value.trim();
+        if (!name) {
+            Swal.fire('تنبيه', 'يرجى كتابة اسم المادة الدراسية أولاً ⚠️', 'warning');
+            return;
+        }
+
+        const db = getDB();
+        if (!db) return;
+
+        const id = db.ref('Subjects').push().key;
+        db.ref('Subjects/' + id).set({ id, name }).then(() => {
+            document.getElementById('newSubjectName').value = "";
+            Swal.fire('تمت الإضافة بنجاح 🎉', `تم اعتماد مادة (${name}) ونشرها للطلاب`, 'success');
+        }).catch(err => {
+            Swal.fire('خطأ', 'تعذر إضافة المادة، تحقق من الاتصال', 'error');
+        });
+    }
+
+    document.getElementById('newSubjectName').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addSubject();
+    });
+
+    // Realtime Listener for Subjects
+    function loadSubjects() {
+        const db = getDB();
+        if (!db) {
+            setTimeout(loadSubjects, 300);
+            return;
+        }
+
+        db.ref('Subjects').on('value', snap => {
+            const list = document.getElementById('subjectsList');
+            if (!list) return;
+            list.innerHTML = "";
+            let count = 0;
+            availableSubjectsList = [];
+
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const sub = child.val() || {};
+                    const subId = sub.id || child.key;
+                    const subName = sub.name || child.key;
+                    count++;
+                    const icon = icons[(count - 1) % icons.length];
+                    if (subName && !availableSubjectsList.includes(subName)) {
+                        availableSubjectsList.push(subName);
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "subject-item-card";
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div class="subject-icon-box">${icon}</div>
+                            <div>
+                                <div style="font-size: 15px; font-weight: 900; color: var(--text);">${subName}</div>
+                                <div style="font-size: 11.5px; color: var(--text3); font-weight: 700; margin-top: 3px;">الفرقة الرابعة • دفعة 2027 🎓</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <a href="admin-lessons.html?subject=${encodeURIComponent(subName)}" class="btn-icon" title="إدارة دروس ومحاضرات هذه المادة">
+                                <i class="fa-solid fa-video"></i>
+                            </a>
+                            <button class="btn-icon" onclick="confirmDeleteSubject('${subId}', '${subName}')" title="حذف المادة" style="color: var(--red);">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+
+                const pill = document.getElementById('subjectCountPill');
+                if (pill) pill.textContent = `${count} مادة`;
+            } else {
+                list.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text3);">
+                        <i class="fa-solid fa-folder-open" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                        لا توجد مواد مضافة حالياً.
+                    </div>
+                `;
+            }
+
+            if (currentScheduleData && currentScheduleData.length > 0) {
+                renderAdminScheduleCards(currentScheduleData);
+            }
+        });
+    }
+
+    function confirmDeleteSubject(id, name) {
+        Swal.fire({
+            title: 'تأكيد حذف المادة ⚠️',
+            html: `هل أنت متأكد تماماً من حذف مادة <strong style="color: #EF4444;">"${name}"</strong>؟<br><br><span style="font-size: 12.5px; color: var(--text3);">سيتم مسح المادة وجميع دروسها وامتحاناتها نهائياً.</span>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، حذف نهائياً',
+            cancelButtonText: 'إلغاء'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                Promise.all([
+                    db.ref('Subjects/' + id).remove(),
+                    db.ref('Lectures/' + name).remove(),
+                    db.ref('Chapters/' + name).remove(),
+                    db.ref('Exams/' + name).remove()
+                ]).then(() => {
+                    Swal.fire('تم الحذف', `تم حذف مادة (${name}) ومحتوياتها بنجاح`, 'success');
+                });
+            }
+        });
+    }
+
+    // ════ Weekly Schedule Engine ════
+    const DEFAULT_WEEKLY_SCHEDULE = [
+        { id: "day_0", dayName: "السبت", subject: "طريقة العمل مع الأفراد", duration: "ساعتان", task: "شروحات وتطبيقات المقابلة", isReview: false },
+        { id: "day_1", dayName: "الأحد", subject: "طريقة العمل مع الجماعات", duration: "ساعتان", task: "ديناميات الجماعة وتصميم الأنشطة", isReview: false },
+        { id: "day_2", dayName: "الإثنين", subject: "تنظيم وإدارة المجتمعات", duration: "ساعتان", task: "نماذج التنمية والمشاركة المحلية", isReview: false },
+        { id: "day_3", dayName: "الثلاثاء", subject: "سياسات الرعاية الاجتماعية", duration: "ساعتان", task: "التشريعات ونظم التأمينات", isReview: false },
+        { id: "day_4", dayName: "الأربعاء", subject: "المجال الطبي والتأهيلي", duration: "ساعتان", task: "التأهيل الصحي والمستشفيات", isReview: false },
+        { id: "day_5", dayName: "الخميس", subject: "تدريب ميداني وتخرج", duration: "3 ساعات", task: "التقارير الإشرافية وأدوات البحث", isReview: false },
+        { id: "day_6", dayName: "الجمعة", subject: "مراجعة وتقييمات", duration: "جلسة مراجعة", task: "حل سجل الأخطاء والامتحانات", isReview: true }
+    ];
+
+    let isInitialScheduleLoaded = false;
+
+    function loadWeeklyScheduleAdmin() {
+        const db = getDB();
+        if (!db) {
+            setTimeout(loadWeeklyScheduleAdmin, 300);
+            return;
+        }
+
+        db.ref('WeeklySchedule').on('value', snap => {
+            const val = snap.val();
+            let loaded = DEFAULT_WEEKLY_SCHEDULE;
+            if (val && Array.isArray(val) && val.length === 7) {
+                loaded = val;
+            } else if (val && typeof val === 'object') {
+                const arr = Object.values(val);
+                if (arr.length === 7) loaded = arr;
+            }
+
+            currentScheduleData = loaded;
+            if (!isInitialScheduleLoaded) {
+                isInitialScheduleLoaded = true;
+                renderAdminScheduleCards(currentScheduleData);
+            }
+        });
+    }
+
+    function handleScheduleSubjectDropdown(idx, selectedVal) {
+        if (!selectedVal) return;
+        const input = document.getElementById(`sch_subject_${idx}`);
+        if (input) {
+            input.value = selectedVal;
+            if (selectedVal.includes('مراجعة') || selectedVal.includes('راحة')) {
+                const revBox = document.getElementById(`sch_isReview_${idx}`);
+                if (revBox) {
+                    revBox.checked = true;
+                    toggleReviewCardStyle(idx);
+                }
+            }
+        }
+    }
+
+    function applyTaskPreset(idx, presetText) {
+        const taskInput = document.getElementById(`sch_task_${idx}`);
+        if (taskInput) {
+            if (taskInput.value.trim().length > 0 && !taskInput.value.includes(presetText)) {
+                taskInput.value = taskInput.value.trim() + ' + ' + presetText;
+            } else {
+                taskInput.value = presetText;
+            }
+        }
+    }
+
+    function renderAdminScheduleCards(schedule) {
+        const container = document.getElementById('adminScheduleGrid');
+        if (!container) return;
+
+        container.innerHTML = schedule.map((item, idx) => {
+            const isRev = !!item.isReview;
+            return `
+            <div class="schedule-card ${isRev ? 'review' : ''}" id="sch_card_${idx}">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 28px; height: 28px; border-radius: 8px; background: ${isRev ? 'var(--gold)' : 'var(--blue)'}; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; font-family:var(--mono);">${idx + 1}</span>
+                        <input type="text" id="sch_dayName_${idx}" value="${item.dayName || ''}" style="width: 100px; font-weight: 800;" placeholder="اسم اليوم">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: ${isRev ? 'var(--gold)' : 'var(--text3)'}; cursor: pointer;">
+                        <input type="checkbox" id="sch_isReview_${idx}" ${isRev ? 'checked' : ''} onchange="toggleReviewCardStyle(${idx})" style="accent-color: var(--gold); cursor: pointer;">
+                        <span>مراجعة ⭐</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 800; color: var(--text3); display: block; margin-bottom: 5px;">المقرر المخصص لهذا اليوم:</label>
+                    <select style="width: 100%; margin-bottom: 6px;" onchange="handleScheduleSubjectDropdown(${idx}, this.value)">
+                        <option value="">-- اضغط للاختيار من مواد المنصة --</option>
+                        ${availableSubjectsList.map(s => `<option value="${s}" ${s === item.subject ? 'selected' : ''}>📚 ${s}</option>`).join('')}
+                        <option value="مراجعة شاملة وتقييمات" ${item.subject === 'مراجعة شاملة وتقييمات' ? 'selected' : ''}>🎯 مراجعة شاملة وتقييمات</option>
+                        <option value="تدريب وتطبيق عملي" ${item.subject === 'تدريب وتطبيق عملي' ? 'selected' : ''}>📝 تدريب وتطبيق عملي</option>
+                        <option value="يوم راحة واستجمام" ${item.subject === 'يوم راحة واستجمام' ? 'selected' : ''}>☕ يوم راحة واستجمام</option>
+                    </select>
+                    <input type="text" id="sch_subject_${idx}" value="${item.subject || ''}" style="width: 100%; font-weight: 800;" placeholder="أو اكتب اسم المادة يدوياً">
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 800; color: var(--text3); display: block; margin-bottom: 5px;">وقت المذاكرة المقترح:</label>
+                    <input type="text" id="sch_duration_${idx}" value="${item.duration || 'ساعتان'}" style="width: 100%;" placeholder="مثال: ساعتان (6:00 م - 8:00 م)">
+                </div>
+
+                <div>
+                    <label style="font-size: 11.5px; font-weight: 800; color: var(--text3); display: block; margin-bottom: 5px;">المهمة المستهدفة:</label>
+                    <input type="text" id="sch_task_${idx}" value="${item.task || ''}" style="width: 100%;" placeholder="تفاصيل المهمة">
+                    
+                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 6px;">
+                        <button type="button" onclick="applyTaskPreset(${idx}, 'شرح وتلخيص')" class="preset-badge">+ شرح وتلخيص</button>
+                        <button type="button" onclick="applyTaskPreset(${idx}, 'حل التقييم والامتحان')" class="preset-badge">+ حل التقييم</button>
+                        <button type="button" onclick="applyTaskPreset(${idx}, 'تثبيت الأخطاء')" class="preset-badge">+ تثبيت الأخطاء</button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    function toggleReviewCardStyle(idx) {
+        const checkbox = document.getElementById(`sch_isReview_${idx}`);
+        const card = document.getElementById(`sch_card_${idx}`);
+        if (checkbox && card) {
+            card.classList.toggle('review', checkbox.checked);
+        }
+    }
+
+    function getCompiledScheduleFromInputs() {
+        const updatedSchedule = [];
+        for (let i = 0; i < 7; i++) {
+            const dayName = document.getElementById(`sch_dayName_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].dayName;
+            const subject = document.getElementById(`sch_subject_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].subject;
+            const duration = document.getElementById(`sch_duration_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].duration || 'ساعتان';
+            const task = document.getElementById(`sch_task_${i}`)?.value.trim() || DEFAULT_WEEKLY_SCHEDULE[i].task;
+            const isReview = document.getElementById(`sch_isReview_${i}`)?.checked || false;
+
+            updatedSchedule.push({
+                id: `day_${i}`,
+                dayName: dayName,
+                subject: subject,
+                duration: duration,
+                task: task,
+                isReview: isReview
+            });
+        }
+        return updatedSchedule;
+    }
+
+    function saveAllWeeklySchedule() {
+        const updatedSchedule = getCompiledScheduleFromInputs();
+
+        Swal.fire({
+            title: 'نشر الجدول الدراسي؟ 📅',
+            text: 'سيتم حفظ وتحديث الجدول الأسبوعي فوراً لجميع الطلاب في صفحة المخطط الدراسي.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10B981',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: '⚡ نعم، حفظ ونشر الجدول الآن',
+            cancelButtonText: 'إلغاء'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                db.ref('WeeklySchedule').set(updatedSchedule).then(() => {
+                    Swal.fire('تم النشر بنجاح 🎉', 'تم تحديث الجدول الأسبوعي ونشره للطلاب فوراً', 'success');
+                });
+            }
+        });
+    }
+
+    function previewWeeklyScheduleModal() {
+        const schedule = getCompiledScheduleFromInputs();
+        const previewHTML = `
+            <div style="text-align: right; direction: rtl;">
+                <p style="font-size: 13px; color: var(--text2); margin-bottom: 14px;">هكذا يظهر الجدول الأسبوعي للطلاب في صفحة المخطط الدراسي:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; text-align: center;">
+                    ${schedule.map(d => `
+                        <div style="background: ${d.isReview ? 'rgba(245, 158, 11, 0.1)' : 'var(--surface2)'}; border: 1.5px solid ${d.isReview ? 'rgba(245, 158, 11, 0.4)' : 'var(--border)'}; border-radius: 12px; padding: 12px 8px; display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 12px; font-weight: 900; background: ${d.isReview ? 'var(--gold)' : 'var(--border)'}; color: #fff; padding: 3px 8px; border-radius: 8px;">${d.dayName}</span>
+                            <b style="font-size: 12.5px; color: var(--text);">${d.subject}</b>
+                            <span style="font-size: 11px; color: var(--text3);">⏱️ ${d.duration || 'ساعتان'}</span>
+                            <span style="font-size: 11px; color: var(--text2); line-height: 1.4;">${d.task}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        Swal.fire({
+            title: 'معاينة شكل الجدول الأسبوعي للطلاب 👁️',
+            html: previewHTML,
+            width: '850px',
+            confirmButtonText: 'حفظ ونشر الجدول 🚀',
+            showCancelButton: true,
+            cancelButtonText: 'إغلاق',
+            confirmButtonColor: '#10B981',
+            cancelButtonColor: '#64748B'
+        }).then(res => {
+            if (res.isConfirmed) {
+                saveAllWeeklySchedule();
+            }
+        });
+    }
+
+    function resetWeeklyScheduleToDefault() {
+        Swal.fire({
+            title: 'استعادة الجدول الافتراضي؟ 🔄',
+            text: 'هل أنت متأكد من استعادة خطة الجدول الأسبوعي الافتراضية للمواد الـ 7؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، استعادة',
+            cancelButtonText: 'إلغاء'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const db = getDB();
+                if (!db) return;
+                db.ref('WeeklySchedule').set(DEFAULT_WEEKLY_SCHEDULE).then(() => {
+                    renderAdminScheduleCards(DEFAULT_WEEKLY_SCHEDULE);
+                    Swal.fire('تمت الاستعادة ✅', 'تمت استعادة الجدول الأسبوعي الافتراضي بنجاح', 'success');
+                });
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSubjects();
+        loadWeeklyScheduleAdmin();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مركز الأمان والرقابة - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .emergency-bar {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .sec-feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 420px;
+            padding: 2px;
+        }
+        .sec-feed-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            gap: 10px;
+            transition: all 0.15s;
+        }
+        .sec-feed-item:hover {
+            border-color: var(--border-focus);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .icon-circle-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .perm-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media(max-width: 600px) {
+            .perm-card-grid { grid-template-columns: 1fr; }
+        }
+        .perm-item-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .perm-item-box:hover {
+            border-color: var(--gold);
+        }
+        .perm-item-box.active {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #EF4444, #B91C1C);">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Security & Session Shield</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-shield-virus"></i>
+            <span>مركز الأمان والرقابة ومكافحة الاختراق</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--red);">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">مركز الأمان والرقابة الشاملة</h1>
+                        <p class="page-subtitle">مراقبة الجلسات الحية، رصد محاولات الاختراق، إدارة حسابات المشرفين وسجل التفتيش</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-gold" onclick="openSupervisorManagementModal()">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>إدارة المشرفين والصلاحيات 🔑</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="exportSecurityReport()">
+                        <i class="fa-solid fa-download"></i>
+                        <span>تصدير تقرير الأمان</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">حالة التحصين الأمني</span>
+                        <div class="stat-icon-wrap" style="color: var(--green); background: rgba(16, 185, 129, 0.1);">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" style="color: var(--green);">96% محصن</div>
+                    <div class="stat-sub">جميع دروع الحماية نشطة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">الأجهزة والجلسات الحية</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="kpiActiveDevicesCount">0</div>
+                    <div class="stat-sub">نشطة حالياً (حد أقصى 3)</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">التهديدات والمحاولات المحظورة</span>
+                        <div class="stat-icon-wrap" style="color: var(--red); background: rgba(239, 68, 68, 0.1);">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="kpiBlockedThreatsCount" style="color: var(--red);">0</div>
+                    <div class="stat-sub">F12 + أدوات الفحص المحظورة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">سجل تدقيق الإدارة (Audit)</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="kpiAuditLogsCount">0</div>
+                    <div class="stat-sub">عمليات إدارية موثقة بالوقت</div>
+                </div>
+            </div>
+
+            <!-- Emergency Actions Bar -->
+            <div class="emergency-bar">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 15px; font-weight: 900; color: #FCA5A5; margin: 0;">إجراءات الطوارئ الأمنية الفورية</h3>
+                        <p style="font-size: 12px; color: var(--text2); margin: 2px 0 0;">طرد جميع الجلسات وإجبار إعادة تسجيل الدخول فور اكتشاف أي نشاط مريب</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn btn-danger" onclick="terminateAllSessions()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>تسجيل خروج عام لكافة الطلاب 🚪</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Two Columns: Realtime Threats Feed + Admin Audit Trail -->
+            <div class="two-col" id="secTwoColGrid">
+                
+                <!-- Col 1: Threats & Incident Feed -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title" style="color: var(--red);">
+                            <i class="fa-solid fa-shield-virus"></i>
+                            <span>رصد التهديدات والمحاولات المشبوهة الحية</span>
+                        </div>
+                        <span class="badge badge-red" id="alertsCountBadge">0 تنبيه</span>
+                    </div>
+
+                    <div style="padding: 16px;">
+                        <div class="sec-feed-list" id="threatsFeedContainer">
+                            <div style="text-align: center; padding: 35px; color: var(--text3);">
+                                <i class="fa-solid fa-circle-check" style="font-size: 32px; color: var(--green); margin-bottom: 8px; display:block;"></i>
+                                <div style="font-size: 13.5px; font-weight: 800; color: var(--text);">لا توجد أي تهديدات نشطة حالياً</div>
+                                <div style="font-size: 11.5px; margin-top: 2px;">المنصة محمية بدرع الأمان التلقائي 🛡️</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Col 2: Admin Audit Trail -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title" style="color: var(--gold);">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <span>سجل تدقيق عمليات الإدارة (Audit Trail)</span>
+                        </div>
+                        <span class="badge badge-gold" id="auditsCountBadge">0 سجل</span>
+                    </div>
+
+                    <div style="padding: 16px;">
+                        <div class="sec-feed-list" id="auditLogsContainer">
+                            <div style="text-align: center; padding: 35px; color: var(--text3);">
+                                <i class="fa-solid fa-clipboard-list" style="font-size: 30px; color: var(--gold); margin-bottom: 8px; display:block;"></i>
+                                <div style="font-size: 13.5px; font-weight: 800; color: var(--text);">سجل العمليات الإدارية موثق</div>
+                                <div style="font-size: 11.5px; margin-top: 2px;">يتم تسجيل كل تعديل أو حذف تلقائياً لحفظ النزاهة 🧾</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Active Sessions Explorer Table Card -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-users-gear" style="color: var(--blue);"></i>
+                        <span>مستكشف جلسات وأجهزة الطلاب النشطة حالياً</span>
+                    </div>
+
+                    <div style="position: relative; max-width: 280px; width: 100%;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 12px;"></i>
+                        <input type="text" id="sessionSearchInput" class="form-input" placeholder="بحث بكود الطالب أو اسم الجهاز..." oninput="filterSessionsTable(this.value)" style="padding-right: 36px; padding-top: 6px; padding-bottom: 6px; font-size: 12px;">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="activeSessionsTable">
+                        <thead>
+                            <tr>
+                                <th>كود الطالب</th>
+                                <th>نوع الجهاز ونظام التشغيل</th>
+                                <th>معرّف الجلسة (Session Token)</th>
+                                <th>آخر نشاط مسجل</th>
+                                <th style="text-align: center;">الإجراء الأمني</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeSessionsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 30px; color: var(--text3);">
+                                    ⏳ جاري فحص الجلسات والأجهزة المسجلة...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    var database = getDB();
+    let rawSessionsData = {};
+    let rawAlertsData = [];
+    let rawAuditsData = [];
+
+    function initSecurityCenter() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initSecurityCenter, 300);
+
+        // 1. Listen for Active Sessions
+        db.ref('ActiveSessions').on('value', snap => {
+            rawSessionsData = snap.val() || {};
+            renderSessionsTable();
+        });
+
+        // 2. Listen for Security Alerts / Threats
+        db.ref('SecurityAlerts').limitToLast(50).on('value', snap => {
+            rawAlertsData = [];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    rawAlertsData.unshift({ id: child.key, ...child.val() });
+                });
+            }
+            renderThreatsFeed();
+        });
+
+        // 3. Listen for Admin Audit Logs
+        db.ref('AuditLogs').limitToLast(50).on('value', snap => {
+            rawAuditsData = [];
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    rawAuditsData.unshift({ id: child.key, ...child.val() });
+                });
+            }
+            renderAuditLogs();
+        });
+
+        // 4. Cache Registered Students to identify valid vs unassigned codes (e.g. A9358 vs A0358)
+        window.registeredStudents = {};
+        db.ref('Students').on('value', snap => {
+            window.registeredStudents = {};
+            if(snap.exists()) {
+                snap.forEach(c => {
+                    if (c.key !== 'byUid' && c.key !== 'byCode') {
+                        window.registeredStudents[c.key.toUpperCase()] = c.val();
+                    }
+                });
+            }
+            renderThreatsFeed();
+        });
+    }
+
+    // ─── Render Active Sessions Table ───
+    function renderSessionsTable(filterQuery = '') {
+        const tbody = document.getElementById('activeSessionsTableBody');
+        const kpiActive = document.getElementById('kpiActiveDevicesCount');
+        if (!tbody) return;
+
+        const rows = [];
+        let totalDevices = 0;
+
+        Object.keys(rawSessionsData).forEach(stCode => {
+            const studentDevices = rawSessionsData[stCode]?.devices || {};
+            Object.keys(studentDevices).forEach(devKey => {
+                const dev = studentDevices[devKey];
+                totalDevices++;
+
+                const devName = dev.device || 'متصفح ويب غير معروف';
+                const lastSeen = dev.lastSeen ? new Date(dev.lastSeen).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : 'الآن';
+
+                if (!filterQuery || stCode.toLowerCase().includes(filterQuery.toLowerCase()) || devName.toLowerCase().includes(filterQuery.toLowerCase())) {
+                    const isMobile = devName.includes('Android') || devName.includes('iPhone');
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <span class="badge" style="background: rgba(249, 115, 22, 0.12); color: var(--orange); font-family: var(--mono);">${stCode}</span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid ${isMobile ? 'fa-mobile-screen' : 'fa-laptop'}" style="color: var(--blue);"></i>
+                                    <span style="font-weight: 700;">${devName}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <code style="font-size: 11px; background: var(--surface2); color: var(--text2); padding: 3px 8px; border-radius: 6px; font-family: var(--mono); border: 1px solid var(--border);">${devKey.substring(0, 16)}...</code>
+                            </td>
+                            <td>
+                                <span style="color: var(--text2); font-size: 12px; font-family: var(--mono);">${lastSeen}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <button onclick="revokeStudentSession('${stCode}', '${devKey}')" class="btn btn-danger btn-sm">
+                                    <i class="fa-solid fa-power-off"></i>
+                                    <span>إنهاء الجلسة 🚫</span>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        });
+
+        if (kpiActive) kpiActive.textContent = totalDevices;
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text3);">
+                        لا توجد أي جلسات نشطة مطابقة للبحث حالياً.
+                    </td>
+                </tr>
+            `;
+        } else {
+            tbody.innerHTML = rows.join('');
+        }
+    }
+
+    function filterSessionsTable(query) {
+        renderSessionsTable(query);
+    }
+
+    function revokeStudentSession(stCode, devKey) {
+        Swal.fire({
+            title: 'إنهاء جلسة الجهاز؟',
+            text: `سيتم تسجيل خروج الطالب (${stCode}) فورياً من هذا الجهاز وإلزامه بإعادة تسجيل الدخول.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، قم بإنهاء الجلسة فوراً',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref(`ActiveSessions/${stCode}/devices/${devKey}`).remove().then(() => {
+                    db.ref('AuditLogs').push({
+                        action: 'REVOKE_DEVICE_SESSION',
+                        target: stCode,
+                        deviceToken: devKey,
+                        admin: sessionStorage.getItem('adminName') || 'GeneralAdmin',
+                        timestamp: Date.now()
+                    });
+                    Swal.fire('تم إنهاء الجلسة بنجاح 🔒', '', 'success');
+                });
+            }
+        });
+    }
+
+    // ─── Render Threats Feed ───
+    function renderThreatsFeed() {
+        const container = document.getElementById('threatsFeedContainer');
+        const kpiThreats = document.getElementById('kpiBlockedThreatsCount');
+        const badge = document.getElementById('alertsCountBadge');
+
+        if (kpiThreats) kpiThreats.textContent = rawAlertsData.length;
+        if (badge) badge.textContent = `${rawAlertsData.length} تنبيه`;
+        if (!container) return;
+
+        if (rawAlertsData.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 35px; color: var(--text3);">
+                    <i class="fa-solid fa-circle-check" style="font-size: 32px; color: var(--green); margin-bottom: 8px; display:block;"></i>
+                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text);">لا توجد أي تهديدات نشطة حالياً</div>
+                    <div style="font-size: 11.5px; margin-top: 2px;">المنصة محمية بدرع الأمان التلقائي 🛡️</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rawAlertsData.map(a => {
+            const timeStr = a.timestamp ? new Date(a.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+            const isCrit = a.severity === 'critical';
+            const code = (a.studentCode || '').toUpperCase();
+            const studentMatch = window.registeredStudents && code ? window.registeredStudents[code] : null;
+            const codeStatusBadge = !code ? '' : (studentMatch ? 
+                `<span style="font-size:10px; font-weight:800; padding:1px 6px; border-radius:4px; background:rgba(16,185,129,0.15); color:var(--green); border:1px solid rgba(16,185,129,0.3);">طالب مسجل: ${studentMatch.fullName || studentMatch.name || code}</span>` :
+                `<span style="font-size:10px; font-weight:800; padding:1px 6px; border-radius:4px; background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3);">كود غير مخصص / وهمي</span>`
+            );
+
+            return `
+                <div class="sec-feed-item" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                            <div class="icon-circle-box" style="background: ${isCrit ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)'}; color: ${isCrit ? 'var(--red)' : 'var(--gold)'}; flex-shrink: 0;">
+                                <i class="fa-solid ${isCrit ? 'fa-triangle-exclamation' : 'fa-shield-halved'}"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    <span style="font-size: 13px; font-weight: 800; color: var(--text);">${a.type || a.message || 'تنبيه أمني'}</span>
+                                    ${codeStatusBadge}
+                                </div>
+                                <span style="font-size: 11px; color: var(--text3); margin-top: 2px;">
+                                    الجهاز: ${a.device || 'متصفح ويب'} • الكود: <code style="font-family:var(--mono); color:var(--gold);">${a.studentCode || 'غير معروف'}</code>
+                                </span>
+                            </div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 700; color: var(--text3); font-family: var(--mono); flex-shrink: 0;">${timeStr}</span>
+                    </div>
+
+                    <!-- Interactive Action Buttons -->
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--border);">
+                        <button type="button" onclick="showSecurityAlertDetails('${a.id}')" style="padding: 4px 10px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>تفاصيل 🔍</span>
+                        </button>
+                        ${code ? `
+                        <button type="button" onclick="blockStudentFromAlert('${code}', '${a.id}')" style="padding: 4px 10px; border-radius: 6px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--red); font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-ban"></i>
+                            <span>حظر ⛔</span>
+                        </button>
+                        ` : ''}
+                        <button type="button" onclick="archiveSecurityAlert('${a.id}')" style="padding: 4px 10px; border-radius: 6px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--green); font-size: 11px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-check"></i>
+                            <span>تجاهل / أرشفة ✅</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function showSecurityAlertDetails(alertId) {
+        const a = rawAlertsData.find(x => x.id === alertId);
+        if (!a) return;
+
+        const code = (a.studentCode || '').toUpperCase();
+        const studentMatch = window.registeredStudents && code ? window.registeredStudents[code] : null;
+        const existsText = studentMatch ? 
+            `<span style="color:var(--green); font-weight:800;">مسجل بقاعدة البيانات باسم: ${studentMatch.fullName || studentMatch.name || 'طالب'}</span>` : 
+            `<span style="color:var(--red); font-weight:800;">غير مخصص لأي طالب (كود غير مسجل)</span>`;
+
+        Swal.fire({
+            title: `<div style="font-size:18px; font-weight:900;">تفاصيل التنبيه الأمني 🛡️</div>`,
+            html: `
+                <div style="text-align:right; font-size:13px; line-height:1.8; color:var(--text);">
+                    <div><strong>نوع التنبيه:</strong> ${a.type || a.message || 'غير محدد'}</div>
+                    <div><strong>كود الطالب:</strong> <code style="font-family:monospace; color:var(--gold); font-size:14px;">${a.studentCode || 'غير محدد'}</code></div>
+                    <div><strong>حالة الكود بالنظام:</strong> ${existsText}</div>
+                    <div><strong>الجهاز والمنصة:</strong> ${a.device || 'متصفح ويب'}</div>
+                    <div><strong>عنوان IP:</strong> ${a.ip || 'داخلي / مخفي'}</div>
+                    <div><strong>الوقت والتاريخ:</strong> ${a.timestamp ? new Date(a.timestamp).toLocaleString('ar-EG') : 'غير مسجل'}</div>
+                    ${a.details ? `<div style="margin-top:8px; padding:8px; background:var(--surface2); border-radius:6px;"><strong>ملاحظات إضافية:</strong> ${JSON.stringify(a.details)}</div>` : ''}
+                </div>
+            `,
+            showCloseButton: true,
+            confirmButtonText: 'إغلاق',
+            confirmButtonColor: '#D4973B'
+        });
+    }
+
+    function blockStudentFromAlert(stCode, alertId) {
+        Swal.fire({
+            title: `حظر الطالب صاحب الكود (${stCode})؟`,
+            text: 'سيتم وضع الكود في قائمة المحظورين وإلغاء كافة جلسات أجهزته فوراً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، قم بالحظر الفوري ⛔',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444'
+        }).then(res => {
+            if(res.isConfirmed) {
+                const db = database || getDB();
+                if(!db) return;
+                
+                db.ref(`BlockedStudents/${stCode}`).set({
+                    code: stCode,
+                    reason: 'حظر أمني يدوي من مركز الأمان',
+                    blockedAt: Date.now(),
+                    admin: sessionStorage.getItem('adminName') || 'SecurityAdmin'
+                });
+
+                db.ref(`ActiveSessions/${stCode}`).remove();
+
+                db.ref('AuditLogs').push({
+                    action: 'BLOCK_STUDENT_CODE',
+                    target: stCode,
+                    reason: 'أمني',
+                    admin: sessionStorage.getItem('adminName') || 'SecurityAdmin',
+                    timestamp: Date.now()
+                });
+
+                archiveSecurityAlert(alertId, false);
+                Swal.fire('تم حظر الطالب وإنهاء جلساته بنجاح 🔒', '', 'success');
+            }
+        });
+    }
+
+    function archiveSecurityAlert(alertId, showToast = true) {
+        const db = database || getDB();
+        if(!db) return;
+
+        db.ref(`SecurityAlerts/${alertId}`).remove().then(() => {
+            if(showToast) {
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1800 });
+                Toast.fire({ icon: 'success', title: 'تم أرشفة وإزالة التنبيه الأمني بنجاح ✅' });
+            }
+        });
+    }
+    window.showSecurityAlertDetails = showSecurityAlertDetails;
+    window.blockStudentFromAlert = blockStudentFromAlert;
+    window.archiveSecurityAlert = archiveSecurityAlert;
+
+    // ─── Render Audit Logs ───
+    function renderAuditLogs() {
+        const container = document.getElementById('auditLogsContainer');
+        const kpiAudits = document.getElementById('kpiAuditLogsCount');
+        const badge = document.getElementById('auditsCountBadge');
+
+        if (kpiAudits) kpiAudits.textContent = rawAuditsData.length;
+        if (badge) badge.textContent = `${rawAuditsData.length} سجل`;
+        if (!container) return;
+
+        if (rawAuditsData.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 35px; color: var(--text3);">
+                    <i class="fa-solid fa-clipboard-list" style="font-size: 30px; color: var(--gold); margin-bottom: 8px; display:block;"></i>
+                    <div style="font-size: 13.5px; font-weight: 800; color: var(--text);">سجل العمليات الإدارية موثق</div>
+                    <div style="font-size: 11.5px; margin-top: 2px;">يتم تسجيل كل تعديل أو حذف تلقائياً لحفظ النزاهة 🧾</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rawAuditsData.map(log => {
+            const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+            return `
+                <div class="sec-feed-item">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                        <div class="icon-circle-box" style="background: var(--gold-dim); color: var(--gold);">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; min-width: 0;">
+                            <span style="font-size: 13px; font-weight: 800; color: var(--text);">${log.action || 'عملية إدارية'}</span>
+                            <span style="font-size: 11px; color: var(--text3);">بواسطة: ${log.admin || 'SuperAdmin'} (${log.target || 'General'})</span>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text3); font-family: var(--mono);">${timeStr}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ─── Emergency Logout All ───
+    function terminateAllSessions() {
+        Swal.fire({
+            title: '⚠️ تحذير: تسجيل خروج عام لجميع الطلاب؟',
+            text: 'سيتم إنهاء كافة الجلسات النشطة على كل الهواتف وأجهزة الكمبيوتر فورياً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، إنهاء كل الجلسات فوراً',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref('ActiveSessions').remove().then(() => {
+                    db.ref('AuditLogs').push({
+                        action: 'TERMINATE_ALL_ACTIVE_SESSIONS',
+                        target: 'ALL_STUDENTS',
+                        admin: sessionStorage.getItem('adminName') || 'GeneralAdmin',
+                        timestamp: Date.now()
+                    });
+                    Swal.fire('تم إنهاء جميع الجلسات بنجاح 🔒', 'تم طرد كافة الأجهزة المتصلة.', 'success');
+                });
+            }
+        });
+    }
+
+    function exportSecurityReport() {
+        const report = {
+            generatedAt: new Date().toISOString(),
+            platform: 'ELKHETA 2026/2027 Admin OS',
+            securityStatus: 'SECURE_96_PERCENT',
+            activeSessions: rawSessionsData,
+            recentThreats: rawAlertsData,
+            auditTrail: rawAuditsData
+        };
+
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `elkheta_security_audit_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ─── Supervisors Management Modal ───
+    function openSupervisorManagementModal() {
+        const db = database || getDB();
+        if (!db) return;
+
+        db.ref('Supervisors').once('value').then(snapshot => {
+            const data = (snapshot && snapshot.exists()) ? snapshot.val() : {};
+            renderSupervisorModalWithData(data);
+        }).catch(err => {
+            renderSupervisorModalWithData({});
+        });
+    }
+
+    function renderSupervisorModalWithData(data) {
+        let listHTML = '';
+        const keys = Object.keys(data || {});
+
+        if (keys.length === 0) {
+            listHTML = `<div style="padding: 20px; color: var(--text3); font-size: 13px; text-align: center;">لا يوجد حسابات مشرفين حالياً. يمكنك إضافة أول مشرف الآن.</div>`;
+        } else {
+            listHTML = keys.map(k => {
+                const sup = data[k];
+                const activeBadge = sup.isActive !== false 
+                    ? `<span class="badge badge-green">مفعل</span>`
+                    : `<span class="badge badge-red">معطل</span>`;
+                
+                const isAutoPushKey = k.startsWith('-') || k.startsWith('P0') || k.length > 15;
+                const displayName = sup.fullName || sup.name || (isAutoPushKey ? ('مشرف نظام تلقائي (' + k.substring(0, 10) + ')') : sup.username || k);
+                const displayUser = sup.username || (isAutoPushKey ? 'معرف: ' + k.substring(0, 10) : k);
+
+                const perms = sup.permissions || {};
+                const grantedCount = Object.values(perms).filter(Boolean).length || (sup.role === 'master' ? 10 : 5);
+
+                const isDeputy = sup.role === 'deputy_master' || sup.roleTitle === 'نائب مدير المنصة';
+                const roleBadge = isDeputy 
+                    ? `<span class="badge badge-gold">👑 نائب مدير المنصة</span>`
+                    : `<span class="badge badge-blue">👤 مشرف منصة</span>`;
+
+                const promoteBtn = isDeputy 
+                    ? `<span style="font-size: 11px; color: var(--gold); font-weight: 800; background: var(--gold-dim); padding: 4px 8px; border-radius: 6px;">🌟 معتمد</span>`
+                    : `<button onclick="promoteToDeputyMaster('${k}')" class="btn btn-ghost btn-sm" style="font-size: 11px; color: var(--gold);">👑 ترقية لنائب مدير</button>`;
+
+                return `
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--border); text-align: right; background: var(--surface2); border-radius: 10px; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                                    <span>👤 ${displayName}</span>
+                                    ${roleBadge}
+                                </div>
+                                <div style="font-size: 11.5px; color: var(--text2); margin-top: 2px;">
+                                    اسم المستخدم: <strong style="color: var(--gold);">${displayUser}</strong> | الدور: ${sup.roleTitle || 'مشرف منصة'} ${activeBadge}
+                                </div>
+                            </div>
+                            <span class="badge badge-gold">🔒 ${grantedCount} صلاحيات</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; border-top: 1px solid var(--border); padding-top: 6px; flex-wrap:wrap;">
+                            ${promoteBtn}
+                            <button onclick="editSupervisorModal('${k}')" class="btn btn-ghost btn-sm" style="font-size: 11px;">✏️ الصلاحيات</button>
+                            <button onclick="toggleSupervisorStatus('${k}', ${sup.isActive !== false})" class="btn btn-ghost btn-sm" style="font-size: 11px;">${sup.isActive !== false ? 'تعطيل' : 'تفعيل'}</button>
+                            <button onclick="deleteSupervisorAccount('${k}')" class="btn btn-danger btn-sm" style="font-size: 11px;">🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        Swal.fire({
+            title: '🔑 إدارة حسابات المشرفين وترقيات الإدارة',
+            html: `
+                <div style="text-align: right; max-height: 480px; overflow-y: auto; padding: 4px;">
+                    <button onclick="createNewSupervisorPrompt()" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; margin-bottom: 14px;">
+                        ➕ إضافة حساب مشرف / نائب مدير جديد ومعاينة الصلاحيات
+                    </button>
+                    <div style="font-size: 12px; font-weight: 800; color: var(--text2); margin-bottom: 8px;">قائمة المشرفين الحالية بالمنصة:</div>
+                    <div>
+                        ${listHTML}
+                    </div>
+                </div>
+            `,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: '700px'
+        });
+    }
+
+    function promoteToDeputyMaster(key) {
+        const db = database || getDB();
+        if (!db) return;
+
+        db.ref('Supervisors/' + key).once('value').then(snap => {
+            if (!snap.exists()) return;
+            const sup = snap.val();
+            const name = sup.fullName || sup.name || sup.username || key;
+
+            Swal.fire({
+                title: '👑 ترقية إلى نائب مدير المنصة',
+                html: `
+                    <div style="font-size: 13px; text-align: right; direction: rtl; line-height: 1.6; color: var(--text);">
+                        هل أنت متأكد من ترقية المشرف <b style="color: var(--gold);">${name}</b> إلى رتبة <b style="color: var(--gold);">نائب مدير المنصة</b>؟
+                        <br><br>
+                        <b>الامتيازات الممنوحة بالترقية:</b>
+                        <ul style="margin-top: 6px; padding-right: 20px; color: var(--text2); font-weight: 700;">
+                            <li>منح كافة الصلاحيات الـ 10 التفاعلية بالمنصة.</li>
+                            <li>تحديد المسمى الوظيفي رسمياً كـ "نائب مدير المنصة".</li>
+                        </ul>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'تأكيد الترقية 👑',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#D4973B',
+                cancelButtonColor: '#64748B'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    db.ref('Supervisors/' + key).update({
+                        role: 'deputy_master',
+                        roleTitle: 'نائب مدير المنصة',
+                        permissions: {
+                            all: true, config: true, students: true, courses: true, exams: true,
+                            codes: true, mistakes: true, reports: true, notifications: true,
+                            community: true, troubleshoot: true
+                        }
+                    }).then(() => {
+                        Swal.fire('تمت الترقية بنجاح 👑', `أصبح المشرف (${name}) الآن برتبة نائب مدير المنصة بكافة الصلاحيات.`, 'success').then(() => {
+                            openSupervisorManagementModal();
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    function getPermissionsFormHTML(defaults = {}) {
+        const p = defaults || {};
+        const isChecked = (key, def = true) => p[key] !== undefined ? (p[key] ? 'checked' : '') : (def ? 'checked' : '');
+
+        const permItems = [
+            { id: 'perm_students', key: 'students', icon: '👨‍🎓', title: 'إدارة الطلاب والحسابات', def: true },
+            { id: 'perm_courses', key: 'courses', icon: '📚', title: 'المواد والدروس والكورسات', def: true },
+            { id: 'perm_exams', key: 'exams', icon: '📝', title: 'الامتحانات والبنك الشامل', def: true },
+            { id: 'perm_codes', key: 'codes', icon: '🔑', title: 'أكواد التفعيل والبطاقات', def: true },
+            { id: 'perm_mistakes', key: 'mistakes', icon: '❌', title: 'بنك أخطاء الطلاب', def: true },
+            { id: 'perm_reports', key: 'reports', icon: '📊', title: 'الإحصائيات والتقارير', def: true },
+            { id: 'perm_notifications', key: 'notifications', icon: '🔔', title: 'إرسال الإشعارات والرسائل', def: true },
+            { id: 'perm_community', key: 'community', icon: '💬', title: 'مجتمع الطلاب والمنشورات', def: true },
+            { id: 'perm_troubleshoot', key: 'troubleshoot', icon: '🛠️', title: 'الدعم الفني وتخطي OTP', def: true },
+            { id: 'perm_config', key: 'config', icon: '⚙️', title: 'إعدادات المنصة والأمان', def: false }
+        ];
+
+        const cardsHTML = permItems.map(item => {
+            const checked = isChecked(item.key, item.def);
+            return `
+                <label class="perm-item-box ${checked ? 'active' : ''}">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 16px;">${item.icon}</span>
+                        <div style="font-size: 12px; font-weight: 800; color: var(--text);">${item.title}</div>
+                    </div>
+                    <input type="checkbox" id="${item.id}" class="sup-perm-cb" style="width: 17px; height: 17px; accent-color: var(--gold); cursor: pointer;" ${checked} onchange="this.closest('.perm-item-box').classList.toggle('active', this.checked)">
+                </label>
+            `;
+        }).join('');
+
+        return `
+            <div style="margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-size: 12.5px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-shield-halved" style="color: var(--gold);"></i>
+                        <span>تحديد الصلاحيات الـ 10 المسموحة للمشرف:</span>
+                    </div>
+                    <button type="button" onclick="toggleAllPerms(this)" class="btn btn-ghost btn-sm" style="font-size: 11px;">تحديد / إلغاء الكل ⚡</button>
+                </div>
+                <div class="perm-card-grid" style="max-height: 250px; overflow-y: auto; padding: 2px;">
+                    ${cardsHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleAllPerms(btn) {
+        const cbs = document.querySelectorAll('.sup-perm-cb');
+        const allChecked = Array.from(cbs).every(cb => cb.checked);
+        cbs.forEach(cb => {
+            cb.checked = !allChecked;
+            const parent = cb.closest('.perm-item-box');
+            if (parent) parent.classList.toggle('active', cb.checked);
+        });
+    }
+
+    function createNewSupervisorPrompt() {
+        Swal.fire({
+            title: '➕ إضافة حساب مشرف جديد',
+            html: `
+                <div style="display: flex; flex-direction: column; gap: 12px; text-align: right; direction: rtl; padding: 4px 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label">اسم المستخدم (Username):</label>
+                            <input id="supUsername" class="form-input" placeholder="مثال: supervisor1">
+                        </div>
+                        <div>
+                            <label class="form-label">كلمة المرور السرية (PIN/Password):</label>
+                            <input id="supPassword" type="password" class="form-input" placeholder="كلمة المرور">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label class="form-label">اسم المشرف الكامل:</label>
+                            <input id="supFullName" class="form-input" placeholder="مثال: أ. أحمد محمود">
+                        </div>
+                        <div>
+                            <label class="form-label">المسمى الوظيفي:</label>
+                            <input id="supRoleTitle" class="form-input" placeholder="مثال: مشرف أكاديمي" value="مشرف منصة">
+                        </div>
+                    </div>
+
+                    ${getPermissionsFormHTML()}
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ المشرف والصلاحيات 🔑',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            cancelButtonColor: '#64748B',
+            width: '680px',
+            preConfirm: () => {
+                const username = document.getElementById('supUsername')?.value.trim();
+                const password = document.getElementById('supPassword')?.value.trim();
+                const fullName = document.getElementById('supFullName')?.value.trim();
+                const roleTitle = document.getElementById('supRoleTitle')?.value.trim();
+
+                if (!username || !password) {
+                    Swal.showValidationMessage('يرجى إدخال اسم المستخدم وكلمة المرور!');
+                    return false;
+                }
+
+                const permissions = {
+                    students: document.getElementById('perm_students')?.checked,
+                    courses: document.getElementById('perm_courses')?.checked,
+                    exams: document.getElementById('perm_exams')?.checked,
+                    codes: document.getElementById('perm_codes')?.checked,
+                    mistakes: document.getElementById('perm_mistakes')?.checked,
+                    reports: document.getElementById('perm_reports')?.checked,
+                    notifications: document.getElementById('perm_notifications')?.checked,
+                    community: document.getElementById('perm_community')?.checked,
+                    troubleshoot: document.getElementById('perm_troubleshoot')?.checked,
+                    config: document.getElementById('perm_config')?.checked
+                };
+
+                return { username, password, fullName: fullName || username, roleTitle: roleTitle || 'مشرف منصة', permissions };
+            }
+        }).then(res => {
+            if (res.isConfirmed && res.value) {
+                const { username, password, fullName, roleTitle, permissions } = res.value;
+                const cleanKey = username.replace(/[.\$\[\]#]/g, '_').toLowerCase();
+                const db = database || getDB();
+                if (!db) return;
+
+                db.ref('Supervisors/' + cleanKey).set({
+                    username: username.toLowerCase(),
+                    password: password,
+                    pin: password,
+                    fullName: fullName,
+                    roleTitle: roleTitle,
+                    role: 'supervisor',
+                    isActive: true,
+                    createdAt: Date.now(),
+                    permissions: permissions
+                }).then(() => {
+                    Swal.fire('تمت إضافة المشرف بنجاح 🔑', `اسم المستخدم: ${username}`, 'success').then(() => {
+                        openSupervisorManagementModal();
+                    });
+                });
+            }
+        });
+    }
+
+    function editSupervisorModal(key) {
+        const db = database || getDB();
+        if (!db) return;
+
+        db.ref('Supervisors/' + key).once('value').then(snap => {
+            if (!snap.exists()) return;
+            const sup = snap.val();
+
+            Swal.fire({
+                title: '✏️ تعديل بيانات وصلاحيات المشرف',
+                html: `
+                    <div style="display: flex; flex-direction: column; gap: 12px; text-align: right; direction: rtl; padding: 4px 0;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <label class="form-label">اسم المشرف الكامل:</label>
+                                <input id="supFullName" class="form-input" value="${sup.fullName || sup.name || ''}">
+                            </div>
+                            <div>
+                                <label class="form-label">المسمى الوظيفي:</label>
+                                <input id="supRoleTitle" class="form-input" value="${sup.roleTitle || 'مشرف منصة'}">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">كلمة المرور / الـ PIN:</label>
+                            <input id="supPassword" class="form-input" value="${sup.password || sup.pin || ''}">
+                        </div>
+
+                        ${getPermissionsFormHTML(sup.permissions || {})}
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ التعديلات 💾',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#D4973B',
+                cancelButtonColor: '#64748B',
+                width: '680px',
+                preConfirm: () => {
+                    const fullName = document.getElementById('supFullName')?.value.trim();
+                    const roleTitle = document.getElementById('supRoleTitle')?.value.trim();
+                    const password = document.getElementById('supPassword')?.value.trim();
+
+                    const permissions = {
+                        students: document.getElementById('perm_students')?.checked,
+                        courses: document.getElementById('perm_courses')?.checked,
+                        exams: document.getElementById('perm_exams')?.checked,
+                        codes: document.getElementById('perm_codes')?.checked,
+                        mistakes: document.getElementById('perm_mistakes')?.checked,
+                        reports: document.getElementById('perm_reports')?.checked,
+                        notifications: document.getElementById('perm_notifications')?.checked,
+                        community: document.getElementById('perm_community')?.checked,
+                        troubleshoot: document.getElementById('perm_troubleshoot')?.checked,
+                        config: document.getElementById('perm_config')?.checked
+                    };
+
+                    return { fullName, roleTitle, password, permissions };
+                }
+            }).then(res => {
+                if (res.isConfirmed && res.value) {
+                    const { fullName, roleTitle, password, permissions } = res.value;
+                    db.ref('Supervisors/' + key).update({
+                        fullName: fullName,
+                        roleTitle: roleTitle,
+                        password: password,
+                        pin: password,
+                        permissions: permissions
+                    }).then(() => {
+                        Swal.fire('تم حفظ التعديلات بنجاح 🎉', '', 'success').then(() => {
+                            openSupervisorManagementModal();
+                        });
+                    });
+                }
+            });
+        });
+    }
+
+    function toggleSupervisorStatus(key, currentActive) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref(`Supervisors/${key}/isActive`).set(!currentActive).then(() => {
+            openSupervisorManagementModal();
+        });
+    }
+
+    function deleteSupervisorAccount(key) {
+        Swal.fire({
+            title: 'حذف حساب هذا المشرف؟',
+            text: 'لن يتمكن هذا المشرف من الدخول مجدداً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف الحساب',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref(`Supervisors/${key}`).remove().then(() => {
+                    Swal.fire('تم حذف الحساب بنجاح', '', 'success').then(() => {
+                        openSupervisorManagementModal();
+                    });
+                });
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initSecurityCenter();
+    });
+</script>
+
+</body>
+</html>

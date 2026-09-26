@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رادار النشاط المباشر ⚡ - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="mysql-api.js"></script>
+
+    <style>
+        /* ── Radar Tactical Canvas Scope ── */
+        .tactical-radar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            box-shadow: var(--shadow-card);
+        }
+        .tactical-radar-card.show {
+            display: flex;
+        }
+        .radar-scope-wrapper {
+            position: relative;
+            width: min(280px, 80vw);
+            height: min(280px, 80vw);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, #0B1120 85%);
+            border: 2px solid rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.2);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 12px;
+        }
+        @media(max-width: 1100px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        @media(max-width: 540px) {
+            .kpi-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .main-inner {
+            padding: 10px 16px 20px !important;
+            gap: 10px !important;
+        }
+        .page-header-row {
+            margin-bottom: 0px !important;
+        }
+        .kpi-card {
+            padding: 7px 12px !important;
+            min-height: 50px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            border-radius: 9px !important;
+            gap: 8px !important;
+        }
+        .kpi-card .kpi-label {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: var(--text3) !important;
+            margin-bottom: 1px !important;
+        }
+        .kpi-card .kpi-val {
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            margin: 0 !important;
+        }
+        .kpi-icon-box {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+        }
+
+        .scope-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* ── Stream Timeline Items ── */
+        .stream-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: calc(100vh - 270px);
+            overflow-y: auto;
+            padding-left: 4px;
+        }
+        .stream-item-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-right: 4px solid var(--gold);
+            border-radius: 9px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .stream-item-card:hover {
+            background: var(--surface2);
+            border-color: var(--gold);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.12);
+        }
+        .stream-item-card.login-type { border-right-color: var(--blue2); }
+        .stream-item-card.course-type { border-right-color: var(--green); }
+        .stream-item-card.exam-type { border-right-color: var(--purple); }
+        .stream-item-card.security-type { border-right-color: var(--red); }
+
+        .stream-card-right-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .stream-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        .login-type .stream-icon-box { color: var(--blue2); background: var(--blue-bg); border-color: rgba(37,99,235,0.2); }
+        .course-type .stream-icon-box { color: var(--green); background: var(--green-bg); border-color: rgba(16,185,129,0.2); }
+        .exam-type .stream-icon-box { color: var(--purple); background: var(--purple-bg); border-color: rgba(124,58,237,0.2); }
+        .security-type .stream-icon-box { color: var(--red); background: var(--red-bg); border-color: rgba(239,68,68,0.2); }
+
+        .stream-item-card:hover .stream-icon-box {
+            transform: scale(1.08);
+        }
+        .stream-info-block {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+        .stream-student-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .stream-code-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gold);
+            background: var(--gold-dim);
+            padding: 1px 7px;
+            border-radius: 6px;
+            border: 1px solid rgba(212,151,59,0.25);
+            font-family: var(--mono);
+        }
+        .stream-action-text {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+        .stream-time-side {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .time-ago-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text2);
+            white-space: nowrap;
+        }
+        .time-exact-stamp {
+            font-size: 10.5px;
+            color: var(--text3);
+            font-family: var(--mono);
+        }
+
+        /* Stream Toggle Button */
+        .btn-stream-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34D399;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-stream-live.paused {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #F87171;
+        }
+        .live-dot-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 8px #10B981;
+            animation: pulseLive 1.5s infinite;
+        }
+        .btn-stream-live.paused .live-dot-pulse {
+            background: #EF4444;
+            box-shadow: 0 0 8px #EF4444;
+            animation: none;
+        }
+        @keyframes pulseLive {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* Filter Tabs */
+        .filter-tab-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .filter-tab-pill:hover, .filter-tab-pill.active {
+            background: var(--gold-dim);
+            border-color: rgba(212,151,59,0.3);
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Activity Radar ⚡</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-bolt"></i>
+            <span>رادار النشاط المباشر</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">00:00:00</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<div class="os-body">
+    <!-- ════ SIDEBAR (Populated via admin-os-layout.js) ════ -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ════ MAIN WORKSPACE ════ -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--yellow); background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3);">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">رادار النشاط المباشر والعمليات</h1>
+                        <p class="page-subtitle">متابعة لحظية ومباشرة لكافة حركات الطلاب والإدارة (تسجيل دخول، تصفح، حل اختبارات، أمان)</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn-stream-live" id="streamToggleBtn" onclick="toggleRadarStream()">
+                        <span class="live-dot-pulse"></span>
+                        <span id="streamToggleText">البث المباشر نشط</span>
+                    </button>
+                    <button class="btn-ghost" onclick="toggleTacticalRadarScope()" id="btnScopeToggle" title="قبة الرادار 360°">
+                        <i class="fa-solid fa-satellite-dish" style="color:#10B981;"></i>
+                        <span>قبة الرادار 360°</span>
+                    </button>
+                    <button class="btn-ghost" onclick="exportFeedCSV()" title="تصدير CSV">
+                        <i class="fa-solid fa-file-csv" style="color:var(--gold);"></i>
+                        <span>تصدير CSV</span>
+                    </button>
+                    <button class="btn-danger" onclick="clearLiveFeedPrompt()">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>مسح السجل</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">إجمالي الأنشطة المرصودة</div>
+                        <div class="kpi-val" id="kpiTotal" style="color:var(--blue2);">0</div>
+                    </div>
+                    <div class="kpi-icon-box blue">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">حركة وتفاعل الطلاب</div>
+                        <div class="kpi-val" id="kpiStudents" style="color:var(--green);">0</div>
+                    </div>
+                    <div class="kpi-icon-box green">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">الامتحانات والكويزات</div>
+                        <div class="kpi-val" id="kpiExams" style="color:var(--purple);">0</div>
+                    </div>
+                    <div class="kpi-icon-box purple">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">تنبيهات الأمان والنظام</div>
+                        <div class="kpi-val" id="kpiSecurity" style="color:var(--red);">0</div>
+                    </div>
+                    <div class="kpi-icon-box red">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tactical Radar Canvas Scope 360° -->
+            <div class="tactical-radar-card" id="tacticalRadarPanel">
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-satellite-dish" style="color: #10B981; font-size: 18px;"></i>
+                        <h3 style="font-size: 15px; font-weight: 800; color: var(--text);">قبة الرادار التكتيكية التفاعلية 360°</h3>
+                    </div>
+                    <button onclick="toggleTacticalRadarScope()" class="btn-icon" title="إغلاق">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="radar-scope-wrapper">
+                    <canvas id="radarCanvas" width="280" height="280" class="scope-canvas"></canvas>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text2); text-align: center; font-weight: 600;">
+                    الشعاع يمسح بزاوية 360° في الزمن الفعلي | النقاط المضيئة تمثل الحركات المباشرة الواردة الآن
+                </p>
+            </div>
+
+            <!-- Main Live Feed Card -->
+            <div class="card">
+                <div class="card-header" style="flex-direction:column; align-items:stretch; gap:8px; padding:10px 14px;">
+                    <!-- Row 1: Title + Counter & Search -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <div class="card-title" style="margin:0; font-size:13.5px; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-satellite" style="color:var(--gold);"></i>
+                            <span>سجل الإشارات المباشرة (Live Stream Feed)</span>
+                            <span class="badge badge-green" style="font-size:10.5px;">تحديث لحظي</span>
+                            <span class="badge badge-gold" id="liveFeedCounterBadge" style="font-size:10.5px;">0 إشارة</span>
+                        </div>
+                        <div style="flex:1; max-width:300px; min-width:180px;">
+                            <input type="text" class="dark-input" id="liveSearchInput" placeholder="🔍 ابحث بالاسم، الكود، أو العملية..." oninput="handleSearchInput()" style="height:32px; padding:4px 10px !important; font-size:12px !important; width:100%;">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Filter Tabs -->
+                    <div style="display:flex; align-items:center; gap:6px; overflow-x:auto; padding-bottom:2px;">
+                        <button class="filter-tab-pill active" id="tab-all" onclick="setLiveFilter('all')">
+                            الكل (<span id="badgeCountAll">0</span>)
+                        </button>
+                        <button class="filter-tab-pill" id="tab-login" onclick="setLiveFilter('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول (<span id="badgeCountLogin">0</span>)
+                        </button>
+                        <button class="filter-tab-pill" id="tab-course" onclick="setLiveFilter('course')">
+                            <i class="fa-solid fa-book-open"></i> المحاضرات (<span id="badgeCountCourse">0</span>)
+                        </button>
+                        <button class="filter-tab-pill" id="tab-exam" onclick="setLiveFilter('exam')">
+                            <i class="fa-solid fa-clipboard-check"></i> الامتحانات (<span id="badgeCountExam">0</span>)
+                        </button>
+                        <button class="filter-tab-pill" id="tab-security" onclick="setLiveFilter('security')">
+                            <i class="fa-solid fa-shield-halved"></i> الأمان (<span id="badgeCountSecurity">0</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feed Cards Container -->
+                <div style="padding: 10px 14px;">
+                    <div class="stream-cards-list" id="streamCardsContainer">
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text2);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 28px; color: var(--gold); margin-bottom: 10px;"></i>
+                            <div style="font-size: 14px; font-weight: 800;">جاري الاتصال بقاعدة البيانات وبث النشاط المباشر...</div>
+                            <div style="font-size: 12px; color: var(--text3); margin-top: 4px;">يتم استقبال إشارات تحركات الطلاب لحظة بلحظة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // ─── Radar Core State ───
+    let allFeedEvents = [];
+    let currentFilter = 'all';
+    let isStreamActive = true;
+    let radarCanvas, radarCtx;
+    let sweepAngle = 0;
+    let radarBlips = [];
+
+    // ─── Stream State Toggle ───
+    function toggleRadarStream() {
+        isStreamActive = !isStreamActive;
+        const btn = document.getElementById('streamToggleBtn');
+        const txt = document.getElementById('streamToggleText');
+
+        if (isStreamActive) {
+            btn.classList.remove('paused');
+            txt.textContent = 'البث المباشر نشط';
+            Swal.fire({
+                title: 'تم استئناف البث 🟢',
+                toast: true,
+                position: 'bottom-start',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        } else {
+            btn.classList.add('paused');
+            txt.textContent = 'البث متوقف مؤقتاً';
+            Swal.fire({
+                title: 'تم إيقاف التحديث مؤقتاً ⏸️',
+                toast: true,
+                position: 'bottom-start',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    }
+
+    // ─── Time Formatters ───
+    function formatRelativeTime(timestamp) {
+        if (!timestamp) return 'الآن';
+        const diff = Math.max(1, Math.floor((Date.now() - timestamp) / 1000));
+        if (diff < 5) return 'الآن';
+        if (diff < 60) return `منذ ${diff} ثانية`;
+        const mins = Math.floor(diff / 60);
+        if (mins < 60) return `منذ ${mins} دقيقة`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    }
+
+    function formatExactTime(timestamp) {
+        if (!timestamp) return '';
+        const d = new Date(timestamp);
+        return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    // ─── Filters & Search ───
+    function setLiveFilter(filter) {
+        currentFilter = filter;
+        ['all', 'login', 'course', 'exam', 'security'].forEach(tab => {
+            const el = document.getElementById(`tab-${tab}`);
+            if (el) el.classList.toggle('active', tab === filter);
+        });
+        renderFeedCards();
+    }
+
+    function handleSearchInput() {
+        renderFeedCards();
+    }
+
+    // ─── Tactical Radar Canvas Scope ───
+    function toggleTacticalRadarScope() {
+        const panel = document.getElementById('tacticalRadarPanel');
+        panel.classList.toggle('show');
+        if (panel.classList.contains('show')) {
+            initCanvasRadar();
+        }
+    }
+
+    function initCanvasRadar() {
+        radarCanvas = document.getElementById('radarCanvas');
+        if (!radarCanvas) return;
+        radarCtx = radarCanvas.getContext('2d');
+        requestAnimationFrame(renderRadarScopeFrame);
+    }
+
+    function renderRadarScopeFrame() {
+        if (!radarCtx || !radarCanvas) return;
+        const w = radarCanvas.width;
+        const h = radarCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = w / 2 - 8;
+
+        // Clear Background
+        radarCtx.clearRect(0, 0, w, h);
+
+        // Concentric Rings
+        radarCtx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+        radarCtx.lineWidth = 1;
+        [0.25, 0.5, 0.75, 1.0].forEach(factor => {
+            radarCtx.beginPath();
+            radarCtx.arc(cx, cy, radius * factor, 0, Math.PI * 2);
+            radarCtx.stroke();
+        });
+
+        // Crosshairs
+        radarCtx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+        radarCtx.beginPath();
+        radarCtx.moveTo(cx, cy - radius);
+        radarCtx.lineTo(cx, cy + radius);
+        radarCtx.moveTo(cx - radius, cy);
+        radarCtx.lineTo(cx + radius, cy);
+        radarCtx.stroke();
+
+        // Sweep Line
+        sweepAngle = (sweepAngle + 0.035) % (Math.PI * 2);
+
+        radarCtx.save();
+        radarCtx.translate(cx, cy);
+        radarCtx.rotate(sweepAngle);
+
+        const sweepGradient = radarCtx.createLinearGradient(0, 0, radius, 0);
+        sweepGradient.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+        sweepGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+        radarCtx.fillStyle = sweepGradient;
+
+        radarCtx.beginPath();
+        radarCtx.moveTo(0, 0);
+        radarCtx.arc(0, 0, radius, 0, Math.PI / 4);
+        radarCtx.closePath();
+        radarCtx.fill();
+        radarCtx.restore();
+
+        // Center Origin
+        radarCtx.beginPath();
+        radarCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+        radarCtx.fillStyle = '#34D399';
+        radarCtx.fill();
+
+        // Draw Blips
+        const now = Date.now();
+        radarBlips.forEach(b => {
+            const age = (now - b.time) / 1000;
+            if (age > 20) return;
+            const alpha = Math.max(0, 1 - (age / 20));
+            radarCtx.beginPath();
+            radarCtx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+            radarCtx.fillStyle = b.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+            radarCtx.shadowColor = b.color;
+            radarCtx.shadowBlur = 8;
+            radarCtx.fill();
+            radarCtx.shadowBlur = 0;
+        });
+
+        // Keep animating if panel visible
+        const panel = document.getElementById('tacticalRadarPanel');
+        if (panel && panel.classList.contains('show')) {
+            requestAnimationFrame(renderRadarScopeFrame);
+        }
+    }
+
+    function addRadarBlip(color = 'rgb(52, 211, 153)') {
+        if (!radarCanvas) return;
+        const cx = radarCanvas.width / 2;
+        const cy = radarCanvas.height / 2;
+        const maxR = (radarCanvas.width / 2) - 15;
+        const r = Math.random() * maxR;
+        const theta = Math.random() * Math.PI * 2;
+        radarBlips.push({
+            x: cx + r * Math.cos(theta),
+            y: cy + r * Math.sin(theta),
+            color: color,
+            time: Date.now()
+        });
+        if (radarBlips.length > 40) radarBlips.shift();
+    }
+
+    // ─── Data Ingestion & Normalization ───
+    function ingestRawEvent(raw, category = 'student', source = 'rtdb') {
+        const timestamp = raw.timestamp || raw.createdAt || raw.submittedAt || Date.now();
+        const id = raw.radarId || (source + '_' + (raw.id || raw.key || Math.random().toString(36).substring(2)));
+
+        let actorName = raw.studentName || raw.fullName || raw.name || raw.user || raw.admin || '';
+        if (!actorName && raw.studentCode) actorName = 'طالب (' + raw.studentCode + ')';
+        if (!actorName) actorName = (category === 'security') ? 'تنبيه أمان' : 'طالب المنصة';
+
+        let actionText = raw.action || raw.message || raw.details || raw.event || 'نشاط في المنصة';
+        let iconClass = 'fa-solid fa-right-to-bracket';
+        let filterType = 'login';
+        let blipColor = 'rgb(37, 99, 235)';
+
+        if (actionText.includes('تسجيل الدخول') || actionText.includes('دخول') || raw.type === 'login') {
+            filterType = 'login';
+            iconClass = 'fa-solid fa-right-to-bracket';
+            actionText = raw.isNew ? 'سجل دخول إلى المنصة (تسجيل جديد)' : 'سجل دخول إلى المنصة';
+            blipColor = 'rgb(37, 99, 235)';
+        } else if (actionText.includes('تصفح مادة') || actionText.includes('محاضر') || actionText.includes('منهج')) {
+            filterType = 'course';
+            iconClass = 'fa-solid fa-book-open';
+            const cleaned = actionText.replace('دخل على محاضرات ومنهج مادة: ', '').replace(/[()]/g, '').trim();
+            actionText = cleaned ? `تصفح محاضرات مادة: ${cleaned}` : 'تصفح محتوى المنهج والمحاضرات';
+            blipColor = 'rgb(16, 185, 129)';
+        } else if (actionText.includes('امتحان') || actionText.includes('اختبار') || raw.examTitle || category === 'exam') {
+            filterType = 'exam';
+            iconClass = 'fa-solid fa-clipboard-check';
+            const scoreText = raw.score !== undefined ? ` - بنسبة ${raw.score}%` : '';
+            actionText = `أنهى اختبار (${raw.examTitle || raw.subject || 'امتحان المقرر'})${scoreText}`;
+            blipColor = 'rgb(167, 139, 250)';
+        } else if (category === 'security' || actionText.includes('حظر') || actionText.includes('أمان') || actionText.includes('جهاز') || actionText.includes('عشوائي') || actionText.includes('اختراق') || actionText.includes('مرفوض') || actionText.includes('غير مصرح') || (raw.type && raw.type.includes('اختراق'))) {
+            filterType = 'security';
+            iconClass = 'fa-solid fa-triangle-exclamation';
+            actionText = raw.details || raw.message || raw.type || 'تنبيه أمان ورصد اختراق 🚨';
+            blipColor = 'rgb(239, 68, 68)';
+        }
+
+        const eventObj = {
+            radarId: id,
+            actorName: actorName,
+            studentCode: raw.studentCode || raw.code || '',
+            actionText: actionText,
+            rawDetails: raw.details || raw.meta || '',
+            filterType: filterType,
+            iconClass: iconClass,
+            timestamp: timestamp,
+            device: raw.device || raw.deviceName || '',
+            ip: raw.ip || raw.ipSession || '',
+            blipColor: blipColor
+        };
+
+        const existingIdx = allFeedEvents.findIndex(e => e.radarId === id);
+        if (existingIdx >= 0) {
+            allFeedEvents[existingIdx] = eventObj;
+        } else {
+            allFeedEvents.unshift(eventObj);
+            if (isStreamActive) {
+                addRadarBlip(blipColor);
+            }
+        }
+    }
+
+    // ─── Render Feed Cards ───
+    function renderFeedCards() {
+        allFeedEvents.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        if (allFeedEvents.length > 200) allFeedEvents = allFeedEvents.slice(0, 200);
+
+        // Update Counts
+        const totalCount = allFeedEvents.length;
+        const loginCount = allFeedEvents.filter(e => e.filterType === 'login').length;
+        const courseCount = allFeedEvents.filter(e => e.filterType === 'course').length;
+        const examCount = allFeedEvents.filter(e => e.filterType === 'exam').length;
+        const secCount = allFeedEvents.filter(e => e.filterType === 'security').length;
+
+        document.getElementById('kpiTotal').textContent = totalCount;
+        document.getElementById('kpiStudents').textContent = loginCount + courseCount;
+        document.getElementById('kpiExams').textContent = examCount;
+        document.getElementById('kpiSecurity').textContent = secCount;
+
+        document.getElementById('badgeCountAll').textContent = totalCount;
+        document.getElementById('badgeCountLogin').textContent = loginCount;
+        document.getElementById('badgeCountCourse').textContent = courseCount;
+        document.getElementById('badgeCountExam').textContent = examCount;
+        document.getElementById('badgeCountSecurity').textContent = secCount;
+
+        const query = (document.getElementById('liveSearchInput').value || '').trim().toLowerCase();
+        let filtered = allFeedEvents;
+
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(e => e.filterType === currentFilter);
+        }
+
+        if (query) {
+            filtered = filtered.filter(e => {
+                return (e.actorName || '').toLowerCase().includes(query) ||
+                       (e.studentCode || '').toLowerCase().includes(query) ||
+                       (e.actionText || '').toLowerCase().includes(query);
+            });
+        }
+
+        const container = document.getElementById('streamCardsContainer');
+        container.innerHTML = '';
+
+        const countBadge = document.getElementById('liveFeedCounterBadge');
+        if (countBadge) countBadge.textContent = `${filtered.length} إشارة معروضة`;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 45px 20px; color: var(--text3);">
+                    <i class="fa-solid fa-list-check" style="font-size: 36px; color: var(--gold); margin-bottom: 12px; opacity: 0.6;"></i>
+                    <h4 style="font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 4px;">لا توجد عمليات تطابق البحث أو الفلتر حالياً</h4>
+                    <p style="font-size: 12.5px; color: var(--text2);">جرّب اختيار فلتر "الكل" أو مسح كلمة البحث لرؤية كافة الأنشطة</p>
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach(evt => {
+            const card = document.createElement('div');
+            card.className = 'stream-item-card ' + (evt.filterType ? evt.filterType + '-type' : '');
+            card.onclick = () => showEventDetailsModal(evt);
+
+            const relTime = formatRelativeTime(evt.timestamp);
+            const exactTime = formatExactTime(evt.timestamp);
+
+            card.innerHTML = `
+                <div class="stream-card-right-group">
+                    <div class="stream-icon-box">
+                        <i class="${evt.iconClass}"></i>
+                    </div>
+                    <div class="stream-info-block">
+                        <div class="stream-student-name">
+                            <span>${evt.actorName}</span>
+                            ${evt.studentCode ? `<span class="stream-code-badge">${evt.studentCode}</span>` : ''}
+                        </div>
+                        <div class="stream-action-text">${evt.actionText}</div>
+                    </div>
+                </div>
+                <div class="stream-time-side">
+                    <span class="time-ago-label">${relTime}</span>
+                    <span class="time-exact-stamp">${exactTime}</span>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    // ─── Modal Details ───
+    function showEventDetailsModal(evt) {
+        Swal.fire({
+            title: 'تفاصيل العملية المرصودة ⚡',
+            html: `
+                <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13.5px; color:#F0F4FF; line-height:1.8;">
+                    <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>الاسم / الحساب:</b> ${evt.actorName}</div>
+                    ${evt.studentCode ? `<div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>كود الطالب:</b> <span style="font-family:monospace; color:#F59E0B;">${evt.studentCode}</span></div>` : ''}
+                    <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>النشاط:</b> ${evt.actionText}</div>
+                    <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>التوقيت:</b> ${new Date(evt.timestamp).toLocaleString('ar-EG')}</div>
+                    ${evt.device ? `<div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>الجهاز:</b> ${evt.device}</div>` : ''}
+                    ${evt.ip ? `<div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;"><b>عنوان الجلسة / IP:</b> ${evt.ip}</div>` : ''}
+                    ${evt.rawDetails && typeof evt.rawDetails === 'string' ? `<div style="background:var(--surface2); padding:8px 12px; border-radius:8px; border:1px solid var(--border);"><b>بيانات إضافية:</b> ${evt.rawDetails}</div>` : ''}
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonColor: '#C28B38',
+            confirmButtonText: 'إغلاق'
+        });
+    }
+
+    // ─── Clear Feed ───
+    function clearLiveFeedPrompt() {
+        Swal.fire({
+            title: 'هل تريد مسح سجل النشاط المعروض؟',
+            text: 'سيتم إفراغ الشاشة الحالية واستقبال الأنشطة الجديدة فقط',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#8C827A',
+            confirmButtonText: 'نعم، امسح المعروض',
+            cancelButtonText: 'إلغاء'
+        }).then(result => {
+            if (result.isConfirmed) {
+                allFeedEvents = [];
+                radarBlips = [];
+                renderFeedCards();
+            }
+        });
+    }
+
+    // ─── Export CSV ───
+    function exportFeedCSV() {
+        if (allFeedEvents.length === 0) {
+            return Swal.fire({
+                title: 'لا توجد أنشطة',
+                text: 'لا توجد أنشطة في السجل لتصديرها حالياً',
+                icon: 'info'
+            });
+        }
+        let csv = "\uFEFFم,اسم الطالب / الحساب,الكود,العملية / النشاط,التوقيت\n";
+        allFeedEvents.forEach((e, idx) => {
+            const name = (e.actorName || '').replace(/"/g, '""');
+            const code = (e.studentCode || '').replace(/"/g, '""');
+            const action = (e.actionText || '').replace(/"/g, '""');
+            const time = new Date(e.timestamp).toLocaleString('ar-EG');
+            csv += `${idx + 1},"${name}","${code}","${action}","${time}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `نشاط_الطلاب_الرادار_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // ─── Live Listeners ───
+    function initRadarDataStreams() {
+        const db = (typeof database !== 'undefined' && database) 
+                || (window.database) 
+                || (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length ? firebase.database() : null);
+
+        if (db) {
+            // 1. ActivityLogs
+            try {
+                db.ref('ActivityLogs').limitToLast(100).on('value', snap => {
+                    if (!isStreamActive && allFeedEvents.length > 0) return;
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                val.radarId = 'act_' + child.key;
+                                ingestRawEvent(val, 'student', 'rtdb');
+                            }
+                        });
+                        renderFeedCards();
+                    } else {
+                        renderFeedCards();
+                    }
+                }, err => console.warn('ActivityLogs notice:', err));
+            } catch(e) {}
+
+            // 2. ExamResults
+            try {
+                db.ref('ExamResults').limitToLast(50).on('value', snap => {
+                    if (!isStreamActive && allFeedEvents.length > 0) return;
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                val.radarId = 'exam_' + child.key;
+                                ingestRawEvent(val, 'exam', 'rtdb');
+                            }
+                        });
+                        renderFeedCards();
+                    }
+                }, err => console.warn('ExamResults notice:', err));
+            } catch(e) {}
+
+            // 3. SecurityAlerts
+            try {
+                let initialLoadDone = false;
+                db.ref('SecurityAlerts').limitToLast(50).on('value', snap => {
+                    if (!isStreamActive && allFeedEvents.length > 0) return;
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                val.radarId = 'sec_' + child.key;
+                                ingestRawEvent(val, 'security', 'rtdb');
+                            }
+                        });
+                        renderFeedCards();
+                    }
+                    initialLoadDone = true;
+                }, err => console.warn('SecurityAlerts notice:', err));
+
+                // Realtime Watchtower intrusion alert toast
+                db.ref('SecurityAlerts').limitToLast(1).on('child_added', snap => {
+                    if (!initialLoadDone) return;
+                    const val = snap.val();
+                    if (val && (Date.now() - (val.timestamp || 0) < 20000)) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: `🚨 تنبيه من أبراج المراقبة: ${val.type || 'محاولة غير مصرح بها'}`,
+                            text: val.details || `كود الطالب: ${val.studentCode}`,
+                            timer: 6000,
+                            showConfirmButton: false,
+                            background: '#121929',
+                            color: '#F0F4FF'
+                        });
+                    }
+                });
+            } catch(e) {}
+
+            // 4. AuditLogs
+            try {
+                db.ref('AuditLogs').limitToLast(50).on('value', snap => {
+                    if (!isStreamActive && allFeedEvents.length > 0) return;
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const val = child.val();
+                            if (val) {
+                                val.radarId = 'aud_' + child.key;
+                                ingestRawEvent(val, 'admin', 'rtdb');
+                            }
+                        });
+                        renderFeedCards();
+                    }
+                }, err => console.warn('AuditLogs notice:', err));
+            } catch(e) {}
+        }
+
+        // MySQL fallback if no RTDB events after 2.5s
+        setTimeout(async () => {
+            if (allFeedEvents.length === 0 && window.ElkhetaAPI && typeof window.ElkhetaAPI.getActivityLogs === 'function') {
+                try {
+                    const res = await window.ElkhetaAPI.getActivityLogs('', '', 100);
+                    if (res && res.logs && Array.isArray(res.logs) && res.logs.length > 0) {
+                        res.logs.forEach(l => ingestRawEvent(l, 'student', 'mysql'));
+                        renderFeedCards();
+                        return;
+                    }
+                } catch(err) {}
+            }
+            if (allFeedEvents.length === 0) {
+                renderFeedCards();
+            }
+        }, 2500);
+    }
+
+    // Refresh times every 15s
+    setInterval(() => {
+        if (isStreamActive && allFeedEvents.length > 0) {
+            renderFeedCards();
+        }
+    }, 15000);
+
+    window.addEventListener('DOMContentLoaded', () => {
+        initRadarDataStreams();
+    });
+</script>
+</body>
+</html>

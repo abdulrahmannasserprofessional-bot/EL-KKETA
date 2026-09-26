@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رفع واستيراد قوالب الامتحانات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .dropzone-box {
+            border: 2px dashed rgba(212, 151, 59, 0.4);
+            background: var(--surface2);
+            border-radius: var(--radius);
+            padding: 45px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .dropzone-box:hover, .dropzone-box.dragover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            transform: scale(1.01);
+        }
+        .dropzone-icon {
+            font-size: 48px;
+            color: var(--gold);
+            transition: transform 0.2s;
+        }
+        .dropzone-box:hover .dropzone-icon {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                <i class="fa-solid fa-upload"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Exam Backup & Import</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-upload"></i>
+            <span>استيراد ونسخ الامتحانات</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">00:00:00</div>
+        <a href="admin-exams.html" class="btn-icon" title="إدارة الامتحانات">
+            <i class="fa-solid fa-file-pen"></i>
+        </a>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<div class="os-body">
+    <!-- ════ SIDEBAR (Populated via admin-os-layout.js) ════ -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ════ MAIN WORKSPACE ════ -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--gold); background: var(--gold-light); border-color: var(--gold-border);">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">رفع واستيراد قوالب الامتحانات وبنك الأسئلة</h1>
+                        <p class="page-subtitle">استيراد دفعات امتحانات كاملة بصيغة JSON إلى قاعدة البيانات، أو تنزيل نسخة احتياطية لكافة امتحانات المنصة</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn-ghost" onclick="downloadSampleTemplate()">
+                        <i class="fa-solid fa-download"></i>
+                        <span>تحميل نموذج JSON فارغ</span>
+                    </button>
+                    <button class="btn-gold" onclick="exportAllExams()">
+                        <i class="fa-solid fa-file-export"></i>
+                        <span>تصدير نسخة احتياطية للامتحانات</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Drag & Drop Import Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-file-import" style="color:var(--gold);"></i>
+                        <span>استيراد ملف امتحانات جاهز (JSON)</span>
+                    </div>
+                    <span class="badge badge-gold">Auto Parser</span>
+                </div>
+
+                <div style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+                    <div class="dropzone-box" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileSelected(this.files)">
+                        <i class="fa-solid fa-file-arrow-up dropzone-icon"></i>
+                        <h3 style="font-size: 16px; font-weight: 800; color: var(--text);">اضغط هنا لاختيار ملف الامتحانات أو اسحبه وأفلته هنا</h3>
+                        <p style="font-size: 12px; color: var(--text2);">يدعم الملفات بصيغة JSON المنسقة والمتوافقة مع بنك الأسئلة</p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap:wrap; gap:12px; border-top: 1px solid var(--border); padding-top: 16px;">
+                        <button class="btn-ghost" onclick="downloadSampleTemplate()">
+                            <i class="fa-solid fa-file-code"></i>
+                            <span>تنزيل قالب تجريبي للاسترشاد به (Sample JSON)</span>
+                        </button>
+                        <button class="btn-gold" onclick="exportAllExams()">
+                            <i class="fa-solid fa-database"></i>
+                            <span>نسخ احتياطي فوري لجميع الامتحانات</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explanatory Instructions Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-circle-info" style="color:var(--blue2);"></i>
+                        <span>إرشادات هيكل ملف الـ JSON المطلوب</span>
+                    </div>
+                </div>
+                <div style="padding: 20px; font-size:13px; color:var(--text2); line-height:1.8;">
+                    <p style="margin-bottom:10px;">يجب أن يحتوي ملف الـ JSON على مصفوفة كائنات (Array of Objects) تمثل كل كائن امتحاناً مستقلاً مع بياناته وأسئلته، كما في المثال التالي:</p>
+                    <pre style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; font-family:var(--mono); font-size:12px; color:var(--gold2); overflow-x:auto; direction:ltr; text-align:left;">[
+  {
+    "title": "امتحان تجريبي شامل",
+    "subject": "تخطيط اجتماعي",
+    "subjectKey": "تخطيط",
+    "duration": "30 دقيقة",
+    "passingScore": "70%",
+    "questions": [
+      {
+        "q": "نص السؤال الأول هنا؟",
+        "options": ["الخيار الصحيح", "خيار خاطئ 1", "خيار خاطئ 2", "خيار خاطئ 3"],
+        "correct": 0
+      }
+    ]
+  }
+]</pre>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+
+    // Drag and drop handlers
+    const dropzone = document.getElementById('dropzone');
+    ['dragenter', 'dragover'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+        dropzone.addEventListener(name, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('dragover');
+        });
+    });
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFileSelected(files);
+    });
+
+    function handleFileSelected(files) {
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data) && db) {
+                    let count = 0;
+                    data.forEach(item => {
+                        db.ref('Exams').push({
+                            ...item,
+                            createdAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        count++;
+                    });
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم الاستيراد بنجاح ✅',
+                        text: `تم استيراد ${count} امتحانات وإضافتها إلى بنك الامتحانات.`,
+                        confirmButtonColor: '#C28B38'
+                    });
+                } else {
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'صيغة غير صالحة', 
+                        text: 'يرجى التأكد من أن الملف يحتوي على مصفوفة امتحانات بصيغة JSON الصحيحة.',
+                        confirmButtonColor: '#C28B38'
+                    });
+                }
+            } catch(err) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'خطأ في قراءة الملف', 
+                    text: 'حدث خطأ أثناء فك تشفير الملف: ' + err.message,
+                    confirmButtonColor: '#C28B38'
+                });
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function downloadSampleTemplate() {
+        const sample = [
+            {
+                subject: "طريقة العمل مع الأفراد",
+                subjectKey: "افراد",
+                title: "امتحان تجريبي نموذجي",
+                duration: "30 دقيقة",
+                passingScore: "70%",
+                questions: [
+                    { 
+                        q: "نص السؤال الأول هنا؟", 
+                        options: ["الخيار الصحيح", "خيار خاطئ 1", "خيار خاطئ 2", "خيار خاطئ 3"], 
+                        correct: 0 
+                    }
+                ]
+            }
+        ];
+
+        const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'ELKHETA_Exam_Template_Sample.json';
+        a.click();
+    }
+
+    function exportAllExams() {
+        if (!db) {
+            return Swal.fire({ icon: 'error', title: 'خطأ', text: 'قاعدة البيانات غير متصلة' });
+        }
+
+        db.ref('Exams').once('value', snap => {
+            let list = [];
+            if (snap.exists()) {
+                snap.forEach(c => list.push(c.val()));
+            }
+
+            const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ELKHETA_Exams_Backup_${Date.now()}.json`;
+            a.click();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التصدير بنجاح ✅',
+                text: `تم تنزيل النسخة الاحتياطية لـ ${list.length} امتحان.`,
+                confirmButtonColor: '#C28B38'
+            });
+        });
+    }
+</script>
+</body>
+</html>

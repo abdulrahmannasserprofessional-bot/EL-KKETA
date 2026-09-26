@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تحليل أخطاء الطلاب ورادار الأسئلة - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .main-inner {
+            padding: 10px 16px 20px !important;
+            gap: 10px !important;
+        }
+        .page-header-row {
+            margin-bottom: 0px !important;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 10px;
+        }
+        @media(max-width: 1100px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+        }
+        @media(max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .kpi-card {
+                padding: 8px 10px !important;
+                min-height: 48px !important;
+            }
+            .kpi-card .kpi-label {
+                font-size: 10px !important;
+            }
+            .kpi-card .kpi-val {
+                font-size: 17px !important;
+            }
+            .page-actions-group {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin-top: 6px !important;
+            }
+            .page-actions-group button, .page-actions-group .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 8px 10px !important;
+                font-size: 11.5px !important;
+                white-space: nowrap !important;
+            }
+        }
+        .kpi-card {
+            padding: 7px 12px !important;
+            min-height: 50px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            border-radius: 9px !important;
+            gap: 8px !important;
+        }
+        .kpi-card .kpi-label {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            color: var(--text3) !important;
+            margin-bottom: 1px !important;
+        }
+        .kpi-card .kpi-val {
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            margin: 0 !important;
+        }
+        .kpi-icon-box {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+        }
+
+        .filter-tab-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .filter-tab-pill:hover, .filter-tab-pill.active {
+            background: var(--gold-dim);
+            border-color: rgba(212,151,59,0.3);
+            color: var(--gold);
+        }
+
+        .student-mistake-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-right: 4px solid var(--gold);
+            border-radius: 9px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .student-mistake-card:hover {
+            background: var(--surface2);
+            border-color: var(--gold);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 14px rgba(194, 139, 56, 0.12);
+        }
+        .student-mistake-card.solved-card {
+            border-right-color: var(--green);
+        }
+        .student-mistake-card.unsolved-card {
+            border-right-color: var(--red);
+        }
+
+        .mistake-answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        @media (max-width: 640px) {
+            .mistake-answers-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .audit-alert-box {
+            background: #FEF2F2 !important;
+            border: 1.5px solid #FECACA !important;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.08);
+        }
+        @media (max-width: 768px) {
+            .audit-alert-box {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 14px !important;
+                gap: 12px !important;
+            }
+            .audit-alert-box .btn-danger {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 9px !important;
+            }
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .heat-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* ════ TABS NAVIGATION BAR ════ */
+        .mistakes-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            border-radius: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin: 6px 0 12px;
+            box-shadow: var(--shadow-card);
+        }
+        .mistakes-nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        .mistakes-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 9px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text2);
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-family: inherit;
+            flex-shrink: 0;
+        }
+        .mistakes-tab-btn:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+        .mistakes-tab-btn.active {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            color: #8E5D16;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(194, 139, 56, 0.12);
+        }
+        .mistakes-tab-btn .tab-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: var(--mono);
+            background: var(--surface2);
+            color: var(--text2);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        .mistakes-tab-btn.active .tab-badge {
+            background: var(--gold);
+            color: #ffffff;
+            border-color: var(--gold);
+        }
+        .mistakes-tab-btn .tab-badge.red {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--red);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        .mistakes-tab-btn.active .tab-badge.red {
+            background: var(--red);
+            color: #ffffff;
+            border-color: var(--red);
+        }
+        .mistakes-tab-btn .tab-badge.gold {
+            background: var(--gold-dim);
+            color: var(--gold);
+            border-color: rgba(194, 139, 56, 0.25);
+        }
+        .mistakes-tab-btn.active .tab-badge.gold {
+            background: var(--gold);
+            color: #ffffff;
+            border-color: var(--gold);
+        }
+
+        .mistakes-tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .mistakes-tab-pane.active {
+            display: flex;
+            animation: fadeInTab 0.2s ease forwards;
+        }
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dark Table Light Mode Styling */
+        .dark-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+        .dark-table th {
+            background: var(--surface2);
+            color: var(--text2);
+            font-weight: 800;
+            padding: 12px 16px;
+            text-align: right;
+            border-bottom: 1.5px solid var(--border);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .dark-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: middle;
+        }
+        .dark-table tr:hover td {
+            background: var(--surface-hover);
+        }
+        .dark-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Modal Backdrop */
+        .os-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .os-modal-backdrop.active {
+            display: flex;
+        }
+        .os-modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        /* ─── Visual Subject Bubble Map ─── */
+        .bubble-map-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 24px 16px;
+            min-height: 220px;
+        }
+        .subject-bubble {
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            padding: 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+            user-select: none;
+            border: 2px solid transparent;
+        }
+        .subject-bubble:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        .subject-bubble.active {
+            box-shadow: 0 0 0 4px var(--gold), 0 12px 35px rgba(0, 0, 0, 0.5);
+            transform: scale(1.06);
+        }
+        .bubble-name {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #FFFFFF;
+            line-height: 1.3;
+            max-width: 140px;
+            margin-bottom: 4px;
+        }
+        .bubble-errors {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .bubble-rate-pill {
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            margin-top: 6px;
+            color: #FFFFFF;
+        }
+
+        /* Drill-down panel */
+        .drilldown-panel {
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            animation: fadeInTab 0.25s ease;
+        }
+        .drilldown-chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+        }
+        .chapter-drill-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chapter-drill-card:hover, .chapter-drill-card.active {
+            border-color: var(--gold);
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+        }
+
+        /* ─── Critical Intervention Question Cards ─── */
+        .intervention-q-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .intervention-q-card:hover {
+            border-color: var(--border2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .intervention-q-card.status-new {
+            border-right: 5px solid #F97316;
+        }
+        .intervention-q-card.status-recurring {
+            border-right: 5px solid #DC2626;
+        }
+        .intervention-q-card.status-reviewed {
+            border-right: 5px solid #10B981;
+        }
+        .intervention-q-card.status-improved {
+            border-right: 5px solid #D4973B;
+        }
+        .intervention-q-card.status-needs-edit {
+            border-right: 5px solid #8B5CF6;
+            box-shadow: 0 0 0 1px #8B5CF6 inset;
+        }
+
+        .interv-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .distractor-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #F87171;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .model-ans-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #34D399;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .interv-actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-interv {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+        }
+        .btn-interv:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: var(--surface-hover);
+        }
+
+        /* ─── Cohort Traps & Smart Recommendations ─── */
+        .cohort-trap-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1.5px solid rgba(212, 151, 59, 0.35);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+        .smart-rec-bubble {
+            background: rgba(212, 151, 59, 0.1);
+            border: 1.5px solid rgba(212, 151, 59, 0.3);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--gold2);
+            line-height: 1.7;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #EF4444, #B91C1C);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Mistakes & Audit Radar</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>رادار أخطاء الطلاب</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">00:00:00</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<div class="os-body">
+    <!-- ════ SIDEBAR (Populated via admin-os-layout.js) ════ -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ════ MAIN WORKSPACE ════ -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--red); background: var(--red-bg); border-color: rgba(239,68,68,0.2);">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">تحليل أخطاء الطلاب ورادار مراجعة الأسئلة</h1>
+                        <p class="page-subtitle">متابعة نقاط التعثر في امتحانات الطلاب، ورصد الأسئلة التي تحتاج لتعديل أو تصويب صياغة في بنك الأسئلة</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn-ghost" onclick="exportStudentMistakesCSV()" title="تصدير CSV">
+                        <i class="fa-solid fa-file-csv" style="color:var(--green);"></i>
+                        <span>تصدير الأخطاء CSV</span>
+                    </button>
+                    <button class="btn-gold" onclick="exportStudentMistakesCSV()">
+                        <i class="fa-solid fa-download"></i>
+                        <span>تحميل التقرير الشامل</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">إجمالي أخطاء الطلاب المسجلة</div>
+                        <div class="kpi-val" id="kpiTotalQuestions" style="color:var(--blue2);">0</div>
+                    </div>
+                    <div class="kpi-icon-box blue">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">متوسط نسبة الخطأ العام</div>
+                        <div class="kpi-val" id="kpiAvgError" style="color:var(--yellow);">0%</div>
+                    </div>
+                    <div class="kpi-icon-box gold">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">أسئلة تخطت خطورة 65%</div>
+                        <div class="kpi-val" id="kpiHighRisk" style="color:var(--red);">0</div>
+                    </div>
+                    <div class="kpi-icon-box red">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">أعلى مادة في نسبة الأخطاء</div>
+                        <div class="kpi-val" id="kpiWorstSubject" style="font-size:18px; color:var(--gold);">-</div>
+                    </div>
+                    <div class="kpi-icon-box purple">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Risk Alert Box -->
+            <div class="audit-alert-box" id="auditAlertBox" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 15px; font-weight: 900; color: #991B1B;" id="auditAlertTitle">⚠️ تنبيه رادار الأسئلة: توجد أسئلة تحتاج مراجعة فورية!</div>
+                        <div style="font-size: 12px; color: #7F1D1D; font-weight: 600;" id="auditAlertDesc">تخطت نسبة الخطأ في بعض الأسئلة 65%، يُرجى فحص دقة الصياغة أو تصويب الإجابة النموذجية في بنك الأسئلة.</div>
+                    </div>
+                </div>
+                <button class="btn-danger" onclick="scrollToAuditSection()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>فحص الأسئلة الشائكة</span>
+                </button>
+            </div>
+
+            <!-- ════ TABS NAVIGATION BAR ════ -->
+            <div class="mistakes-nav-tabs">
+                <button class="mistakes-tab-btn active" id="tabBtnIntervention" onclick="switchMistakesTab('intervention')">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:var(--red);"></i>
+                    <span>أكثر الأسئلة احتياجاً للتدخل</span>
+                    <span class="tab-badge red" id="tabBadgeIntervention">0</span>
+                </button>
+                <button class="mistakes-tab-btn" id="tabBtnBubbleMap" onclick="switchMistakesTab('bubblemap')">
+                    <i class="fa-solid fa-circle-nodes" style="color:var(--gold);"></i>
+                    <span>خريطة المواد ونقاط التعثر الجماعية</span>
+                    <span class="tab-badge gold" id="tabBadgeBubbleMap">0</span>
+                </button>
+                <button class="mistakes-tab-btn" id="tabBtnFeed" onclick="switchMistakesTab('feed')">
+                    <i class="fa-solid fa-clipboard-list" style="color:var(--blue2);"></i>
+                    <span>سجل أخطاء الطلاب المباشر</span>
+                    <span class="tab-badge" id="tabBadgeFeed">0</span>
+                </button>
+                <button class="mistakes-tab-btn" id="tabBtnAnalytics" onclick="switchMistakesTab('analytics')">
+                    <i class="fa-solid fa-chart-pie" style="color:var(--purple);"></i>
+                    <span>إحصائيات الفصول وبنك الأسئلة</span>
+                    <span class="tab-badge gold" id="tabBadgeAnalytics">0</span>
+                </button>
+            </div>
+
+            <!-- ════ TAB 1: CRITICAL INTERVENTION QUESTIONS ════ -->
+            <div class="mistakes-tab-pane active" id="tabViewIntervention">
+                <div class="card" id="interventionQuestionsSection">
+                    <div class="card-header" style="flex-direction:column; align-items:stretch; gap:12px; padding:16px 20px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <div>
+                                <div class="card-title" style="margin-bottom:3px; display:flex; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color:var(--red);"></i>
+                                    <span>أكثر الأسئلة احتياجاً للتدخل (Critical Intervention Questions)</span>
+                                </div>
+                                <div style="font-size:12px; color:var(--text3);">تشخيص دقيق لنقاط تعثر الطلاب، نسبة الخطأ، المشتت الأكثر جذباً، وتقييم كفاية الشرح العلمي</div>
+                            </div>
+                            <span class="badge badge-red" id="flaggedBadgeCount" style="font-size:12.5px; padding:5px 12px;">0 أسئلة حرجة</span>
+                        </div>
+
+                        <!-- Status Filter Pills -->
+                        <div style="display:flex; align-items:center; gap:6px; overflow-x:auto; padding-bottom:2px;" id="interventionFilterTabs">
+                            <button class="filter-tab-pill active" onclick="setInterventionStatusFilter('all', this)">
+                                الكل (<span id="countIntervAll">0</span>)
+                            </button>
+                            <button class="filter-tab-pill" onclick="setInterventionStatusFilter('new', this)" style="border-color: rgba(249, 115, 22, 0.3);">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#F97316;"></span> خطأ جديد (<span id="countIntervNew">0</span>)
+                            </button>
+                            <button class="filter-tab-pill" onclick="setInterventionStatusFilter('recurring', this)" style="border-color: rgba(220, 38, 38, 0.3);">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#DC2626;"></span> خطأ متكرر (<span id="countIntervRecurring">0</span>)
+                            </button>
+                            <button class="filter-tab-pill" onclick="setInterventionStatusFilter('needs-edit', this)" style="border-color: rgba(139, 92, 246, 0.3);">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#8B5CF6;"></span> يحتاج تعديل صياغة (<span id="countIntervNeedsEdit">0</span>)
+                            </button>
+                            <button class="filter-tab-pill" onclick="setInterventionStatusFilter('improved', this)" style="border-color: rgba(212, 151, 59, 0.3);">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#D4973B;"></span> تحسن ملحوظ (<span id="countIntervImproved">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px;" id="interventionQuestionsList">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ TAB 2: VISUAL BUBBLE MAP & COHORT TRAPS ════ -->
+            <div class="mistakes-tab-pane" id="tabViewBubbleMap">
+                <!-- Visual Subject Bubble Map -->
+                <div class="card">
+                    <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <div class="card-title" style="margin-bottom:3px;">
+                                <i class="fa-solid fa-circle-nodes" style="color:var(--gold);"></i>
+                                <span>خريطة فقاعات المواد (Subject Visual Radar)</span>
+                            </div>
+                            <div style="font-size:12px; color:var(--text3);">حجم الفقاعة يعكس حجم الأخطاء، واللون يعكس معدل الخطورة، اضغط على أية مادة للتعمق في فصولها</div>
+                        </div>
+                    </div>
+                    <div style="padding:16px;">
+                        <div class="bubble-map-container" id="subjectBubbleMapContainer">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Drill-down panel into chapters & problem questions -->
+                        <div id="subjectDrilldownPanel" class="drilldown-panel" style="display:none; margin-top:16px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-folder-open" style="color:var(--gold);"></i>
+                                    <span style="font-size:14px; font-weight:800; color:var(--text);" id="drilldownSubjectTitle">فصول المادة</span>
+                                </div>
+                                <button class="btn-ghost btn-sm" onclick="closeSubjectDrilldown()">إغلاق الفحص</button>
+                            </div>
+                            <div class="drilldown-chapters-grid" id="drilldownChaptersGrid">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cohort Traps & Smart Recommendations -->
+                <div class="cohort-trap-card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="width:40px; height:40px; border-radius:10px; background:rgba(212,151,59,0.2); color:var(--gold2); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                                <i class="fa-solid fa-brain"></i>
+                            </span>
+                            <div>
+                                <h3 style="font-size:15px; font-weight:900; color:#FFFFFF; margin:0;">نقاط التعثر الجماعية ورادار التوصيات الذكية</h3>
+                                <p style="font-size:12px; color:var(--text2); margin:0;">تحليل خوارزمي لأنماط التشتت المشتركة بين طلاب الفوج واقتراح الإجراء الأكاديمي الأمثل</p>
+                            </div>
+                        </div>
+                        <span class="badge badge-gold" style="font-size:11px;">توصية مؤتمتة AI</span>
+                    </div>
+
+                    <div class="smart-rec-bubble" id="smartCohortRecommendationText">
+                        <i class="fa-solid fa-lightbulb" style="font-size:18px; color:var(--gold2); flex-shrink:0; margin-top:2px;"></i>
+                        <span>جاري فحص أنماط الإجابات لتوليد التوصية الأكاديمية الذكية...</span>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-gold btn-sm" onclick="broadcastAcademicAlert()" style="padding:8px 16px;">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            <span>بث إشعار وتنبيه أكاديمي للطلاب المتعثرين</span>
+                        </button>
+                        <button class="btn-ghost btn-sm" onclick="createQuickStudentDrill()" style="padding:8px 16px; border-color:var(--gold); color:var(--gold);">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>تجهيز بنك تدريب علاجي مخصص</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ TAB 3: LIVE MISTAKES FEED ════ -->
+            <div class="mistakes-tab-pane" id="tabViewFeed">
+                <div class="card" id="studentMistakesExplorerCard">
+                    <div class="card-header" style="flex-direction:column; align-items:stretch; gap:10px; padding:14px 18px;">
+                        <!-- Row 1: Title + Counter & Search -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                            <div class="card-title" style="margin:0; font-size:14px; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-circle-xmark" style="color:var(--red);"></i>
+                                <span>سجل أخطاء الطلاب المباشر والتفصيلي</span>
+                                <span class="badge badge-green" style="font-size:11px;">تحديث لحظي</span>
+                                <span class="badge badge-gold" id="mistakesCounterBadge" style="font-size:11px;">0 خطأ مسجل</span>
+                            </div>
+                            <div style="flex:1; max-width:340px; min-width:200px;">
+                                <input type="text" class="dark-input" id="mistakesSearchInput" placeholder="🔍 ابحث بالاسم، الكود، أو نص السؤال..." oninput="filterStudentMistakesList()" style="height:36px; padding:6px 12px !important; font-size:12.5px !important; width:100%;">
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Filter Tabs -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:6px; overflow-x:auto; padding-bottom:2px;" id="mistakesFilterTabs">
+                                <button class="filter-tab-pill active" onclick="setMistakesFilter('all', this)">
+                                    الكل (<span id="countMistakesAll">0</span>)
+                                </button>
+                                <button class="filter-tab-pill" onclick="setMistakesFilter('unsolved', this)">
+                                    <i class="fa-solid fa-clock" style="color:var(--yellow);"></i> لم يتم حلها بعد (<span id="countMistakesUnsolved">0</span>)
+                                </button>
+                                <button class="filter-tab-pill" onclick="setMistakesFilter('solved', this)">
+                                    <i class="fa-solid fa-circle-check" style="color:var(--green);"></i> تم التدارك بنجاح (<span id="countMistakesSolved">0</span>)
+                                </button>
+                            </div>
+                            <button class="btn-ghost" onclick="generateSampleMistakesForTesting()" style="font-size:12px; padding:6px 12px; height:32px;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--gold);"></i>
+                                <span>توليد بيانات تجريبية (Demo)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feed Container -->
+                    <div style="padding: 14px 18px;">
+                        <div id="detailedStudentMistakesContainer" style="display: flex; flex-direction: column; gap: 10px; overflow: visible;">
+                            <div style="text-align: center; padding: 30px 20px; color: var(--text2);">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 24px; color: var(--gold); margin-bottom: 8px;"></i>
+                                <div style="font-size: 13.5px; font-weight: 800;">جاري تحميل ومزامنة سجل أخطاء الطلاب...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ TAB 3: SUBJECT & CHAPTER ANALYTICS ════ -->
+            <div class="mistakes-tab-pane" id="tabViewAnalytics">
+                <!-- 1. Subject Analytics Table -->
+                <div class="card">
+                    <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <div class="card-title" style="margin-bottom:3px;">
+                                <i class="fa-solid fa-table-list" style="color:var(--gold);"></i>
+                                <span>تحليل أخطاء المواد الدراسية</span>
+                            </div>
+                            <div style="font-size:12px; color:var(--text3);">رصد دقيق لمعدل استيعاب الطلاب في كل مادة دراسية ونقاط التعثر الأكثر تكراراً</div>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="dark-table">
+                            <thead>
+                                <tr>
+                                    <th>المادة الدراسية</th>
+                                    <th>الأسئلة المختبرة</th>
+                                    <th>أكثر سؤال به أخطاء</th>
+                                    <th>نسبة الخطأ العامة</th>
+                                    <th>حالة المقرر</th>
+                                    <th>الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectAnalyticsTbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. Chapter Heatmap -->
+                <div class="card">
+                    <div class="card-header" style="flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <div class="card-title" style="margin-bottom:3px;">
+                                <i class="fa-solid fa-fire-flame-curved" style="color:var(--orange);"></i>
+                                <span>خريطة الأخطاء فصلًا بفصل (Chapter Heatmap)</span>
+                            </div>
+                            <div style="font-size:12px; color:var(--text3);">تحديد الفصول الأكثر صعوبة لمساعدة أعضاء هيئة التدريس في خطط الدعم والتقوية</div>
+                        </div>
+                    </div>
+                    <div style="padding:16px;">
+                        <div class="heatmap-grid" id="heatmapGrid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Edit Question Modal -->
+<div class="os-modal-backdrop" id="editQuestionModal">
+    <div class="os-modal-content">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:12px;">
+            <div style="font-size:16px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-pen-to-square" style="color:var(--gold);"></i>
+                <span>تعديل السؤال وتصويب بنك الأسئلة</span>
+            </div>
+            <button onclick="closeEditModal()" class="btn-icon" style="border:none;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <div>
+                <label style="font-size:12px; font-weight:700; color:var(--text2); display:block; margin-bottom:6px;">نص السؤال:</label>
+                <textarea id="editQuestionText" class="dark-input" style="min-height:75px; resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="font-size:12px; font-weight:700; color:var(--text2); display:block; margin-bottom:6px;">الإجابة النموذجية الصحيحة:</label>
+                <input type="text" id="editCorrectAnswer" class="dark-input">
+            </div>
+
+            <div>
+                <label style="font-size:12px; font-weight:700; color:var(--text2); display:block; margin-bottom:6px;">الشرح والتفسير العلمي:</label>
+                <textarea id="editExplanation" class="dark-input" style="min-height:65px; resize:vertical;"></textarea>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:14px;">
+            <button class="btn-ghost" onclick="closeEditModal()">إلغاء</button>
+            <button class="btn-gold" onclick="saveEditedQuestion()">
+                <i class="fa-solid fa-check"></i>
+                <span>حفظ التعديلات في بنك الأسئلة</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSubjectsMetrics = [];
+    let currentFlaggedQuestions = [];
+    let currentChapterHeatmap = [];
+    let currentEditQ = null;
+    let currentMistakesFilter = 'all';
+    let studentsNameMap = {};
+    let rawStudentMistakes = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderSubjectAnalytics([]);
+        renderInterventionQuestions([]);
+        renderHeatmap([]);
+        renderDetailedStudentMistakes();
+        initAdminMistakesRealtime();
+        fetchStudentsNames();
+    });
+
+    function fetchStudentsNames() {
+        const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+        if (!db) return;
+        try {
+            db.ref('Students').once('value', sSnap => {
+                if (sSnap.exists()) {
+                    sSnap.forEach(ch => {
+                        const s = ch.val();
+                        if (s) {
+                            const realName = s.fullName || s.name || s.studentName;
+                            if (s.studentCode && realName) studentsNameMap[s.studentCode] = realName;
+                            if (realName) studentsNameMap[ch.key] = realName;
+                        }
+                    });
+                    renderDetailedStudentMistakes();
+                }
+            });
+        } catch(e) {}
+    }
+
+    function initAdminMistakesRealtime() {
+        const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+        if (!db) return;
+
+        // Safety fallback timer so spinner never hangs
+        const mistakesSafetyTimer = setTimeout(() => {
+            if (rawStudentMistakes.length === 0) {
+                console.log('⏰ Safety timeout triggered in admin-mistakes. Rendering empty state.');
+                updateKPIsAndRenderEmpty();
+            }
+        }, 2500);
+
+        db.ref('Mistakes').on('value', snap => {
+            clearTimeout(mistakesSafetyTimer);
+            if (!snap || !snap.exists()) {
+                rawStudentMistakes = [];
+                currentSubjectsMetrics = [];
+                currentFlaggedQuestions = [];
+                currentChapterHeatmap = [];
+                updateKPIsAndRenderEmpty();
+                return;
+            }
+
+            const allErrors = [];
+            let totalStudentsCount = 0;
+
+            snap.forEach(stSnap => {
+                totalStudentsCount++;
+                const stKey = stSnap.key;
+                const directVal = stSnap.val();
+
+                // If child is a direct mistake object
+                if (directVal && directVal.question) {
+                    allErrors.push({
+                        key: stKey,
+                        studentCode: directVal.studentCode || 'STUDENT',
+                        studentName: directVal.studentName || studentsNameMap[directVal.studentCode] || 'طالب مسجل',
+                        subject: directVal.subject || 'مادة عامة',
+                        chapter: directVal.chapter || 'المقرر الدراسي',
+                        topic: directVal.topic || 'نقطة تدريبية',
+                        question: directVal.question,
+                        wrongAnswer: directVal.wrongAnswer || '',
+                        correctAnswer: directVal.correctAnswer || '',
+                        explanation: directVal.explanation || '',
+                        isSolved: !!directVal.isSolved,
+                        timestamp: directVal.timestamp || Date.now()
+                    });
+                } else {
+                    // Nested: Mistakes/{stKey}/{mKey}
+                    stSnap.forEach(mSnap => {
+                        const m = mSnap.val();
+                        if (m && m.question) {
+                            allErrors.push({
+                                key: mSnap.key,
+                                studentCode: stKey,
+                                studentName: m.studentName || studentsNameMap[stKey] || 'طالب (' + stKey + ')',
+                                subject: m.subject || 'مادة عامة',
+                                chapter: m.chapter || 'المقرر الدراسي',
+                                topic: m.topic || 'نقطة تدريبية',
+                                question: m.question,
+                                wrongAnswer: m.wrongAnswer || '',
+                                correctAnswer: m.correctAnswer || '',
+                                explanation: m.explanation || '',
+                                isSolved: !!m.isSolved,
+                                timestamp: m.timestamp || Date.now()
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (allErrors.length === 0) {
+                rawStudentMistakes = [];
+                currentSubjectsMetrics = [];
+                currentFlaggedQuestions = [];
+                currentChapterHeatmap = [];
+                updateKPIsAndRenderEmpty();
+                return;
+            }
+
+            rawStudentMistakes = allErrors;
+
+            // 1. Question Grouping for Flagged Questions
+            const questionMap = {};
+            allErrors.forEach(err => {
+                const qKey = (err.question || '').trim();
+                if (!questionMap[qKey]) {
+                    questionMap[qKey] = {
+                        id: err.key,
+                        question: err.question,
+                        subject: err.subject,
+                        chapter: err.chapter,
+                        correctAnswer: err.correctAnswer,
+                        explanation: err.explanation,
+                        attempts: 0,
+                        solvedCount: 0,
+                        entries: []
+                    };
+                }
+                questionMap[qKey].attempts++;
+                if (err.isSolved) questionMap[qKey].solvedCount++;
+                questionMap[qKey].entries.push(err);
+            });
+
+            const questionList = Object.values(questionMap).map(q => {
+                const errRate = Math.min(100, Math.round((q.attempts / Math.max(1, totalStudentsCount)) * 100));
+                return {
+                    ...q,
+                    errorRate: errRate
+                };
+            }).sort((a, b) => b.attempts - a.attempts);
+
+            // Display all struggled questions sorted by attempts and difficulty
+            currentFlaggedQuestions = questionList.filter(q => q.attempts >= 1);
+
+            // 2. Subject Grouping for Subject Analytics
+            const subjectsSet = new Set(allErrors.map(e => e.subject).filter(Boolean));
+            currentSubjectsMetrics = Array.from(subjectsSet).map(subjName => {
+                const subjErrors = allErrors.filter(e => e.subject === subjName);
+                const testedCount = subjErrors.length;
+                const worstItem = questionList.find(q => q.subject === subjName);
+                const worstQText = worstItem ? (worstItem.question.length > 45 ? worstItem.question.substring(0, 45) + '...' : worstItem.question) : 'لا يوجد';
+                const errRate = Math.min(100, Math.round((testedCount / Math.max(1, allErrors.length)) * 100));
+
+                return {
+                    subject: subjName,
+                    tested: testedCount,
+                    worstQ: worstQText,
+                    errorRate: errRate,
+                    status: errRate >= 70 ? 'needs_review' : (errRate >= 40 ? 'moderate' : 'good')
+                };
+            }).sort((a, b) => b.errorRate - a.errorRate);
+
+            // 3. Chapter Grouping for Heatmap
+            const chapterMap = {};
+            allErrors.forEach(e => {
+                const ch = (e.chapter || e.subject || 'مراجعة عامة').trim();
+                chapterMap[ch] = (chapterMap[ch] || 0) + 1;
+            });
+
+            currentChapterHeatmap = Object.entries(chapterMap).map(([ch, count]) => {
+                const rate = Math.min(100, Math.round((count / Math.max(1, allErrors.length)) * 100));
+                return {
+                    chapter: ch,
+                    rate: rate,
+                    level: rate >= 70 ? 'high' : (rate >= 40 ? 'med' : 'low')
+                };
+            }).sort((a, b) => b.rate - a.rate).slice(0, 12);
+
+            // 4. Update KPIs with Real Figures
+            const kpiTotalQ = document.getElementById('kpiTotalQuestions');
+            if (kpiTotalQ) kpiTotalQ.textContent = `${allErrors.length} أخطاء`;
+
+            const avgRate = currentSubjectsMetrics.length > 0 ? 
+                Math.round(currentSubjectsMetrics.reduce((acc, r) => acc + r.errorRate, 0) / currentSubjectsMetrics.length) : 0;
+            const kpiAvg = document.getElementById('kpiAvgError');
+            if (kpiAvg) kpiAvg.textContent = `${avgRate}%`;
+
+            const highRiskCount = currentFlaggedQuestions.filter(q => q.errorRate >= 65).length;
+            const kpiHigh = document.getElementById('kpiHighRisk');
+            if (kpiHigh) kpiHigh.textContent = `${highRiskCount} أسئلة`;
+
+            const kpiWorst = document.getElementById('kpiWorstSubject');
+            if (kpiWorst) kpiWorst.textContent = (currentSubjectsMetrics.length > 0 && currentSubjectsMetrics[0]) ? currentSubjectsMetrics[0].subject : '-';
+
+            // Audit alert box
+            const alertBox = document.getElementById('auditAlertBox');
+            if (alertBox) {
+                if (highRiskCount > 0) {
+                    alertBox.style.display = 'flex';
+                    document.getElementById('auditAlertTitle').textContent = `⚠️ تنبيه رادار الأسئلة: ${highRiskCount} أسئلة تخطت نسبة الخطورة!`;
+                } else {
+                    alertBox.style.display = 'none';
+                }
+            }
+
+            // Update Tab Badges
+            const bInterv = document.getElementById('tabBadgeIntervention');
+            if (bInterv) bInterv.textContent = currentFlaggedQuestions.length;
+            const bBubble = document.getElementById('tabBadgeBubbleMap');
+            if (bBubble) bBubble.textContent = currentSubjectsMetrics.length;
+            const bFeed = document.getElementById('tabBadgeFeed');
+            if (bFeed) bFeed.textContent = allErrors.length;
+            const bFlaggedBadge = document.getElementById('flaggedBadgeCount');
+            if (bFlaggedBadge) bFlaggedBadge.textContent = `${currentFlaggedQuestions.length} أسئلة حرجة`;
+            const bAnalytics = document.getElementById('tabBadgeAnalytics');
+            if (bAnalytics) bAnalytics.textContent = currentSubjectsMetrics.length;
+
+            renderDetailedStudentMistakes();
+            renderSubjectAnalytics(currentSubjectsMetrics);
+            renderInterventionQuestions(currentFlaggedQuestions);
+            renderSubjectBubbleMap(currentSubjectsMetrics);
+            renderHeatmap(currentChapterHeatmap);
+            updateSmartRecommendation();
+        }, err => {
+            console.warn('Mistakes fetch err:', err);
+            updateKPIsAndRenderEmpty();
+        });
+    }
+
+    function updateKPIsAndRenderEmpty() {
+        document.getElementById('kpiTotalQuestions').textContent = '0 أخطاء';
+        document.getElementById('kpiAvgError').textContent = '0%';
+        document.getElementById('kpiHighRisk').textContent = '0 أسئلة';
+        document.getElementById('kpiWorstSubject').textContent = '-';
+        const alertBox = document.getElementById('auditAlertBox');
+        if (alertBox) alertBox.style.display = 'none';
+
+        const bInterv = document.getElementById('tabBadgeIntervention');
+        if (bInterv) bInterv.textContent = '0';
+        const bBubble = document.getElementById('tabBadgeBubbleMap');
+        if (bBubble) bBubble.textContent = '0';
+        const bFeed = document.getElementById('tabBadgeFeed');
+        if (bFeed) bFeed.textContent = '0';
+        const bFlaggedBadge = document.getElementById('flaggedBadgeCount');
+        if (bFlaggedBadge) bFlaggedBadge.textContent = '0 أسئلة حرجة';
+        const bAnalytics = document.getElementById('tabBadgeAnalytics');
+        if (bAnalytics) bAnalytics.textContent = '0';
+
+        renderDetailedStudentMistakes();
+        renderSubjectAnalytics([]);
+        renderInterventionQuestions([]);
+        renderSubjectBubbleMap([]);
+        renderHeatmap([]);
+        updateSmartRecommendation();
+    }
+
+    function renderDetailedStudentMistakes() {
+        const container = document.getElementById('detailedStudentMistakesContainer');
+        if (!container) return;
+
+        const q = (document.getElementById('mistakesSearchInput')?.value || '').trim().toLowerCase();
+        let filtered = rawStudentMistakes;
+
+        if (currentMistakesFilter === 'unsolved') {
+            filtered = filtered.filter(m => !m.isSolved);
+        } else if (currentMistakesFilter === 'solved') {
+            filtered = filtered.filter(m => !!m.isSolved);
+        }
+
+        if (q) {
+            filtered = filtered.filter(m => {
+                const stName = (m.studentName || studentsNameMap[m.studentCode] || '').toLowerCase();
+                const stCode = (m.studentCode || '').toLowerCase();
+                const question = (m.question || '').toLowerCase();
+                const wrong = (m.wrongAnswer || '').toLowerCase();
+                const correct = (m.correctAnswer || '').toLowerCase();
+                const subj = (m.subject || '').toLowerCase();
+                return stName.includes(q) || stCode.includes(q) || question.includes(q) || wrong.includes(q) || correct.includes(q) || subj.includes(q);
+            });
+        }
+
+        const total = rawStudentMistakes.length;
+        const unsolved = rawStudentMistakes.filter(m => !m.isSolved).length;
+        const solved = rawStudentMistakes.filter(m => !!m.isSolved).length;
+
+        const countAll = document.getElementById('countMistakesAll');
+        const countUnsolved = document.getElementById('countMistakesUnsolved');
+        const countSolved = document.getElementById('countMistakesSolved');
+        if (countAll) countAll.textContent = total;
+        if (countUnsolved) countUnsolved.textContent = unsolved;
+        if (countSolved) countSolved.textContent = solved;
+
+        const countBadge = document.getElementById('mistakesCounterBadge');
+        if (countBadge) countBadge.textContent = `${filtered.length} خطأ معروض`;
+
+        if (filtered.length === 0) {
+            if (total === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 28px 20px; background: #FFFFFF; border: 1.5px dashed var(--gold); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </div>
+                        <div style="font-size: 14.5px; font-weight: 800; color: var(--text);">رادار أخطاء الطلاب نشط وفي وضع الاستماع الفوري ⚡</div>
+                        <div style="font-size: 12px; color: var(--text2); max-width: 520px; line-height: 1.6;">
+                            يتم رصد وحفظ الأسئلة تلقائياً في هذا السجل فور قيام أي طالب بالإجابة الخاطئة أو ترك سؤال في امتحانات المنصة، ليتم تحليل الصعوبة وتحديد الأسئلة ذات نسب الخطأ المرتفعة.
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:4px; flex-wrap:wrap; justify-content:center;">
+                            <button class="btn-gold" onclick="generateSampleMistakesForTesting()" style="font-size: 12px; padding: 7px 16px;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>توليد بيانات أخطاء تجريبية لاختبار الرادار (Demo Data)</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 35px 20px; color: var(--text3); border: 2px dashed var(--border); border-radius: var(--radius);">
+                        <i class="fa-solid fa-clipboard-check" style="font-size: 28px; color: var(--green); margin-bottom: 8px;"></i>
+                        <div style="font-size: 14px; font-weight: 800; color: var(--text);">لا توجد أخطاء مسجلة تطابق كلمة البحث أو الفلتر المختار</div>
+                        <div style="font-size: 12px; color: var(--text2); margin-top: 4px;">جرّب اختيار فلتر "الكل" أو مسح كلمة البحث لرؤية كافة الأسئلة</div>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        container.innerHTML = filtered.map((m, idx) => {
+            const displayName = m.studentName || studentsNameMap[m.studentCode] || 'طالب مسجل';
+            const timeAgo = formatTimeAgo(m.timestamp);
+            const statusBadge = m.isSolved ? 
+                `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> تم التدارك والحل</span>` :
+                `<span class="badge badge-gold"><i class="fa-solid fa-clock"></i> لم يُحل بعد</span>`;
+
+            return `
+                <div class="student-mistake-card ${m.isSolved ? 'solved-card' : 'unsolved-card'}">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="width: 28px; height: 28px; border-radius: 7px; background: var(--gold-dim); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; font-family:var(--mono);">
+                                ${idx + 1}
+                            </span>
+                            <div>
+                                <div style="font-size: 13.5px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px;">
+                                    <span>${displayName}</span>
+                                    ${m.studentCode ? `<span style="font-size: 11px; background: var(--surface); padding: 1px 6px; border-radius: 6px; color: var(--text2); border: 1px solid var(--border); font-family:var(--mono);">${m.studentCode}</span>` : ''}
+                                </div>
+                                <div style="font-size: 11px; color: var(--text3); margin-top: 2px;">
+                                    <i class="fa-solid fa-book-bookmark" style="color: var(--gold);"></i> ${m.subject} ${m.chapter ? `• ${m.chapter}` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${statusBadge}
+                            <span style="font-size: 11px; color: var(--text3); font-weight: 700; font-family:var(--mono);">${timeAgo}</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text); line-height: 1.5; background: var(--surface); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        <span style="color: var(--gold); font-weight: 900;">السؤال:</span> ${m.question}
+                    </div>
+
+                    <div class="mistake-answers-grid">
+                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 8px 12px; font-size: 12px;">
+                            <div style="font-weight: 800; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; color: var(--red);">
+                                <i class="fa-solid fa-xmark"></i> إجابة الطالب الخاطئة:
+                            </div>
+                            <div style="color: var(--text); font-weight: 700;">${m.wrongAnswer || 'لم يُحدد إجابة'}</div>
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 8px 12px; font-size: 12px;">
+                            <div style="font-weight: 800; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; color: var(--green);">
+                                <i class="fa-solid fa-check"></i> الإجابة النموذجية الصحيحة:
+                            </div>
+                            <div style="color: var(--text); font-weight: 700;">${m.correctAnswer || 'غير مسجلة'}</div>
+                        </div>
+                    </div>
+
+                    ${m.explanation ? `
+                        <div style="font-size: 11.5px; color: var(--text2); background: var(--surface); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border);">
+                            <b style="color: var(--gold);">💡 التفسير العلمي:</b> ${m.explanation}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function generateSampleMistakesForTesting() {
+        const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+        if (!db) {
+            return Swal.fire({ icon: 'warning', title: 'تنبيه', text: 'جاري تهيئة قاعدة البيانات، يُرجى المحاولة بعد قليل.' });
+        }
+        
+        Swal.fire({
+            title: 'توليد أخطاء تجريبية لاختبار الرادار؟',
+            text: 'سيتم إضافة 4 نماذج أخطاء واقعية للطلاب في قاعدة البيانات لرؤية التحليل والتحذيرات والخرائط فوراً.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#C28B38',
+            cancelButtonColor: '#8C827A',
+            confirmButtonText: 'نعم، أضف بيانات التجربة',
+            cancelButtonText: 'إلغاء'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const sampleMistakes = [
+                    {
+                        stCode: 'ST-101',
+                        stName: 'أحمد محمود علي',
+                        data: {
+                            subject: 'طريقة خدمة الفرد',
+                            chapter: 'الفصل الثاني: مبادئ الخدمة الفردية',
+                            topic: 'مبدأ السرية المهنية',
+                            question: 'أي من الحالات التالية يُلزم فيها الأخصائي الاجتماعي بكسر حاجز السرية المهنية دون إذن العميل؟',
+                            wrongAnswer: 'عندما يطلب أحد أفراد أسرة العميل الاطلاع على الملف لتقديم المساعدة المالية',
+                            correctAnswer: 'عند وجود خطر وشيك ومؤكد يهدد حياة العميل أو حياة أطراف أخرى أو إيذاء قاصر',
+                            explanation: 'السرية حق أصيل للعميل لكنها تُرفع في حالات الخطر المباشر على الحياة أو استغلال الأطفال وفق ميثاق الأخلاقيات.',
+                            isSolved: false,
+                            timestamp: Date.now() - 3600000
+                        }
+                    },
+                    {
+                        stCode: 'ST-102',
+                        stName: 'سارة إبراهيم حسن',
+                        data: {
+                            subject: 'طريقة خدمة الفرد',
+                            chapter: 'الفصل الثاني: مبادئ الخدمة الفردية',
+                            topic: 'مبدأ تقرير المصير',
+                            question: 'أي من الحالات التالية يُلزم فيها الأخصائي الاجتماعي بكسر حاجز السرية المهنية دون إذن العميل؟',
+                            wrongAnswer: 'إذا كانت رغبة العميل تتعارض مع رأي المؤسسة المهني',
+                            correctAnswer: 'عند وجود خطر وشيك ومؤكد يهدد حياة العميل أو حياة أطراف أخرى أو إيذاء قاصر',
+                            explanation: 'السؤال متكرر الخطأ في بنك الأسئلة نظراً لاختلاط مفهوم الحدود الأخلاقية.',
+                            isSolved: false,
+                            timestamp: Date.now() - 7200000
+                        }
+                    },
+                    {
+                        stCode: 'ST-103',
+                        stName: 'محمد طارق فاروق',
+                        data: {
+                            subject: 'طريقة خدمة الجماعة',
+                            chapter: 'الفصل الثالث: ديناميكية الجماعة',
+                            topic: 'مراحل نمو الجماعة',
+                            question: 'في أي مرحلة من مراحل نمو الجماعة تظهر النزاعات وتنافس الأدوار بين الأعضاء بشكل أوضح؟',
+                            wrongAnswer: 'مرحلة التوجيه والتأسيس الأولي',
+                            correctAnswer: 'مرحلة الصراع ومقاومة الضبط (Storming)',
+                            explanation: 'مرحلة العصف أو الصراع هي المرحلة الطبيعية التي يثبت فيها الأفراد مكانتهم قبل استقرار المعايير.',
+                            isSolved: true,
+                            timestamp: Date.now() - 14400000
+                        }
+                    },
+                    {
+                        stCode: 'ST-104',
+                        stName: 'مريم عادل الشريف',
+                        data: {
+                            subject: 'تنظيم المجتمع',
+                            chapter: 'الفصل الأول: نماذج التدخل المهني',
+                            topic: 'نموذج التنمية المحلية',
+                            question: 'يركز نموذج التنمية المحلية في تنظيم المجتمع بصفة أساسية على:',
+                            wrongAnswer: 'الضغط السياسي المباشر على صناع القرار لتحقيق مكاسب فئوية',
+                            correctAnswer: 'بناء قدرات المجتمع المحلي وإشراك الأهالي في تحديد الاحتياجات وحلها ذاتياً',
+                            explanation: 'نموذج التنمية المحلية يركز على التكامل الداخلي ومشاركة المجتمع من القاعدة للقمة.',
+                            isSolved: false,
+                            timestamp: Date.now() - 86400000
+                        }
+                    }
+                ];
+
+                const updates = {};
+                sampleMistakes.forEach((s, idx) => {
+                    const mId = 'demo_err_' + Date.now() + '_' + idx;
+                    updates[`Mistakes/${s.stCode}/${mId}`] = {
+                        ...s.data,
+                        studentCode: s.stCode,
+                        studentName: s.stName
+                    };
+                });
+
+                db.ref().update(updates).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم إضافة البيانات التجريبية بنجاح ✅',
+                        text: 'تم رصد الأخطاء وحساب نسب الخطأ وتحديث الخريطة الحرارية فوراً.',
+                        confirmButtonColor: '#C28B38'
+                    });
+                }).catch(err => {
+                    Swal.fire({ icon: 'error', title: 'خطأ', text: err.message });
+                });
+            }
+        });
+    }
+
+    function formatTimeAgo(ts) {
+        if (!ts) return 'الآن';
+        const diff = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+        if (diff < 60) return `منذ ${diff} ثانية`;
+        const mins = Math.floor(diff / 60);
+        if (mins < 60) return `منذ ${mins} دقيقة`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `منذ ${hours} ساعة`;
+        const days = Math.floor(hours / 24);
+        return `منذ ${days} يوم`;
+    }
+
+    function filterStudentMistakesList() {
+        renderDetailedStudentMistakes();
+    }
+
+    function setMistakesFilter(filter, btn) {
+        currentMistakesFilter = filter;
+        document.querySelectorAll('#mistakesFilterTabs .filter-tab-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderDetailedStudentMistakes();
+    }
+
+    function exportStudentMistakesCSV() {
+        if (rawStudentMistakes.length === 0) {
+            return Swal.fire({ icon: 'info', title: 'لا توجد أخطاء مسجلة للتصدير حالياً' });
+        }
+
+        let csv = "\uFEFFم,اسم الطالب,كود الطالب,المادة,الفصل,السؤال,إجابة الطالب الخاطئة,الإجابة الصحيحة,الحالة,التوقيت\n";
+        rawStudentMistakes.forEach((m, idx) => {
+            const name = (m.studentName || studentsNameMap[m.studentCode] || 'طالب').replace(/"/g, '""');
+            const code = (m.studentCode || '').replace(/"/g, '""');
+            const subj = (m.subject || '').replace(/"/g, '""');
+            const ch = (m.chapter || '').replace(/"/g, '""');
+            const q = (m.question || '').replace(/"/g, '""');
+            const wrong = (m.wrongAnswer || '').replace(/"/g, '""');
+            const correct = (m.correctAnswer || '').replace(/"/g, '""');
+            const status = m.isSolved ? 'تم التدارك' : 'لم يُحل بعد';
+            const time = new Date(m.timestamp || Date.now()).toLocaleString('ar-EG');
+            csv += `${idx + 1},"${name}","${code}","${subj}","${ch}","${q}","${wrong}","${correct}","${status}","${time}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `سجل_أخطاء_الطلاب_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function renderSubjectAnalytics(metricsList = currentSubjectsMetrics) {
+        const tbody = document.getElementById('subjectAnalyticsTbody');
+        if (!tbody) return;
+        if (!metricsList || metricsList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:35px 20px; color:var(--text3);"><i class="fa-solid fa-circle-check" style="color:var(--green); font-size:22px; margin-bottom:6px; display:block;"></i>لا توجد أخطاء مسجلة للمواد الدراسية حتى الآن في قاعدة البيانات</td></tr>';
+            return;
+        }
+        tbody.innerHTML = metricsList.map(row => {
+            let badge = row.errorRate >= 70 ? 
+                '<span class="badge badge-red"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج تدخل</span>' :
+                (row.errorRate >= 50 ? 
+                '<span class="badge badge-gold"><i class="fa-solid fa-clock"></i> متوسط</span>' : 
+                '<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> مستقر</span>');
+
+            return `
+                <tr>
+                    <td><b>${row.subject}</b></td>
+                    <td>${row.tested} سؤال</td>
+                    <td style="color: var(--text2); font-size: 12.5px;">${row.worstQ}</td>
+                    <td style="font-weight: 900; color: ${row.errorRate >= 70 ? 'var(--red)' : 'var(--gold)'}; font-family:var(--mono);">${row.errorRate}%</td>
+                    <td>${badge}</td>
+                    <td>
+                        <button class="btn-ghost" onclick="filterBySubject('${row.subject}')" style="padding:4px 10px; font-size:12px;">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>عرض</span>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    let currentInterventionStatusFilter = 'all';
+
+    function setInterventionStatusFilter(status, btn) {
+        currentInterventionStatusFilter = status;
+        document.querySelectorAll('#interventionFilterTabs .filter-tab-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        renderInterventionQuestions();
+    }
+
+    function renderInterventionQuestions(questionsList = currentFlaggedQuestions) {
+        const container = document.getElementById('interventionQuestionsList');
+        if (!container) return;
+
+        let filtered = questionsList || [];
+        if (currentInterventionStatusFilter !== 'all') {
+            filtered = filtered.filter(q => {
+                const status = getQuestionStatus(q);
+                return status.key === currentInterventionStatusFilter;
+            });
+        }
+
+        // Count per status for badges
+        const allList = questionsList || [];
+        const countAll = allList.length;
+        const countNew = allList.filter(q => getQuestionStatus(q).key === 'new').length;
+        const countRecurring = allList.filter(q => getQuestionStatus(q).key === 'recurring').length;
+        const countNeedsEdit = allList.filter(q => getQuestionStatus(q).key === 'needs-edit').length;
+        const countImproved = allList.filter(q => getQuestionStatus(q).key === 'improved').length;
+
+        const cAll = document.getElementById('countIntervAll');
+        if (cAll) cAll.textContent = countAll;
+        const cNew = document.getElementById('countIntervNew');
+        if (cNew) cNew.textContent = countNew;
+        const cRec = document.getElementById('countIntervRecurring');
+        if (cRec) cRec.textContent = countRecurring;
+        const cNeeds = document.getElementById('countIntervNeedsEdit');
+        if (cNeeds) cNeeds.textContent = countNeedsEdit;
+        const cImp = document.getElementById('countIntervImproved');
+        if (cImp) cImp.textContent = countImproved;
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:35px 20px; color:var(--text3); border:1.5px dashed var(--border); border-radius:var(--radius);">
+                    <i class="fa-solid fa-shield-halved" style="color:var(--green); font-size:28px; margin-bottom:8px; display:block;"></i>
+                    <div style="font-size:14px; font-weight:800; color:var(--text);">لا توجد أسئلة شائكة أو متعثرة ضمن هذا الفلتر</div>
+                    <div style="font-size:12px; color:var(--text2); margin-top:4px;">جميع الأسئلة في المستوى الطبيعي المقبول أكاديمياً ✅</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map((q, idx) => {
+            const statusInfo = getQuestionStatus(q);
+
+            // Compute most common distractor
+            const distractorCounts = {};
+            (q.entries || []).forEach(e => {
+                const wa = (e.wrongAnswer || '').trim();
+                if (wa && wa !== 'لم تتم الإجابة (تُرِك فارغاً)') {
+                    distractorCounts[wa] = (distractorCounts[wa] || 0) + 1;
+                }
+            });
+            const sortedDistractors = Object.entries(distractorCounts).sort((a, b) => b[1] - a[1]);
+            const topDistractor = sortedDistractors.length > 0 ? sortedDistractors[0] : null;
+            const distractorPct = topDistractor ? Math.round((topDistractor[1] / Math.max(1, q.attempts)) * 100) : 0;
+
+            const isExpAdequate = (q.explanation || '').trim().length >= 25;
+
+            return `
+                <div class="intervention-q-card ${statusInfo.cardClass}">
+                    <div class="interv-meta-row">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="badge" style="background:${statusInfo.bg}; color:${statusInfo.color}; border:1px solid ${statusInfo.border}; font-weight:900;">
+                                <i class="${statusInfo.icon}"></i> ${statusInfo.label}
+                            </span>
+                            <span class="badge badge-red" style="font-weight:900;">
+                                <i class="fa-solid fa-percent"></i> نسبة الخطأ: ${q.errorRate}% (${q.attempts} طلاب)
+                            </span>
+                            <span style="font-size: 12px; font-weight: 800; color: var(--gold);">${q.subject}</span>
+                            <span style="font-size: 11.5px; color: var(--text3);">• ${q.chapter}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            ${isExpAdequate ? `
+                                <span class="badge badge-green" style="font-size:11px;">
+                                    <i class="fa-solid fa-circle-check"></i> الشرح العلمي معتمد
+                                </span>
+                            ` : `
+                                <span class="badge badge-yellow" style="font-size:11px;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> الشرح مقتضب جداً ويحتاج إثراء
+                                </span>
+                            `}
+                        </div>
+                    </div>
+
+                    <div style="font-size: 14.5px; font-weight: 800; color: var(--text); line-height: 1.5; background: var(--surface2); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);">
+                        <span style="color: var(--gold); font-weight: 900;">السؤال:</span> ${q.question}
+                    </div>
+
+                    <!-- Common Distractor & Model Answer Diagnosis Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" class="mistake-answers-grid">
+                        <div class="distractor-box">
+                            <i class="fa-solid fa-crosshairs" style="font-size: 16px; flex-shrink: 0;"></i>
+                            <div>
+                                <b style="display: block; font-size: 11.5px; margin-bottom: 2px;">أين يقع الطلاب؟ (المشتت الأكثر جذباً):</b>
+                                <span>${topDistractor ? `<b>${distractorPct}%</b> من الطلاب اختاروا: «${topDistractor[0]}»` : 'توزعت الإجابات الخاطئة بين الخيارات دون نمط تشتت محدد.'}</span>
+                            </div>
+                        </div>
+
+                        <div class="model-ans-box">
+                            <i class="fa-solid fa-circle-check" style="font-size: 16px; flex-shrink: 0;"></i>
+                            <div>
+                                <b style="display: block; font-size: 11.5px; margin-bottom: 2px;">الإجابة النموذجية الصحيحة:</b>
+                                <span>${q.correctAnswer || 'غير محددة'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${q.explanation ? `
+                        <div style="font-size: 12.5px; color: var(--text2); background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <b style="color: var(--text);"><i class="fa-solid fa-lightbulb" style="color:var(--gold);"></i> التفسير العلمي المسجل:</b> ${q.explanation}
+                        </div>
+                    ` : ''}
+
+                    <!-- 4 Quick Action Buttons -->
+                    <div class="interv-actions-bar">
+                        <button class="btn-interv" onclick="openEditModal('${q.id}')">
+                            <i class="fa-solid fa-pen-to-square" style="color:var(--gold);"></i>
+                            <span>تعديل صياغة السؤال</span>
+                        </button>
+                        <button class="btn-interv" onclick="openEditModal('${q.id}')">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--yellow);"></i>
+                            <span>تعديل الشرح والتفسير</span>
+                        </button>
+                        <button class="btn-interv" onclick="linkQuestionToLecture('${q.id}', '${encodeURIComponent(q.subject)}')">
+                            <i class="fa-solid fa-video" style="color:var(--blue2);"></i>
+                            <span>ربط بمحاضرة علمية</span>
+                        </button>
+                        <button class="btn-interv" onclick="createQuickStudentDrill('${encodeURIComponent(q.subject)}', '${encodeURIComponent(q.chapter)}')">
+                            <i class="fa-solid fa-bolt" style="color:var(--green);"></i>
+                            <span>إطلاق تدريب سريع للطلاب</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getQuestionStatus(q) {
+        if (q.needsAdminEdit) {
+            return { key: 'needs-edit', label: 'يحتاج تعديل صياغة', cardClass: 'status-needs-edit', bg: 'rgba(139, 92, 246, 0.15)', color: '#A78BFA', border: 'rgba(139, 92, 246, 0.35)', icon: 'fa-solid fa-wrench' };
+        }
+        if (q.errorRate >= 65 || q.attempts >= 4) {
+            return { key: 'recurring', label: 'خطأ متكرر حرج', cardClass: 'status-recurring', bg: 'rgba(220, 38, 38, 0.15)', color: '#F87171', border: 'rgba(220, 38, 38, 0.35)', icon: 'fa-solid fa-fire' };
+        }
+        if (q.solvedCount > 0 && q.solvedCount >= q.attempts * 0.5) {
+            return { key: 'improved', label: 'تحسن ملحوظ', cardClass: 'status-improved', bg: 'rgba(212, 151, 59, 0.15)', color: 'var(--gold2)', border: 'rgba(212, 151, 59, 0.35)', icon: 'fa-solid fa-arrow-trend-up' };
+        }
+        if (q.isReviewed) {
+            return { key: 'reviewed', label: 'تمت المراجعة', cardClass: 'status-reviewed', bg: 'rgba(16, 185, 129, 0.15)', color: '#34D399', border: 'rgba(16, 185, 129, 0.35)', icon: 'fa-solid fa-circle-check' };
+        }
+        return { key: 'new', label: 'خطأ جديد مرصود', cardClass: 'status-new', bg: 'rgba(249, 115, 22, 0.15)', color: '#FB923C', border: 'rgba(249, 115, 22, 0.35)', icon: 'fa-solid fa-sparkles' };
+    }
+
+    function renderSubjectBubbleMap(subjectsList = currentSubjectsMetrics) {
+        const container = document.getElementById('subjectBubbleMapContainer');
+        if (!container) return;
+
+        if (!subjectsList || subjectsList.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:35px 20px; color:var(--text3); border:1.5px dashed var(--border); border-radius:var(--radius); width:100%;"><i class="fa-solid fa-circle-nodes" style="color:var(--gold); font-size:28px; margin-bottom:8px; display:block;"></i>لا توجد بيانات مقررات مرصودة حالياً لعرض الخريطة</div>';
+            return;
+        }
+
+        const maxTested = Math.max(...subjectsList.map(s => s.tested), 1);
+
+        container.innerHTML = subjectsList.map(s => {
+            const ratio = s.tested / maxTested;
+            const size = Math.round(120 + ratio * 80);
+
+            let bgGradient = 'linear-gradient(135deg, #059669, #047857)';
+            if (s.errorRate >= 60) bgGradient = 'linear-gradient(135deg, #DC2626, #991B1B)';
+            else if (s.errorRate >= 40) bgGradient = 'linear-gradient(135deg, #EA580C, #C2410C)';
+            else if (s.errorRate >= 20) bgGradient = 'linear-gradient(135deg, #D97706, #B45309)';
+
+            return `
+                <div class="subject-bubble" style="width:${size}px; height:${size}px; background:${bgGradient};" onclick="drilldownSubject('${s.subject}')" title="اضغط للتعمق في فصول ${s.subject}">
+                    <div class="bubble-name">${s.subject}</div>
+                    <div class="bubble-errors">${s.tested} خطأ مسجل</div>
+                    <div class="bubble-rate-pill">نسبة الخطأ: ${s.errorRate}%</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function drilldownSubject(subjName) {
+        const panel = document.getElementById('subjectDrilldownPanel');
+        const titleEl = document.getElementById('drilldownSubjectTitle');
+        const grid = document.getElementById('drilldownChaptersGrid');
+        if (!panel || !grid) return;
+
+        titleEl.textContent = `فصول مقرر: ${subjName}`;
+        panel.style.display = 'flex';
+
+        const chErrors = rawStudentMistakes.filter(m => m.subject === subjName);
+        const chMap = {};
+        chErrors.forEach(m => {
+            const ch = m.chapter || 'فصل عام';
+            chMap[ch] = (chMap[ch] || 0) + 1;
+        });
+
+        const chList = Object.entries(chMap).map(([ch, count]) => ({
+            name: ch,
+            count: count,
+            rate: Math.min(100, Math.round((count / Math.max(1, chErrors.length)) * 100))
+        })).sort((a,b) => b.count - a.count);
+
+        if (chList.length === 0) {
+            grid.innerHTML = '<div style="color:var(--text3); font-size:12px;">لا توجد فصول منفصلة مسجلة لهذا المقرر.</div>';
+        } else {
+            grid.innerHTML = chList.map(ch => `
+                <div class="chapter-drill-card" onclick="filterBySubject('${ch.name}')" title="عرض أخطاء هذا الفصل">
+                    <div>
+                        <div style="font-size:13px; font-weight:800; color:var(--text);">${ch.name}</div>
+                        <div style="font-size:11px; color:var(--text2);">${ch.count} أخطاء (${ch.rate}% من أخطاء المادة)</div>
+                    </div>
+                    <span class="badge badge-gold" style="font-size:11px;"><i class="fa-solid fa-arrow-left"></i> فحص</span>
+                </div>
+            `).join('');
+        }
+
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeSubjectDrilldown() {
+        const panel = document.getElementById('subjectDrilldownPanel');
+        if (panel) panel.style.display = 'none';
+    }
+
+    function updateSmartRecommendation() {
+        const recEl = document.getElementById('smartCohortRecommendationText');
+        if (!recEl) return;
+
+        if (currentSubjectsMetrics.length === 0) {
+            recEl.innerHTML = `<i class="fa-solid fa-lightbulb" style="font-size:18px; color:var(--gold2); flex-shrink:0;"></i> <span>بانتظار تسجيل امتحانات الطلاب لتوليد التوصيات الأكاديمية المؤتمتة.</span>`;
+            return;
+        }
+
+        const worst = currentSubjectsMetrics[0];
+        recEl.innerHTML = `
+            <i class="fa-solid fa-lightbulb" style="font-size:20px; color:var(--gold2); flex-shrink:0;"></i>
+            <div>
+                <b>تحليل الذكاء الاصطناعي الأكاديمي:</b> تم رصد أعلى معدل تعثر طلابي بنسبة (<b style="color:#FFFFFF;">${worst.errorRate}%</b>) في مقرر (<b style="color:#FFFFFF;">${worst.subject}</b>)، وأبرز الأسئلة الشائكة: «${worst.worstQ}».
+                <br>
+                <b>الإجراء الموصى به:</b> بث إشعار توجيهي للطلاب لمراجعة نقاط هذا الفصل، وإتاحة جلسة تدريبية علاجية فورية على بنك الأسئلة لرفع نسبة الاستيعاب إلى أكثر من 85%.
+            </div>
+        `;
+    }
+
+    function broadcastAcademicAlert() {
+        const worst = currentSubjectsMetrics.length > 0 ? currentSubjectsMetrics[0].subject : 'المقررات الأكاديمية';
+        Swal.fire({
+            title: 'بث تنبيه أكاديمي للطلاب؟ 📢',
+            text: `سيتم إرسال إشعار فوري لجميع الطلاب المسجلين لمراجعة نقاط الصعوبة في مقرر (${worst}).`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'إرسال التنبيه الآن',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#C28B38'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+                if (db) {
+                    db.ref('Notifications').push({
+                        title: `تنبيه أكاديمي لمقرر ${worst} 📚`,
+                        body: 'نظراً لرصد بعض الصعوبات في الاختبار الأخير، تم إتاحة تدريب تدارك الأخطاء في لوحتك الأكاديمية. احرص على مراجعته!',
+                        type: 'academic_alert',
+                        timestamp: Date.now()
+                    });
+                }
+                Swal.fire('تم الإرسال بنجاح! 🎯', 'تم بث الإشعار الأكاديمي لجميع الطلاب.', 'success');
+            }
+        });
+    }
+
+    function createQuickStudentDrill(subj, ch) {
+        const decodedSubj = subj ? decodeURIComponent(subj) : (currentSubjectsMetrics.length > 0 ? currentSubjectsMetrics[0].subject : '');
+        Swal.fire({
+            icon: 'success',
+            title: 'تجهيز التدريب العلاجي 🚀',
+            text: `تم تجهيز حزمة أسئلة علاجية مكثفة لمقرر (${decodedSubj || 'المادة'}) وربطها بمركز تدارك الأخطاء للطلاب!`,
+            confirmButtonColor: '#C28B38'
+        });
+    }
+
+    function linkQuestionToLecture(qId, subj) {
+        const decodedSubj = subj ? decodeURIComponent(subj) : '';
+        Swal.fire({
+            title: 'ربط السؤال بمحاضرة علمية 🔗',
+            text: `حدد رابط المحاضرة أو الفيديو التوضيحي الذي يشرح مفهوم هذا السؤال في مقرر (${decodedSubj}):`,
+            input: 'text',
+            inputPlaceholder: 'https://...',
+            showCancelButton: true,
+            confirmButtonText: 'حفظ الرابط',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#C28B38'
+        }).then(res => {
+            if (res.isConfirmed && res.value) {
+                Swal.fire('تم الحفظ بنجاح!', 'تم ربط السؤال بالمحاضرة وسيظهر زر المشاهدة للطالب عند تعثره.', 'success');
+            }
+        });
+    }
+
+    function renderHeatmap(heatmapList = currentChapterHeatmap) {
+        const grid = document.getElementById('heatmapGrid');
+        if (!grid) return;
+        if (!heatmapList || heatmapList.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px 20px; color:var(--text3); border:1px dashed var(--border); border-radius:var(--radius);">لا توجد بيانات فصول مسجلة بعد - يتم تحليل الفصول تلقائياً فور تسجيل إجابات الطلاب.</div>';
+            return;
+        }
+        grid.innerHTML = heatmapList.map(c => {
+            let dot = c.rate >= 70 ? 'var(--red)' : (c.rate >= 50 ? 'var(--gold)' : 'var(--green)');
+            return `
+                <div class="heat-card">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 12.5px; font-weight: 800; color: var(--text);">${c.chapter}</span>
+                        <span style="font-size: 13.5px; font-weight: 900; color: ${dot}; font-family:var(--mono);">${c.rate}%</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border);">
+                        <div style="width: ${c.rate}%; height: 100%; background: ${dot}; border-radius: 10px;"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openEditModal(id) {
+        const q = currentFlaggedQuestions.find(item => item.id === id);
+        if (!q) return;
+
+        currentEditQ = q;
+        document.getElementById('editQuestionText').value = q.question;
+        document.getElementById('editCorrectAnswer').value = q.correctAnswer;
+        document.getElementById('editExplanation').value = q.explanation;
+        document.getElementById('editQuestionModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editQuestionModal').classList.remove('active');
+        currentEditQ = null;
+    }
+
+    function saveEditedQuestion() {
+        if (!currentEditQ) return;
+
+        const newQText = document.getElementById('editQuestionText').value.trim();
+        const newAns = document.getElementById('editCorrectAnswer').value.trim();
+        const newExp = document.getElementById('editExplanation').value.trim();
+
+        currentEditQ.question = newQText;
+        currentEditQ.correctAnswer = newAns;
+        currentEditQ.explanation = newExp;
+
+        const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+        if (db && currentEditQ.entries && currentEditQ.entries.length > 0) {
+            currentEditQ.entries.forEach(ent => {
+                if (ent.studentCode && ent.key) {
+                    db.ref(`Mistakes/${ent.studentCode}/${ent.key}`).update({
+                        question: newQText,
+                        correctAnswer: newAns,
+                        explanation: newExp
+                    }).catch(() => {});
+                }
+            });
+        }
+
+        closeEditModal();
+        renderInterventionQuestions(currentFlaggedQuestions);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'تم التحديث بنجاح ✅',
+            text: 'تم تعديل صياغة السؤال والإجابة النموذجية في بنك الأسئلة وقاعدة البيانات.',
+            confirmButtonColor: '#C28B38'
+        });
+    }
+
+    const renderFlaggedQuestions = renderInterventionQuestions;
+
+    function switchMistakesTab(tabKey) {
+        const panes = {
+            intervention: document.getElementById('tabViewIntervention'),
+            bubblemap: document.getElementById('tabViewBubbleMap'),
+            feed: document.getElementById('tabViewFeed'),
+            analytics: document.getElementById('tabViewAnalytics'),
+            flagged: document.getElementById('tabViewIntervention')
+        };
+        const btns = {
+            intervention: document.getElementById('tabBtnIntervention'),
+            bubblemap: document.getElementById('tabBtnBubbleMap'),
+            feed: document.getElementById('tabBtnFeed'),
+            analytics: document.getElementById('tabBtnAnalytics'),
+            flagged: document.getElementById('tabBtnIntervention')
+        };
+
+        Object.keys(panes).forEach(k => {
+            if (panes[k]) panes[k].classList.remove('active');
+            if (btns[k]) btns[k].classList.remove('active');
+        });
+
+        if (panes[tabKey]) panes[tabKey].classList.add('active');
+        if (btns[tabKey]) btns[tabKey].classList.add('active');
+    }
+
+    function scrollToAuditSection() {
+        switchMistakesTab('intervention');
+        setTimeout(() => {
+            document.getElementById('tabViewIntervention')?.scrollIntoView({ behavior: 'smooth' });
+        }, 120);
+    }
+
+    async function manuallyVerifyWhatsApp(studentCode) {
+        if (!studentCode) return;
+        const res = await Swal.fire({
+            title: 'تأكيد رقم الواتساب يدويًا؟',
+            html: `هل قمت باستلام رسالة التحقق من الطالب (<b>${studentCode}</b>) وتريد تأكيد حسابه ورقم هاتفه؟`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، تأكيد الحساب ✅',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#10B981',
+            cancelButtonColor: '#6B7280'
+        });
+
+        if (!res.isConfirmed) return;
+
+        try {
+            Swal.fire({
+                title: 'جاري الحفظ...',
+                text: 'يتم تحديث حالة الواتساب في قاعدة البيانات',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            await firebase.database().ref(`Students/${studentCode}`).update({
+                whatsappVerified: true,
+                whatsappVerifiedAt: new Date().toISOString()
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التأكيد بنجاح 🎉',
+                text: `تم تفعيل وتأكيد واتساب الطالب (${studentCode}) يدويًا.`,
+                confirmButtonColor: '#10B981'
+            });
+        } catch (err) {
+            console.error(err);
+            Swal.fire({
+                icon: 'error',
+                title: 'خطأ أثناء التأكيد',
+                text: err.message || 'تعذر تحديث قاعدة البيانات',
+                confirmButtonColor: '#EF4444'
+            });
+        }
+    }
+
+    function filterBySubject(subj) {
+        switchMistakesTab('feed');
+        const input = document.getElementById('mistakesSearchInput');
+        if (input) {
+            input.value = subj;
+            filterStudentMistakesList();
+        }
+        setTimeout(() => {
+            document.getElementById('tabViewFeed')?.scrollIntoView({ behavior: 'smooth' });
+        }, 120);
+    }
+</script>
+</body>
+</html>

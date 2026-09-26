@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أكواد التفعيل والاشتراكات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .code-box {
+            font-family: var(--mono);
+            font-size: 13.5px;
+            font-weight: 900;
+            color: var(--gold);
+            background: var(--gold-dim);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px dashed rgba(212, 151, 59, 0.4);
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        .btn-table-action {
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2);
+            transition: all 0.2s;
+        }
+        .btn-table-action:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .btn-table-action.delete {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+        .btn-table-action.delete:hover {
+            background: var(--red);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem"><i class="fa-solid fa-key"></i></div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">ActivationCodes Manager</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-ticket"></i>
+            <span>أكواد الاشتراك والتفعيل</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">توليد وإدارة أكواد الاشتراك والتفعيل</h1>
+                        <p class="page-subtitle">إنشاء وتخصيص وتتبع أكواد التفعيل لجميع الطلاب والمقررات الدراسية</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button onclick="openGenerateModal()" class="btn-gold">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>توليد أكواد جديدة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">إجمالي الأكواد</div>
+                        <div class="kpi-val" id="totalCodesCount">0</div>
+                    </div>
+                    <div class="kpi-icon-box gold">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">أكواد متاحة للتفعيل</div>
+                        <div class="kpi-val" id="activeCodesCount">0</div>
+                    </div>
+                    <div class="kpi-icon-box green">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">أكواد مفعلة للطلاب</div>
+                        <div class="kpi-val" id="usedCodesCount">0</div>
+                    </div>
+                    <div class="kpi-icon-box blue">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Codes Table Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-list"></i>
+                        <span>سجل أكواد التفعيل</span>
+                    </div>
+                    <input type="text" id="searchCodeInput" placeholder="بحث بكود أو اسم الطالب..." style="width: 240px;" oninput="filterCodesTable(this.value)">
+                </div>
+
+                <div class="table-wrap">
+                    <table class="dark-table">
+                        <thead>
+                            <tr>
+                                <th>كود التفعيل</th>
+                                <th>نوع الاشتراك / المادة</th>
+                                <th>المدة (أيام)</th>
+                                <th>الحالة</th>
+                                <th>المستخدم بواسطة</th>
+                                <th>تاريخ التوليد</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="codesTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text3);">
+                                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 20px; margin-bottom: 8px; display: block;"></i>
+                                    جاري جلب الأكواد من قاعدة البيانات...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    let allCodesList = [];
+
+    function getDB() {
+        return window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadActivationCodes();
+    });
+
+    function loadActivationCodes() {
+        const db = getDB();
+        if (!db) {
+            setTimeout(loadActivationCodes, 300);
+            return;
+        }
+
+        db.ref('ActivationCodes').on('value', snap => {
+            allCodesList = [];
+            let active = 0, used = 0;
+
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const code = c.val();
+                    const item = { id: c.key, ...code };
+                    allCodesList.push(item);
+                    if (item.isUsed) used++; else active++;
+                });
+            }
+
+            document.getElementById('totalCodesCount').textContent = allCodesList.length;
+            document.getElementById('activeCodesCount').textContent = active;
+            document.getElementById('usedCodesCount').textContent = used;
+
+            renderCodesTable(allCodesList);
+        });
+    }
+
+    function renderCodesTable(list) {
+        const tbody = document.getElementById('codesTableBody');
+        if (!tbody) return;
+
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text3);">لا توجد أكواد تفعيل حالياً. اضغط "توليد أكواد جديدة" لإنشاء باقة.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = list.map(c => `
+            <tr>
+                <td><span class="code-box">${c.code || c.id}</span></td>
+                <td><span style="font-weight:700; color:var(--text);">${c.subject || 'جميع المواد (شامل)'}</span></td>
+                <td style="font-family:var(--mono); color:var(--text2);">${c.days || 30} يوم</td>
+                <td>
+                    ${c.isUsed ? 
+                        '<span class="badge badge-blue"><i class="fa-solid fa-check"></i> مستخدم</span>' : 
+                        '<span class="badge badge-green"><i class="fa-solid fa-bolt"></i> متاح للتفعيل</span>'
+                    }
+                </td>
+                <td style="color: var(--text2); font-weight:600;">${c.usedByName || c.usedBy || '—'}</td>
+                <td style="color: var(--text3); font-size: 11.5px; font-family:var(--mono);">${c.createdAt ? new Date(c.createdAt).toLocaleDateString('ar-EG') : 'الآن'}</td>
+                <td>
+                    <button onclick="copyCode('${c.code || c.id}')" class="btn-table-action" title="نسخ الكود">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <button onclick="deleteCode('${c.id}')" class="btn-table-action delete" title="حذف">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function openGenerateModal() {
+        Swal.fire({
+            title: 'توليد أكواد تفعيل جديدة 🔑',
+            html: `
+                <div style="text-align: right; display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800; color:var(--text); display:block; margin-bottom:4px;">عدد الأكواد المراد إنشاؤها:</label>
+                        <input id="swalCount" type="number" value="10" min="1" max="100" style="width: 100%; height: 42px; border: 1px solid var(--border2); border-radius: 8px; padding: 0 12px; font-weight: 800; background:var(--surface2); color:var(--text);">
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800; color:var(--text); display:block; margin-bottom:4px;">مدة الصلاحية:</label>
+                        <select id="swalDays" style="width: 100%; height: 42px; border: 1px solid var(--border2); border-radius: 8px; padding: 0 12px; font-weight: 800; background:var(--surface2); color:var(--text);">
+                            <option value="30">شهر كامل (30 يوم)</option>
+                            <option value="90">فصل دراسي (90 يوم)</option>
+                            <option value="180">فصلين دراسيين (180 يوم)</option>
+                            <option value="365">سنة كاملة (365 يوم)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 12.5px; font-weight: 800; color:var(--text); display:block; margin-bottom:4px;">المقرر الدراسي:</label>
+                        <select id="swalSubject" style="width: 100%; height: 42px; border: 1px solid var(--border2); border-radius: 8px; padding: 0 12px; font-weight: 800; background:var(--surface2); color:var(--text);">
+                            <option value="جميع المواد (شامل)">جميع المواد (اشتراك عام)</option>
+                            <option value="طريقة العمل مع الأفراد">طريقة العمل مع الأفراد</option>
+                            <option value="طريقة العمل مع الجماعات">طريقة العمل مع الجماعات</option>
+                            <option value="تنظيم وإدارة المجتمعات">تنظيم وإدارة المجتمعات</option>
+                            <option value="سياسات الرعاية الاجتماعية">سياسات الرعاية الاجتماعية</option>
+                            <option value="الخدمة الاجتماعية في مجال طبي">الخدمة الاجتماعية في مجال طبي</option>
+                            <option value="تدريب ميداني">تدريب ميداني</option>
+                            <option value="مشروع تخرج">مشروع تخرج</option>
+                        </select>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa-solid fa-plus"></i> توليد وحفظ في Firebase',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            preConfirm: () => {
+                const count = parseInt(document.getElementById('swalCount').value) || 1;
+                const days = parseInt(document.getElementById('swalDays').value) || 30;
+                const subject = document.getElementById('swalSubject').value;
+                return { count, days, subject };
+            }
+        }).then(res => {
+            if (res.isConfirmed && res.value) {
+                generateBatchCodes(res.value);
+            }
+        });
+    }
+
+    function generateBatchCodes({ count, days, subject }) {
+        const db = getDB();
+        if (!db) return;
+
+        for (let i = 0; i < count; i++) {
+            const randomCode = 'KHETA-' + Math.floor(100000 + Math.random() * 900000);
+            const codeData = {
+                code: randomCode,
+                days: days,
+                subject: subject,
+                isUsed: false,
+                createdAt: Date.now()
+            };
+            db.ref('ActivationCodes').push(codeData);
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'تم التوليد بنجاح 🎉',
+            text: `تم إنشاء ${count} كود تفعيل وحفظها في قاعدة البيانات.`,
+            confirmButtonColor: '#D4973B'
+        });
+    }
+
+    function copyCode(code) {
+        navigator.clipboard.writeText(code);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'تم نسخ الكود: ' + code,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
+
+    function deleteCode(id) {
+        const db = getDB();
+        if (!db) return;
+
+        Swal.fire({
+            title: 'تأكيد الحذف؟',
+            text: 'هل أنت متأكد من حذف هذا الكود نهائياً؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#EF4444'
+        }).then(res => {
+            if (res.isConfirmed) {
+                db.ref('ActivationCodes/' + id).remove();
+            }
+        });
+    }
+
+    function filterCodesTable(q) {
+        const term = q.trim().toLowerCase();
+        const filtered = allCodesList.filter(c => 
+            (c.code && c.code.toLowerCase().includes(term)) ||
+            (c.subject && c.subject.toLowerCase().includes(term)) ||
+            (c.usedByName && c.usedByName.toLowerCase().includes(term))
+        );
+        renderCodesTable(filtered);
+    }
+</script>
+</body>
+</html>

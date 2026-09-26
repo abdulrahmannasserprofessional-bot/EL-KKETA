@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة المحاضرات والفيديوهات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries & Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media(max-width: 768px) {
+            .form-grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .chapter-pills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .chapter-pill-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .chapter-pill-btn:hover, .chapter-pill-btn.active {
+            background: var(--gold-dim);
+            border-color: rgba(212, 151, 59, 0.4);
+            color: var(--gold);
+        }
+
+        .schedule-box {
+            background: rgba(124, 58, 237, 0.06);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quick-schedule-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .quick-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .quick-btn:hover {
+            border-color: #8B5CF6;
+            color: #A78BFA;
+            background: rgba(139, 92, 246, 0.12);
+        }
+
+        /* Subject group card in list */
+        .subject-group-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-card);
+        }
+        .group-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .group-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chapter-divider {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface2);
+            border-right: 3px solid var(--gold);
+            border-radius: 6px;
+            padding: 7px 12px;
+            margin-top: 8px;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .lesson-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .lesson-card-item:hover {
+            border-color: var(--border-focus);
+            background: #FDFBF8;
+        }
+        .lesson-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+        .lesson-card-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text);
+            word-break: break-word;
+        }
+        .lesson-tags-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .meta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10.5px;
+            font-weight: 800;
+            font-family: var(--mono);
+        }
+        .meta-tag.video { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(37, 99, 235, 0.2); }
+        .meta-tag.pdf { background: var(--red-bg); color: var(--red); border: 1px solid rgba(220, 38, 38, 0.2); }
+        .meta-tag.ppt { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(234, 88, 12, 0.2); }
+        .meta-tag.exam { background: var(--green-bg); color: var(--green); border: 1px solid rgba(5, 150, 105, 0.2); }
+        .meta-tag.sched { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(124, 58, 237, 0.2); }
+        .meta-tag.muted { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+        .actions-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .btn-card-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-card-action:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .btn-card-action.edit:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .btn-card-action.delete:hover {
+            border-color: var(--red);
+            color: var(--red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .btn-card-action.publish:hover {
+            border-color: #8B5CF6;
+            color: #A78BFA;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        /* ════ Responsive Lessons Layout & Mobile Quick Tabs ════ */
+        .lessons-main-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .mobile-lessons-tabs {
+            display: none;
+            gap: 8px;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 4px;
+            box-shadow: var(--shadow-card);
+        }
+        .mobile-lessons-tabs button {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .mobile-lessons-tabs button.active {
+            background: var(--gold-dim);
+            border-color: rgba(212, 151, 59, 0.3);
+            color: var(--gold);
+            box-shadow: 0 2px 8px rgba(194, 139, 56, 0.15);
+        }
+
+        @media (max-width: 1024px) {
+            .lessons-main-grid {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+            .mobile-lessons-tabs {
+                display: flex !important;
+            }
+            .mob-card-hidden {
+                display: none !important;
+            }
+            .page-header-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .page-actions-group {
+                width: 100% !important;
+                justify-content: stretch !important;
+            }
+            .page-actions-group button {
+                flex: 1 !important;
+                justify-content: center !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+            .form-grid-2 {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            .card-header {
+                flex-wrap: wrap !important;
+                gap: 10px !important;
+            }
+            #lessonSearchInput {
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                padding: 12px 10px !important;
+            }
+            .lesson-card-item {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+            .actions-btn-group {
+                width: 100% !important;
+                justify-content: flex-end !important;
+                border-top: 1px dashed var(--border) !important;
+                padding-top: 8px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);">
+                <i class="fa-solid fa-clapperboard"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Lectures & Media Studio</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-video"></i>
+            <span>المحاضرات والفيديوهات والجدولة</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--blue);">
+                        <i class="fa-solid fa-clapperboard"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إدارة المحاضرات والفيديوهات والجدولة</h1>
+                        <p class="page-subtitle">رفع وتنظيم المحاضرات، روابط اليوتيوب، ملخصات PDF، والاختبارات التفاعلية</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-ghost" onclick="resetForm()">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>محاضرة جديدة</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="loadAllLessons()">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>تحديث البيانات</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">إجمالي المحاضرات</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalLessonsCount">0</div>
+                    <div class="stat-sub">منشورة ومتاحة بالمنصة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">امتحانات مرتبطة بالدروس</span>
+                        <div class="stat-icon-wrap" style="color: var(--green); background: rgba(16, 185, 129, 0.1);">
+                            <i class="fa-solid fa-file-pen"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="examsCount">0</div>
+                    <div class="stat-sub">اختبارات تقييم لكل محاضرة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">ملخصات وملازم PDF</span>
+                        <div class="stat-icon-wrap" style="color: var(--red); background: rgba(239, 68, 68, 0.1);">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="pdfCount">0</div>
+                    <div class="stat-sub">ملفات للتحميل المباشر</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">المواد الدراسية النشطة</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="activeSubjectsCount">7</div>
+                    <div class="stat-sub">أقسام دراسية معتمدة</div>
+                </div>
+            </div>
+
+            <!-- Mobile Quick Switcher Tabs -->
+            <div class="mobile-lessons-tabs" id="mobileLessonsTabs">
+                <button class="active" id="mobTabBank" onclick="switchMobileLessonTab('bank')">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>بنك المحاضرات المنشورة</span>
+                    <span class="badge badge-blue" id="mobLessonCountBadge">0</span>
+                </button>
+                <button id="mobTabForm" onclick="switchMobileLessonTab('form')">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span id="mobFormTitle">إضافة محاضرة جديدة</span>
+                </button>
+            </div>
+
+            <!-- Two-Column Grid: Form + Lessons Bank -->
+            <div class="lessons-main-grid" id="mainGridContainer">
+
+                <!-- Column 1: Add/Edit Lecture Form -->
+                <div class="card mob-card-hidden" id="lessonFormCard" style="display:flex; flex-direction:column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-pen-nib" style="color:var(--gold);"></i>
+                            <span id="formCardHeaderTitle">إضافة محاضرة أو درس جديد</span>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" onclick="resetForm()" title="إعادة تعيين النموذج">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>تفريغ الحقول</span>
+                        </button>
+                    </div>
+
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                        
+                        <!-- 1. Subject Select -->
+                        <div>
+                            <label class="form-label">المادة الدراسية <span style="color:var(--red);">*</span></label>
+                            <select id="subjectSelect" class="form-select" onchange="onSubjectChange()">
+                                <option value="">-- اختر المادة الدراسية --</option>
+                            </select>
+                        </div>
+
+                        <!-- 2. Chapter Select & Creator -->
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                <label class="form-label" style="margin-bottom:0;">الفصل / الباب الدراسي</label>
+                                <span class="badge badge-gold" id="chapterCountBadge" style="display:none;">0 فصول</span>
+                            </div>
+                            <select id="chapterSelect" class="form-select" onchange="onChapterSelectChange()">
+                                <option value="">-- بدون فصل (محاضرة عامة) --</option>
+                                <option value="__NEW__">➕ كتابة / إنشاء فصل جديد...</option>
+                            </select>
+
+                            <div id="newChapterInputContainer" style="display:none; margin-top:8px;">
+                                <input type="text" id="lessonChapter" class="form-input" placeholder="اكتب اسم الفصل الجديد هنا (مثال: الفصل الأول - مفاهيم أساسية)..." oninput="onChapterInputChange()">
+                            </div>
+
+                            <div id="quickChaptersContainer" style="display:none; flex-direction:column; margin-top:6px;">
+                                <span style="font-size:11px; color:var(--text3); font-weight:700;">فصول المادة المتاحة (انقر للاختيار المباشر):</span>
+                                <div class="chapter-pills-wrap" id="quickChaptersPills"></div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Title & Duration -->
+                        <div class="form-grid-2">
+                            <div>
+                                <label class="form-label">عنوان المحاضرة <span style="color:var(--red);">*</span></label>
+                                <input type="text" id="lessonTitle" class="form-input" placeholder="مثال: المحاضرة 1 - مدخل عام">
+                            </div>
+                            <div>
+                                <label class="form-label">مدة الشرح التقديرية</label>
+                                <input type="text" id="duration" class="form-input" placeholder="مثال: 45 دقيقة">
+                            </div>
+                        </div>
+
+                        <!-- 4. Description -->
+                        <div>
+                            <label class="form-label">وصف المحاضرة وملاحظات للطلاب</label>
+                            <textarea id="lessonDesc" class="form-textarea" rows="2" placeholder="وصف محتوى الدرس والنقاط الهامة التي سيتم تغطيتها..."></textarea>
+                        </div>
+
+                        <!-- 5. Video & PDF Links -->
+                        <div class="form-grid-2">
+                            <div>
+                                <label class="form-label">رابط الفيديو (يوتيوب أو درايف) 🎬</label>
+                                <input type="url" id="videoUrl" class="form-input" placeholder="https://youtube.com/watch?v=..." style="direction:ltr; text-align:left;">
+                            </div>
+                            <div>
+                                <label class="form-label">رابط ملخص PDF 📄</label>
+                                <input type="url" id="pdfUrl" class="form-input" placeholder="https://..." style="direction:ltr; text-align:left;">
+                            </div>
+                        </div>
+
+                        <!-- 6. PPT & PDF Size -->
+                        <div class="form-grid-2">
+                            <div>
+                                <label class="form-label">رابط عرض الباوربوينت PPT 📊</label>
+                                <input type="url" id="pptUrl" class="form-input" placeholder="https://..." style="direction:ltr; text-align:left;">
+                            </div>
+                            <div>
+                                <label class="form-label">حجم ملف الملخص</label>
+                                <input type="text" id="pdfSize" class="form-input" placeholder="مثال: 4.5 MB">
+                            </div>
+                        </div>
+
+                        <!-- 7. Smart Scheduling Box -->
+                        <div class="schedule-box">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:800; font-size:13px; color:#A78BFA; margin:0;">
+                                    <input type="checkbox" id="enableScheduleToggle" onchange="toggleScheduleInput()" style="width:16px; height:16px; accent-color:#8B5CF6;">
+                                    <span>⏳ جدولة المحاضرة لموعد مستقبلي</span>
+                                </label>
+                                <span class="badge" id="scheduleToggleText" style="background:rgba(139, 92, 246, 0.18); color:#A78BFA;">متاحة الآن</span>
+                            </div>
+
+                            <div id="scheduleTimeContainer" style="display:none; flex-direction:column; gap:10px; margin-top:8px;">
+                                <div>
+                                    <label class="form-label" style="color:var(--text2); font-size:11.5px;">تاريخ وساعة الإتاحة التلقائية للطلاب:</label>
+                                    <input type="datetime-local" id="lessonUnlockTime" class="form-input" onchange="updateAdminSchedulePreview()" style="font-family:var(--mono); color:#C4B5FD;">
+                                </div>
+
+                                <div class="quick-schedule-btns">
+                                    <button type="button" class="quick-btn" onclick="setQuickScheduleTonight(20)">الليلة 8 م</button>
+                                    <button type="button" class="quick-btn" onclick="setQuickScheduleTonight(22)">الليلة 10 م</button>
+                                    <button type="button" class="quick-btn" onclick="setQuickScheduleTomorrow(18)">غداً 6 م</button>
+                                    <button type="button" class="quick-btn" onclick="setQuickScheduleTomorrow(20)">غداً 8 م</button>
+                                    <button type="button" class="quick-btn" onclick="setQuickScheduleNextDay(5, 16)">الجمعة 4 م</button>
+                                </div>
+
+                                <div>
+                                    <label class="form-label" style="color:var(--text2); font-size:11.5px;">رسالة حماسية تظهر قبل موعد الفتح:</label>
+                                    <textarea id="lessonTeaserMessage" class="form-textarea" rows="2" oninput="updateAdminSchedulePreview()">🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!</textarea>
+                                </div>
+
+                                <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12px;">
+                                    <div id="adminPrevDateBadge" style="color:#A78BFA; font-weight:800; margin-bottom:4px;">📅 موعد الفتح: لم يحدد بعد</div>
+                                    <div id="adminPrevMsg" style="color:var(--text2); font-style:italic;">💬 "..."</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. Quiz Questions JSON Editor & Timer Controls -->
+                        <div style="background:var(--surface2); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:16px; display:flex; flex-direction:column; gap:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <i class="fa-solid fa-list-check" style="color:var(--green);"></i>
+                                    <label class="form-label" style="margin:0; font-weight:900;">امتحان المحاضرة وتحديد المدة الزمنية</label>
+                                </div>
+                                <span class="badge badge-gold" id="examQuestionsCountBadge">0 أسئلة مضافة</span>
+                            </div>
+
+                            <!-- Duration / Time Limit Controls for Exam -->
+                            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                                    <label class="form-label" style="margin:0; font-size: 12px; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-stopwatch"></i>
+                                        <span>تحديد وقت محدد للامتحان (مدة الحل بالدقائق):</span>
+                                    </label>
+                                    <span style="font-size: 11px; color: var(--text3); font-weight: 700;">الافتراضي: 25 دقيقة</span>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="number" id="lessonExamDurationMinutes" class="form-input" min="1" max="300" value="25" style="width: 85px; text-align: center; font-weight: 900; font-family: var(--mono); color: var(--gold); padding: 6px;" oninput="updateExamDurationPills()">
+                                        <span style="font-size: 12px; font-weight: 800; color: var(--text2);">دقيقة</span>
+                                    </div>
+
+                                    <!-- Quick Duration Pills -->
+                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;" id="examDurPillsWrap">
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(10)">10 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(15)">15 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(20)">20 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(25)" style="border-color:var(--gold); color:var(--gold); background:var(--gold-dim);">25 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(30)">30 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(45)">45 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(60)">60 د</button>
+                                        <button type="button" class="quick-btn" onclick="setLessonExamDuration(90)">90 د</button>
+                                    </div>
+                                </div>
+                                <span style="font-size: 11px; color: var(--text3);">⏱️ سيتم تفعيل مؤقت عد تنازلي مباشر للطالب بنفس هذا التوقيت في صفحة الامتحان والمودال، ويتم إنهاء وتسليم الإجابات تلقائياً عند انتهاء الوقت.</span>
+                            </div>
+
+                            <textarea id="examJson" class="form-textarea" style="font-family:var(--mono); font-size:12px; min-height:140px; direction:ltr; text-align:left;" placeholder='[\n  {\n    "question": "ما هو المفهوم الأساسي للخدمة الاجتماعية؟",\n    "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n    "answer": 0\n  }\n]' oninput="updateQuestionCountLive()"></textarea>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="formatAndValidateExamJson()">
+                                        <i class="fa-solid fa-code"></i>
+                                        <span>تحقق وتنسيق JSON</span>
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="copyExamJson()">
+                                        <i class="fa-regular fa-copy"></i>
+                                        <span>نسخ</span>
+                                    </button>
+                                </div>
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="toggleEditorExpand()">
+                                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                                        <span id="expandEditorTxt">تكبير</span>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="clearExamJson()">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>إفراغ</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 9. Submit Buttons -->
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                            <button id="submitLessonBtn" class="btn btn-gold" onclick="addLesson()" style="padding:12px; justify-content:center; font-size:14px;">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span id="submitBtnText">نشر المحتوى التعليمي الآن</span>
+                            </button>
+
+                            <button type="button" class="btn btn-ghost" onclick="openNotesBuilderFromForm()" style="justify-content:center;">
+                                <i class="fa-solid fa-note-sticky" style="color:var(--gold);"></i>
+                                <span>فتح محرر النوتس والمذكرات التفاعلية 📝</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Column 2: Lessons Bank Explorer -->
+                <div class="card" id="lessonsBankCard" style="display:flex; flex-direction:column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-folder-tree" style="color:var(--blue);"></i>
+                            <span>بنك المحاضرات المنشورة</span>
+                            <span class="badge badge-blue" id="lessonCount" style="margin-right:6px;">0 محاضرة</span>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="text" id="lessonSearchInput" class="form-input" placeholder="بحث باسم المحاضرة..." oninput="filterLessonsList()" style="width:160px; padding:6px 10px; font-size:12px;">
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow-y:auto; max-height:850px;" id="adminLessonsList">
+                        <div style="text-align: center; padding: 40px; color: var(--text3);">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 28px; color: var(--gold); margin-bottom: 10px;"></i>
+                            <p>جاري تحميل المحاضرات من السيرفر...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // ─── Firebase Database Getter ───
+    function getDB() {
+        return window.database || (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 ? firebase.database() : null);
+    }
+
+    var database = getDB();
+    let editingLessonId = null;
+    let editingSubject = null;
+    window.allLessonsMap = {};
+    window.subjectChaptersMap = {};
+    window.storedChaptersMap = {};
+
+    const userRealSubjects = [
+        "افراد", "جماعات", "مجتمعات", "سياسات الرعاية الاجتماعية",
+        "الخدمة الاجتماعية في مجال طبي", "تدريب ميداني", "مشروع تخرج"
+    ];
+
+    function showToast(msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: msg,
+            showConfirmButton: false,
+            timer: 2500
+        });
+    }
+
+    // ─── Load Subjects ───
+    function initSubjectsListener() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initSubjectsListener, 300);
+
+        db.ref('Subjects').on('value', snap => {
+            const select = document.getElementById('subjectSelect');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- اختر المادة الدراسية --</option>';
+            let count = 0;
+            if (snap.exists() && snap.numChildren() > 0) {
+                snap.forEach(child => {
+                    count++;
+                    const sub = child.val();
+                    const name = typeof sub === 'string' ? sub : (sub.name || child.key);
+                    if (name && name.trim()) {
+                        select.innerHTML += `<option value="${name.trim()}">📘 ${name.trim()}</option>`;
+                    }
+                });
+            } else {
+                userRealSubjects.forEach(name => {
+                    count++;
+                    select.innerHTML += `<option value="${name}">📘 ${name}</option>`;
+                });
+            }
+            const activeSubjectsCountEl = document.getElementById('activeSubjectsCount');
+            if (activeSubjectsCountEl) activeSubjectsCountEl.textContent = count;
+            if (currentVal) select.value = currentVal;
+            updateChapterDropdown(false);
+        });
+    }
+
+    // ─── Load Chapters ───
+    function initChaptersListener() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initChaptersListener, 300);
+
+        db.ref('Chapters').on('value', snap => {
+            window.storedChaptersMap = {};
+            if (snap.exists()) {
+                snap.forEach(subSnap => {
+                    const subName = subSnap.key;
+                    window.storedChaptersMap[subName] = [];
+                    subSnap.forEach(chapSnap => {
+                        const val = chapSnap.val();
+                        const name = typeof val === 'string' ? val : (val.name || chapSnap.key);
+                        if (name && name.trim()) window.storedChaptersMap[subName].push(name.trim());
+                    });
+                });
+            }
+            updateChapterDropdown(false);
+        });
+    }
+
+    function onSubjectChange() {
+        updateChapterDropdown(true);
+    }
+
+    function onChapterSelectChange() {
+        const chapterSelect = document.getElementById('chapterSelect');
+        const newChapterContainer = document.getElementById('newChapterInputContainer');
+        const lessonChapterInput = document.getElementById('lessonChapter');
+        
+        if (chapterSelect.value === '__NEW__') {
+            newChapterContainer.style.display = 'block';
+            lessonChapterInput.value = '';
+            lessonChapterInput.focus();
+        } else if (chapterSelect.value === '') {
+            newChapterContainer.style.display = 'none';
+            lessonChapterInput.value = '';
+        } else {
+            newChapterContainer.style.display = 'none';
+            lessonChapterInput.value = chapterSelect.value;
+        }
+        highlightActivePill();
+    }
+
+    function onChapterInputChange() {
+        highlightActivePill();
+    }
+
+    function selectChapterDirectly(chap) {
+        const chapterSelect = document.getElementById('chapterSelect');
+        const newChapterContainer = document.getElementById('newChapterInputContainer');
+        const lessonChapterInput = document.getElementById('lessonChapter');
+        
+        let found = false;
+        for (let opt of chapterSelect.options) {
+            if (opt.value === chap) {
+                chapterSelect.value = chap;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            chapterSelect.value = '__NEW__';
+            newChapterContainer.style.display = 'block';
+        } else {
+            newChapterContainer.style.display = 'none';
+        }
+        
+        lessonChapterInput.value = chap;
+        highlightActivePill();
+        showToast(`تم اختيار الفصل: ${chap}`);
+    }
+
+    function highlightActivePill() {
+        const currentVal = document.getElementById('lessonChapter').value.trim();
+        document.querySelectorAll('.chapter-pill-btn').forEach(btn => {
+            const pillText = btn.dataset.chapter;
+            btn.classList.toggle('active', pillText && pillText === currentVal);
+        });
+    }
+
+    function updateChapterDropdown(resetSelection = true, targetChapter = null) {
+        const subject = document.getElementById('subjectSelect')?.value;
+        const chapterSelect = document.getElementById('chapterSelect');
+        const newChapterContainer = document.getElementById('newChapterInputContainer');
+        const lessonChapterInput = document.getElementById('lessonChapter');
+        const countBadge = document.getElementById('chapterCountBadge');
+        const quickContainer = document.getElementById('quickChaptersContainer');
+        const quickPills = document.getElementById('quickChaptersPills');
+
+        if (!chapterSelect) return;
+
+        const chaptersSet = new Set();
+        const counts = {};
+
+        if (subject && window.subjectChaptersMap && window.subjectChaptersMap[subject]) {
+            for (const [chap, cnt] of Object.entries(window.subjectChaptersMap[subject])) {
+                if (chap && chap.trim()) {
+                    chaptersSet.add(chap.trim());
+                    counts[chap.trim()] = cnt;
+                }
+            }
+        }
+        if (subject && window.storedChaptersMap && window.storedChaptersMap[subject]) {
+            window.storedChaptersMap[subject].forEach(c => {
+                if (c && c.trim()) chaptersSet.add(c.trim());
+            });
+        }
+
+        const chapters = Array.from(chaptersSet);
+        chapterSelect.innerHTML = '';
+        
+        const optDefault = document.createElement('option');
+        optDefault.value = "";
+        optDefault.textContent = "-- بدون فصل (محاضرة عامة) --";
+        chapterSelect.appendChild(optDefault);
+
+        if (chapters.length > 0) {
+            const optGroup = document.createElement('optgroup');
+            optGroup.label = `الفصول المتاحة في (${subject}):`;
+            
+            chapters.forEach(chap => {
+                const opt = document.createElement('option');
+                opt.value = chap;
+                const cnt = counts[chap] || 0;
+                opt.textContent = `📖 ${chap} ${cnt > 0 ? `(${cnt} محتوى)` : ''}`;
+                optGroup.appendChild(opt);
+            });
+            chapterSelect.appendChild(optGroup);
+
+            if (countBadge) {
+                countBadge.style.display = 'inline-flex';
+                countBadge.textContent = `${chapters.length} فصول`;
+            }
+
+            if (quickPills) {
+                quickPills.innerHTML = '';
+                chapters.forEach(chap => {
+                    const pill = document.createElement('button');
+                    pill.type = 'button';
+                    pill.className = 'chapter-pill-btn';
+                    pill.dataset.chapter = chap;
+                    const escSub = (subject || '').replace(/'/g, "\\'");
+                    const escChap = chap.replace(/'/g, "\\'");
+                    pill.innerHTML = `<span>📖 ${chap}</span> <i class="fa-solid fa-pencil" style="font-size:10px; margin-right:4px;" onclick="event.stopPropagation(); renameChapter('${escSub}', '${escChap}')" title="تعديل اسم الفصل"></i>`;
+                    pill.onclick = () => selectChapterDirectly(chap);
+                    quickPills.appendChild(pill);
+                });
+                if (quickContainer) quickContainer.style.display = 'flex';
+            }
+        } else {
+            if (countBadge) countBadge.style.display = 'none';
+            if (quickContainer) quickContainer.style.display = 'none';
+            if (quickPills) quickPills.innerHTML = '';
+        }
+
+        const optNew = document.createElement('option');
+        optNew.value = "__NEW__";
+        optNew.textContent = "➕ كتابة / إنشاء فصل جديد...";
+        chapterSelect.appendChild(optNew);
+
+        if (targetChapter !== null) {
+            if (targetChapter === "" || targetChapter === "undefined" || targetChapter === "null") {
+                chapterSelect.value = "";
+                lessonChapterInput.value = "";
+                if (newChapterContainer) newChapterContainer.style.display = 'none';
+            } else if (chapters.includes(targetChapter)) {
+                chapterSelect.value = targetChapter;
+                lessonChapterInput.value = targetChapter;
+                if (newChapterContainer) newChapterContainer.style.display = 'none';
+            } else {
+                chapterSelect.value = "__NEW__";
+                lessonChapterInput.value = targetChapter;
+                if (newChapterContainer) newChapterContainer.style.display = 'block';
+            }
+        } else if (resetSelection) {
+            chapterSelect.value = "";
+            lessonChapterInput.value = "";
+            if (newChapterContainer) newChapterContainer.style.display = 'none';
+        }
+        highlightActivePill();
+    }
+
+    function renameChapter(subject, oldChapter) {
+        if (!subject) subject = document.getElementById('subjectSelect')?.value;
+        if (!subject) return showToast("يرجى اختيار المادة الدراسية أولاً");
+        if (!oldChapter || oldChapter === "محاضرات عامة") return showToast("لا يمكن تعديل المحاضرات العامة كفصل");
+
+        Swal.fire({
+            title: 'تعديل اسم الفصل ✏️',
+            text: `اكتب الاسم الجديد للفصل (${oldChapter}):`,
+            input: 'text',
+            inputValue: oldChapter,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ وتحديث',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#2563EB'
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                const newName = result.value.trim();
+                const db = database || getDB();
+                if (!db) return;
+                db.ref('Lectures').child(subject).once('value', snap => {
+                    const updates = {};
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            if (child.val().chapter === oldChapter) {
+                                updates[`Lectures/${subject}/${child.key}/chapter`] = newName;
+                            }
+                        });
+                    }
+                    const oldKey = oldChapter.replace(/[.#$[\]/]/g, '_');
+                    const newKey = newName.replace(/[.#$[\]/]/g, '_');
+                    updates[`Chapters/${subject}/${oldKey}`] = null;
+                    updates[`Chapters/${subject}/${newKey}`] = { name: newName, updatedAt: Date.now() };
+
+                    db.ref().update(updates).then(() => {
+                        Swal.fire('تم التعديل!', `تم تغيير اسم الفصل إلى (${newName}).`, 'success');
+                        updateChapterDropdown(false, newName);
+                    });
+                });
+            }
+        });
+    }
+
+    // ─── Scheduling Helpers ───
+    function toggleScheduleInput(forceVal) {
+        const toggle = document.getElementById('enableScheduleToggle');
+        if (!toggle) return;
+        if (typeof forceVal === 'boolean') {
+            toggle.checked = forceVal;
+        }
+        const isChecked = toggle.checked;
+        const container = document.getElementById('scheduleTimeContainer');
+        const txt = document.getElementById('scheduleToggleText');
+
+        if (container) {
+            container.style.display = isChecked ? 'flex' : 'none';
+        }
+        if (txt) {
+            txt.textContent = isChecked ? '⏳ الجدولة مفعلة' : 'متاحة الآن';
+            txt.style.background = isChecked ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.06)';
+            txt.style.color = isChecked ? '#C4B5FD' : 'var(--text3)';
+        }
+
+        if (!isChecked) {
+            const unlockEl = document.getElementById('lessonUnlockTime');
+            if (unlockEl) unlockEl.value = '';
+        } else {
+            const unlockEl = document.getElementById('lessonUnlockTime');
+            if (unlockEl && !unlockEl.value) {
+                setQuickScheduleTomorrow(18, 0);
+            } else {
+                updateAdminSchedulePreview();
+            }
+        }
+    }
+
+    function setQuickScheduleTonight(hour24, min = 0) {
+        const target = new Date();
+        target.setHours(hour24, min, 0, 0);
+        if (target.getTime() <= Date.now()) {
+            target.setDate(target.getDate() + 1);
+        }
+        applyDateToUnlockInput(target);
+    }
+
+    function setQuickScheduleTomorrow(hour24, min = 0) {
+        const target = new Date();
+        target.setDate(target.getDate() + 1);
+        target.setHours(hour24, min, 0, 0);
+        applyDateToUnlockInput(target);
+    }
+
+    function setQuickScheduleNextDay(dayOfWeek, hour24, min = 0) {
+        const target = new Date();
+        let currentDay = target.getDay();
+        let diff = dayOfWeek - currentDay;
+        if (diff <= 0) diff += 7;
+        target.setDate(target.getDate() + diff);
+        target.setHours(hour24, min, 0, 0);
+        applyDateToUnlockInput(target);
+    }
+
+    function applyDateToUnlockInput(dateObj) {
+        const tzoffset = dateObj.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(dateObj.getTime() - tzoffset)).toISOString().slice(0, 16);
+        const input = document.getElementById('lessonUnlockTime');
+        if (input) {
+            input.value = localISOTime;
+            updateAdminSchedulePreview();
+        }
+    }
+
+    function updateAdminSchedulePreview() {
+        const input = document.getElementById('lessonUnlockTime')?.value;
+        const dateBadge = document.getElementById('adminPrevDateBadge');
+        const msgEl = document.getElementById('adminPrevMsg');
+        const msg = document.getElementById('lessonTeaserMessage')?.value.trim() || 'كلام تحفيزي للطلاب...';
+
+        if (msgEl) msgEl.innerText = `💬 "${msg}"`;
+        if (dateBadge) {
+            if (input) {
+                const d = new Date(input);
+                dateBadge.innerText = '📅 موعد الفتح: ' + d.toLocaleString('ar-EG', { weekday:'short', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+            } else {
+                dateBadge.innerText = '📅 موعد الفتح: لم يحدد بعد';
+            }
+        }
+    }
+
+    // ─── Quiz JSON Editor Helpers ───
+    function clearExamJson() {
+        const textarea = document.getElementById('examJson');
+        if (!textarea || !textarea.value.trim()) return showToast("حقل الأسئلة فارغ بالفعل");
+
+        Swal.fire({
+            title: 'مسح جميع الأسئلة؟ 🗑️',
+            text: 'هل أنت متأكد من رغبتك في إفراغ حقل الأسئلة؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، إفراغ الحقل',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                textarea.value = '';
+                updateQuestionCountLive();
+                showToast("تم إفراغ الأسئلة بنجاح 🗑️");
+            }
+        });
+    }
+
+    function toggleEditorExpand() {
+        const textarea = document.getElementById('examJson');
+        const btnTxt = document.getElementById('expandEditorTxt');
+        if (!textarea) return;
+
+        if (textarea.style.minHeight === '480px') {
+            textarea.style.minHeight = '140px';
+            if (btnTxt) btnTxt.textContent = 'تكبير';
+        } else {
+            textarea.style.minHeight = '480px';
+            if (btnTxt) btnTxt.textContent = 'تصغير';
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function formatAndValidateExamJson() {
+        const textarea = document.getElementById('examJson');
+        const val = textarea.value.trim();
+        if (!val) return showToast("حقل الأسئلة فارغ حالياً");
+
+        try {
+            let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+            let parsed = JSON.parse(cleaned);
+            if (!Array.isArray(parsed)) throw new Error("يجب أن تكون الأسئلة محاطة بمصفوفة [ ]");
+            textarea.value = JSON.stringify(parsed, null, 2);
+            updateQuestionCountLive();
+            Swal.fire({
+                title: "تم التحقق والتنسيق بنجاح! ✨",
+                html: `الكود سليم 100% ويحتوي على <b style="color:var(--gold); font-size:18px;">${parsed.length} سؤال</b> جاهز ومطابق للمعايير.`,
+                icon: "success",
+                confirmButtonColor: "#2563EB",
+                confirmButtonText: "رائع"
+            });
+        } catch(err) {
+            Swal.fire({
+                title: "خطأ في صياغة الكود",
+                text: err.message,
+                icon: "error",
+                confirmButtonColor: "#EF4444"
+            });
+        }
+    }
+
+    function copyExamJson() {
+        const textarea = document.getElementById('examJson');
+        const val = textarea.value.trim();
+        if (!val) return showToast("لا يوجد كود أسئلة لنسخه");
+        navigator.clipboard.writeText(val).then(() => {
+            showToast("تم نسخ كود الأسئلة إلى الحافظة 📋");
+        }).catch(() => {
+            showToast("تعذر النسخ التلقائي");
+        });
+    }
+
+    function updateQuestionCountLive() {
+        const textarea = document.getElementById('examJson');
+        const badge = document.getElementById('examQuestionsCountBadge');
+        if (!textarea || !badge) return;
+
+        const val = textarea.value.trim();
+        if (!val) {
+            badge.textContent = "0 أسئلة مضافة";
+            badge.className = "badge";
+            return;
+        }
+
+        try {
+            let cleaned = val.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1');
+            let parsed = JSON.parse(cleaned);
+            if (Array.isArray(parsed)) {
+                badge.textContent = `${parsed.length} سؤال مضاف ✅`;
+                badge.className = "badge badge-green";
+            }
+        } catch(e) {
+            badge.textContent = "جاري التعديل... ✍️";
+            badge.className = "badge badge-gold";
+        }
+    }
+
+    // ─── Quiz Duration Helper ───
+    function setLessonExamDuration(mins) {
+        const input = document.getElementById('lessonExamDurationMinutes');
+        if (input) {
+            input.value = mins;
+            updateExamDurationPills();
+        }
+    }
+
+    function updateExamDurationPills() {
+        const input = document.getElementById('lessonExamDurationMinutes');
+        const val = parseInt(input ? input.value : 0, 10);
+        const pills = document.querySelectorAll('#examDurPillsWrap .quick-btn');
+        pills.forEach(p => {
+            const pVal = parseInt(p.textContent, 10);
+            if (pVal === val) {
+                p.style.borderColor = 'var(--gold)';
+                p.style.color = 'var(--gold)';
+                p.style.background = 'var(--gold-dim)';
+            } else {
+                p.style.borderColor = '';
+                p.style.color = '';
+                p.style.background = '';
+            }
+        });
+    }
+
+    // ─── Add / Edit Lesson ───
+    function addLesson() {
+        const subjectSelect = document.getElementById('subjectSelect');
+        const titleInput = document.getElementById('lessonTitle');
+        const descInput = document.getElementById('lessonDesc');
+        const videoInput = document.getElementById('videoUrl');
+        const pdfInput = document.getElementById('pdfUrl');
+        const pptInput = document.getElementById('pptUrl');
+        const pdfSizeInput = document.getElementById('pdfSize');
+        const examJsonInput = document.getElementById('examJson');
+        const durationInput = document.getElementById('duration');
+
+        const subject = subjectSelect ? subjectSelect.value.trim() : '';
+        const title = titleInput ? titleInput.value.trim() : '';
+        const desc = descInput ? descInput.value.trim() : '';
+        const video = videoInput ? videoInput.value.trim() : '';
+        const pdf = pdfInput ? pdfInput.value.trim() : '';
+        const ppt = pptInput ? pptInput.value.trim() : '';
+        const pdfSize = pdfSizeInput ? pdfSizeInput.value.trim() : '';
+        const examJson = examJsonInput ? examJsonInput.value.trim() : '';
+        const duration = (durationInput && durationInput.value.trim()) ? durationInput.value.trim() : 'متوفر';
+        const examDurMinutes = parseInt(document.getElementById('lessonExamDurationMinutes')?.value) || 25;
+        
+        if (!subject) {
+            return Swal.fire('تنبيه', 'يرجى اختيار المادة الدراسية أولاً لنشر المحاضرة فيها.', 'warning');
+        }
+        if (!title) {
+            return Swal.fire('تنبيه', 'يرجى كتابة عنوان واضح للمحاضرة.', 'warning');
+        }
+        if (!video && !pdf && !ppt && !examJson) {
+            return Swal.fire('تنبيه', 'يجب إضافة رابط فيديو، أو ملخص PDF، أو عرض باوربوينت، أو أسئلة امتحان على الأقل قبل النشر!', 'warning');
+        }
+
+        const isScheduleActive = document.getElementById('enableScheduleToggle')?.checked;
+        const unlockInput = isScheduleActive ? document.getElementById('lessonUnlockTime')?.value : null;
+        let unlockTime = null;
+        if (isScheduleActive && unlockInput) {
+            const parsedTime = new Date(unlockInput).getTime();
+            if (!isNaN(parsedTime)) unlockTime = parsedTime;
+        }
+        const teaserMessage = document.getElementById('lessonTeaserMessage')?.value.trim() || '';
+
+        const chapterSelect = document.getElementById('chapterSelect');
+        let chapter = "";
+        if (chapterSelect && chapterSelect.value === '__NEW__') {
+            chapter = document.getElementById('lessonChapter')?.value.trim() || '';
+        } else if (chapterSelect && chapterSelect.value) {
+            chapter = chapterSelect.value.trim();
+        } else {
+            chapter = document.getElementById('lessonChapter')?.value.trim() || '';
+        }
+
+        const btn = document.getElementById('submitLessonBtn');
+        const originalBtnHTML = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>جاري حفظ ونشر المحتوى...</span>`;
+        }
+
+        let parsedQuestions = [];
+        if (examJson && examJson.trim()) {
+            try {
+                const p = JSON.parse(examJson.trim());
+                if (Array.isArray(p) && p.length > 0) parsedQuestions = p;
+            } catch(e) {}
+        }
+
+        const data = {
+            title: title,
+            description: desc,
+            videoUrl: video,
+            pdfUrl: pdf,
+            pptUrl: ppt,
+            powerpointUrl: ppt,
+            pdfSize: pdfSize,
+            jsonCode: examJson,
+            questionsCount: parsedQuestions.length,
+            hasQuiz: parsedQuestions.length > 0,
+            duration: duration,
+            examDuration: `${examDurMinutes} دقيقة`,
+            examDurationMinutes: examDurMinutes,
+            chapter: chapter,
+            updatedAt: Date.now()
+        };
+
+        if (parsedQuestions.length > 0) data.questions = parsedQuestions;
+        if (unlockTime) data.unlockTime = unlockTime;
+        if (isScheduleActive && teaserMessage) data.teaserMessage = teaserMessage;
+
+        const db = database || getDB();
+        if (!db) {
+            if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+            return Swal.fire('خطأ', 'تعذر الاتصال بقاعدة البيانات. تحقق من الإنترنت.', 'error');
+        }
+
+        if (chapter) {
+            const chapKey = chapter.replace(/[.#$[\]/]/g, '_');
+            db.ref('Chapters/' + subject + '/' + chapKey).set({ name: chapter, updatedAt: Date.now() }).catch(() => {});
+        }
+
+        if (editingLessonId) {
+            if (subject !== editingSubject) {
+                db.ref('Lectures').child(editingSubject).child(editingLessonId).remove().catch(() => {});
+            }
+            data.id = editingLessonId;
+            db.ref('Lectures').child(subject).child(editingLessonId).update(data).then(() => {
+                if (parsedQuestions.length > 0) {
+                    db.ref('Exams/' + editingLessonId).set({
+                        id: editingLessonId,
+                        lessonId: editingLessonId,
+                        lessonTitle: title,
+                        chapter: chapter || '',
+                        subject: subject,
+                        subjectKey: subject,
+                        title: `امتحان: ${title}`,
+                        desc: desc || `امتحان وتقييم شامل لدرس (${title})`,
+                        questions: parsedQuestions,
+                        questionsCount: parsedQuestions.length,
+                        duration: `${examDurMinutes} دقيقة`,
+                        durationMinutes: examDurMinutes,
+                        isCustomShort: true,
+                        passingScore: '70%',
+                        updatedAt: Date.now()
+                    }).catch(() => {});
+                }
+
+                if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم تعديل المحتوى بنجاح! ✅',
+                    text: `تم حفظ تحديثات (${title}) في مادة (${subject}).`,
+                    timer: 2000,
+                    confirmButtonColor: '#10B981'
+                });
+                resetForm();
+            }).catch(err => {
+                if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+                Swal.fire('خطأ في التعديل', err.message, 'error');
+            });
+        } else {
+            const newRef = db.ref('Lectures').child(subject).push();
+            const id = newRef.key;
+            data.id = id;
+            data.createdAt = Date.now();
+
+            newRef.set(data).then(() => {
+                if (parsedQuestions.length > 0) {
+                    db.ref('Exams/' + id).set({
+                        id: id,
+                        lessonId: id,
+                        lessonTitle: title,
+                        chapter: chapter || '',
+                        subject: subject,
+                        subjectKey: subject,
+                        title: `امتحان: ${title}`,
+                        desc: desc || `امتحان وتقييم شامل لدرس (${title})`,
+                        questions: parsedQuestions,
+                        questionsCount: parsedQuestions.length,
+                        duration: `${examDurMinutes} دقيقة`,
+                        durationMinutes: examDurMinutes,
+                        isCustomShort: true,
+                        passingScore: '70%',
+                        updatedAt: Date.now()
+                    }).catch(() => {});
+                }
+
+                if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+                const isFuture = unlockTime && unlockTime > Date.now();
+                if (!isFuture) {
+                    db.ref('Settings/latestAddedContent').set({
+                        type: "محاضرة",
+                        title: title,
+                        subject: subject,
+                        message: `🎉 تمت إضافة محاضرة جديدة: (${title}) في مادة (${subject}) 🚀`,
+                        timestamp: Date.now()
+                    }).catch(() => {});
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: isFuture ? 'تمت جدولة المحاضرة بنجاح! ⏳' : 'تم نشر المحتوى التعليمي بنجاح! 🎉',
+                    text: `تم حفظ وإتاحة (${title}) في مادة (${subject}).`,
+                    timer: 2500,
+                    confirmButtonColor: '#2563EB'
+                });
+                resetForm();
+            }).catch(err => {
+                if (btn) { btn.disabled = false; btn.innerHTML = originalBtnHTML; }
+                Swal.fire('خطأ أثناء النشر', err.message, 'error');
+            });
+        }
+    }
+
+    // ─── Mobile Lesson Tabs Controller ───
+    function switchMobileLessonTab(target) {
+        const tabBank = document.getElementById('mobTabBank');
+        const tabForm = document.getElementById('mobTabForm');
+        const bankCard = document.getElementById('lessonsBankCard');
+        const formCard = document.getElementById('lessonFormCard');
+
+        if (window.innerWidth > 1024) {
+            if (bankCard) bankCard.classList.remove('mob-card-hidden');
+            if (formCard) formCard.classList.remove('mob-card-hidden');
+            return;
+        }
+
+        if (target === 'bank') {
+            if (tabBank) tabBank.classList.add('active');
+            if (tabForm) tabForm.classList.remove('active');
+            if (bankCard) bankCard.classList.remove('mob-card-hidden');
+            if (formCard) formCard.classList.add('mob-card-hidden');
+        } else {
+            if (tabBank) tabBank.classList.remove('active');
+            if (tabForm) tabForm.classList.add('active');
+            if (bankCard) bankCard.classList.add('mob-card-hidden');
+            if (formCard) formCard.classList.remove('mob-card-hidden');
+            if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            document.getElementById('lessonsBankCard')?.classList.remove('mob-card-hidden');
+            document.getElementById('lessonFormCard')?.classList.remove('mob-card-hidden');
+        } else {
+            const isForm = document.getElementById('mobTabForm')?.classList.contains('active');
+            switchMobileLessonTab(isForm ? 'form' : 'bank');
+        }
+    });
+
+    function resetForm() {
+        editingLessonId = null;
+        editingSubject = null;
+        const ids = ['lessonTitle', 'lessonDesc', 'videoUrl', 'pdfUrl', 'pptUrl', 'pdfSize', 'examJson', 'duration', 'lessonUnlockTime'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
+        const examDurInput = document.getElementById('lessonExamDurationMinutes');
+        if (examDurInput) examDurInput.value = 25;
+        updateExamDurationPills();
+
+        const teaserEl = document.getElementById('lessonTeaserMessage');
+        if (teaserEl) teaserEl.value = "🚀 استعدوا يا أبطال! محاضرة حماسية وهامة جداً ستفتح لكم قريباً.. جهزوا كشاكيلكم وتركيزكم!";
+        toggleScheduleInput(false);
+
+        const headerTitle = document.getElementById('formCardHeaderTitle');
+        if (headerTitle) headerTitle.textContent = "إضافة محاضرة أو درس جديد";
+        const submitTxt = document.getElementById('submitBtnText');
+        if (submitTxt) submitTxt.textContent = "نشر المحتوى التعليمي الآن";
+
+        updateChapterDropdown(true, "");
+        updateQuestionCountLive();
+
+        if (window.innerWidth <= 1024) {
+            switchMobileLessonTab('form');
+        }
+    }
+
+    function startEditLessonByKey(key) {
+        const lesson = window.allLessonsMap ? window.allLessonsMap[key] : null;
+        if (!lesson) return showToast("تعذر جلب بيانات المحاضرة للتعديل ❌");
+
+        editingLessonId = key;
+        editingSubject = lesson.subjectName;
+
+        const subjectSelect = document.getElementById('subjectSelect');
+        if (subjectSelect) {
+            subjectSelect.value = lesson.subjectName;
+            onSubjectChange();
+        }
+
+        const titleEl = document.getElementById('lessonTitle');
+        if (titleEl) titleEl.value = lesson.title || '';
+        const descEl = document.getElementById('lessonDesc');
+        if (descEl) descEl.value = lesson.description || lesson.desc || '';
+        const vidEl = document.getElementById('videoUrl');
+        if (vidEl) vidEl.value = lesson.videoUrl || '';
+        const pdfEl = document.getElementById('pdfUrl');
+        if (pdfEl) pdfEl.value = lesson.pdfUrl || '';
+        const pptEl = document.getElementById('pptUrl');
+        if (pptEl) pptEl.value = lesson.pptUrl || lesson.powerpointUrl || '';
+        const sizeEl = document.getElementById('pdfSize');
+        if (sizeEl) sizeEl.value = lesson.pdfSize || '';
+        const durEl = document.getElementById('duration');
+        if (durEl) durEl.value = lesson.duration || '';
+
+        const examDurInput = document.getElementById('lessonExamDurationMinutes');
+        if (examDurInput) {
+            examDurInput.value = lesson.examDurationMinutes || parseInt(lesson.examDuration) || 25;
+            updateExamDurationPills();
+        }
+
+        const examEl = document.getElementById('examJson');
+        let examData = lesson.jsonCode || lesson.questions || '';
+        if (typeof examData === 'object' && examData !== null) {
+            try { examData = JSON.stringify(examData, null, 2); } catch(e) { examData = ''; }
+        }
+        if (examEl) examEl.value = examData;
+
+        if (lesson.unlockTime) {
+            const toggle = document.getElementById('enableScheduleToggle');
+            if (toggle) {
+                toggle.checked = true;
+                toggleScheduleInput();
+            }
+            applyDateToUnlockInput(new Date(parseInt(lesson.unlockTime)));
+        } else {
+            toggleScheduleInput(false);
+        }
+
+        if (lesson.teaserMessage) {
+            const ta = document.getElementById('lessonTeaserMessage');
+            if (ta) ta.value = lesson.teaserMessage;
+            updateAdminSchedulePreview();
+        }
+
+        const headerTitle = document.getElementById('formCardHeaderTitle');
+        if (headerTitle) headerTitle.textContent = `تعديل المحاضرة: (${lesson.title || ''})`;
+        const submitTxt = document.getElementById('submitBtnText');
+        if (submitTxt) submitTxt.textContent = "حفظ وتحديث المحاضرة الآن 🔄";
+
+        updateChapterDropdown(false, lesson.chapter || "");
+        const formCard = document.getElementById('lessonFormCard');
+        if (window.innerWidth <= 1024) {
+            switchMobileLessonTab('form');
+        } else if (formCard) {
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    // ─── Load Lessons Realtime ───
+    function loadAllLessons() {
+        const db = database || getDB();
+        if (!db) return setTimeout(loadAllLessons, 300);
+
+        // Safety fallback: prevent infinite loading spinner if network is slow or empty
+        const fallbackTimer = setTimeout(() => {
+            const container = document.getElementById('adminLessonsList');
+            if (container && container.innerHTML.includes('fa-circle-notch')) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text3);">
+                        <i class="fa-solid fa-folder-open" style="font-size: 36px; opacity: 0.3; margin-bottom: 8px; display:block;"></i>
+                        <p>لا توجد محاضرات منشورة حالياً في أي مادة</p>
+                    </div>
+                `;
+                const tCount = document.getElementById('totalLessonsCount');
+                if (tCount && tCount.textContent === '-') tCount.textContent = '0';
+                const lCount = document.getElementById('lessonCount');
+                if (lCount && lCount.textContent === '0 محاضرة') lCount.textContent = '0 محاضرة';
+            }
+        }, 2200);
+
+        db.ref('Lectures').on('value', snap => {
+            clearTimeout(fallbackTimer);
+            const container = document.getElementById('adminLessonsList');
+            if (!container) return;
+            container.innerHTML = "";
+            window.allLessonsMap = {};
+            window.subjectChaptersMap = {};
+            let totalLessons = 0;
+            let totalExams = 0;
+            let totalPdfs = 0;
+
+            try {
+                if (snap.exists() && snap.val()) {
+                    snap.forEach(subjectSnap => {
+                        const subjectName = subjectSnap.key;
+                        window.subjectChaptersMap[subjectName] = {};
+                        let lessonsInSubject = 0;
+                        const chapterGroups = {};
+
+                        subjectSnap.forEach(lessonSnap => {
+                            const lesson = lessonSnap.val();
+                            if (!lesson || typeof lesson !== 'object') return;
+                            const firebaseKey = lessonSnap.key;
+                            totalLessons++;
+                            lessonsInSubject++;
+
+                            if (lesson.jsonCode || (lesson.questions && lesson.questions.length > 0)) totalExams++;
+                            if (lesson.pdfUrl) totalPdfs++;
+
+                            const chapName = (lesson.chapter || "").trim() || "محاضرات عامة";
+                            if (chapName !== "محاضرات عامة") {
+                                window.subjectChaptersMap[subjectName][chapName] = (window.subjectChaptersMap[subjectName][chapName] || 0) + 1;
+                            }
+
+                            if (!chapterGroups[chapName]) chapterGroups[chapName] = [];
+                            window.allLessonsMap[firebaseKey] = { ...lesson, subjectName, firebaseKey };
+
+                            const isScheduled = Boolean(lesson.unlockTime && lesson.unlockTime > Date.now());
+                            const videoTag = lesson.videoUrl ? `<span class="meta-tag video"><i class="fa-solid fa-play"></i> فيديو</span>` : '';
+                            const pdfTag = lesson.pdfUrl ? `<span class="meta-tag pdf"><i class="fa-solid fa-file-pdf"></i> PDF</span>` : '';
+                            const pptTag = (lesson.pptUrl || lesson.powerpointUrl) ? `<span class="meta-tag ppt"><i class="fa-solid fa-file-powerpoint"></i> PPT</span>` : '';
+                            const examTag = (lesson.jsonCode || (lesson.questions && lesson.questions.length > 0)) ? `<span class="meta-tag exam"><i class="fa-solid fa-list-check"></i> امتحان</span>` : '';
+                            const durationTag = lesson.duration ? `<span class="meta-tag muted"><i class="fa-regular fa-clock"></i> ${lesson.duration}</span>` : '';
+                            const scheduledTag = isScheduled ? `<span class="meta-tag sched" title="موعد الفتح التلقائي للطلاب"><i class="fa-solid fa-clock"></i> مجدولة: ${new Date(lesson.unlockTime).toLocaleString('ar-EG', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : '';
+
+                            chapterGroups[chapName].push(`
+                                <div class="lesson-card-item" data-lesson-key="${firebaseKey}" data-title="${(lesson.title || '').toLowerCase()}">
+                                    <div class="lesson-info-box">
+                                        <div class="lesson-card-title">${lesson.title || 'محاضرة بدون عنوان'}</div>
+                                        <div class="lesson-tags-row">
+                                            ${scheduledTag}
+                                            ${videoTag}
+                                            ${pdfTag}
+                                            ${pptTag}
+                                            ${examTag}
+                                            ${durationTag}
+                                            ${lesson.chapter ? `<span class="meta-tag muted" style="color:var(--gold);">📖 ${lesson.chapter}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="actions-btn-group">
+                                        ${isScheduled ? `
+                                            <button class="btn-card-action publish" onclick="publishScheduledNowByKey('${firebaseKey}')" title="⚡ نشر المحاضرة للطلاب فوراً وتخطي الجدولة">
+                                                <i class="fa-solid fa-bolt"></i>
+                                            </button>
+                                        ` : ''}
+                                        <button class="btn-card-action edit" onclick="startEditLessonByKey('${firebaseKey}')" title="تعديل المحاضرة">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="btn-card-action delete" onclick="deleteLessonByKey('${firebaseKey}')" title="حذف المحاضرة">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `);
+                        });
+
+                        if (lessonsInSubject > 0) {
+                            let chaptersHTML = '';
+                            const groupKeys = Object.keys(chapterGroups);
+                            const hasMultipleChapters = groupKeys.length > 1 || (groupKeys.length === 1 && groupKeys[0] !== "محاضرات عامة");
+
+                            for (const [chName, items] of Object.entries(chapterGroups)) {
+                                if (hasMultipleChapters) {
+                                    const escSub = subjectName.replace(/'/g, "\\'");
+                                    const escChap = chName.replace(/'/g, "\\'");
+                                    const editBtn = (chName !== "محاضرات عامة") ? `<button type="button" class="btn btn-ghost btn-sm" style="padding:2px 8px; font-size:11px;" onclick="renameChapter('${escSub}', '${escChap}')" title="تعديل اسم الفصل"><i class="fa-solid fa-pencil"></i> تعديل</button>` : '';
+                                    chaptersHTML += `
+                                        <div class="chapter-divider">
+                                            <span>${chName === "محاضرات عامة" ? "📌 " : "📖 "}${chName} (${items.length} درس)</span>
+                                            ${editBtn}
+                                        </div>
+                                    `;
+                                }
+                                chaptersHTML += items.join('');
+                            }
+
+                            const group = document.createElement('div');
+                            group.className = 'subject-group-card';
+                            group.innerHTML = `
+                                <div class="group-header-row">
+                                    <div class="group-title">📚 ${subjectName}</div>
+                                    <span class="badge badge-gold">${lessonsInSubject} محاضرة</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    ${chaptersHTML}
+                                </div>
+                            `;
+                            container.appendChild(group);
+                        }
+                    });
+                }
+            } catch(e) {
+                console.error("Error processing lectures:", e);
+            }
+
+            if (totalLessons === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text3);">
+                        <i class="fa-solid fa-folder-open" style="font-size: 36px; opacity: 0.3; margin-bottom: 8px; display:block;"></i>
+                        <p>لا توجد محاضرات منشورة حالياً في أي مادة</p>
+                    </div>
+                `;
+            }
+
+            const totalLessonsCountEl = document.getElementById('totalLessonsCount');
+            if (totalLessonsCountEl) totalLessonsCountEl.textContent = totalLessons;
+            const examsCountEl = document.getElementById('examsCount');
+            if (examsCountEl) examsCountEl.textContent = totalExams;
+            const pdfCountEl = document.getElementById('pdfCount');
+            if (pdfCountEl) pdfCountEl.textContent = totalPdfs;
+            const lessonCountEl = document.getElementById('lessonCount');
+            if (lessonCountEl) lessonCountEl.textContent = totalLessons + ' محاضرة';
+            const mobBadge = document.getElementById('mobLessonCountBadge');
+            if (mobBadge) mobBadge.textContent = totalLessons;
+
+            updateChapterDropdown(false);
+        }, err => {
+            clearTimeout(fallbackTimer);
+            console.error("Lectures listener error:", err);
+            const container = document.getElementById('adminLessonsList');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--red);">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 36px; margin-bottom: 8px; display:block;"></i>
+                        <p>تعذر جلب المحاضرات: ${err.message || 'خطأ في الاتصال'}</p>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    function filterLessonsList() {
+        const q = document.getElementById('lessonSearchInput')?.value.trim().toLowerCase();
+        document.querySelectorAll('.lesson-card-item').forEach(item => {
+            const title = item.getAttribute('data-title') || '';
+            item.style.display = (!q || title.includes(q)) ? 'flex' : 'none';
+        });
+    }
+
+    function deleteLessonByKey(key) {
+        const lesson = window.allLessonsMap ? window.allLessonsMap[key] : null;
+        if (!lesson) return showToast("تعذر العثور على بيانات المحاضرة ❌");
+        const subject = lesson.subjectName;
+        const title = lesson.title || 'المحاضرة';
+
+        Swal.fire({
+            title: 'حذف المحاضرة نهائياً؟ 🗑️',
+            html: `هل أنت متأكد من حذف:<br><b style="color:var(--red); font-size:16px;">${title}</b><br>من مادة (<b style="color:var(--gold);">${subject}</b>)؟`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، حذف نهائياً',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref('Lectures').child(subject).child(key).remove().then(() => {
+                    showToast("تم حذف المحاضرة بنجاح 🗑️");
+                }).catch(err => {
+                    showToast("حدث خطأ أثناء الحذف ❌");
+                });
+            }
+        });
+    }
+
+    function publishScheduledNowByKey(key) {
+        const lesson = window.allLessonsMap ? window.allLessonsMap[key] : null;
+        if (!lesson) return;
+        const subject = lesson.subjectName;
+        const title = lesson.title || 'المحاضرة';
+
+        Swal.fire({
+            title: 'نشر المحاضرة فوراً؟ ⚡',
+            html: `هل تريد إلغاء موعد الجدولة وإتاحة محاضرة:<br><b style="color:var(--blue);">${title}</b><br>فوراً لجميع الطلاب في مادة (${subject})؟`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: '⚡ نعم، نشر الآن فوراً',
+            cancelButtonText: 'إلغاء'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                db.ref('Lectures').child(subject).child(key).update({ unlockTime: null }).then(() => {
+                    db.ref('Settings/latestAddedContent').set({
+                        type: "محاضرة",
+                        title: title,
+                        subject: subject,
+                        message: `🎉 تم نشر محاضرة جديدة فوراً: (${title}) في مادة (${subject}) 🚀`,
+                        timestamp: Date.now()
+                    });
+                    showToast("تم نشر المحاضرة للطلاب فوراً بنجاح ⚡");
+                }).catch(() => showToast("حدث خطأ أثناء النشر ❌"));
+            }
+        });
+    }
+
+    function openNotesBuilder(subject, key, title) {
+        const lessonTitle = title || document.getElementById('lessonTitle')?.value || 'محاضرة';
+        const targetUrl = `admin-notes-builder.html?subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(key)}&title=${encodeURIComponent(lessonTitle)}`;
+        try {
+            const win = window.open(targetUrl, '_blank');
+            if (!win || win.closed || typeof win.closed === 'undefined') {
+                window.location.href = targetUrl;
+            }
+        } catch (e) {
+            window.location.href = targetUrl;
+        }
+    }
+
+    function openNotesBuilderFromForm() {
+        const subjectSelect = document.getElementById('subjectSelect');
+        const subject = subjectSelect ? subjectSelect.value : '';
+        const title = document.getElementById('lessonTitle')?.value.trim() || 'محاضرة جديدة';
+        if (!subject) {
+            if (subjectSelect) subjectSelect.focus();
+            return showToast("يرجى اختيار المادة الدراسية أولاً ⚠️");
+        }
+        if (editingLessonId) {
+            openNotesBuilder(subject, editingLessonId, title);
+        } else {
+            const tempId = 'draft_' + Date.now();
+            openNotesBuilder(subject, tempId, title);
+        }
+    }
+
+    // ─── Initialize on page load ───
+    document.addEventListener('DOMContentLoaded', () => {
+        initSubjectsListener();
+        initChaptersListener();
+        loadAllLessons();
+    });
+</script>
+
+</body>
+</html>

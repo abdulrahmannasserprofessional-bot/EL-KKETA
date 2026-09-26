@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إعدادات المنظومة والمشرفين - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .toggle-setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            gap: 12px;
+            transition: all 0.15s;
+        }
+        .toggle-setting-row:hover {
+            border-color: var(--border-focus);
+        }
+
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .switch-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            transition: 0.2s;
+        }
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text3);
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .switch-toggle input:checked + .switch-slider {
+            background-color: var(--gold);
+            border-color: var(--gold);
+        }
+        .switch-toggle input:checked + .switch-slider:before {
+            transform: translateX(20px);
+            background-color: #FFFFFF;
+        }
+
+        .supervisor-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            gap: 12px;
+            transition: all 0.15s;
+        }
+        .supervisor-card-item:hover {
+            border-color: var(--border-focus);
+        }
+        @media(max-width: 768px) {
+            .supervisor-card-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .supervisor-card-item .sup-actions-wrap {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        .sup-avatar-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--gold);
+            font-size: 18px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .perm-tag-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+
+        .issue-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">System Config & Control</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-sliders"></i>
+            <span>إعدادات النظام والصيانة والمشرفين</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--purple);">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إعدادات المنظومة وصلاحيات المشرفين</h1>
+                        <p class="page-subtitle">التحكم في وضع الصيانة بالتايمر، صلاحيات المشرفين الـ 10، وبلاغات طوارئ الطلاب</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-ghost" onclick="purgeCache()">
+                        <i class="fa-solid fa-broom"></i>
+                        <span>تصفير الكاش والتحديث ⚡</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="exportBackup()">
+                        <i class="fa-solid fa-download"></i>
+                        <span>نسخة احتياطية (JSON)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">حالة المنصة للطلاب</span>
+                        <div class="stat-icon-wrap" style="color: var(--green); background: rgba(16, 185, 129, 0.1);">
+                            <i class="fa-solid fa-signal"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="platformStatusKPI" style="color: var(--green); font-size: 18px;">متاحة للطلاب 🟢</div>
+                    <div class="stat-sub">وضع الاستقبال والامتحانات يعمل</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">المشرفون المعتمدون</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="statSupCount">0</div>
+                    <div class="stat-sub">حسابات ذات صلاحيات مخصصة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">بلاغات طوارئ الطلاب</span>
+                        <div class="stat-icon-wrap" style="color: var(--red); background: rgba(239, 68, 68, 0.1);">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="statIssuesCount" style="color: var(--red);">0</div>
+                    <div class="stat-sub">أعطال أو مشاكل قيد الحل</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">متوسط الصلاحيات الممنوحة</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="statAvgPerms">10/10</div>
+                    <div class="stat-sub">من أصل 10 قطاعات إدارية</div>
+                </div>
+            </div>
+
+            <!-- Two Column Grid: Maintenance & Features Controls -->
+            <div class="two-col" id="configTwoCol">
+
+                <!-- 1. Maintenance Mode Controller -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-screwdriver-wrench" style="color: var(--gold);"></i>
+                            <span>وضع الصيانة بالتايمر والعد التنازلي</span>
+                        </div>
+                        <span class="badge badge-green" id="maintStatusBadge">المنصة مفتوحة</span>
+                    </div>
+
+                    <div style="padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+                        <div>
+                            <label class="form-label">سبب الصيانة (يظهر للطلاب في شاشة القفل):</label>
+                            <input type="text" id="maintReasonInput" class="form-input" placeholder="مثال: تحديث محتوى المواد ورفع الامتحانات الجديدة...">
+                        </div>
+
+                        <div>
+                            <label class="form-label">مدة الصيانة المقررة (بالدقائق):</label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="number" id="maintTimerMinutes" class="form-input" value="30" min="5" max="360" style="width: 120px; font-family:var(--mono);">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('maintTimerMinutes').value=15">15 د</button>
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('maintTimerMinutes').value=30">30 د</button>
+                                    <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('maintTimerMinutes').value=60">1 س</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:10px; margin-top:8px;">
+                            <button class="btn btn-danger" onclick="activateMaintenanceWithTimer()" style="flex:1; justify-content:center;">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>قفل المنصة وتفعيل الصيانة 🛠️</span>
+                            </button>
+                            <button class="btn btn-gold" onclick="stopMaintenanceMode()" style="flex:1; justify-content:center;">
+                                <i class="fa-solid fa-lock-open"></i>
+                                <span>فتح المنصة للطلاب 🎉</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Global Switches & Feature Toggles -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-toggle-on" style="color: var(--cyan);"></i>
+                            <span>مفاتيح وميزات المنظومة العامة</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        
+                        <div class="toggle-setting-row">
+                            <div>
+                                <div style="font-weight: 800; font-size: 13.5px; color: var(--text);">تسجيل حسابات جديدة للطلاب</div>
+                                <div style="font-size: 11.5px; color: var(--text2);">السماح بإنشاء حسابات جديدة أو إيقاف التسجيل مؤقتاً</div>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="toggleRegistrations" onchange="updateSetting('allowRegistrations', this.checked)">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-setting-row">
+                            <div>
+                                <div style="font-weight: 800; font-size: 13.5px; color: var(--text);">شات الدعم الفني المباشر</div>
+                                <div style="font-size: 11.5px; color: var(--text2);">إتاحة التواصل والمحادثات للطلاب مع الإدارة</div>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="toggleChat" onchange="updateSetting('enableChat', this.checked)">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-setting-row">
+                            <div>
+                                <div style="font-weight: 800; font-size: 13.5px; color: var(--text);">تقارير الذكاء الاصطناعي (AI Report)</div>
+                                <div style="font-size: 11.5px; color: var(--text2);">تفعيل المستشار الأكاديمي الذكي للطلاب</div>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="toggleAIReports" onchange="updateSetting('enableAIReports', this.checked)">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-setting-row">
+                            <div>
+                                <div style="font-weight: 800; font-size: 13.5px; color: var(--text);">الحظر التلقائي عند تعدد الأجهزة (Strict Lock)</div>
+                                <div style="font-size: 11.5px; color: var(--text2);">قفل الحساب فورياً إذا تم الدخول من أكثر من جهاز</div>
+                            </div>
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="toggleDeviceLock" onchange="updateSetting('strictDeviceLock', this.checked)">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. Supervisors & Permissions Management Card -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-user-shield" style="color: var(--gold);"></i>
+                        <span>إدارة المشرفين وصلاحيات الـ 10 قطاعات</span>
+                    </div>
+                    <button class="btn btn-gold btn-sm" onclick="addSupervisorModal()">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إضافة حساب مشرف جديد 🔑</span>
+                    </button>
+                </div>
+
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;" id="supervisorsList">
+                    <div style="text-align: center; padding: 40px; color: var(--text3);">
+                        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 26px; color: var(--gold); margin-bottom: 8px;"></i>
+                        <p>جاري تحميل قائمة المشرفين...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Emergency Student Issues Feed Card -->
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: var(--red);"></i>
+                        <span>بلاغات وأعطال الطلاب الطارئة (Emergency Issues)</span>
+                    </div>
+                </div>
+
+                <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px;" id="emergencyIssuesList">
+                    <div style="text-align: center; padding: 35px; color: var(--text3);">
+                        <i class="fa-solid fa-circle-check" style="font-size: 32px; color: var(--green); margin-bottom: 8px; display:block;"></i>
+                        <p style="font-weight: 800;">لا توجد أي بلاغات أو أعطال مسجلة من الطلاب حالياً</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    var database = getDB();
+    let allSupervisors = [];
+
+    function showToast(msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: msg,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }
+
+    // ─── 1. Load Settings ───
+    function initSettingsListener() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initSettingsListener, 300);
+
+        db.ref('Settings').on('value', snap => {
+            const s = snap.val() || {};
+            const isMaint = Boolean(s.maintenance || (s.maintenanceDetails && s.maintenanceDetails.active));
+            
+            const badge = document.getElementById('maintStatusBadge');
+            const kpi = document.getElementById('platformStatusKPI');
+
+            if (badge) {
+                badge.className = isMaint ? 'badge badge-red' : 'badge badge-green';
+                badge.textContent = isMaint ? 'وضع الصيانة نشط 🔴' : 'المنصة مفتوحة 🟢';
+            }
+            if (kpi) {
+                kpi.style.color = isMaint ? 'var(--red)' : 'var(--green)';
+                kpi.textContent = isMaint ? 'تحت الصيانة 🔴' : 'متاحة للطلاب 🟢';
+            }
+
+            const regCb = document.getElementById('toggleRegistrations');
+            if (regCb) regCb.checked = (s.allowRegistrations !== false);
+
+            const chatCb = document.getElementById('toggleChat');
+            if (chatCb) chatCb.checked = (s.enableChat !== false);
+
+            const aiCb = document.getElementById('toggleAIReports');
+            if (aiCb) aiCb.checked = (s.enableAIReports !== false);
+
+            const lockCb = document.getElementById('toggleDeviceLock');
+            if (lockCb) lockCb.checked = Boolean(s.strictDeviceLock);
+        });
+    }
+
+    function updateSetting(key, val) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('Settings/' + key).set(val).then(() => {
+            showToast(`تم حفظ الإعداد: ${val ? 'مفعل 🟢' : 'معطل 🔴'}`);
+        });
+    }
+
+    function activateMaintenanceWithTimer() {
+        const db = database || getDB();
+        if (!db) return;
+
+        const mins = parseInt(document.getElementById('maintTimerMinutes')?.value) || 30;
+        const reason = document.getElementById('maintReasonInput')?.value.trim() || 'صيانة دورية للمنصة';
+        const timerEnd = Date.now() + (mins * 60 * 1000);
+
+        const details = {
+            active: true,
+            reason: reason,
+            timerEnd: timerEnd,
+            minutes: mins,
+            activatedAt: Date.now()
+        };
+
+        db.ref('Settings').update({
+            maintenance: true,
+            maintenanceDetails: details
+        }).then(() => {
+            Swal.fire({
+                title: 'تم تفعيل وضع الصيانة 🛠️',
+                text: `تم قفل وصول الطلاب وعرض العد التنازلي لمدة ${mins} دقيقة بنجاح.`,
+                icon: 'success',
+                confirmButtonColor: '#2563EB'
+            });
+        });
+    }
+
+    function stopMaintenanceMode() {
+        const db = database || getDB();
+        if (!db) return;
+
+        db.ref('Settings').update({
+            maintenance: false,
+            'maintenanceDetails/active': false
+        }).then(() => {
+            Swal.fire({
+                title: 'تم فتح المنصة بنجاح 🎉',
+                text: 'يمكن لجميع الطلاب الدخول وتصفح المنصة بشكل طبيعي.',
+                icon: 'success',
+                confirmButtonColor: '#10B981'
+            });
+        });
+    }
+
+    // ─── 2. Supervisors Management ───
+    function initSupervisorsListener() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initSupervisorsListener, 300);
+
+        db.ref('Supervisors').on('value', snap => {
+            const container = document.getElementById('supervisorsList');
+            if (!container) return;
+            container.innerHTML = "";
+            allSupervisors = [];
+
+            if (!snap.exists()) {
+                document.getElementById('statSupCount').textContent = '0';
+                container.innerHTML = `
+                    <div style="text-align:center; padding:35px; color:var(--text3);">
+                        <i class="fa-solid fa-user-shield" style="font-size:36px; opacity:0.3; margin-bottom:8px; display:block;"></i>
+                        <p style="font-weight:700;">لا يوجد مشرفون إضافيون مسجلون حالياً (المدير الرئيسي فقط)</p>
+                    </div>
+                `;
+                return;
+            }
+
+            snap.forEach(child => {
+                const sup = child.val();
+                if (sup) allSupervisors.push({ id: child.key, ...sup });
+            });
+
+            document.getElementById('statSupCount').textContent = allSupervisors.length;
+
+            let totalPermsCount = 0;
+            allSupervisors.forEach(sup => {
+                const p = sup.permissions || {};
+                totalPermsCount += Object.values(p).filter(Boolean).length;
+            });
+            const avgP = allSupervisors.length > 0 ? (totalPermsCount / allSupervisors.length).toFixed(1) : '10';
+            document.getElementById('statAvgPerms').textContent = `${avgP}/10`;
+
+            allSupervisors.forEach(sup => {
+                const isActive = sup.isActive !== false;
+                const pinVal = sup.pin || sup.id || '—';
+                const roleTitle = sup.roleTitle || sup.role || 'مشرف المنصة';
+                const name = sup.fullName || sup.name || sup.username || 'مشرف معتمد';
+
+                const perms = sup.permissions || {};
+                const permLabels = [];
+                if (perms.students) permLabels.push('👥 الطلاب');
+                if (perms.courses) permLabels.push('📚 المواد');
+                if (perms.exams) permLabels.push('📝 الامتحانات');
+                if (perms.codes) permLabels.push('🔑 الأكواد');
+                if (perms.notifications) permLabels.push('📣 الإشعارات');
+                if (perms.reports) permLabels.push('📊 النتائج');
+                if (perms.mistakes) permLabels.push('🧠 الأخطاء');
+                if (perms.community) permLabels.push('💬 المجتمع');
+                if (perms.troubleshoot) permLabels.push('🛠️ الدعم');
+                if (perms.config) permLabels.push('⚙️ الإعدادات');
+
+                const permChips = permLabels.map(l => `<span class="perm-tag-chip">${l}</span>`).join('');
+                const escId = sup.id.replace(/'/g, "\\'");
+                const escName = name.replace(/'/g, "\\'");
+                const escPin = pinVal.replace(/'/g, "\\'");
+                const escRole = roleTitle.replace(/'/g, "\\'");
+
+                const card = document.createElement('div');
+                card.className = "supervisor-card-item";
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+                        <div class="sup-avatar-box">${name.trim().charAt(0) || '🛡️'}</div>
+                        <div style="min-width:0;">
+                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                                <h4 style="font-size:14.5px; font-weight:900; color:var(--text); margin:0;">${name}</h4>
+                                <span class="badge ${isActive ? 'badge-green' : 'badge-red'}">${isActive ? 'نشط' : 'معطل'}</span>
+                                <span class="badge badge-gold" style="cursor:pointer;" onclick="copyPin('${escPin}')" title="انقر لنسخ رمز الدخول">PIN: ${pinVal} <i class="fa-regular fa-copy"></i></span>
+                            </div>
+                            <div style="font-size:12px; color:var(--text2); margin-bottom:6px;">المسمى: <b style="color:var(--text);">${roleTitle}</b></div>
+                            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                ${permChips || '<span class="perm-tag-chip" style="opacity:0.5;">صلاحيات محدودة</span>'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sup-actions-wrap" style="display:flex; gap:6px; flex-shrink:0;">
+                        <button class="btn btn-ghost btn-sm" onclick="sendSupervisorWA('${escName}', '${escPin}', '${escRole}')" style="color:#34D399;" title="إرسال بيانات الدخول عبر واتساب">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="editSupervisorModal('${escId}')" title="تعديل الصلاحيات والبيانات">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="toggleSupervisorActive('${escId}', ${isActive})" title="${isActive ? 'تعطيل الحساب' : 'تنشيط الحساب'}">
+                            <i class="fa-solid ${isActive ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteSupervisor('${escId}', '${escName}')" title="حذف المشرف نهائياً">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    function copyPin(pin) {
+        navigator.clipboard.writeText(pin).then(() => {
+            showToast(`تم نسخ رمز الدخول: ${pin} 📋`);
+        });
+    }
+
+    function sendSupervisorWA(name, pin, role) {
+        const msg = encodeURIComponent(`أهلاً بك يا أستاذ ${name} 🛡️\nتم اعتمادك كـ (${role}) في منصة الخطة التعليمية 🎓\nرمز الدخول السري الخاص بك: ${pin}\nرابط البوابة: https://elkheta2026.web.app/admin-panel.html`);
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function addSupervisorModal() {
+        const autoPin = Math.floor(1000 + Math.random() * 9000).toString();
+        Swal.fire({
+            title: 'إضافة حساب مشرف وتحديد الصلاحيات 🛡️',
+            html: `
+                <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; direction:rtl;">
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label">اسم المشرف الكامل:</label>
+                        <input id="swalSupName" class="form-input" placeholder="مثال: أ. محمد أحمد">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label">المسمى الوظيفي / الدور:</label>
+                        <select id="swalSupRole" class="form-select">
+                            <option value="مشرف المنصة">مشرف المنصة</option>
+                            <option value="مشرف إدارة الطلاب">مشرف إدارة الطلاب</option>
+                            <option value="مشرف المحتوى والدروس">مشرف المحتوى والدروس</option>
+                            <option value="مشرف الامتحانات والتقارير">مشرف الامتحانات والتقارير</option>
+                            <option value="مسؤول الدعم الفني">مسؤول الدعم الفني والخدمات</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label class="form-label">رمز المرور السري (PIN):</label>
+                        <input id="swalSupPin" class="form-input" value="${autoPin}" placeholder="4 أرقام" maxlength="6" style="font-family:monospace; font-weight:800; font-size:16px; letter-spacing:2px; text-align:center; color:var(--gold);">
+                    </div>
+
+                    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px;">
+                        <label style="font-weight:800; display:block; margin-bottom:8px; color:var(--gold);">🔐 مصفوفة الصلاحيات التفصيلية (10 قطاعات):</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px; color:var(--text);">
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_students" checked> 👥 إدارة الطلاب</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_courses"> 📚 المواد والمقررات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_exams"> 📝 الامتحانات والبنك</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_codes"> 🔑 الأكواد والتفعيل</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_notifications" checked> 📣 مركز الإشعارات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_reports" checked> 📊 النتائج والدرجات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_mistakes"> 🧠 بنك الأخطاء</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_community"> 💬 مجتمع الطلاب</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_troubleshoot"> 🛠️ الدعم وتخطي OTP</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="perm_config"> ⚙️ إعدادات المنظومة</label>
+                        </div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'إضافة المشرف وتوثيق الصلاحيات',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            cancelButtonColor: '#64748B',
+            preConfirm: () => {
+                const name = document.getElementById('swalSupName')?.value.trim();
+                const roleTitle = document.getElementById('swalSupRole')?.value;
+                const pin = document.getElementById('swalSupPin')?.value.trim();
+
+                if (!name) {
+                    Swal.showValidationMessage('يرجى كتابة اسم المشرف');
+                    return false;
+                }
+                if (!pin || pin.length < 4) {
+                    Swal.showValidationMessage('يرجى تحديد رمز مرور من 4 أرقام على الأقل');
+                    return false;
+                }
+
+                const permissions = {
+                    students: document.getElementById('perm_students')?.checked,
+                    courses: document.getElementById('perm_courses')?.checked,
+                    exams: document.getElementById('perm_exams')?.checked,
+                    codes: document.getElementById('perm_codes')?.checked,
+                    notifications: document.getElementById('perm_notifications')?.checked,
+                    reports: document.getElementById('perm_reports')?.checked,
+                    mistakes: document.getElementById('perm_mistakes')?.checked,
+                    community: document.getElementById('perm_community')?.checked,
+                    troubleshoot: document.getElementById('perm_troubleshoot')?.checked,
+                    config: document.getElementById('perm_config')?.checked
+                };
+
+                return { name, roleTitle, pin, permissions };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed && result.value) {
+                const db = database || getDB();
+                if (!db) return;
+                const { name, roleTitle, pin, permissions } = result.value;
+                const supId = db.ref('Supervisors').push().key;
+
+                await db.ref('Supervisors/' + supId).set({
+                    name: name,
+                    roleTitle: roleTitle,
+                    pin: pin,
+                    permissions: permissions,
+                    isActive: true,
+                    createdAt: Date.now()
+                });
+
+                Swal.fire({
+                    title: 'تمت إضافة المشرف بنجاح 🎉',
+                    text: `رمز المرور السري الخاص به: ${pin}`,
+                    icon: 'success',
+                    confirmButtonColor: '#2563EB'
+                });
+            }
+        });
+    }
+
+    function editSupervisorModal(supId) {
+        const sup = allSupervisors.find(s => s.id === supId);
+        if (!sup) return;
+        const p = sup.permissions || {};
+
+        Swal.fire({
+            title: 'تعديل بيانات وصلاحيات المشرف ✏️',
+            html: `
+                <div style="text-align:right; font-family:'Cairo', sans-serif; font-size:13px; direction:rtl;">
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label">اسم المشرف:</label>
+                        <input id="swalEditSupName" class="form-input" value="${sup.name || sup.fullName || ''}">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <label class="form-label">المسمى الوظيفي:</label>
+                        <input id="swalEditSupRole" class="form-input" value="${sup.roleTitle || sup.role || ''}">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label class="form-label">رمز المرور السري (PIN):</label>
+                        <input id="swalEditSupPin" class="form-input" value="${sup.pin || sup.password || ''}" style="font-family:monospace; font-weight:800; font-size:16px; letter-spacing:2px; text-align:center; color:var(--gold);">
+                    </div>
+
+                    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px;">
+                        <label style="font-weight:800; display:block; margin-bottom:8px; color:var(--gold);">🔐 مصفوفة الصلاحيات الممنوحة:</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px; color:var(--text);">
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_students" ${p.students ? 'checked' : ''}> 👥 إدارة الطلاب</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_courses" ${p.courses ? 'checked' : ''}> 📚 المواد والمقررات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_exams" ${p.exams ? 'checked' : ''}> 📝 الامتحانات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_codes" ${p.codes ? 'checked' : ''}> 🔑 الأكواد</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_notifications" ${p.notifications ? 'checked' : ''}> 📣 الإشعارات</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_reports" ${p.reports ? 'checked' : ''}> 📊 النتائج</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_mistakes" ${p.mistakes ? 'checked' : ''}> 🧠 بنك الأخطاء</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_community" ${p.community ? 'checked' : ''}> 💬 مجتمع الطلاب</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_troubleshoot" ${p.troubleshoot ? 'checked' : ''}> 🛠️ الدعم</label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" id="edit_perm_config" ${p.config ? 'checked' : ''}> ⚙️ الإعدادات</label>
+                        </div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ التعديلات',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#D4973B',
+            cancelButtonColor: '#64748B',
+            preConfirm: () => {
+                const name = document.getElementById('swalEditSupName')?.value.trim();
+                const roleTitle = document.getElementById('swalEditSupRole')?.value.trim();
+                const pin = document.getElementById('swalEditSupPin')?.value.trim();
+
+                if (!name || !pin) {
+                    Swal.showValidationMessage('يرجى ملء جميع الحقول المطلوبة');
+                    return false;
+                }
+
+                const permissions = {
+                    students: document.getElementById('edit_perm_students')?.checked,
+                    courses: document.getElementById('edit_perm_courses')?.checked,
+                    exams: document.getElementById('edit_perm_exams')?.checked,
+                    codes: document.getElementById('edit_perm_codes')?.checked,
+                    notifications: document.getElementById('edit_perm_notifications')?.checked,
+                    reports: document.getElementById('edit_perm_reports')?.checked,
+                    mistakes: document.getElementById('edit_perm_mistakes')?.checked,
+                    community: document.getElementById('edit_perm_community')?.checked,
+                    troubleshoot: document.getElementById('edit_perm_troubleshoot')?.checked,
+                    config: document.getElementById('edit_perm_config')?.checked
+                };
+
+                return { name, roleTitle, pin, permissions };
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed && result.value) {
+                const db = database || getDB();
+                if (!db) return;
+                await db.ref('Supervisors/' + supId).update(result.value);
+                Swal.fire('تم التحديث!', 'تم تحديث بيانات وصلاحيات المشرف بنجاح.', 'success');
+            }
+        });
+    }
+
+    function toggleSupervisorActive(supId, currentActive) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('Supervisors/' + supId).update({ isActive: !currentActive });
+    }
+
+    function deleteSupervisor(supId, name) {
+        Swal.fire({
+            title: `حذف المشرف (${name || ''})؟`,
+            text: 'لن يتمكن هذا المشرف من الدخول إلى لوحة التحكم مجدداً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، حذف نهائي',
+            cancelButtonText: 'إلغاء'
+        }).then(async (r) => {
+            if (r.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                await db.ref('Supervisors/' + supId).remove();
+                Swal.fire('تم الحذف!', 'تم حذف المشرف من النظام.', 'success');
+            }
+        });
+    }
+
+    // ─── 3. Emergency Issues Feed ───
+    function initEmergencyIssuesListener() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initEmergencyIssuesListener, 300);
+
+        db.ref('EmergencyIssues').on('value', snap => {
+            const container = document.getElementById('emergencyIssuesList');
+            if (!container) return;
+            container.innerHTML = "";
+            const issues = [];
+
+            if (!snap.exists()) {
+                document.getElementById('statIssuesCount').textContent = '0';
+                container.innerHTML = `
+                    <div style="text-align:center; padding:35px; color:var(--text3);">
+                        <i class="fa-solid fa-circle-check" style="font-size:32px; color:var(--green); margin-bottom:8px; display:block;"></i>
+                        <p style="font-weight:800;">لا توجد أي بلاغات أو أعطال مسجلة من الطلاب حالياً</p>
+                    </div>
+                `;
+                return;
+            }
+
+            snap.forEach(child => {
+                const iss = child.val();
+                if (iss) issues.push({ id: child.key, ...iss });
+            });
+
+            issues.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const pendingCount = issues.filter(i => i.status !== 'resolved').length;
+            document.getElementById('statIssuesCount').textContent = pendingCount;
+
+            issues.forEach(iss => {
+                const isResolved = iss.status === 'resolved';
+                const timeStr = iss.timestamp ? new Date(iss.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : 'الآن';
+                const escId = iss.id.replace(/'/g, "\\'");
+                const escName = (iss.studentName || 'طالب').replace(/'/g, "\\'");
+                const escPhone = (iss.phone || '').replace(/'/g, "\\'");
+                const escCode = (iss.studentCode || '').replace(/'/g, "\\'");
+
+                const card = document.createElement('div');
+                card.className = "issue-card-item";
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                        <span style="font-size:18px;">${isResolved ? '✅' : '🚨'}</span>
+                        <div style="min-width:0;">
+                            <h4 style="font-size:13.5px; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:8px;">
+                                <span>${iss.studentName || 'طالب'}</span>
+                                <span class="badge ${isResolved ? 'badge-green' : 'badge-red'}">${isResolved ? 'تم الحل' : 'قيد المعالجة'}</span>
+                            </h4>
+                            <div style="font-size:11.5px; color:var(--text2); margin-top:2px;">
+                                كود: <b style="color:var(--gold); font-family:var(--mono);">${iss.studentCode || '---'}</b> • ${iss.message || 'بلاغ عطل'} • ${timeStr}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:6px; flex-shrink:0;">
+                        ${!isResolved ? `
+                            <button class="btn btn-ghost btn-sm" onclick="markIssueResolved('${escId}')" style="color:var(--green);" title="تأكيد حل المشكلة">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        ` : ''}
+                        ${iss.phone ? `
+                            <button class="btn btn-ghost btn-sm" onclick="window.open('https://wa.me/2${escPhone}', '_blank')" style="color:#34D399;" title="تواصل واتساب مباشر">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteEmergencyIssue('${escId}')" title="حذف البلاغ">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    function markIssueResolved(issueId) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('EmergencyIssues/' + issueId).update({ status: 'resolved' }).then(() => {
+            showToast("تم تحديث حالة البلاغ إلى تم الحل ✅");
+        });
+    }
+
+    function deleteEmergencyIssue(issueId) {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('EmergencyIssues/' + issueId).remove();
+    }
+
+    // ─── 4. System Utilities ───
+    function purgeCache() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) registration.unregister();
+            });
+        }
+        localStorage.setItem('cache_ver', Date.now());
+        Swal.fire('تم بنجاح! ⚡', 'تم تصفير الكاش وإرسال إشارة إعادة تنشيط وتحديث لكافة الأجهزة.', 'success');
+    }
+
+    function exportBackup() {
+        const db = database || getDB();
+        if (!db) return;
+        db.ref('/').once('value').then(snap => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snap.val(), null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "elkheta_full_backup_" + Date.now() + ".json");
+            dl.click();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initSettingsListener();
+        initSupervisorsListener();
+        initEmergencyIssuesListener();
+    });
+</script>
+
+</body>
+</html>

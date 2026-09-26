@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة الفصول والمراحل - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .class-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .class-box:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
+        .class-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8);">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Classes & Stages</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-chalkboard-user"></i>
+            <span>إدارة الفصول والمراحل الدراسية</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">00:00:00</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<div class="os-body">
+    <!-- ════ SIDEBAR (Populated via admin-os-layout.js) ════ -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- ════ MAIN WORKSPACE ════ -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--blue2); background: var(--blue-bg); border-color: rgba(37,99,235,0.2);">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">إدارة الفصول والمراحل الدراسية</h1>
+                        <p class="page-subtitle">تعريف الصفوف الدراسية والفصول لربط الطلاب والمحتوى والمناهج بها</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn-gold" onclick="document.getElementById('classNameInput').focus()">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>إضافة فصل جديد</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Metric KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">إجمالي الفصول الدراسية</div>
+                        <div class="kpi-val" id="kpiClassesCount" style="color:var(--gold);">0</div>
+                    </div>
+                    <div class="kpi-icon-box gold">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div>
+                        <div class="kpi-label">طلاب مرتبطون بالفصول</div>
+                        <div class="kpi-val" id="kpiStudentsCount" style="color:var(--green);">0</div>
+                    </div>
+                    <div class="kpi-icon-box green">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Class Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-plus-circle" style="color:var(--gold);"></i>
+                        <span>إضافة صف / فصل دراسي جديد</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="addClass(event)" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                        <input type="text" id="classNameInput" class="form-input" placeholder="اسم الفصل أو الباب (مثال: فصل اول، الفصل الثاني، الفرقة الرابعة)..." style="flex:2; min-width:240px;" required>
+                        <select id="classSubjectSelect" class="form-input" style="flex:1; min-width:200px;">
+                            <option value="">🎓 مرحلة / صف دراسي عام</option>
+                        </select>
+                        <button type="submit" class="btn-gold" style="white-space:nowrap;">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>إضافة الفصل للمنصة</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Classes List Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fa-solid fa-list-check" style="color:var(--blue2);"></i>
+                        <span>قائمة الفصول المسجلة بالنظام</span>
+                    </div>
+                    <span class="badge badge-gold" id="classesBadgeCount">0 فصول</span>
+                </div>
+                <div class="card-body">
+                    <div class="class-grid" id="classesList">
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text2); grid-column: 1/-1;">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 28px; color: var(--gold); margin-bottom: 10px;"></i>
+                            <div style="font-size: 14px; font-weight: 800;">جاري تحميل الفصول الدراسية...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // Security check
+    if (sessionStorage.getItem('isAdmin') !== 'true' && !sessionStorage.getItem('isMysqlAdmin')) {
+        if (localStorage.getItem('isAdmin') === 'true' || localStorage.getItem('isMysqlAdmin') === 'true') {
+            sessionStorage.setItem('isAdmin', 'true');
+            if (localStorage.getItem('adminRole')) sessionStorage.setItem('adminRole', localStorage.getItem('adminRole'));
+            if (localStorage.getItem('adminName')) sessionStorage.setItem('adminName', localStorage.getItem('adminName'));
+            if (localStorage.getItem('adminPermissions')) sessionStorage.setItem('adminPermissions', localStorage.getItem('adminPermissions'));
+        } else {
+            window.location.href = "index.html";
+        }
+    }
+
+    const db = window.database || (typeof firebase !== 'undefined' && firebase.apps.length ? firebase.database() : null);
+
+    // Load subjects for the dropdown
+    function loadSubjectsForSelect() {
+        if (!db) return;
+        db.ref('Subjects').on('value', snap => {
+            const sel = document.getElementById('classSubjectSelect');
+            if (!sel) return;
+            const curVal = sel.value;
+            sel.innerHTML = `<option value="">🎓 مرحلة / صف دراسي عام</option>`;
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const val = c.val() || {};
+                    const name = val.name || c.key;
+                    sel.innerHTML += `<option value="${name}">📖 فصل / باب تابع لمادة: ${name}</option>`;
+                });
+            }
+            if (curVal) sel.value = curVal;
+        });
+    }
+
+    function addClass(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('classNameInput');
+        const sel = document.getElementById('classSubjectSelect');
+        const name = input.value.trim();
+        const subject = sel ? sel.value.trim() : "";
+        if (!name) return;
+
+        if (!db) {
+            Swal.fire({ icon: 'error', title: 'خطأ', text: 'قاعدة البيانات غير متصلة' });
+            return;
+        }
+
+        const id = db.ref('Classes').push().key;
+        const payload = { 
+            id: id, 
+            name: name,
+            createdAt: firebase.database.ServerValue.TIMESTAMP 
+        };
+        if (subject) payload.subject = subject;
+
+        const promises = [
+            db.ref('Classes/' + id).set(payload)
+        ];
+
+        if (subject) {
+            const chapKey = name.replace(/[.#$[\]/]/g, '_');
+            promises.push(db.ref('Chapters/' + subject + '/' + chapKey).set({ name: name, updatedAt: Date.now() }));
+        }
+
+        Promise.all(promises).then(() => {
+            input.value = "";
+            Swal.fire({
+                icon: 'success',
+                title: 'تمت الإضافة بنجاح 🎉',
+                text: subject ? `تمت إضافة "${name}" كفصل في مادة (${subject})` : `تمت إضافة الفصل الدراسي "${name}"`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }).catch(err => {
+            Swal.fire({ icon: 'error', title: 'فشل الحفظ', text: err.message });
+        });
+    }
+
+    let allLoadedClasses = [];
+
+    function loadClasses() {
+        if (!db) return;
+        loadSubjectsForSelect();
+
+        // Fetch students count for KPI
+        db.ref('Students').once('value', snap => {
+            if (snap.exists()) {
+                let stCount = 0;
+                snap.forEach(c => {
+                    if (c.key !== 'byCode' && c.key !== 'byUid') stCount++;
+                });
+                const el = document.getElementById('kpiStudentsCount');
+                if (el) el.textContent = stCount;
+            }
+        });
+
+        // Combined data tracking
+        let rawClassesData = {};
+        let rawChaptersData = {};
+        let rawLecturesData = {};
+
+        const recomputeAndRender = () => {
+            const merged = [];
+            const seenKeys = new Set();
+
+            // 1. Classes node
+            Object.entries(rawClassesData).forEach(([id, item]) => {
+                if (!item) return;
+                const name = item.name || 'فصل بدون اسم';
+                const subject = item.subject || '';
+                const uKey = `${subject}___${name}`;
+                seenKeys.add(uKey);
+                merged.push({
+                    id: id,
+                    name: name,
+                    subject: subject,
+                    type: subject ? 'chapter' : 'class',
+                    source: 'Classes'
+                });
+            });
+
+            // 2. Chapters node
+            Object.entries(rawChaptersData).forEach(([subj, chapObj]) => {
+                if (!chapObj || typeof chapObj !== 'object') return;
+                Object.entries(chapObj).forEach(([chapKey, cVal]) => {
+                    const name = (cVal && cVal.name) || chapKey;
+                    const uKey = `${subj}___${name}`;
+                    if (!seenKeys.has(uKey)) {
+                        seenKeys.add(uKey);
+                        merged.push({
+                            id: chapKey,
+                            name: name,
+                            subject: subj,
+                            type: 'chapter',
+                            source: 'Chapters'
+                        });
+                    }
+                });
+            });
+
+            // 3. Chapters from Lectures node
+            Object.entries(rawLecturesData).forEach(([subj, lecs]) => {
+                if (!lecs || typeof lecs !== 'object') return;
+                Object.values(lecs).forEach(lec => {
+                    if (lec && lec.chapter) {
+                        const name = lec.chapter.trim();
+                        const uKey = `${subj}___${name}`;
+                        if (!seenKeys.has(uKey)) {
+                            seenKeys.add(uKey);
+                            merged.push({
+                                id: name.replace(/[.#$[\]/]/g, '_'),
+                                name: name,
+                                subject: subj,
+                                type: 'chapter',
+                                source: 'Lectures'
+                            });
+                        }
+                    }
+                });
+            });
+
+            allLoadedClasses = merged;
+            renderClassesList();
+        };
+
+        db.ref('Classes').on('value', snap => {
+            rawClassesData = snap.val() || {};
+            recomputeAndRender();
+        });
+
+        db.ref('Chapters').on('value', snap => {
+            rawChaptersData = snap.val() || {};
+            recomputeAndRender();
+        });
+
+        db.ref('Lectures').on('value', snap => {
+            rawLecturesData = snap.val() || {};
+            recomputeAndRender();
+        });
+    }
+
+    function renderClassesList() {
+        const list = document.getElementById('classesList');
+        const kpiCount = document.getElementById('kpiClassesCount');
+        const badgeCount = document.getElementById('classesBadgeCount');
+
+        if (!list) return;
+        list.innerHTML = "";
+
+        const count = allLoadedClasses.length;
+        if (kpiCount) kpiCount.textContent = count;
+        if (badgeCount) badgeCount.textContent = `${count} فصول`;
+
+        if (count === 0) {
+            list.innerHTML = `
+                <div style="text-align:center; padding:50px 20px; color:var(--text3); grid-column:1/-1; border:2px dashed var(--border); border-radius:var(--radius);">
+                    <i class="fa-solid fa-school" style="font-size:36px; color:var(--gold); opacity:0.6; margin-bottom:10px; display:block;"></i>
+                    <h4 style="font-size:15px; font-weight:800; color:var(--text); margin-bottom:4px;">لا توجد فصول دراسية مسجلة حالياً</h4>
+                    <p style="font-size:12.5px; color:var(--text2);">يمكنك إضافة أول صف أو فصل تابع لمادة من النموذج أعلاه</p>
+                </div>
+            `;
+            return;
+        }
+
+        allLoadedClasses.forEach(item => {
+            const isChapter = item.type === 'chapter' || !!item.subject;
+            const icon = isChapter ? 'fa-book-open' : 'fa-graduation-cap';
+            const iconColor = isChapter ? 'var(--gold)' : 'var(--blue2)';
+            const subLabel = isChapter 
+                ? `<span style="color:var(--gold-text); font-weight:800; background:var(--gold-light); padding:2px 8px; border-radius:6px; border:1px solid var(--gold-border);">مادة: ${item.subject}</span>` 
+                : `<span style="color:var(--blue); font-weight:700;">مرحلة دراسية عامة</span>`;
+
+            const card = document.createElement('div');
+            card.className = "class-box";
+            card.innerHTML = `
+                <div style="display:flex; align-items:center; gap:14px; min-width:0; flex:1;">
+                    <div class="class-icon" style="background:var(--surface2); color:${iconColor}; border:1px solid var(--border);">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <div style="min-width:0; flex:1;">
+                        <div style="font-size:15px; font-weight:900; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${item.name}
+                        </div>
+                        <div style="font-size:11.5px; margin-top:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            ${subLabel}
+                            <span style="color:var(--text3); font-family:var(--mono); font-size:10.5px;">(${item.source})</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    ${isChapter ? `
+                        <a href="admin-lessons.html?subject=${encodeURIComponent(item.subject)}" class="btn-icon" title="مشاهدة محاضرات هذا الفصل" style="text-decoration:none;">
+                            <i class="fa-solid fa-clapperboard"></i>
+                        </a>
+                    ` : ''}
+                    <button class="btn-danger" onclick="deleteClassUnified('${encodeURIComponent(item.id)}', '${encodeURIComponent(item.name)}', '${encodeURIComponent(item.subject || '')}', '${item.source}')" title="حذف الفصل">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    function deleteClassUnified(encId, encName, encSubj, source) {
+        const id = decodeURIComponent(encId);
+        const name = decodeURIComponent(encName);
+        const subject = decodeURIComponent(encSubj);
+
+        Swal.fire({
+            title: "حذف الفصل؟ ⚠️",
+            html: `هل أنت متأكد من حذف <b>"${name}"</b> ${subject ? `من مادة (${subject})` : ''} نهائياً؟`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "نعم، احذف نهائياً",
+            cancelButtonText: "إلغاء",
+            confirmButtonColor: "#EF4444",
+            cancelButtonColor: "#8C827A"
+        }).then((r) => { 
+            if (r.isConfirmed && db) { 
+                const promises = [];
+                if (source === 'Classes' || id) {
+                    promises.push(db.ref('Classes/' + id).remove().catch(()=>{}));
+                }
+                if (subject) {
+                    const chapKey = id || name.replace(/[.#$[\]/]/g, '_');
+                    promises.push(db.ref('Chapters/' + subject + '/' + chapKey).remove().catch(()=>{}));
+                }
+
+                Promise.all(promises).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم الحذف بنجاح',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                });
+            } 
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadClasses);
+</script>
+</body>
+</html>

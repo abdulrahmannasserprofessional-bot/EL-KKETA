@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>استوديو المحاضرة التفاعلي - منصة الخطة</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Alexandria:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="motion-fx.css?v=2.5">
+    <link rel="stylesheet" href="live-chat.css?v=2.5">
+
+    <style>
+        :root {
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.45);
+            --primary-dark: #1D4ED8;
+            --secondary: #6366F1;
+            --accent-cyan: #06B6D4;
+            --bg-base: #070D1E;
+            --bg-surface: rgba(15, 23, 42, 0.85);
+            --bg-card: rgba(15, 23, 42, 0.7);
+            --text-main: #F8FAFC;
+            --text-sub: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --emerald: #10B981;
+            --amber: #F59E0B;
+            --purple: #8B5CF6;
+            --glass-blur: blur(16px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 30%, rgba(6, 182, 212, 0.06) 0%, transparent 60%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ─── Video Page Header ─── */
+        .video-page-header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-back-lectures {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .btn-back-lectures:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+            transform: translateX(3px);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        .header-title-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #F8FAFC;
+        }
+
+        .header-subject-tag {
+            background: rgba(30, 41, 59, 0.8);
+            color: #93C5FD;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .header-tools-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-header-tool {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #CBD5E1;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-header-tool:hover, .btn-header-tool.active {
+            background: rgba(59, 130, 246, 0.25);
+            color: #60A5FA;
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+
+        /* ─── Main Content Studio ─── */
+        .page-main-content {
+            flex: 1;
+            max-width: 1080px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 22px 18px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            transition: max-width 0.4s ease;
+        }
+        body.theater-mode .page-main-content {
+            max-width: 100%;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        /* ─── Studio Stage with Ambient Backlight ─── */
+        .studio-stage-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .studio-ambient-glow {
+            position: absolute;
+            inset: -15px;
+            background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.35) 0%, rgba(99, 102, 241, 0.2) 40%, transparent 70%);
+            border-radius: 35px;
+            filter: blur(28px);
+            opacity: 0.65;
+            pointer-events: none;
+            z-index: 1;
+            transition: opacity 0.5s ease;
+        }
+        body.theater-mode .studio-ambient-glow {
+            opacity: 0.9;
+            filter: blur(40px);
+        }
+
+        /* ─── Video Display Screen Container ─── */
+        .video-player-viewport {
+            width: 100%;
+            max-width: 980px;
+            margin: 0 auto;
+            background: #020617;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
+            transition: max-width 0.4s ease;
+        }
+        body.theater-mode .video-player-viewport {
+            max-width: 100%;
+        }
+
+        .video-screen-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 560px;
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        body.theater-mode .video-screen-box {
+            max-height: 75vh;
+        }
+
+        @media (max-width: 768px) {
+            .video-player-viewport {
+                border-radius: 16px;
+            }
+            .video-screen-box {
+                max-height: none;
+            }
+        }
+
+        /* ─── Luxury Video Cover Banner with 3D Mockup ─── */
+        .video-fixed-banner-luxury {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            background: radial-gradient(circle at 80% 20%, #1E3A8A 0%, #0F172A 60%, #020617 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            cursor: pointer;
+            overflow: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .video-fixed-banner-luxury::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .v-banner-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 880px;
+            gap: 20px;
+            direction: ltr;
+            z-index: 3;
+        }
+
+        .v-banner-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            direction: rtl;
+            text-align: right;
+            z-index: 4;
+        }
+
+        .v-banner-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .banner-badge-subject {
+            background: rgba(37, 99, 235, 0.3);
+            color: #93C5FD;
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .banner-badge-supervision {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .v-banner-info h2 {
+            font-size: clamp(18px, 3.4vw, 28px);
+            font-weight: 900;
+            color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+            margin: 0;
+            line-height: 1.35;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+        }
+
+        .v-banner-desc {
+            font-size: 13.5px;
+            color: #CBD5E1;
+            font-weight: 600;
+            margin: 0;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .btn-banner-glow-play {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: #FFFFFF;
+            border: none;
+            padding: 13px 26px;
+            border-radius: 16px;
+            font-size: 14.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Cairo', sans-serif;
+            margin-top: 8px;
+            width: fit-content;
+        }
+        .btn-banner-glow-play:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.7);
+        }
+
+        .v-banner-art {
+            flex-shrink: 0;
+            width: 290px;
+            max-width: 42%;
+            height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .v-banner-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 24px rgba(0,0,0,0.7));
+        }
+
+        @media (max-width: 768px) {
+            .v-banner-inner {
+                flex-direction: column-reverse;
+                gap: 14px;
+                text-align: center;
+            }
+            .v-banner-info {
+                align-items: center;
+                text-align: center;
+            }
+            .v-banner-art {
+                width: 170px;
+                max-width: 60%;
+                height: 110px;
+            }
+            .v-banner-badges {
+                justify-content: center;
+            }
+        }
+
+        /* ─── Controls Bar (Dark Luxe Custom Bar) ─── */
+        .custom-controls-bar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            padding: 14px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .time-badge {
+            font-size: 13px;
+            font-weight: 800;
+            min-width: 48px;
+            direction: ltr;
+            font-family: monospace;
+        }
+        .time-current { color: #60A5FA; text-align: right; }
+        .time-duration { color: #94A3B8; text-align: left; }
+
+        .progress-bar-slider {
+            flex: 1;
+            accent-color: #3B82F6;
+            cursor: pointer;
+            height: 6px;
+            border-radius: 4px;
+            background: #334155;
+        }
+
+        .controls-action-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .play-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-ctrl-play {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.45);
+            transition: all 0.2s ease;
+        }
+        .btn-ctrl-play:hover { transform: scale(1.08); }
+
+        .btn-ctrl-skip {
+            background: rgba(30, 41, 59, 0.7);
+            color: #F8FAFC;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-ctrl-skip:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+
+        .speed-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speed-btn {
+            background: rgba(30, 41, 59, 0.7);
+            color: #94A3B8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .speed-btn.active {
+            background: #2563EB;
+            color: white;
+            border-color: #3B82F6;
+            box-shadow: 0 2px 10px rgba(37,99,235,0.4);
+        }
+
+        .btn-fullscreen {
+            background: rgba(30, 41, 59, 0.7);
+            color: #F8FAFC;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-fullscreen:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+        }
+
+        /* ─── Floating Watermark ─── */
+        #videoFloatingWatermark {
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            z-index: 22;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.35;
+            background: rgba(7, 13, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 800;
+            backdrop-filter: blur(6px);
+            transition: top 1.8s ease, left 1.8s ease, opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+        }
+
+        /* ─── Lecture Info & Roadmap Strip ─── */
+        .lecture-details-card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .details-header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .lec-main-title {
+            font-size: 21px;
+            font-weight: 900;
+            color: #FFFFFF;
+            font-family: 'Alexandria', 'Cairo', sans-serif;
+            line-height: 1.4;
+        }
+
+        .supervision-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            margin-top: 8px;
+        }
+
+        /* The 3 Related Action Buttons Strip (السبورة، الامتحان، الصوت/الكشكول) */
+        .related-roadmap-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .roadmap-quick-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 800;
+            border: 1px solid transparent;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        .roadmap-quick-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-quick-pdf {
+            background: rgba(245, 158, 11, 0.12);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .btn-quick-pdf:hover {
+            background: rgba(245, 158, 11, 0.22);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-quick-exam {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34D399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .btn-quick-exam:hover {
+            background: rgba(16, 185, 129, 0.22);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-quick-notes {
+            background: rgba(245, 158, 11, 0.12);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .btn-quick-notes:hover {
+            background: rgba(245, 158, 11, 0.22);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+        }
+
+        /* ─── Interactive PowerPoint Presentation Viewer Modal ─── */
+        .ppt-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .ppt-modal-content {
+            background: #0F172A;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 1150px;
+            height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
+        }
+        .ppt-modal-header {
+            background: #1E293B;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: nowrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ppt-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #F8FAFC;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ppt-modal-title span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ppt-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .ppt-action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .ppt-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #FFFFFF;
+        }
+        .ppt-action-btn.close-btn {
+            background: rgba(225, 29, 72, 0.2);
+            color: #FB7185;
+            border-color: rgba(225, 29, 72, 0.4);
+            padding: 6px 10px;
+        }
+        .ppt-action-btn.close-btn:hover {
+            background: #E11D48;
+            color: #FFFFFF;
+        }
+        .ppt-modal-body {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000000;
+            overflow: hidden;
+        }
+        .ppt-modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .ppt-modal-backdrop {
+                padding: 0 !important;
+                background: #000000 !important;
+            }
+            .ppt-modal-content {
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                border-radius: 0 !important;
+                border: none !important;
+            }
+            .ppt-modal-header {
+                padding: 10px 12px !important;
+                gap: 6px !important;
+            }
+            .ppt-modal-title {
+                font-size: 12.5px !important;
+            }
+            .ppt-action-btn {
+                padding: 5px 9px !important;
+                font-size: 11px !important;
+                border-radius: 8px !important;
+            }
+            .ppt-action-btn span {
+                display: none !important;
+            }
+            .ppt-action-btn i {
+                margin: 0 !important;
+                font-size: 13px !important;
+            }
+        }
+        .btn-quick-notes:hover {
+            background: rgba(139, 92, 246, 0.22);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+        }
+
+        /* ─── Studio Interactive Tabs & Q&A / Notepad ─── */
+        .studio-tabs-bar {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+        }
+        .studio-tab-btn {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .studio-tab-btn.active {
+            background: rgba(59, 130, 246, 0.18);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+
+        .studio-tab-pane {
+            display: none;
+        }
+        .studio-tab-pane.active {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ─── Live Notepad Panel ─── */
+        .studio-notepad-card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .notepad-textarea {
+            width: 100%;
+            height: 140px;
+            background: rgba(7, 13, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #F8FAFC;
+            padding: 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13.5px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+        }
+        .notepad-textarea:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.25);
+        }
+
+        /* ─── Community Q&A Section ─── */
+        .qa-section-card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .qa-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .qa-feed-list {
+            max-height: 420px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+        }
+
+        .qa-bubble {
+            background: rgba(30, 41, 59, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .qa-bubble-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .qa-bubble-author { color: #60A5FA; }
+        .qa-bubble-time { color: #94A3B8; font-family: monospace; }
+        .qa-bubble-body { font-size: 13.5px; color: #F1F5F9; line-height: 1.55; font-weight: 600; }
+
+        .qa-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: rgba(7, 13, 30, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 8px 14px;
+        }
+        .qa-input-container:focus-within {
+            border-color: #3B82F6;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+        }
+
+        .qa-input-container textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #FFFFFF;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            resize: none;
+            height: 40px;
+            outline: none;
+            padding: 4px;
+        }
+        .qa-input-container textarea::placeholder {
+            color: #64748B;
+        }
+
+        .btn-qa-action {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #CBD5E1;
+            transition: all 0.2s ease;
+        }
+        .btn-qa-action:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+        }
+
+        .btn-qa-send {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-qa-send:hover { transform: scale(1.06); }
+
+        /* ─── Floating Support Button ─── */
+        .support-float-btn {
+            position: fixed !important;
+            bottom: 24px !important;
+            left: 24px !important;
+            z-index: 99990 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            padding: 12px 20px !important;
+            border-radius: 50px !important;
+            box-shadow: 0 10px 28px -6px rgba(37, 99, 235, 0.5), 0 0 20px rgba(56, 189, 248, 0.25) !important;
+            cursor: pointer !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 13.5px !important;
+            font-weight: 800 !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            user-select: none !important;
+        }
+        .support-float-btn:hover {
+            transform: translateY(-3px) scale(1.04) !important;
+            box-shadow: 0 14px 34px -6px rgba(37, 99, 235, 0.65) !important;
+            color: #FFFFFF !important;
+        }
+        @media (max-width: 640px) {
+            .support-float-btn {
+                bottom: 20px !important;
+                left: 16px !important;
+                padding: 10px 16px !important;
+                font-size: 12px !important;
+            }
+        }
+
+        /* ─── YouTube Logo Shields ─── */
+        .yt-shield-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 74px;
+            background: #000000;
+            z-index: 12;
+            pointer-events: none;
+            display: none;
+        }
+        .yt-shield-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 54px;
+            background: #000000;
+            z-index: 12;
+            pointer-events: none;
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+<link rel="stylesheet" href="desktop-theme.css?v=3.0.0">
+    <link rel="stylesheet" href="desktop-theme.v3.css?v=3.0.0">
+    <style id="elkheta-mobile-guard">
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* 📱 BULLETPROOF 100% MOBILE & PHONE RESPONSIVE ENGINE (v3.0.0)          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        position: relative !important;
+        padding-bottom: 75px !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .student-app-container,
+    .dashboard-container,
+    .app-layout,
+    .main-wrapper,
+    .page-container,
+    .content-wrapper,
+    .layout-wrapper {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Off-canvas Mobile Drawer for ALL Sidebars */
+    .student-sidebar,
+    .dashboard-sidebar,
+    .admin-sidebar,
+    aside.sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        right: -340px !important;
+        left: auto !important;
+        width: 290px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 999999 !important;
+        background: #FFFFFF !important;
+        box-shadow: -8px 0 35px rgba(0, 0, 0, 0.25) !important;
+        transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        overflow-y: auto !important;
+        padding: 22px 16px 90px !important;
+        border-left: 2px solid #E8D3B2 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .student-sidebar.mobile-open,
+    .dashboard-sidebar.mobile-open,
+    .admin-sidebar.mobile-open,
+    aside.sidebar.mobile-open {
+        right: 0 !important;
+    }
+
+    /* Main Stage 100% Fluid Width */
+    .student-main-stage,
+    .main-workspace-area,
+    .main-content-flow,
+    .dashboard-main,
+    .main-content,
+    .workspace-area,
+    .content-area,
+    main {
+        width: 100% !important;
+        max-width: 100vw !important;
+        min-width: 0 !important;
+        flex: none !important;
+        display: block !important;
+        padding: 12px 10px 90px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Header Bar */
+    .top-header-bar,
+    .header-bar,
+    .dashboard-topbar {
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .header-search-wrap {
+        order: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-top: 4px !important;
+    }
+
+    .header-actions-group {
+        order: 1 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Single Column Grids for Phone Screens */
+    .middle-grid-row,
+    .kpi-grid,
+    .bento-grid,
+    .courses-grid,
+    .subjects-grid,
+    .stats-row,
+    .stats-grid,
+    .profile-grid,
+    .settings-grid,
+    .lessons-grid,
+    .cards-grid,
+    .kpi-row,
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    /* Hero Cards & Banners */
+    .universal-hero-banner,
+    .hero-banner-card,
+    .doc-hero-card,
+    .welcome-hero,
+    .resume-learning-card {
+        padding: 18px 14px !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-banner-title {
+        font-size: 19px !important;
+        line-height: 1.3 !important;
+    }
+
+    .hero-banner-sub {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Floating Support Button */
+    .floating-support-btn {
+        bottom: 76px !important;
+        left: 12px !important;
+        padding: 10px !important;
+        border-radius: 50% !important;
+        z-index: 9998 !important;
+    }
+    .floating-text-box {
+        display: none !important;
+    }
+
+    .table-container,
+    .table-responsive,
+    .audit-table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        display: block !important;
+    }
+
+    .luxury-card,
+    .card,
+    .bento-card,
+    .course-card,
+    .lesson-card {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mobile-drawer-backdrop {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 999998 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .mobile-drawer-backdrop.active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .universal-mobile-dock {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 64px !important;
+        background: rgba(255, 255, 255, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-top: 1px solid #EFE8DC !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        padding: 0 4px !important;
+        z-index: 99999 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .mobile-dock-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        color: #8C827A !important;
+        text-decoration: none !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        flex: 1 !important;
+        padding: 6px 0 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .mobile-dock-btn i {
+        font-size: 18px !important;
+        transition: transform 0.2s ease !important;
+    }
+
+    .mobile-dock-btn.active {
+        color: #C28B38 !important;
+        font-weight: 900 !important;
+    }
+
+    .mobile-dock-btn.active i {
+        transform: scale(1.15) !important;
+        color: #C28B38 !important;
+    }
+
+    .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: #FDF4E6 !important;
+        border: 1px solid #E8D3B2 !important;
+        color: #C28B38 !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+    }
+}
+
+@media (min-width: 993px) {
+    .universal-mobile-dock { display: none !important; }
+    .mobile-hamburger-btn { display: none !important; }
+    .mobile-drawer-backdrop { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+    <!-- Header Bar -->
+    <header class="video-page-header">
+        <a id="btnBackToLectures" href="lectures.html" class="btn-back-lectures" title="الرجوع للمحاضرات">
+            <i class="fa-solid fa-arrow-right"></i>
+            <span>العودة للمحاضرات</span>
+        </a>
+
+        <div class="header-title-badge">
+            <span class="header-subject-tag" id="headerSubjectTag">المادة الدراسية</span>
+            <span id="headerLectureTitle" style="max-width: 240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">المحاضرة</span>
+        </div>
+
+        <div class="header-tools-group">
+            <button class="btn-header-tool" id="btnTheaterToggle" onclick="toggleTheaterMode()" title="وضع السينما">
+                <i class="fa-solid fa-expand"></i>
+                <span class="d-none-mobile">السينما</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-main-content">
+
+        <!-- Studio Stage with Ambient Backlight -->
+        <div class="studio-stage-wrapper">
+            <div class="studio-ambient-glow" id="studioAmbientGlow"></div>
+
+            <!-- Video Player Viewport Box -->
+            <div class="video-player-viewport">
+                <div class="video-screen-box" id="videoContainer">
+                    <video id="customVideoPlayer" playsinline controlsList="nodownload" oncontextmenu="return false;" style="display:none; width:100%; height:100%; position:absolute; top:0; left:0; object-fit:contain;"></video>
+                    <div id="youtubePlayerTarget" style="width:100%; height:100%; position:absolute; top:0; left:0; display:none;"></div>
+                    <iframe id="driveIframe" src="" allowfullscreen allow="autoplay" style="width:100%; height:100%; border:none; display:none;"></iframe>
+
+                    <!-- Transparent Click Shield: forwards clicks to toggle play, completely blocks YouTube copy link & logo -->
+                    <div id="ytClickShield" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: none;" onclick="toggleCustomPlay()"></div>
+
+                    <!-- Anti-Logo Masks for YouTube Player -->
+                    <div id="ytTopMask" class="yt-shield-top"></div>
+                    <div id="ytBottomMask" class="yt-shield-bottom"></div>
+                    <div id="ytShortsMaskLeft" style="position: absolute; bottom: 0; left: 0; width: 320px; max-width: 38%; height: 110px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+                    <div id="ytShortsMaskRight" style="position: absolute; bottom: 0; right: 0; width: 85px; max-width: 25%; height: 150px; background: #000000; z-index: 11; pointer-events: none; display: none;"></div>
+
+                    <!-- Google Drive Mobile Fallback -->
+                    <div id="driveMobileFallback" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding: 20px; background: #111; position:absolute; top:0; left:0; right:0; bottom:0; z-index: 10;">
+                        <div style="font-size: 38px; margin-bottom: 8px;">📱</div>
+                        <h4 style="color:white; margin-bottom: 12px; font-size: 14px;">لتجربة أفضل، قم بتشغيل الفيديو بملء الشاشة</h4>
+                        <button id="btnOpenDrive" style="background: #2563EB; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; font-family: 'Cairo'; cursor: pointer; font-size: 13px;">
+                            ▶️ تشغيل ملء الشاشة
+                        </button>
+                    </div>
+
+                    <!-- Floating Anti-Piracy Watermark -->
+                    <div id="videoFloatingWatermark">
+                        <i class="fa-solid fa-graduation-cap" style="color:#60A5FA;"></i>
+                        <span id="watermarkStudentText">منصة الخطة التعليمية 🔒</span>
+                    </div>
+
+                    <!-- ─── THE LUXURY BANNER (غلاف الكتاب ثلاثي الأبعاد والبيانات المعتمدة) ─── -->
+                    <div id="videoFixedBanner" onclick="startVideoAndHideBanner()" class="video-fixed-banner-luxury">
+                        <div class="v-banner-inner">
+                            <div class="v-banner-info">
+                                <div class="v-banner-badges">
+                                    <span class="banner-badge-subject">
+                                        <i class="fa-solid fa-book-bookmark"></i>
+                                        <span id="videoBannerSubjectName">المادة الدراسية</span>
+                                    </span>
+                                    <span class="banner-badge-supervision">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                        <span>هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>
+                                    </span>
+                                </div>
+
+                                <h2 id="videoBannerLectureName">عنوان المحاضرة</h2>
+                                <p id="videoBannerDesc" class="v-banner-desc">هذا العمل تحت إشراف ودعم فريق منصة الخطة</p>
+
+                                <button class="btn-banner-glow-play" onclick="event.stopPropagation(); startVideoAndHideBanner()">
+                                    <i class="fa-solid fa-play"></i>
+                                    <span>تشغيل المحاضرة</span>
+                                    <i class="fa-solid fa-chevron-left" style="font-size:12px; margin-right:4px;"></i>
+                                </button>
+                            </div>
+
+                            <div class="v-banner-art">
+                                <img src="banner-illustration.png?v=2.5" alt="منصة الخطة التعليمية">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unified Custom Control Bar -->
+                <div id="customControlsBar" class="custom-controls-bar">
+                    <div class="timeline-row">
+                        <span id="timeCurrent" class="time-badge time-current">0:00</span>
+                        <input type="range" id="customProgressBar" class="progress-bar-slider" min="0" max="100" value="0" step="0.1" oninput="onSeekChange(this.value)">
+                        <span id="timeDuration" class="time-badge time-duration">0:00</span>
+                    </div>
+                    <div class="controls-action-row">
+                        <div class="play-group">
+                            <button id="btnPlayPause" class="btn-ctrl-play" onclick="toggleCustomPlay()">▶️</button>
+                            <button class="btn-ctrl-skip" onclick="skipTime(-10)" title="رجوع 10 ثواني">⏪ 10ث</button>
+                            <button class="btn-ctrl-skip" onclick="skipTime(10)" title="تقديم 10 ثواني">10ث ⏩</button>
+                        </div>
+                        <div class="speed-group">
+                            <span style="font-size: 12px; color: #94A3B8; font-weight: 700;">السرعة:</span>
+                            <button class="speed-btn active" onclick="setPlaySpeed(1, this)">1.0x</button>
+                            <button class="speed-btn" onclick="setPlaySpeed(1.25, this)">1.25x</button>
+                            <button class="speed-btn" onclick="setPlaySpeed(1.5, this)">1.5x</button>
+                            <button class="speed-btn" onclick="setPlaySpeed(2, this)">2.0x</button>
+                            <button class="btn-fullscreen" onclick="toggleFullscreenPlayer()" title="ملء الشاشة">⛶</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lecture Details Card & Quick Action Strip (السبورة، الامتحان، الصوت) -->
+        <div class="lecture-details-card">
+            <div class="details-header-row">
+                <div>
+                    <h1 class="lec-main-title" id="displayLectureTitle">المحاضرة</h1>
+                    <div class="supervision-badge-pill">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>هذا العمل تحت إشراف ودعم فريق منصة الخطة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Navigation Strip for other 3 components -->
+            <div class="related-roadmap-strip">
+                <!-- 1. السبورة والملخصات -->
+                <a id="btnRelatedPdf" href="javascript:void(0)" class="roadmap-quick-btn btn-quick-pdf">
+                    <span>📄 ملخص السبورة والشرح</span>
+                    <span id="pdfStatusTag">تصفح 👈</span>
+                </a>
+                <!-- 2. الامتحان التدريبي -->
+                <a id="btnRelatedExam" href="javascript:void(0)" class="roadmap-quick-btn btn-quick-exam">
+                    <span>📝 الامتحان والتقييم التدريبي</span>
+                    <span id="examStatusTag">بدء الامتحان 👈</span>
+                </a>
+                <!-- 3. عرض وسلايدات الباوربوينت -->
+                <a id="btnRelatedNotes" href="javascript:void(0)" class="roadmap-quick-btn btn-quick-notes">
+                    <span>📊 عرض وسلايدات الباوربوينت</span>
+                    <span id="notesStatusTag">تصفح الباوربوينت 👈</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Studio Tabs Bar -->
+        <div class="studio-tabs-bar">
+            <button class="studio-tab-btn active" onclick="switchStudioTab('qa', this)">
+                <i class="fa-solid fa-comments"></i>
+                <span>استفسارات وأسئلة الطلاب</span>
+            </button>
+            <button class="studio-tab-btn" onclick="switchStudioTab('notepad', this)">
+                <i class="fa-solid fa-pencil"></i>
+                <span>ملاحظاتك الشخصية</span>
+            </button>
+        </div>
+
+        <!-- Tab 1: Public Student Q&A Section -->
+        <div id="tabQA" class="studio-tab-pane active">
+            <div class="qa-section-card">
+                <div class="qa-card-header">
+                    <div style="font-size: 15px; font-weight: 800; color: #F8FAFC;">💬 أسئلة واستفسارات الطلاب حول المحاضرة</div>
+                    <span id="qaCountBadge" style="background:rgba(59, 130, 246, 0.2); color:#60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); padding:3px 12px; border-radius:12px; font-size:12px; font-weight:800;">0 سؤال</span>
+                </div>
+
+                <div class="qa-feed-list" id="qaMessagesList">
+                    <div style="text-align:center; padding:20px; color:#94A3B8; font-weight:600;">جاري تحميل استفسارات الزملاء...</div>
+                </div>
+
+                <!-- Input Box -->
+                <div class="qa-input-container">
+                    <textarea id="qaInputText" placeholder="اكتب سؤالك أو استفسارك هنا ليجيبك فريق الإدارة والمعلم..."></textarea>
+                    <input type="file" id="qaImgInput" accept="image/*" style="display:none;" onchange="handleQAImgSelect(this)">
+                    <button type="button" class="btn-qa-action" onclick="document.getElementById('qaImgInput').click()" title="إرفاق صورة">📷</button>
+                    <button type="button" class="btn-qa-send" onclick="submitQuestion()" title="إرسال">🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Live Notepad -->
+        <div id="tabNotepad" class="studio-tab-pane">
+            <div class="studio-notepad-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 15px; font-weight: 800; color: #F8FAFC;">📝 ملاحظاتك الشخصية أثناء الاستماع (تُحفظ تلقائياً)</div>
+                    <button onclick="savePersonalNote()" style="background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); padding: 5px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer;">💾 تم الحفظ</button>
+                </div>
+                <textarea id="personalNotepadText" class="notepad-textarea" placeholder="دوّن نقاط الشرح الهامة، ملاحظات الدكتور، أو الأفكار الرئيسية هنا..." oninput="autoSavePersonalNote()"></textarea>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Interactive PowerPoint Presentation Viewer Modal -->
+    <div id="interactivePptModal" class="ppt-modal-backdrop" onclick="if(event.target === this) closePptViewerModal()">
+        <div class="ppt-modal-content">
+            <div class="ppt-modal-header">
+                <div class="ppt-modal-title">
+                    <i class="fa-solid fa-file-powerpoint" style="color: #F59E0B; font-size: 20px;"></i>
+                    <span id="pptModalLectureTitle">عرض سلايدات الباوربوينت التفاعلي</span>
+                </div>
+                <div class="ppt-modal-actions">
+                    <a id="pptModalGoogleSlidesLink" href="#" target="_blank" class="ppt-action-btn" title="فتح في Google Slides">
+                        <i class="fa-brands fa-google"></i>
+                        <span>فتح في جوجل سلايدز</span>
+                    </a>
+                    <a id="pptModalOfficeLink" href="#" target="_blank" class="ppt-action-btn" title="فتح في Microsoft PowerPoint Online">
+                        <i class="fa-brands fa-microsoft"></i>
+                        <span>فتح في باوربوينت أونلاين</span>
+                    </a>
+                    <button onclick="togglePptFullscreen()" title="ملء الشاشة" class="ppt-action-btn">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                    <a id="pptModalExternalLink" href="#" target="_blank" title="تحميل / فتح الرابط المباشر" class="ppt-action-btn">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                    <button onclick="closePptViewerModal()" title="إغلاق" class="ppt-action-btn close-btn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="ppt-modal-body" id="pptModalBody">
+                <iframe id="pptViewerIframe" src="" allowfullscreen frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Live Chat Support Widget (صفحة الشات المباشر) -->
+    <a href="chat.html" class="support-float-btn" title="تواصل مع إدارة المنصة (الشات المباشر)">
+        <div class="chat-icon-wrap">
+            <i class="fa-solid fa-comments"></i>
+            <span class="admin-status-dot" title="متاح للرد اللحظي"></span>
+        </div>
+        <span>تواصل مع الإدارة</span>
+    </a>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="motion-fx.js?v=3.0.0" defer></script>
+    <script src="student-guard.js?v=3.0.0" defer></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // ─── Query Params & Current Lesson Extraction ───
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject') || 'المادة الدراسية';
+        const targetTitle = urlParams.get('title') || '';
+        const targetId = urlParams.get('id') || '';
+        const targetIndex = parseInt(urlParams.get('index') || '0', 10);
+
+        document.getElementById('headerSubjectTag').innerText = subject;
+        document.getElementById('videoBannerSubjectName').innerText = subject;
+        document.getElementById('btnBackToLectures').href = `lectures.html?subject=${encodeURIComponent(subject)}`;
+
+        let currentLecture = null;
+        let allLessons = [];
+        let currentVideoMode = null;
+        let ytPlayer = null;
+        let ytProgressInterval = null;
+        let isVideoPlayRequested = false;
+        let isSeeking = false;
+        let watermarkInterval = null;
+
+        // User
+        let user = null;
+        try { user = JSON.parse(localStorage.getItem('user')); } catch(e){}
+
+        // Initialize Watermark
+        function startWatermark() {
+            const wm = document.getElementById('videoFloatingWatermark');
+            const txt = document.getElementById('watermarkStudentText');
+            if (!wm || !txt) return;
+
+            const stName = (user && (user.fullName || user.name)) || 'طالب منصة الخطة';
+            const stCode = (user && (user.studentCode || user.code)) || 'ST-2027';
+            txt.textContent = `${stName} • ${stCode} • منصة الخطة 🔒`;
+
+            if (watermarkInterval) clearInterval(watermarkInterval);
+            watermarkInterval = setInterval(() => {
+                const rTop = Math.floor(Math.random() * 60) + 18;
+                const rLeft = Math.floor(Math.random() * 58) + 14;
+                const rOpacity = (Math.random() * 0.2 + 0.28).toFixed(2);
+                wm.style.top = rTop + '%';
+                wm.style.left = rLeft + '%';
+                wm.style.opacity = rOpacity;
+            }, 3800);
+        }
+
+        // Theater Mode Toggle
+        function toggleTheaterMode() {
+            document.body.classList.toggle('theater-mode');
+            const btn = document.getElementById('btnTheaterToggle');
+            if (btn) btn.classList.toggle('active');
+        }
+
+        // Studio Tabs
+        function switchStudioTab(tab, el) {
+            document.querySelectorAll('.studio-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.studio-tab-pane').forEach(p => p.classList.remove('active'));
+            if (el) el.classList.add('active');
+            if (tab === 'qa') document.getElementById('tabQA').classList.add('active');
+            if (tab === 'notepad') {
+                document.getElementById('tabNotepad').classList.add('active');
+                loadPersonalNote();
+            }
+        }
+
+        // Live Personal Notepad storage
+        function getNoteStorageKey() {
+            const stCode = (user && (user.studentCode || user.code)) || 'GUEST';
+            return `studio_note_${stCode}_${subject}_${targetId || targetTitle}`;
+        }
+        function loadPersonalNote() {
+            const saved = localStorage.getItem(getNoteStorageKey()) || '';
+            const txt = document.getElementById('personalNotepadText');
+            if (txt) txt.value = saved;
+        }
+        function autoSavePersonalNote() {
+            const txt = document.getElementById('personalNotepadText');
+            if (txt) localStorage.setItem(getNoteStorageKey(), txt.value);
+        }
+        function savePersonalNote() {
+            autoSavePersonalNote();
+            Swal.fire({ title: 'تم الحفظ بنجاح', text: 'ملاحظاتك محفوظة على هذا الجهاز ومتاحة لك دائماً.', icon: 'success', timer: 1500, showConfirmButton: false });
+        }
+
+        // Load Lesson Data
+        function initLessonData() {
+            const cacheKey = 'lessons_cache_' + subject;
+            try {
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    allLessons = JSON.parse(cached);
+                }
+            } catch(e){}
+
+            function applyLesson(lesson) {
+                currentLecture = lesson;
+                const title = lesson.title || targetTitle || 'المحاضرة';
+                document.title = `${title} - استوديو منصة الخطة`;
+                document.getElementById('headerLectureTitle').innerText = title;
+                document.getElementById('videoBannerLectureName').innerText = title;
+                document.getElementById('displayLectureTitle').innerText = title;
+
+                // Configure other 3 buttons
+                const pdfUrl = lesson.pdfUrl || lesson.pdf || lesson.pdf_url || lesson.summaryUrl || lesson.boardUrl || lesson.fileUrl;
+                const pdfBtn = document.getElementById('btnRelatedPdf');
+                if (pdfUrl) {
+                    pdfBtn.onclick = () => {
+                        window.open(pdfUrl, '_blank');
+                    };
+                    document.getElementById('pdfStatusTag').innerText = 'تصفح 📄';
+                    pdfBtn.style.opacity = '1';
+                } else {
+                    document.getElementById('pdfStatusTag').innerText = 'غير متوفر';
+                    pdfBtn.style.opacity = '0.5';
+                    pdfBtn.onclick = () => Swal.fire({ title: 'ملخص السبورة غير متوفر', text: 'ملخص السبورة غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
+                }
+
+                const examBtn = document.getElementById('btnRelatedExam');
+                if (lesson.isStandaloneExam || lesson.jsonCode || lesson.hasQuiz) {
+                    examBtn.onclick = () => {
+                        window.location.href = `quiz.html?title=${encodeURIComponent(title)}&subject=${encodeURIComponent(subject)}&lessonId=${encodeURIComponent(lesson.id || '')}`;
+                    };
+                    document.getElementById('examStatusTag').innerText = 'بدء الامتحان 🚀';
+                    examBtn.style.opacity = '1';
+                } else {
+                    document.getElementById('examStatusTag').innerText = 'غير متوفر';
+                    examBtn.style.opacity = '0.5';
+                    examBtn.onclick = () => Swal.fire({ title: 'الامتحان غير متوفر', text: 'الامتحان والتقييم التدريبي غير متوفر لهذه المحاضرة حالياً.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
+                }
+
+                const pptUrl = lesson.pptUrl || lesson.powerpointUrl || lesson.ppt;
+                const notesBtn = document.getElementById('btnRelatedNotes');
+                if (notesBtn) {
+                    if (pptUrl) {
+                        notesBtn.onclick = () => {
+                            openPptViewerModal(pptUrl, title);
+                        };
+                        const notesTag = document.getElementById('notesStatusTag');
+                        if (notesTag) notesTag.innerText = 'عرض السلايدات 📊';
+                        notesBtn.style.opacity = '1';
+                    } else {
+                        const notesTag = document.getElementById('notesStatusTag');
+                        if (notesTag) notesTag.innerText = 'غير متوفر';
+                        notesBtn.style.opacity = '0.5';
+                        notesBtn.onclick = () => Swal.fire({ 
+                            title: 'عرض الباوربوينت غير متوفر', 
+                            text: 'سلايدات وعرض الباوربوينت (PPTX) غير متوفرة لهذه المحاضرة حالياً.', 
+                            icon: 'info', 
+                            confirmButtonText: 'حسناً', 
+                            confirmButtonColor: '#2563EB' 
+                        });
+                    }
+                }
+
+                setupQA(title, lesson.id || title);
+            }
+
+            if (allLessons.length > 0) {
+                let found = null;
+                if (targetId) found = allLessons.find(l => l.id === targetId);
+                if (!found && targetTitle) found = allLessons.find(l => l.title === targetTitle);
+                if (!found && allLessons[targetIndex]) found = allLessons[targetIndex];
+                if (!found) found = allLessons[0];
+                if (found) applyLesson(found);
+            } else {
+                // Fetch from Firebase directly
+                const db = firebase.database();
+                db.ref('Lectures').once('value').then(snap => {
+                    snap.forEach(subSnap => {
+                        if (subSnap.key.includes(subject) || subject.includes(subSnap.key)) {
+                            subSnap.forEach(lSnap => {
+                                allLessons.push({ id: lSnap.key, ...lSnap.val() });
+                            });
+                        }
+                    });
+                    let found = allLessons.find(l => (targetId && l.id === targetId) || (targetTitle && l.title === targetTitle)) || allLessons[0];
+                    if (found) applyLesson(found);
+                });
+            }
+        }
+
+        // ─── Interactive PowerPoint Slide Viewer Logic ───
+        function getEmbeddablePptUrl(rawUrl) {
+            if (!rawUrl || typeof rawUrl !== 'string') return '';
+            let url = rawUrl.trim();
+
+            // 1. Google Drive Link: drive.google.com/file/d/ID/view
+            if (url.includes('drive.google.com')) {
+                const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (fileIdMatch && fileIdMatch[1]) {
+                    return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+                }
+            }
+
+            // 2. Google Slides Link: docs.google.com/presentation/d/ID/edit
+            if (url.includes('docs.google.com/presentation')) {
+                const presIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (presIdMatch && presIdMatch[1]) {
+                    return `https://docs.google.com/presentation/d/${presIdMatch[1]}/embed?start=false&loop=false&delayms=3000`;
+                }
+            }
+
+            // 3. Microsoft Office Web Viewer (Forces embedded slide presentation for PPT, PPTX)
+            if (url.endsWith('.pptx') || url.endsWith('.ppt') || url.includes('.pptx?') || url.includes('.ppt?')) {
+                return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+            }
+
+            if (url.includes('view.officeapps.live.com') || url.includes('preview') || url.includes('embed')) {
+                return url;
+            }
+
+            // 4. Default: Microsoft Office Web Viewer or raw URL
+            return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        }
+
+        function openPptViewerModal(pptUrl, title) {
+            if (!pptUrl) return;
+            const embedUrl = getEmbeddablePptUrl(pptUrl);
+            const modal = document.getElementById('interactivePptModal');
+            const iframe = document.getElementById('pptViewerIframe');
+            const titleEl = document.getElementById('pptModalLectureTitle');
+            const extLink = document.getElementById('pptModalExternalLink');
+            const googleLink = document.getElementById('pptModalGoogleSlidesLink');
+            const officeLink = document.getElementById('pptModalOfficeLink');
+
+            if (titleEl) titleEl.innerText = title ? `سلايدات العرض: ${title}` : 'عرض سلايدات الباوربوينت التفاعلي';
+            if (extLink) extLink.href = pptUrl;
+            
+            const isGoogleDocOrDrive = pptUrl.includes('docs.google.com') || pptUrl.includes('drive.google.com');
+
+            // Force Links to Google Slides / Microsoft Office Online
+            if (googleLink) {
+                if (isGoogleDocOrDrive) {
+                    googleLink.href = pptUrl;
+                    googleLink.style.display = 'inline-flex';
+                } else {
+                    googleLink.href = `https://docs.google.com/viewer?url=${encodeURIComponent(pptUrl)}&embedded=false`;
+                    googleLink.style.display = 'inline-flex';
+                }
+            }
+            if (officeLink) {
+                if (isGoogleDocOrDrive) {
+                    officeLink.style.display = 'none';
+                } else {
+                    officeLink.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(pptUrl)}`;
+                    officeLink.style.display = 'inline-flex';
+                }
+            }
+
+            if (iframe) iframe.src = embedUrl;
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closePptViewerModal() {
+            const modal = document.getElementById('interactivePptModal');
+            const iframe = document.getElementById('pptViewerIframe');
+            if (iframe) iframe.src = '';
+            if (modal) modal.style.display = 'none';
+        }
+
+        function togglePptFullscreen() {
+            const content = document.querySelector('.ppt-modal-content') || document.getElementById('interactivePptModal');
+            if (!content) return;
+            if (!document.fullscreenElement) {
+                if (content.requestFullscreen) content.requestFullscreen();
+                else if (content.webkitRequestFullscreen) content.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        window.openPptViewerModal = openPptViewerModal;
+        window.closePptViewerModal = closePptViewerModal;
+        window.togglePptFullscreen = togglePptFullscreen;
+
+        function extractYouTubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const match = url.trim().match(/(?:youtu\.be\/|(?:www\.|m\.)?youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/|live\/))([\w-]{11})/i);
+            return match ? match[1] : null;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds) || seconds < 0) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ":" + (s < 10 ? "0" + s : s);
+        }
+
+        function updatePlayBtn(isPlaying) {
+            const btn = document.getElementById('btnPlayPause');
+            if (btn) btn.innerText = isPlaying ? "⏸️" : "▶️";
+        }
+
+        // ─── START VIDEO AND HIDE BANNER ───
+        function startVideoAndHideBanner() {
+            if (currentLecture && currentLecture.unlockTime && parseInt(currentLecture.unlockTime) > Date.now()) {
+                const unlockFormatted = new Date(parseInt(currentLecture.unlockTime)).toLocaleString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                Swal.fire({
+                    icon: 'info',
+                    title: '🔒 المحاضرة مجدولة',
+                    html: `هذه المحاضرة مجدولة ومغلقة حالياً وستفتح تلقائياً في:<br><br><span style="font-size:16px; font-weight:800; color:#7C3AED;">📅 ${unlockFormatted}</span><br><br>${currentLecture.teaserMessage ? `💬 "<i>${currentLecture.teaserMessage}</i>"` : ''}`,
+                    confirmButtonText: 'حسناً، بانتظار الموعد',
+                    confirmButtonColor: '#7C3AED'
+                });
+                return;
+            }
+
+            const banner = document.getElementById('videoFixedBanner');
+            if (banner) {
+                banner.style.opacity = '0';
+                setTimeout(() => { banner.style.display = 'none'; }, 350);
+            }
+
+            isVideoPlayRequested = true;
+            startWatermark();
+
+            if (!currentLecture || !currentLecture.videoUrl) {
+                Swal.fire({ title: 'فيديو المحاضرة غير متوفر', text: 'عذراً، فيديو هذه المحاضرة قيد التجهيز والرفع من قبل الإدارة.', icon: 'info', confirmButtonText: 'حسناً', confirmButtonColor: '#2563EB' });
+                return;
+            }
+
+            const videoUrl = currentLecture.videoUrl;
+            const ytId = extractYouTubeId(videoUrl);
+            let driveFileId = null;
+            if (!ytId && videoUrl) {
+                const driveMatch = videoUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                if (driveMatch) driveFileId = driveMatch[1];
+            }
+
+            const directPlayer = document.getElementById('customVideoPlayer');
+            const driveFrame = document.getElementById('driveIframe');
+            const ytTarget = document.getElementById('youtubePlayerTarget');
+            const ytShield = document.getElementById('ytClickShield');
+            const ytTopMask = document.getElementById('ytTopMask');
+            const ytBottomMask = document.getElementById('ytBottomMask');
+            const controlsBar = document.getElementById('customControlsBar');
+
+            if (ytId) {
+                currentVideoMode = 'youtube';
+                directPlayer.style.display = 'none';
+                driveFrame.style.display = 'none';
+                controlsBar.style.display = 'flex';
+                ytShield.style.display = 'block';
+                if (ytTopMask) ytTopMask.style.display = 'block';
+                if (ytBottomMask) ytBottomMask.style.display = 'block';
+                ytTarget.style.display = 'block';
+
+                ytTarget.innerHTML = '<div id="ytPlayerEmbed" style="width:100%;height:100%;"></div>';
+
+                function initYT() {
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        try {
+                            ytPlayer = new YT.Player('ytPlayerEmbed', {
+                                videoId: ytId,
+                                width: '100%',
+                                height: '100%',
+                                playerVars: {
+                                    autoplay: 1,
+                                    controls: 0,
+                                    rel: 0,
+                                    modestbranding: 1,
+                                    playsinline: 1,
+                                    iv_load_policy: 3,
+                                    disablekb: 1,
+                                    fs: 0
+                                },
+                                events: {
+                                    onReady: (e) => {
+                                        e.target.playVideo();
+                                        updatePlayBtn(true);
+                                        startProgressTracker();
+                                    },
+                                    onStateChange: (e) => {
+                                        if (e.data === YT.PlayerState.PLAYING) {
+                                            updatePlayBtn(true);
+                                            startProgressTracker();
+                                        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+                                            updatePlayBtn(false);
+                                        }
+                                    }
+                                }
+                            });
+                        } catch(e){}
+                    } else {
+                        setTimeout(initYT, 120);
+                    }
+                }
+                initYT();
+            } else if (driveFileId) {
+                currentVideoMode = 'drive';
+                ytTarget.style.display = 'none';
+                directPlayer.style.display = 'none';
+                controlsBar.style.display = 'none';
+                driveFrame.style.display = 'block';
+                driveFrame.src = `https://drive.google.com/file/d/${driveFileId}/preview`;
+            } else {
+                currentVideoMode = 'mp4';
+                ytTarget.style.display = 'none';
+                driveFrame.style.display = 'none';
+                directPlayer.style.display = 'block';
+                controlsBar.style.display = 'flex';
+                directPlayer.src = videoUrl;
+                directPlayer.play();
+                updatePlayBtn(true);
+                startProgressTracker();
+            }
+        }
+
+        function toggleCustomPlay() {
+            if (currentVideoMode === 'youtube' && ytPlayer) {
+                const state = ytPlayer.getPlayerState();
+                if (state === YT.PlayerState.PLAYING) {
+                    ytPlayer.pauseVideo();
+                    updatePlayBtn(false);
+                } else {
+                    ytPlayer.playVideo();
+                    updatePlayBtn(true);
+                }
+            } else if (currentVideoMode === 'mp4') {
+                const p = document.getElementById('customVideoPlayer');
+                if (p.paused) { p.play(); updatePlayBtn(true); } else { p.pause(); updatePlayBtn(false); }
+            }
+        }
+
+        function skipTime(secs) {
+            if (currentVideoMode === 'youtube' && ytPlayer) {
+                const cur = ytPlayer.getCurrentTime();
+                ytPlayer.seekTo(cur + secs, true);
+            } else if (currentVideoMode === 'mp4') {
+                const p = document.getElementById('customVideoPlayer');
+                p.currentTime += secs;
+            }
+        }
+
+        function onSeekChange(pct) {
+            isSeeking = true;
+            if (currentVideoMode === 'youtube' && ytPlayer) {
+                const dur = ytPlayer.getDuration();
+                if (dur) ytPlayer.seekTo((pct / 100) * dur, true);
+            } else if (currentVideoMode === 'mp4') {
+                const p = document.getElementById('customVideoPlayer');
+                if (p.duration) p.currentTime = (pct / 100) * p.duration;
+            }
+            setTimeout(() => { isSeeking = false; }, 300);
+        }
+
+        function setPlaySpeed(val, btn) {
+            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (currentVideoMode === 'youtube' && ytPlayer && ytPlayer.setPlaybackRate) {
+                ytPlayer.setPlaybackRate(val);
+            } else if (currentVideoMode === 'mp4') {
+                document.getElementById('customVideoPlayer').playbackRate = val;
+            }
+        }
+
+        function toggleFullscreenPlayer() {
+            const container = document.getElementById('videoContainer');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        function startProgressTracker() {
+            if (ytProgressInterval) clearInterval(ytProgressInterval);
+            ytProgressInterval = setInterval(() => {
+                if (isSeeking) return;
+                let cur = 0, dur = 0;
+                if (currentVideoMode === 'youtube' && ytPlayer && ytPlayer.getCurrentTime) {
+                    cur = ytPlayer.getCurrentTime() || 0;
+                    dur = ytPlayer.getDuration() || 0;
+                } else if (currentVideoMode === 'mp4') {
+                    const p = document.getElementById('customVideoPlayer');
+                    cur = p.currentTime || 0;
+                    dur = p.duration || 0;
+                }
+                if (dur > 0) {
+                    document.getElementById('timeCurrent').innerText = formatTime(cur);
+                    document.getElementById('timeDuration').innerText = formatTime(dur);
+                    document.getElementById('customProgressBar').value = (cur / dur) * 100;
+                }
+            }, 500);
+        }
+
+        // Q&A System
+        let qaKey = '';
+        function setupQA(title, key) {
+            qaKey = key;
+            const db = firebase.database();
+            const qaRef = db.ref(`Community/${subject}/${qaKey}`);
+            qaRef.on('value', snap => {
+                const list = document.getElementById('qaMessagesList');
+                if (!snap.exists()) {
+                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#94A3B8; font-weight:700;">لا توجد أسئلة بعد، كن أول من يسأل! ✨</div>';
+                    document.getElementById('qaCountBadge').innerText = '0 سؤال';
+                    return;
+                }
+                let count = 0;
+                let html = '';
+                snap.forEach(child => {
+                    count++;
+                    const val = child.val();
+                    const author = val.studentName || 'طالب';
+                    const text = val.text || '';
+                    const time = val.timestamp ? new Date(val.timestamp).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) : '';
+                    html += `
+                        <div class="qa-bubble">
+                            <div class="qa-bubble-top">
+                                <span class="qa-bubble-author"><i class="fa-solid fa-user-graduate"></i> ${author}</span>
+                                <span class="qa-bubble-time">${time}</span>
+                            </div>
+                            <div class="qa-bubble-body">${text}</div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+                document.getElementById('qaCountBadge').innerText = `${count} سؤال`;
+                list.scrollTop = list.scrollHeight;
+            });
+        }
+
+        function submitQuestion() {
+            const input = document.getElementById('qaInputText');
+            const text = input.value.trim();
+            if (!text) return;
+            const stName = (user && (user.fullName || user.name)) || 'طالب منصة الخطة';
+            const db = firebase.database();
+            db.ref(`Community/${subject}/${qaKey}`).push({
+                studentName: stName,
+                text: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                input.value = '';
+            });
+        }
+
+        // Anti-Screen Tab Switch Blur
+        document.addEventListener('visibilitychange', () => {
+            const box = document.getElementById('videoContainer');
+            if (document.hidden) {
+                if (currentVideoMode === 'youtube' && ytPlayer && ytPlayer.pauseVideo) {
+                    try { ytPlayer.pauseVideo(); } catch(e){}
+                    updatePlayBtn(false);
+                } else if (currentVideoMode === 'mp4') {
+                    document.getElementById('customVideoPlayer').pause();
+                    updatePlayBtn(false);
+                }
+                if (box) box.style.filter = 'blur(28px)';
+            } else {
+                if (box) box.style.filter = 'none';
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initLessonData();
+        });
+    </script>
+</body>
+</html>

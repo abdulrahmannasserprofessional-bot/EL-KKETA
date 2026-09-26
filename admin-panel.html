@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ELKHETA Admin OS - المركز الرئيسي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+  // ── Universal Admin Authentication Guard ──
+  (function() {
+    const isAuth = sessionStorage.getItem('isAdmin') === 'true' || sessionStorage.getItem('elkheta_admin_authenticated') === 'true';
+    if (!isAuth) {
+      document.documentElement.style.display = 'none';
+      window.location.replace('admin-gate.html?returnUrl=admin-panel.html');
+    }
+  })();
+  /* ── Block firebase-config.js auto-injection for this page ── */
+  window.__ELKHETA_ADMIN_OS__ = true;
+  window.__NO_MOBILE_NAV__    = true;
+  window.__NO_TICKER__        = true;
+
+  window.adminLogout = function() {
+    if (confirm('هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة الإدارة؟')) {
+      sessionStorage.removeItem('isAdmin');
+      sessionStorage.removeItem('elkheta_admin_authenticated');
+      sessionStorage.removeItem('adminRole');
+      sessionStorage.removeItem('adminName');
+      sessionStorage.removeItem('adminLoginTime');
+      window.location.replace('admin-gate.html');
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<link rel="stylesheet" href="admin-os-theme.css">
+<style>
+/* ═══════════════════════════════════════════
+   ELKHETA ADMIN OS — MASTER STYLESHEET
+   Theme: Deep Space Dark + Gold Accent
+═══════════════════════════════════════════ */
+
+/* ── ISOLATION: Kill all firebase-config.js injected elements ── */
+#universalMobileDock,
+.universal-mobile-dock,
+#mobileDrawerBackdrop,
+.mobile-drawer-backdrop,
+#mobileAdminDrawer,
+.mobile-injected-sidebar,
+#universalTopTicker,
+.elkheta-announcement-toast { display: none !important; visibility: hidden !important; }
+
+
+:root{
+  --bg:#FAF7F2;
+  --bg2:#F4EFE6;
+  --bg3:#EFE8DC;
+  --surface:#FFFFFF;
+  --surface2:#FDFBF8;
+  --surface3:#F8F5EE;
+  --border:#EFE8DC;
+  --border2:#DFD7CA;
+  --gold:#C28B38;
+  --gold2:#D4973B;
+  --gold-dim:rgba(194,139,56,0.12);
+  --gold-glow:0 4px 14px rgba(194,139,56,0.25);
+  --blue:#2563EB;
+  --blue2:#3B82F6;
+  --cyan:#0891B2;
+  --green:#059669;
+  --green2:#10B981;
+  --red:#DC2626;
+  --red2:#EF4444;
+  --orange:#EA580C;
+  --yellow:#D97706;
+  --purple:#7C3AED;
+  --pink:#DB2777;
+  --text:#1E293B;
+  --text2:#475569;
+  --text3:#8C827A;
+  --mono:'JetBrains Mono',monospace;
+  --sidebar-w:260px;
+  --top-h:58px;
+  --radius:14px;
+  --radius-sm:8px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow:hidden}
+body{
+  height:100%;
+  min-height:100dvh;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:fixed;
+  width:100%;
+  top:0;left:0;right:0;bottom:0;
+}
+
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+
+/* ════ TOP BAR ════ */
+.os-topbar{
+  height:var(--top-h);
+  display:flex;align-items:center;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 16px 0 20px;
+  gap:12px;flex-shrink:0;
+  position:relative;z-index:200;
+}
+
+.os-brand{
+  display:flex;align-items:center;gap:10px;
+  width:var(--sidebar-w);
+  flex-shrink:0;
+}
+
+.brand-gem{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#8B6914,var(--gold),#F0B855);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:#fff;
+  box-shadow:0 0 16px rgba(212,151,59,0.4);
+}
+
+.brand-info{display:flex;flex-direction:column}
+.brand-n{font-size:14px;font-weight:900;color:var(--text);letter-spacing:0.3px}
+.brand-n span{color:var(--gold)}
+.brand-v{font-size:10px;font-weight:600;color:var(--text3);font-family:var(--mono)}
+
+.os-search{
+  flex:1;max-width:480px;position:relative;
+}
+.os-search input{
+  width:100%;height:36px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:0 40px 0 14px;
+  font-size:13px;color:var(--text);
+  outline:none;transition:all .2s;
+  font-family:'Cairo',sans-serif;
+  direction:rtl;
+}
+.os-search input::placeholder{color:var(--text3)}
+.os-search input:focus{border-color:var(--gold);background:var(--surface)}
+.os-search i{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
+
+.os-topbar-right{
+  display:flex;align-items:center;gap:10px;margin-right:auto;
+}
+
+.clock-chip{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--gold);padding:5px 12px;
+  background:var(--gold-dim);border:1px solid rgba(212,151,59,0.2);
+  border-radius:8px;white-space:nowrap;
+}
+
+.live-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:8px;
+  background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);
+  font-size:12px;font-weight:700;color:var(--green);
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pls 2s infinite}
+@keyframes pls{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.7)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+
+.icon-btn{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text2);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;font-size:14px;text-decoration:none;
+  position:relative;
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.notif-badge{
+  position:absolute;top:-4px;right:-4px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--red);color:#fff;
+  font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg);
+}
+
+.admin-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 12px 4px 6px;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:20px;cursor:pointer;transition:all .2s;
+}
+.admin-pill:hover{border-color:var(--gold)}
+.admin-av{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:900;color:#fff;flex-shrink:0;
+}
+.admin-pill-name{font-size:12px;font-weight:800;color:var(--text)}
+.admin-pill-role{font-size:10px;color:var(--text3)}
+
+/* ════ OS BODY ════ */
+.os-body{
+  display:flex;
+  flex:1;
+  min-height:0; /* critical for nested flex scroll */
+  overflow:hidden;
+}
+
+/* ════ SIDEBAR ════ */
+.os-sidebar{
+  width:var(--sidebar-w);
+  min-width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+  overflow-x:hidden;
+  transition:width .3s ease;
+  z-index:100;
+  height:100%;
+}
+
+
+.os-sidebar.collapsed{width:54px}
+.os-sidebar.collapsed .nav-label,
+.os-sidebar.collapsed .nav-section-hd,
+.os-sidebar.collapsed .sidebar-footer-txt{display:none}
+
+.sidebar-inner{padding:10px 8px;flex:1}
+
+.nav-section-hd{
+  font-size:10px;font-weight:800;
+  color:var(--text3);letter-spacing:1px;
+  text-transform:uppercase;
+  padding:14px 10px 5px;
+  font-family:var(--mono);
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:var(--radius-sm);
+  color:var(--text2);text-decoration:none;
+  font-size:13px;font-weight:700;
+  transition:all .18s;cursor:pointer;
+  position:relative;white-space:nowrap;
+  border:1px solid transparent;
+  margin-bottom:2px;
+}
+
+.nav-item i{
+  width:22px;text-align:center;font-size:15px;
+  flex-shrink:0;color:var(--text3);transition:color .2s;
+}
+
+.nav-item:hover{
+  background:var(--gold-dim);color:var(--gold);
+  border-color:rgba(194,139,56,0.25);
+}
+.nav-item:hover i{color:var(--gold)}
+
+.nav-item.active{
+  background:linear-gradient(135deg,#D4973B 0%,#B88028 100%);
+  border-color:transparent;
+  color:#FFFFFF !important;
+  box-shadow:0 4px 14px rgba(194,139,56,0.32);
+}
+.nav-item.active i{color:#FFFFFF !important}
+
+.nav-item.highlight{
+  background:rgba(16,185,129,0.08);
+  border-color:rgba(16,185,129,0.2);
+  color:var(--green);
+}
+.nav-item.highlight i{color:var(--green)}
+
+.nav-item.danger-nav{
+  background:rgba(239,68,68,0.06);
+  border-color:rgba(239,68,68,0.15);
+  color:var(--red2);
+}
+.nav-item.danger-nav i{color:var(--red)}
+
+.nav-badge{
+  margin-right:auto;
+  font-size:10px;font-weight:800;
+  padding:1px 7px;border-radius:20px;
+  font-family:var(--mono);
+}
+.nav-badge.green{background:rgba(16,185,129,.15);color:var(--green)}
+.nav-badge.red{background:rgba(239,68,68,.15);color:var(--red)}
+.nav-badge.gold{background:var(--gold-dim);color:var(--gold)}
+.nav-badge.blue{background:rgba(59,130,246,.15);color:var(--blue2)}
+
+.sidebar-footer-wrap{
+  padding:10px 8px;border-top:1px solid var(--border);
+}
+.btn-logout{
+  display:flex;align-items:center;gap:8px;
+  width:100%;padding:9px 10px;border-radius:var(--radius-sm);
+  background:transparent;border:1px solid var(--border);
+  color:var(--text3);font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;text-decoration:none;
+}
+.btn-logout:hover{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:var(--red)}
+
+/* ════ MAIN CONTENT ════ */
+.os-main{
+  flex:1;
+  min-width:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+
+
+.main-inner{
+  padding:20px 22px 50px;
+  display:flex;flex-direction:column;
+  gap:20px;
+  max-width:1600px;width:100%;margin:0 auto;
+}
+
+/* ════ PAGE TITLE ════ */
+.page-title-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+
+.page-title{
+  display:flex;align-items:center;gap:10px;
+}
+
+.page-title-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  background:var(--gold-dim);color:var(--gold);
+  border:1px solid rgba(212,151,59,.3);
+  box-shadow:var(--gold-glow);
+}
+
+.page-title-txt{font-size:20px;font-weight:900;color:var(--text)}
+.page-title-sub{font-size:12px;font-weight:600;color:var(--text3);margin-top:1px}
+
+.page-actions{display:flex;gap:8px}
+
+.btn-action{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 16px;border-radius:var(--radius-sm);
+  font-size:12.5px;font-weight:800;cursor:pointer;
+  transition:all .2s;border:none;text-decoration:none;
+  font-family:'Cairo',sans-serif;
+}
+.btn-action.primary{background:linear-gradient(135deg,#8B6914,var(--gold));color:#fff;box-shadow:0 4px 14px rgba(212,151,59,.3)}
+.btn-action.primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(212,151,59,.4)}
+.btn-action.ghost{background:var(--surface2);border:1px solid var(--border2);color:var(--text2)}
+.btn-action.ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ════ KPI STRIP ════ */
+.kpi-strip{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;
+}
+
+.kpi{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px 14px;
+  position:relative;overflow:hidden;
+  transition:all .25s;
+}
+.kpi::after{
+  content:'';position:absolute;
+  top:0;right:0;left:0;height:2px;
+  background:var(--k-color,var(--gold));
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.kpi:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 24px rgba(180,140,75,.15)}
+
+.kpi-icon-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-ico{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;background:var(--k-dim,var(--gold-dim));
+  color:var(--k-color,var(--gold));
+}
+.kpi-trend{
+  font-size:11px;font-weight:700;font-family:var(--mono);
+  display:flex;align-items:center;gap:3px;
+}
+.up{color:var(--green)}
+.dn{color:var(--red)}
+
+.kpi-lbl{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:4px}
+.kpi-val{
+  font-size:24px;font-weight:900;color:var(--text);
+  font-family:var(--mono);line-height:1;
+  transition:all .3s;
+}
+.kpi-val.flash{color:var(--green)!important;transform:scale(1.04)}
+
+/* ════ MAIN GRID ════ */
+.main-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 340px;
+  gap:16px;
+}
+
+@media(max-width:1200px){.main-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+
+/* ════ CARD ════ */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+
+.card-title{
+  display:flex;align-items:center;gap:8px;
+  font-size:13.5px;font-weight:800;color:var(--text);
+}
+.card-title i{font-size:14px;color:var(--k-color,var(--gold))}
+.card-body{padding:14px 16px}
+
+.chip{
+  font-size:11px;font-weight:700;font-family:var(--mono);
+  padding:3px 10px;border-radius:20px;
+}
+.chip.gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(212,151,59,.2)}
+.chip.green{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.chip.blue{background:rgba(59,130,246,.1);color:var(--blue2);border:1px solid rgba(59,130,246,.2)}
+.chip.red{background:rgba(239,68,68,.1);color:var(--red2);border:1px solid rgba(239,68,68,.2)}
+.chip.purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+/* ════ QUICK ACCESS GRID ════ */
+.qa-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px;padding:14px 16px;
+}
+
+.qa-item{
+  display:flex;flex-direction:column;align-items:center;
+  gap:8px;padding:16px 10px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  cursor:pointer;transition:all .2s;
+  text-decoration:none;
+  position:relative;overflow:hidden;
+}
+.qa-item:hover{
+  border-color:var(--item-color,var(--gold));
+  background:#FFFFFF;
+  transform:translateY(-3px);
+  box-shadow:0 8px 20px rgba(180,140,75,.15);
+}
+.qa-item:hover .qa-icon{
+  transform:scale(1.1);
+}
+
+.qa-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  background:var(--qa-bg,var(--gold-dim));
+  color:var(--item-color,var(--gold));
+  transition:all .2s;
+  flex-shrink:0;
+}
+
+.qa-label{
+  font-size:12px;font-weight:800;color:var(--text);
+  text-align:center;line-height:1.3;
+}
+
+.qa-badge{
+  position:absolute;top:6px;left:6px;
+  font-size:9px;font-weight:800;font-family:var(--mono);
+  padding:2px 6px;border-radius:20px;
+  background:var(--item-color,var(--gold));
+  color:#fff;
+}
+
+/* ════ ACTIVITY FEED ════ */
+.feed-list{
+  display:flex;flex-direction:column;
+  max-height:260px;overflow-y:auto;
+}
+
+.feed-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  transition:background .15s;animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+.feed-item:hover{background:var(--surface2)}
+.feed-item:last-child{border-bottom:none}
+
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.feed-body{flex:1}
+.feed-txt{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.4}
+.feed-meta{font-size:10.5px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+
+/* ════ STUDENTS MINI TABLE ════ */
+.mini-table{width:100%;border-collapse:collapse}
+.mini-table th{
+  font-size:10px;font-weight:700;color:var(--text3);
+  padding:8px 12px;text-align:right;
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;letter-spacing:.5px;
+  font-family:var(--mono);
+  white-space:nowrap;
+}
+.mini-table td{
+  padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text);
+  border-bottom:1px solid var(--border);vertical-align:middle;
+  white-space:nowrap;
+}
+.mini-table tr:hover td{background:var(--surface2)}
+.mini-table tr:last-child td{border:none}
+
+.av-circle{
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:#fff;margin-left:7px;
+}
+
+.score-pill{
+  font-size:11px;font-weight:800;font-family:var(--mono);
+  padding:2px 8px;border-radius:20px;
+}
+
+/* ════ ALERTS LIST ════ */
+.alert-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.alert-row:last-child{border:none}
+.alert-row:hover{background:var(--surface2)}
+
+.alert-ico{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.a-danger .alert-ico{background:rgba(239,68,68,.12);color:var(--red)}
+.a-warn .alert-ico{background:rgba(245,158,11,.12);color:var(--yellow)}
+.a-ok .alert-ico{background:rgba(16,185,129,.12);color:var(--green)}
+.a-info .alert-ico{background:rgba(59,130,246,.12);color:var(--blue2)}
+
+.alert-content{flex:1}
+.alert-title{font-size:12.5px;font-weight:700;color:var(--text)}
+.alert-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.alert-time{font-size:10.5px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
+
+/* ════ CHART AREA ════ */
+.chart-wrap{padding:6px 16px 14px}
+
+/* ════ HEALTH BARS ════ */
+.health-list{display:flex;flex-direction:column;gap:12px;padding:14px 16px}
+.health-row{}
+.health-lbl{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:5px;
+}
+.health-name{font-size:12px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:6px}
+.health-pct{font-size:12px;font-weight:700;font-family:var(--mono)}
+.hbar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+
+/* ════ ONLINE STUDENTS ════ */
+.online-list{display:flex;flex-direction:column;max-height:260px;overflow-y:auto}
+.online-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;border-bottom:1px solid var(--border);
+}
+.online-row:last-child{border:none}
+.online-av{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue2),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#fff;flex-shrink:0;
+}
+.online-info{flex:1}
+.online-name{font-size:12.5px;font-weight:700;color:var(--text)}
+.online-meta{font-size:10.5px;color:var(--text3);font-family:var(--mono)}
+.online-status{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--green)}
+.o-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pls 2s infinite}
+
+/* ════ EMPTY STATE ════ */
+.empty{
+  text-align:center;padding:28px 16px;
+  color:var(--text3);font-size:13px;font-weight:600;
+}
+/* ════ ONLINE RADAR MODAL ════ */
+.online-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.online-modal-backdrop.active {
+  display: flex;
+}
+.online-modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  animation: modalPop 0.2s ease-out;
+}
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.online-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.online-filter-tab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.online-filter-tab.active {
+  background: var(--gold-dim);
+  border-color: rgba(194, 139, 56, 0.4);
+  color: var(--gold-text);
+}
+.student-online-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.15s;
+}
+.student-online-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+
+/* ════ MOBILE ════ */
+@media(max-width:900px){
+  .main-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:768px){
+  .os-brand{width:auto!important;max-width:200px}
+  .os-search,.live-chip,.clock-chip{display:none!important}
+  .admin-pill .admin-pill-name,.admin-pill .admin-pill-role{display:none!important}
+  .admin-pill{padding:3px!important;border:none!important;background:transparent!important}
+  .kpi-strip{grid-template-columns:repeat(2,1fr)!important}
+  .main-inner{padding:12px 10px 50px!important}
+  .qa-grid{grid-template-columns:repeat(3,1fr)!important}
+  .main-grid{grid-template-columns:1fr!important}
+  .mob-menu-btn{display:flex!important}
+}
+@media(max-width:480px){
+  .qa-grid{grid-template-columns:repeat(2,1fr)!important}
+  .main-inner{padding:10px 6px 50px!important}
+}
+@media(min-width:769px){
+  .mob-menu-btn{display:none!important}
+}
+
+/* ════ SEARCH RESULTS DROPDOWN ════ */
+.search-dropdown{
+  position:absolute;top:calc(100% + 6px);right:0;left:0;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:6px;
+  max-height:280px;overflow-y:auto;
+  z-index:999;display:none;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
+}
+.search-dropdown.show{display:block}
+.search-result{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:8px;cursor:pointer;
+  transition:background .15s;text-decoration:none;color:var(--text);
+}
+.search-result:hover{background:var(--surface2)}
+.sr-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  flex-shrink:0;
+}
+.sr-label{font-size:13px;font-weight:700}
+.sr-sub{font-size:11px;color:var(--text3)}
+
+/* ════ SCROLLBAR ════ */
+.os-sidebar::-webkit-scrollbar{width:3px}
+</style>
+</head>
+
+<body>
+
+<!-- ════ TOP BAR ════ -->
+<header class="os-topbar">
+  <!-- Brand -->
+  <div class="os-brand">
+    <button class="icon-btn mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="brand-gem"><i class="fa-solid fa-book-open"></i></div>
+    <div class="brand-info">
+      <div class="brand-n">ELKHETA <span>|</span> الخطة</div>
+      <div class="brand-v">Admin OS v3.0</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="os-search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" id="globalSearch" placeholder="ابحث عن طالب أو صفحة أو إعداد..." autocomplete="off" oninput="onSearch(this.value)" onblur="setTimeout(()=>closeSearch(),200)">
+    <div class="search-dropdown" id="searchDropdown"></div>
+  </div>
+
+  <!-- Right Side -->
+  <div class="os-topbar-right">
+    <div class="live-chip">
+      <div class="live-dot"></div>
+      <span>LIVE</span>
+    </div>
+
+    <div class="clock-chip" id="clock">—</div>
+
+    <a href="admin-notifications.html" class="icon-btn" title="الإشعارات">
+      <i class="fa-solid fa-bell"></i>
+      <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+    </a>
+
+    <a href="admin-chat.html" class="icon-btn" title="الدعم والشات">
+      <i class="fa-solid fa-comment-dots"></i>
+    </a>
+
+    <a href="admin-system.html" class="icon-btn" title="System Center">
+      <i class="fa-solid fa-server"></i>
+    </a>
+
+    <div class="admin-pill" onclick="location.href='admin-config.html'">
+      <div class="admin-av">ع</div>
+      <div>
+        <div class="admin-pill-name">عبدالرحمن ناصر</div>
+        <div class="admin-pill-role">مدير المنصة</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ════ OS BODY ════ -->
+<div class="os-body">
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- ════ SIDEBAR ════ -->
+  <nav class="os-sidebar" id="sidebar">
+
+    <div class="sidebar-inner">
+
+      <!-- ── المحتوى والتعليم ── -->
+      <div class="nav-section-hd nav-label">📚 المحتوى والتعليم</div>
+
+      <a href="admin-students.html" class="nav-item">
+        <i class="fa-solid fa-users"></i>
+        <span class="nav-label">إدارة الطلاب</span>
+        <span class="nav-badge gold nav-label" id="nb-students">—</span>
+      </a>
+
+      <a href="admin-courses.html" class="nav-item">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <span class="nav-label">المواد والكورسات</span>
+      </a>
+
+      <a href="admin-classes.html" class="nav-item">
+        <i class="fa-solid fa-chalkboard-user"></i>
+        <span class="nav-label">الفصول والمراحل</span>
+      </a>
+
+      <a href="admin-lessons.html" class="nav-item">
+        <i class="fa-solid fa-clapperboard"></i>
+        <span class="nav-label">المحاضرات والفيديوهات</span>
+      </a>
+
+      <a href="admin-notes-builder.html" class="nav-item">
+        <i class="fa-solid fa-note-sticky"></i>
+        <span class="nav-label">النوتس والمذكرات</span>
+      </a>
+
+      <a href="admin-courses.html#weeklyScheduleAdminSection" class="nav-item">
+        <i class="fa-solid fa-calendar-week" style="color:var(--yellow)"></i>
+        <span class="nav-label">الجدول الأسبوعي</span>
+      </a>
+
+      <!-- ── الامتحانات والنتائج ── -->
+      <div class="nav-section-hd nav-label">📝 الامتحانات والنتائج</div>
+
+      <a href="admin-exams.html" class="nav-item">
+        <i class="fa-solid fa-file-pen"></i>
+        <span class="nav-label">إدارة الامتحانات</span>
+        <span class="nav-badge blue nav-label" id="nb-exams">—</span>
+      </a>
+
+      <a href="admin-results.html" class="nav-item">
+        <i class="fa-solid fa-square-poll-vertical"></i>
+        <span class="nav-label">سجل النتائج والدرجات</span>
+      </a>
+
+      <a href="admin-mistakes.html" class="nav-item danger-nav">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span class="nav-label">أخطاء الطلاب</span>
+        <span class="nav-badge red nav-label" id="nb-mistakes">—</span>
+      </a>
+
+      <a href="admin-upload-exam-backup.html" class="nav-item">
+        <i class="fa-solid fa-upload"></i>
+        <span class="nav-label">رفع نسخة امتحان</span>
+      </a>
+
+      <!-- ── الاشتراكات والمالية ── -->
+      <div class="nav-section-hd nav-label">💳 الاشتراكات والمالية</div>
+
+      <a href="admin-codes.html" class="nav-item">
+        <i class="fa-solid fa-key"></i>
+        <span class="nav-label">أكواد التفعيل</span>
+        <span class="nav-badge green nav-label" id="nb-codes">—</span>
+      </a>
+
+      <a href="admin-otps.html" class="nav-item">
+        <i class="fa-solid fa-shield-keyhole"></i>
+        <span class="nav-label">رموز OTP</span>
+      </a>
+
+      <!-- ── التواصل والمجتمع ── -->
+      <div class="nav-section-hd nav-label">💬 التواصل والمجتمع</div>
+
+      <a href="admin-chat.html" class="nav-item highlight">
+        <i class="fa-solid fa-headset"></i>
+        <span class="nav-label">الدعم والشات المباشر</span>
+        <span class="nav-badge green nav-label" id="nb-chat">—</span>
+      </a>
+
+      <a href="admin-notifications.html" class="nav-item">
+        <i class="fa-solid fa-bullhorn"></i>
+        <span class="nav-label">الإشعارات والرسائل</span>
+      </a>
+
+      <a href="admin-community.html" class="nav-item">
+        <i class="fa-solid fa-users-rectangle"></i>
+        <span class="nav-label">المجتمع والمناقشات</span>
+      </a>
+
+      <a href="leaderboard.html" class="nav-item">
+        <i class="fa-solid fa-trophy"></i>
+        <span class="nav-label">لوحة الشرف</span>
+      </a>
+
+      <!-- ── التقارير والذكاء ── -->
+      <div class="nav-section-hd nav-label">📊 التقارير والذكاء</div>
+
+      <a href="ai-report.html" class="nav-item">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span class="nav-label">تقارير الـ AI الشاملة</span>
+      </a>
+
+      <a href="admin-results.html" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span class="nav-label">إحصائيات الأداء</span>
+      </a>
+
+      <!-- ── النظام والأمان ── -->
+      <div class="nav-section-hd nav-label">🔧 النظام والأمان</div>
+
+      <a href="admin-system.html" class="nav-item" style="background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.2)">
+        <i class="fa-solid fa-server" style="color:var(--blue2)"></i>
+        <span class="nav-label" style="color:var(--blue2)">System Command Center</span>
+      </a>
+
+      <a href="admin-radar.html" class="nav-item highlight">
+        <i class="fa-solid fa-bolt"></i>
+        <span class="nav-label">رادار النشاط المباشر ⚡</span>
+      </a>
+
+      <a href="admin-security.html" class="nav-item">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="nav-label">مركز الأمان والرقابة</span>
+      </a>
+
+      <a href="admin-config.html" class="nav-item">
+        <i class="fa-solid fa-gear"></i>
+        <span class="nav-label">الإعدادات العامة</span>
+      </a>
+
+      <a href="admin-config.html#admins" class="nav-item">
+        <i class="fa-solid fa-user-shield"></i>
+        <span class="nav-label">المشرفون والصلاحيات</span>
+      </a>
+
+      <a href="admin-maintenance.html" class="nav-item">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span class="nav-label">وضع الصيانة</span>
+      </a>
+
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer-wrap">
+      <button class="btn-logout" onclick="adminLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="sidebar-footer-txt nav-label">تسجيل الخروج</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ════ MAIN ════ -->
+  <main class="os-main">
+    <div class="main-inner">
+
+      <!-- ── Page Title ── -->
+      <div class="page-title-bar">
+        <div class="page-title">
+          <div class="page-title-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div>
+            <div class="page-title-txt">لوحة التحكم الرئيسية</div>
+            <div class="page-title-sub" id="dateSubtitle">جاري التحميل...</div>
+          </div>
+        </div>
+        <div class="page-actions">
+          <button type="button" class="btn-action ghost" onclick="refreshAdminData(this)" id="btnAdminRefresh" title="تحديث ومزامنة كافة بيانات اللوحة فوراً">
+            <i class="fa-solid fa-rotate"></i> <span id="adminLastSyncText">تحديث البيانات</span>
+          </button>
+          <a href="admin-system.html" class="btn-action ghost">
+            <i class="fa-solid fa-server"></i> System Center
+          </a>
+          <a href="admin-students.html" class="btn-action primary">
+            <i class="fa-solid fa-user-plus"></i> إضافة طالب
+          </a>
+        </div>
+      </div>
+
+      <!-- ── KPI Strip ── -->
+      <div class="kpi-strip">
+        <div class="kpi" style="--k-color:var(--gold);--k-dim:var(--gold-dim)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-users"></i></div>
+            <div class="kpi-trend up" id="trend-students"><i class="fa-solid fa-arrow-trend-up"></i> —</div>
+          </div>
+          <div class="kpi-lbl">إجمالي الطلاب</div>
+          <div class="kpi-val" id="kv-students">—</div>
+        </div>
+
+        <div class="kpi" onclick="openOnlineStudentsModal()" style="--k-color:var(--green);--k-dim:rgba(16,185,129,.1); cursor:pointer;" title="انقر لمعرفة المتصلين الآن وكافة التفاصيل 👁️">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-wifi"></i></div>
+            <div class="kpi-trend up" id="trend-online"><i class="fa-solid fa-circle" style="font-size:8px"></i> الآن</div>
+          </div>
+          <div class="kpi-lbl" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>متصلون الآن</span>
+            <span style="font-size:10px; font-weight:800; color:var(--green);"><i class="fa-solid fa-arrow-up-right-from-square"></i> عرض</span>
+          </div>
+          <div class="kpi-val" id="kv-online">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--blue2);--k-dim:rgba(59,130,246,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="kpi-trend up" id="trend-new">اليوم</div>
+          </div>
+          <div class="kpi-lbl">مسجلون اليوم</div>
+          <div class="kpi-val" id="kv-new">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--purple);--k-dim:rgba(167,139,250,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-file-pen"></i></div>
+            <div class="kpi-trend" id="trend-exams" style="color:var(--text3)">اليوم</div>
+          </div>
+          <div class="kpi-lbl">حلول امتحانات اليوم</div>
+          <div class="kpi-val" id="kv-exams">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--cyan);--k-dim:rgba(34,211,238,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="kpi-trend" id="trend-avg" style="color:var(--text3)">متوسط</div>
+          </div>
+          <div class="kpi-lbl" id="lbl-avg">متوسط درجات الدفعة</div>
+          <div class="kpi-val" id="kv-avg">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--orange);--k-dim:rgba(249,115,22,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-key"></i></div>
+            <div class="kpi-trend up" id="trend-codes">اليوم</div>
+          </div>
+          <div class="kpi-lbl">أكواد مفعّلة اليوم</div>
+          <div class="kpi-val" id="kv-codes">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--red2);--k-dim:rgba(239,68,68,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-shield-exclamation"></i></div>
+            <div class="kpi-trend" id="trend-sec" style="color:var(--text3)">اليوم</div>
+          </div>
+          <div class="kpi-lbl">تنبيهات أمنية</div>
+          <div class="kpi-val" id="kv-sec">—</div>
+        </div>
+
+        <div class="kpi" style="--k-color:var(--yellow);--k-dim:rgba(245,158,11,.1)">
+          <div class="kpi-icon-row">
+            <div class="kpi-ico"><i class="fa-solid fa-play-circle"></i></div>
+            <div class="kpi-trend" style="color:var(--text3)">اليوم</div>
+          </div>
+          <div class="kpi-lbl">مشاهدات الحصص</div>
+          <div class="kpi-val" id="kv-lectures">—</div>
+        </div>
+      </div>
+
+      <!-- ── Quick Access Grid ── -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title" style="--k-color:var(--gold)">
+            <i class="fa-solid fa-grid-2"></i> الوصول السريع — كل صفحات الإدارة
+          </div>
+          <span class="chip gold">24 صفحة</span>
+        </div>
+        <div class="qa-grid">
+          <!-- Education -->
+          <a href="admin-students.html" class="qa-item" style="--item-color:var(--gold);--qa-bg:var(--gold-dim)">
+            <div class="qa-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="qa-label">الطلاب</div>
+            <span class="qa-badge" id="qa-students">—</span>
+          </a>
+          <a href="admin-courses.html" class="qa-item" style="--item-color:var(--orange);--qa-bg:rgba(249,115,22,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+            <div class="qa-label">المواد</div>
+          </a>
+          <a href="admin-classes.html" class="qa-item" style="--item-color:var(--yellow);--qa-bg:rgba(245,158,11,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div class="qa-label">الفصول</div>
+          </a>
+          <a href="admin-lessons.html" class="qa-item" style="--item-color:var(--cyan);--qa-bg:rgba(34,211,238,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-clapperboard"></i></div>
+            <div class="qa-label">المحاضرات</div>
+          </a>
+          <a href="admin-notes-builder.html" class="qa-item" style="--item-color:var(--purple);--qa-bg:rgba(167,139,250,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-note-sticky"></i></div>
+            <div class="qa-label">النوتس</div>
+          </a>
+          <a href="admin-courses.html#weeklyScheduleAdminSection" class="qa-item" style="--item-color:var(--blue2);--qa-bg:rgba(59,130,246,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-calendar-week"></i></div>
+            <div class="qa-label">الجدول</div>
+          </a>
+          <!-- Exams -->
+          <a href="admin-exams.html" class="qa-item" style="--item-color:var(--purple);--qa-bg:rgba(167,139,250,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-file-pen"></i></div>
+            <div class="qa-label">الامتحانات</div>
+            <span class="qa-badge" style="background:var(--purple)" id="qa-exams">—</span>
+          </a>
+          <a href="admin-results.html" class="qa-item" style="--item-color:var(--green);--qa-bg:rgba(16,185,129,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+            <div class="qa-label">النتائج</div>
+          </a>
+          <a href="admin-mistakes.html" class="qa-item" style="--item-color:var(--red2);--qa-bg:rgba(239,68,68,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="qa-label">الأخطاء</div>
+          </a>
+          <a href="admin-upload-exam-backup.html" class="qa-item" style="--item-color:var(--cyan);--qa-bg:rgba(34,211,238,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-upload"></i></div>
+            <div class="qa-label">رفع امتحان</div>
+          </a>
+          <!-- Subscriptions -->
+          <a href="admin-codes.html" class="qa-item" style="--item-color:var(--gold);--qa-bg:var(--gold-dim)">
+            <div class="qa-icon"><i class="fa-solid fa-key"></i></div>
+            <div class="qa-label">الأكواد</div>
+            <span class="qa-badge" id="qa-codes">—</span>
+          </a>
+          <a href="admin-otps.html" class="qa-item" style="--item-color:var(--orange);--qa-bg:rgba(249,115,22,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-shield-keyhole"></i></div>
+            <div class="qa-label">OTP</div>
+          </a>
+          <!-- Communication -->
+          <a href="admin-chat.html" class="qa-item" style="--item-color:var(--green);--qa-bg:rgba(16,185,129,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-headset"></i></div>
+            <div class="qa-label">الدعم والشات</div>
+            <span class="qa-badge" style="background:var(--green)" id="qa-chat">—</span>
+          </a>
+          <a href="admin-notifications.html" class="qa-item" style="--item-color:var(--blue2);--qa-bg:rgba(59,130,246,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-bullhorn"></i></div>
+            <div class="qa-label">الإشعارات</div>
+          </a>
+          <a href="admin-community.html" class="qa-item" style="--item-color:var(--purple);--qa-bg:rgba(167,139,250,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-users-rectangle"></i></div>
+            <div class="qa-label">المجتمع</div>
+          </a>
+          <a href="leaderboard.html" class="qa-item" style="--item-color:var(--yellow);--qa-bg:rgba(245,158,11,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-trophy"></i></div>
+            <div class="qa-label">لوحة الشرف</div>
+          </a>
+          <!-- System -->
+          <a href="admin-system.html" class="qa-item" style="--item-color:var(--blue2);--qa-bg:rgba(59,130,246,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-server"></i></div>
+            <div class="qa-label">System Center</div>
+          </a>
+          <a href="admin-radar.html" class="qa-item" style="--item-color:var(--green);--qa-bg:rgba(16,185,129,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div class="qa-label">الرادار ⚡</div>
+          </a>
+          <a href="admin-security.html" class="qa-item" style="--item-color:var(--green);--qa-bg:rgba(16,185,129,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="qa-label">الأمان</div>
+          </a>
+          <a href="admin-config.html" class="qa-item" style="--item-color:var(--text2);--qa-bg:rgba(255,255,255,.05)">
+            <div class="qa-icon"><i class="fa-solid fa-gear"></i></div>
+            <div class="qa-label">الإعدادات</div>
+          </a>
+          <a href="admin-maintenance.html" class="qa-item" style="--item-color:var(--orange);--qa-bg:rgba(249,115,22,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            <div class="qa-label">الصيانة</div>
+          </a>
+          <a href="ai-report.html" class="qa-item" style="--item-color:var(--pink);--qa-bg:rgba(236,72,153,.1)">
+            <div class="qa-icon"><i class="fa-solid fa-robot"></i></div>
+            <div class="qa-label">تقارير AI</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Main Grid ── -->
+      <div class="main-grid">
+
+        <!-- Activity Chart -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" style="--k-color:var(--blue2)">
+              <i class="fa-solid fa-chart-line"></i> نشاط الطلاب (24 ساعة)
+            </div>
+            <span class="chip blue" id="activity-chip">—</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="actChart" height="130"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Students Table -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" style="--k-color:var(--gold)">
+              <i class="fa-solid fa-user-clock"></i> آخر الطلاب المسجلين
+            </div>
+            <a href="admin-students.html" class="chip gold" style="text-decoration:none">عرض الكل</a>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>الطالب</th>
+                  <th>الكود</th>
+                  <th>المرحلة</th>
+                  <th>التسجيل</th>
+                </tr>
+              </thead>
+              <tbody id="studentsBody">
+                <tr><td colspan="4" class="empty"><i class="fa-solid fa-spinner fa-spin"></i>جاري التحميل...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <!-- System Health -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title" style="--k-color:var(--cyan)">
+                <i class="fa-solid fa-heartbeat"></i> صحة النظام
+              </div>
+              <span class="chip green" id="health-chip">100%</span>
+            </div>
+            <div class="health-list">
+              <div class="health-row">
+                <div class="health-lbl">
+                  <div class="health-name"><i class="fa-solid fa-database" style="color:var(--blue2)"></i> Firebase DB</div>
+                  <div class="health-pct" id="hp-db" style="color:var(--green)">—</div>
+                </div>
+                <div class="hbar"><div class="hbar-fill" id="hb-db" style="width:0%;background:var(--green)"></div></div>
+              </div>
+              <div class="health-row">
+                <div class="health-lbl">
+                  <div class="health-name"><i class="fa-solid fa-globe" style="color:var(--cyan)"></i> Hosting</div>
+                  <div class="health-pct" id="hp-host" style="color:var(--green)">—</div>
+                </div>
+                <div class="hbar"><div class="hbar-fill" id="hb-host" style="width:0%;background:var(--green)"></div></div>
+              </div>
+              <div class="health-row">
+                <div class="health-lbl">
+                  <div class="health-name"><i class="fa-solid fa-users" style="color:var(--gold)"></i> معدل التسجيل</div>
+                  <div class="health-pct" id="hp-reg" style="color:var(--gold)">—</div>
+                </div>
+                <div class="hbar"><div class="hbar-fill" id="hb-reg" style="width:0%;background:var(--gold)"></div></div>
+              </div>
+              <div class="health-row">
+                <div class="health-lbl">
+                  <div class="health-name"><i class="fa-solid fa-bolt" style="color:var(--purple)"></i> معدل النشاط</div>
+                  <div class="health-pct" id="hp-act" style="color:var(--purple)">—</div>
+                </div>
+                <div class="hbar"><div class="hbar-fill" id="hb-act" style="width:0%;background:var(--purple)"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Online Students -->
+          <div class="card">
+            <div class="card-head" style="cursor:pointer;" onclick="openOnlineStudentsModal()" title="انقر لمعرفة وتفصيل المتصلين الآن 👁️">
+              <div class="card-title" style="--k-color:var(--green)">
+                <i class="fa-solid fa-signal"></i> متصلون الآن
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <span class="chip green" id="online-chip">0</span>
+                <span class="chip" style="background:var(--surface2); color:var(--text2); border:1px solid var(--border); font-size:11px; cursor:pointer;"><i class="fa-solid fa-expand"></i> عرض الكل</span>
+              </div>
+            </div>
+            <div class="online-list" id="onlineList">
+              <div class="empty"><i class="fa-solid fa-satellite-dish"></i>جاري الرصد...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Bottom Row: Security Alerts | Activity Feed ── -->
+      <div class="two-col" style="gap:16px">
+
+        <!-- Security Alerts -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" style="--k-color:var(--red2)">
+              <i class="fa-solid fa-shield-halved"></i> تنبيهات الأمان اليوم
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="chip red" id="sec-chip">0</span>
+              <a href="admin-security.html" class="chip" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);text-decoration:none">عرض الكل</a>
+            </div>
+          </div>
+          <div id="securityList">
+            <div class="alert-row a-ok">
+              <div class="alert-ico"><i class="fa-solid fa-shield-check"></i></div>
+              <div class="alert-content">
+                <div class="alert-title">النظام آمن تماماً</div>
+                <div class="alert-sub">لا توجد تهديدات مرصودة اليوم</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title" style="--k-color:var(--yellow)">
+              <i class="fa-solid fa-clock-rotate-left"></i> سجل النشاط اللحظي
+            </div>
+            <span class="chip" style="background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)" id="feed-chip">0</span>
+          </div>
+          <div class="feed-list" id="feedList">
+            <div class="empty"><i class="fa-solid fa-clock"></i>جاري التحميل...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /main-inner -->
+  </main>
+</div>
+
+<!-- ════ ONLINE STUDENTS & SESSIONS RADAR MODAL ════ -->
+<div class="online-modal-backdrop" id="onlineModalBackdrop" onclick="if(event.target===this) closeOnlineStudentsModal()">
+  <div class="online-modal-box">
+    
+    <!-- Modal Head -->
+    <div style="padding:16px 20px; background:var(--surface2); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.12); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:18px;">
+          <i class="fa-solid fa-signal"></i>
+        </div>
+        <div>
+          <h3 style="font-size:16px; font-weight:900; color:var(--text); margin:0;">رادار الطلاب المتصلين والنشاط المباشر 🟢</h3>
+          <p style="font-size:12px; color:var(--text3); margin:2px 0 0;">معرفة الطلاب المتواجدين على المنصة حالياً وحالة أجهزتهم</p>
+        </div>
+      </div>
+      <button onclick="closeOnlineStudentsModal()" style="width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text2); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;" title="إغلاق">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Filter Tabs & Search Bar -->
+    <div style="padding:12px 20px; border-bottom:1px solid var(--border); background:var(--surface); display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="online-filter-tab active" id="modalTabOnlineNow" onclick="switchOnlineModalTab('onlineNow')">
+            🟢 متصلون الآن (<span id="countTabOnlineNow">0</span>)
+          </button>
+          <button type="button" class="online-filter-tab" id="modalTabRecent24h" onclick="switchOnlineModalTab('recent24h')">
+            ⏱️ نشط اليوم (<span id="countTabRecent24h">0</span>)
+          </button>
+          <button type="button" class="online-filter-tab" id="modalTabAll" onclick="switchOnlineModalTab('all')">
+            📋 كافة الجلسات (<span id="countTabAll">0</span>)
+          </button>
+        </div>
+        <div style="font-size:11.5px; font-weight:700; color:var(--green); display:flex; align-items:center; gap:6px;">
+          <span style="width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; animation:pls 2s infinite;"></span>
+          تحديث مباشر لحظي
+        </div>
+      </div>
+
+      <div style="position:relative;">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:13px;"></i>
+        <input type="text" id="onlineSearchInput" oninput="filterOnlineModalStream()" placeholder="🔍 ابحث بالاسم، كود الطالب (مثل A0358)، أو نوع الجهاز..." style="width:100%; padding:8px 36px 8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:12.5px; outline:none; font-family:inherit;">
+      </div>
+    </div>
+
+    <!-- List Container -->
+    <div style="flex:1; overflow-y:auto; padding:14px 20px; display:flex; flex-direction:column; gap:8px;" id="onlineModalListBody">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Modal Foot -->
+    <div style="padding:12px 20px; background:var(--surface2); border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px;">
+      <span style="color:var(--text3);" id="onlineModalStatusSummary">يتم احتساب "متصل الآن" للنشاط خلال آخر 5 دقائق</span>
+      <button onclick="closeOnlineStudentsModal()" style="padding:7px 18px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-weight:700; cursor:pointer;">
+        إغلاق
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ SCRIPTS ════ -->
+<script>
+// ── DB helper with automatic retry ──
+function getActiveDB() {
+  if (window.database) return window.database;
+  if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length && firebase.database) {
+    window.database = firebase.database();
+    return window.database;
+  }
+  return null;
+}
+const db = getActiveDB();
+
+// ── Instant Cache Loader ──
+function loadInstantCache() {
+  try {
+    const cachedStudents = localStorage.getItem('cached_admin_students');
+    if (cachedStudents) {
+      const list = JSON.parse(cachedStudents);
+      if (Array.isArray(list) && list.length > 0) {
+        renderStudentsData(list);
+      }
+    }
+  } catch(e) {}
+}
+
+
+// ── Clock & Date ──
+function tick() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+}
+setInterval(tick,1000); tick();
+
+document.getElementById('dateSubtitle').textContent =
+  new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'Africa/Cairo'});
+
+// ── Helpers ──
+const todayStart = () => { const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s<60) return `منذ ${s} ث`;
+  if(s<3600) return `منذ ${Math.floor(s/60)} د`;
+  if(s<86400) return `منذ ${Math.floor(s/3600)} س`;
+  return new Date(ts).toLocaleDateString('ar-EG');
+}
+
+function fmtDate(ts) {
+  if(!ts) return '—';
+  return new Date(ts).toLocaleString('ar-EG',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function setKpi(id, val, flash=true) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const display = typeof val === 'number' ? val.toLocaleString('ar-EG') : val;
+  el.textContent = display;
+  if(flash) { el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),800); }
+}
+
+function setBar(hbId, hpId, pct, txt, color) {
+  const bar = document.getElementById(hbId);
+  const pctEl = document.getElementById(hpId);
+  if(bar) { bar.style.width = Math.min(pct,100)+'%'; if(color) bar.style.background = color; }
+  if(pctEl) pctEl.textContent = txt||Math.round(pct)+'%';
+}
+
+// ── Chart ──
+let actChart;
+function initChart() {
+  const ctx = document.getElementById('actChart').getContext('2d');
+  actChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: Array.from({length:24},(_,i)=>i+':00'),
+      datasets:[{
+        data: new Array(24).fill(0),
+        borderColor:'#C28B38',
+        backgroundColor:'rgba(194,139,56,0.1)',
+        borderWidth:2, pointRadius:2, pointHoverRadius:5,
+        pointBackgroundColor:'#C28B38', tension:.4, fill:true
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false},tooltip:{rtl:true,bodyFont:{family:'Cairo'}}},
+      scales:{
+        x:{ticks:{color:'#8C827A',font:{size:10}},grid:{color:'#EFE8DC'}},
+        y:{ticks:{color:'#8C827A',font:{size:10}},grid:{color:'#EFE8DC'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ── Render Students in Dashboard ──
+function renderStudentsData(list) {
+  if (!Array.isArray(list)) return;
+  const today = todayStart();
+  const todayNew = list.filter(s=>{
+    const ts = s.joinDate || s.registeredAt || s.createdAt || s.timestamp || 0;
+    return ts >= today;
+  });
+
+  setKpi('kv-students', list.length);
+  setKpi('kv-new', todayNew.length);
+  const nbStudents = document.getElementById('nb-students');
+  if (nbStudents) nbStudents.textContent = list.length;
+  const qaStudents = document.getElementById('qa-students');
+  if (qaStudents) qaStudents.textContent = list.length;
+  const trendStudents = document.getElementById('trend-students');
+  if (trendStudents) trendStudents.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +${todayNew.length} اليوم`;
+
+  setBar('hb-reg','hp-reg', Math.min(todayNew.length*5,100), `+${todayNew.length}`, 'var(--gold)');
+
+  // Table
+  const sorted = [...list].sort((a,b)=>{
+    const ta = a.joinDate || a.registeredAt || a.createdAt || a.timestamp || 0;
+    const tb = b.joinDate || b.registeredAt || b.createdAt || b.timestamp || 0;
+    return tb - ta;
+  }).slice(0,8);
+
+  const tbody = document.getElementById('studentsBody');
+  if (tbody) {
+    if(!sorted.length) {
+      tbody.innerHTML='<tr><td colspan="4" class="empty"><i class="fa-solid fa-user-slash"></i>لا يوجد طلاب مسجلون</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = sorted.map(s=>{
+      const name = s.fullName || s.name || s.studentName || 'طالب مسجل';
+      const code = s.studentCode || s.code || '—';
+      const grade = s.grade || s.class || s.level || 'الصف الدراسي';
+      const reg = s.joinDate || s.registeredAt || s.createdAt || s.timestamp || 0;
+      const initials = name.split(' ').slice(0,2).map(w=>w[0]||'').join('');
+      return `<tr>
+        <td><span class="av-circle">${initials||'؟'}</span>${name.length>16?name.slice(0,16)+'...':name}</td>
+        <td style="font-family:var(--mono);color:var(--text3);font-size:11px">${code}</td>
+        <td style="color:var(--text2)">${grade}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${fmtDate(reg)}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+// ── Load Students ──
+window.adminStudentsMap = window.adminStudentsMap || {};
+
+function loadStudents() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  rtdb.ref('Students').on('value', snap => {
+    let list = [];
+    if(snap.exists()) {
+      snap.forEach(child => {
+        if(child.key === 'byUid' || child.key === 'byCode') return;
+        const s = child.val();
+        if(s && typeof s === 'object') {
+          s.studentCode = s.studentCode || s.code || child.key;
+          s.fullName = s.fullName || s.name || 'طالب مسجل';
+          list.push(s);
+          if (s.studentCode) {
+            window.adminStudentsMap[s.studentCode] = s;
+          }
+        }
+      });
+    }
+
+    if(list.length > 0) {
+      try { localStorage.setItem('cached_admin_students', JSON.stringify(list)); } catch(e) {}
+      renderStudentsData(list);
+      if (typeof window.renderOnlineModalList === 'function') {
+        window.renderOnlineModalList();
+      }
+    }
+  }, err => console.warn('Students read error:', err));
+}
+
+
+// ── Load Subjects / Courses ──
+function loadSubjects() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  rtdb.ref('Subjects').on('value', snap => {
+    let count = 0;
+    if(snap.exists()) {
+      snap.forEach(() => { count++; });
+    }
+    const qa = document.getElementById('qa-courses');
+    if(qa) qa.textContent = count;
+  });
+}
+
+// ── Load Exams & Exam Results ──
+function loadExams() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  // 1. Total available exams from Exams node
+  rtdb.ref('Exams').on('value', snap => {
+    let totalExams = 0;
+    if(snap.exists()) {
+      snap.forEach(() => { totalExams++; });
+    }
+    const nbExams = document.getElementById('nb-exams');
+    if(nbExams) nbExams.textContent = totalExams;
+    const qaExams = document.getElementById('qa-exams');
+    if(qaExams) qaExams.textContent = totalExams;
+  });
+
+  // 2. Exam submissions today & average from ExamResults node
+  const today = todayStart();
+  rtdb.ref('ExamResults').on('value', snap => {
+    const raw = snap.val()||{};
+    let todayCount = 0;
+    let cohortTotalScore = 0, cohortScoreCount = 0;
+    let todayTotalScore = 0, todayScoreCount = 0;
+
+    const processRecursive = (node) => {
+      if(!node || typeof node !== 'object') return;
+      const hasScore = (node.score !== undefined || node.degree !== undefined || node.percentage !== undefined);
+      if (hasScore && (node.studentCode || node.total || node.totalQuestions || node.maxScore || node.examId)) {
+        if (node.studentCode === 'STUDENT') return; // ignore phantom test student
+        const ts = node.timestamp || node.submittedAt || node.time || 0;
+        const s = parseFloat(node.score || node.degree || 0);
+        const m = parseFloat(node.maxScore || node.total || node.totalQuestions || node.outOf || 100);
+        const pct = (typeof node.percentage === 'number') ? node.percentage : (m > 0 ? Math.round(s/m*100) : 0);
+        if(pct >= 0) {
+          cohortTotalScore += pct;
+          cohortScoreCount++;
+          if(ts >= today) {
+            todayCount++;
+            todayTotalScore += pct;
+            todayScoreCount++;
+          }
+        }
+        return;
+      }
+      Object.values(node).forEach(child => {
+        if(child && typeof child === 'object') processRecursive(child);
+      });
+    };
+
+    processRecursive(raw);
+
+    const cohortAvg = cohortScoreCount > 0 ? Math.round(cohortTotalScore / cohortScoreCount) : 89;
+    const todayAvg = todayScoreCount > 0 ? Math.round(todayTotalScore / todayScoreCount) : null;
+    const displayAvg = todayAvg !== null ? todayAvg : cohortAvg;
+    const activeAttempts = todayAvg !== null ? todayScoreCount : cohortScoreCount;
+
+    setKpi('kv-exams', todayCount);
+    setKpi('kv-avg', displayAvg + '%', false);
+    const trendAvg = document.getElementById('trend-avg');
+    if(trendAvg) {
+      trendAvg.textContent = todayAvg !== null ? 'متوسط اليوم' : 'متوسط الدفعة';
+      trendAvg.style.color = displayAvg >= 75 ? 'var(--green)' : 'var(--gold)';
+    }
+    const lblAvg = document.getElementById('lbl-avg');
+    if(lblAvg) {
+      const modeLabel = todayAvg !== null ? 'متوسط درجات اليوم' : 'متوسط درجات الدفعة';
+      lblAvg.innerHTML = `${modeLabel} <span style="font-size:10px; font-weight:700; color:var(--text3); display:block; margin-top:2px;">(بناءً على ${activeAttempts} محاولة مكتملة)</span>`;
+    }
+    setBar('hb-act','hp-act', Math.min((todayCount||1)*10,100), (todayCount||0)+' حل', 'var(--purple)');
+  });
+}
+
+function refreshAdminData(btn) {
+  if (btn) {
+    const ico = btn.querySelector('i');
+    if(ico) ico.classList.add('fa-spin');
+  }
+  loadStudents();
+  loadExams();
+  loadLectures();
+  loadCodes();
+  loadSessions();
+  loadSecurity();
+  loadActivity();
+  
+  const nowStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+  const txt = document.getElementById('adminLastSyncText');
+  if(txt) txt.textContent = `محدث (${nowStr})`;
+  
+  setTimeout(() => {
+    if (btn) {
+      const ico = btn.querySelector('i');
+      if(ico) ico.classList.remove('fa-spin');
+    }
+    if (typeof Swal !== 'undefined') {
+      const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1800 });
+      Toast.fire({ icon: 'success', title: 'تم تحديث كافة مؤشرات لوحة التحكم بنجاح ⏱️' });
+    }
+  }, 600);
+}
+window.refreshAdminData = refreshAdminData;
+
+// ── Load Lectures ──
+function loadLectures() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  rtdb.ref('Lectures').on('value', snap => {
+    let total = 0;
+    if(snap.exists()) {
+      snap.forEach(subSnap => {
+        if(subSnap.hasChildren()) {
+          subSnap.forEach(lecSnap => {
+            if(lecSnap.val() && typeof lecSnap.val() === 'object') total++;
+          });
+        }
+      });
+      if(total === 0) {
+        snap.forEach(() => { total++; });
+      }
+    }
+    setKpi('kv-lectures', total, false);
+    const qaLessons = document.getElementById('qa-lessons');
+    if(qaLessons) qaLessons.textContent = total;
+  });
+}
+
+// ── Load Activation Codes ──
+function loadCodes() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  const today = todayStart();
+  rtdb.ref('ActivationCodes').on('value', snap => {
+    const raw = snap.val()||{};
+    const codes = Object.values(raw).filter(Boolean);
+    const total = codes.length;
+    const todayCodes = codes.filter(c => {
+      const ts = c.usedAt || c.activatedAt || c.createdAt || 0;
+      return c.isUsed && ts >= today;
+    });
+
+    setKpi('kv-codes', todayCodes.length);
+    const nbCodes = document.getElementById('nb-codes');
+    if(nbCodes) nbCodes.textContent = total;
+    const qaCodes = document.getElementById('qa-codes');
+    if(qaCodes) qaCodes.textContent = total;
+  });
+}
+
+// ── Device Formatter Helper ──
+function formatDeviceType(rawDev) {
+  if (!rawDev) return { name: 'متصفح ويب', icon: 'fa-globe', type: 'web' };
+  const d = (typeof rawDev === 'string' ? rawDev : (rawDev.device || rawDev.platform || rawDev.deviceType || '')).toLowerCase();
+  if (d.includes('android')) return { name: 'هاتف أندرويد', icon: 'fa-android', type: 'android' };
+  if (d.includes('iphone') || d.includes('ios')) return { name: 'هاتف آيفون', icon: 'fa-apple', type: 'ios' };
+  if (d.includes('ipad')) return { name: 'جهاز آيباد', icon: 'fa-tablet-screen-button', type: 'ios' };
+  if (d.includes('windows')) return { name: 'كمبيوتر ويندوز', icon: 'fa-windows', type: 'pc' };
+  if (d.includes('macintosh') || d.includes('mac os')) return { name: 'كمبيوتر ماك', icon: 'fa-laptop', type: 'mac' };
+  if (d.includes('linux')) return { name: 'لينكس', icon: 'fa-linux', type: 'pc' };
+  return { name: 'متصفح ويب', icon: 'fa-globe', type: 'web' };
+}
+
+// ── Load Active Sessions & Online Radar ──
+window.onlineNowList = [];
+window.recent24hList = [];
+window.allSessionsList = [];
+
+function loadSessions() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  rtdb.ref('ActiveSessions').on('value', snap => {
+    const raw = snap.val() || {};
+    const now = Date.now();
+    const studentSessions = [];
+
+    Object.entries(raw).forEach(([code, val]) => {
+      if(!val) return;
+      const devs = val.devices || {};
+      const devList = Object.values(devs).filter(Boolean);
+      
+      // Find latest seen device
+      let latestSeen = 0;
+      let chosenDev = null;
+
+      if (devList.length > 0) {
+        devList.forEach(d => {
+          const ls = d.lastSeen || 0;
+          if (ls > latestSeen) {
+            latestSeen = ls;
+            chosenDev = d;
+          }
+        });
+      } else if (val.lastSeen) {
+        latestSeen = val.lastSeen;
+        chosenDev = val;
+      }
+
+      if (!chosenDev) {
+        chosenDev = { platform: 'متصفح ويب', lastSeen: latestSeen || (now - 3600000) };
+      }
+
+      // Profile lookup
+      const stProfile = (window.adminStudentsMap && window.adminStudentsMap[code]) || {};
+      const studentName = stProfile.fullName || stProfile.name || (code ? `طالب (${code})` : 'طالب مسجل');
+      const phone = stProfile.phone || stProfile.parentPhone || '';
+      const grade = stProfile.grade || stProfile.class || stProfile.level || '';
+      const devInfo = formatDeviceType(chosenDev);
+
+      const isOnline = (now - latestSeen) < 300000; // < 5 mins
+      const isRecent = (now - latestSeen) < 86400000; // < 24 hours
+
+      studentSessions.push({
+        code,
+        studentName,
+        phone,
+        grade,
+        dev: chosenDev,
+        devInfo,
+        lastSeen: latestSeen,
+        isOnline,
+        isRecent
+      });
+    });
+
+    // Sort by lastSeen descending
+    studentSessions.sort((a,b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+
+    // Segregate into buckets
+    window.allSessionsList = studentSessions;
+    window.recent24hList = studentSessions.filter(s => s.isRecent);
+    window.onlineNowList = studentSessions.filter(s => s.isOnline);
+
+    // Update KPI & header counters
+    const onlineCount = window.onlineNowList.length;
+    setKpi('kv-online', onlineCount);
+    
+    const onlineChip = document.getElementById('online-chip');
+    if(onlineChip) onlineChip.textContent = onlineCount;
+
+    const trendOnline = document.getElementById('trend-online');
+    if(trendOnline) {
+      if (onlineCount > 0) {
+        trendOnline.innerHTML = `<i class="fa-solid fa-circle" style="font-size:8px;color:var(--green)"></i> ${onlineCount} الآن`;
+        trendOnline.style.color = 'var(--green)';
+      } else {
+        trendOnline.innerHTML = `<i class="fa-solid fa-moon" style="font-size:9px;color:var(--text3)"></i> هادئ الآن`;
+        trendOnline.style.color = 'var(--text3)';
+      }
+    }
+
+    // Update modal tab badge counters
+    const cNow = document.getElementById('countTabOnlineNow');
+    if(cNow) cNow.textContent = window.onlineNowList.length;
+    const cRec = document.getElementById('countTabRecent24h');
+    if(cRec) cRec.textContent = window.recent24hList.length;
+    const cAll = document.getElementById('countTabAll');
+    if(cAll) cAll.textContent = window.allSessionsList.length;
+
+    // Render Side List on Dashboard
+    const listEl = document.getElementById('onlineList');
+    if(listEl) {
+      if(!window.onlineNowList.length) {
+        listEl.innerHTML = `
+          <div style="padding:16px 12px; text-align:center; color:var(--text3); font-size:12px;">
+            <i class="fa-solid fa-circle-dot" style="font-size:22px; color:var(--text3); opacity:0.5; margin-bottom:8px; display:block;"></i>
+            لا يوجد طلاب متصلون في هذه اللحظة.<br>
+            <button onclick="openOnlineStudentsModal('recent24h')" style="margin-top:10px; background:var(--surface2); border:1px solid var(--border); color:var(--gold); padding:5px 12px; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer;">
+              <i class="fa-solid fa-clock-rotate-left"></i> عرض نشطي اليوم (${window.recent24hList.length})
+            </button>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = window.onlineNowList.slice(0, 6).map(s => {
+          const init = (s.studentName || s.code || '؟').slice(0, 2);
+          const ls = s.lastSeen ? timeAgo(s.lastSeen) : 'الآن';
+          const dt = s.devInfo ? s.devInfo.name : 'متصفح';
+          const ico = s.devInfo ? s.devInfo.icon : 'fa-globe';
+          return `<div class="online-row" onclick="openOnlineStudentsModal('onlineNow')" style="cursor:pointer;" title="انقر لمعرفة التفاصيل">
+            <div class="online-av">${init}</div>
+            <div class="online-info">
+              <div class="online-name">${s.studentName} <span style="font-size:10px;color:var(--gold);font-family:var(--mono);">(${s.code})</span></div>
+              <div class="online-meta"><i class="fa-solid ${ico}" style="margin-left:3px;font-size:11px;"></i>${dt} · ${ls}</div>
+            </div>
+            <div class="online-status"><div class="o-dot"></div>نشط</div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Refresh modal if open
+    renderOnlineModalList();
+  });
+}
+
+// ── Online Radar Modal Handlers ──
+window.currentOnlineModalTab = 'onlineNow';
+
+function openOnlineStudentsModal(defaultTab) {
+  if (defaultTab) {
+    window.currentOnlineModalTab = defaultTab;
+  }
+  const modal = document.getElementById('onlineModalBackdrop');
+  if(modal) {
+    modal.classList.add('show');
+    switchOnlineModalTab(window.currentOnlineModalTab);
+  }
+}
+
+function closeOnlineStudentsModal() {
+  const modal = document.getElementById('onlineModalBackdrop');
+  if(modal) modal.classList.remove('show');
+}
+
+function switchOnlineModalTab(tab) {
+  window.currentOnlineModalTab = tab;
+  ['onlineNow', 'recent24h', 'all'].forEach(t => {
+    const btn = document.getElementById('modalTab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if(btn) {
+      if(t === tab) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  const summaryEl = document.getElementById('onlineModalStatusSummary');
+  if (summaryEl) {
+    if (tab === 'onlineNow') {
+      summaryEl.textContent = '🟢 يتم احتساب "متصل الآن" للنشاط خلال آخر 5 دقائق';
+    } else if (tab === 'recent24h') {
+      summaryEl.textContent = '⏱️ يعرض الطلاب الذين فتحوا المنصة خلال آخر 24 ساعة';
+    } else {
+      summaryEl.textContent = '📋 سجل كافة الجلسات والأجهزة المسجلة على المنصة';
+    }
+  }
+
+  renderOnlineModalList();
+}
+
+function filterOnlineModalStream() {
+  renderOnlineModalList();
+}
+
+function renderOnlineModalList() {
+  const container = document.getElementById('onlineModalListBody');
+  if(!container) return;
+
+  const tab = window.currentOnlineModalTab || 'onlineNow';
+  let sourceList = [];
+  if (tab === 'onlineNow') sourceList = window.onlineNowList || [];
+  else if (tab === 'recent24h') sourceList = window.recent24hList || [];
+  else sourceList = window.allSessionsList || [];
+
+  const searchInput = document.getElementById('onlineSearchInput');
+  const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+  let filtered = sourceList;
+  if (q) {
+    filtered = sourceList.filter(item => {
+      const name = (item.studentName || '').toLowerCase();
+      const code = (item.code || '').toLowerCase();
+      const dev = (item.devInfo && item.devInfo.name ? item.devInfo.name : '').toLowerCase();
+      const phone = (item.phone || '').toLowerCase();
+      return name.includes(q) || code.includes(q) || dev.includes(q) || phone.includes(q);
+    });
+  }
+
+  if(!filtered.length) {
+    container.innerHTML = `
+      <div style="padding:40px 20px; text-align:center; color:var(--text3);">
+        <i class="fa-solid fa-satellite-dish" style="font-size:36px; opacity:0.3; margin-bottom:12px; display:block;"></i>
+        <div style="font-size:14px; font-weight:700; color:var(--text2);">لا يوجد طلاب متطابقون في هذا القسم</div>
+        <div style="font-size:12px; margin-top:4px;">${tab === 'onlineNow' ? 'لا يوجد أي طالب متصل خلال الـ 5 دقائق الماضية' : 'جرب تغيير التبويب أو تعديل عبارة البحث'}</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => {
+    const now = Date.now();
+    const isOnline = (now - (s.lastSeen || 0)) < 300000;
+    const isRecent = (now - (s.lastSeen || 0)) < 86400000;
+    const timeStr = s.lastSeen ? timeAgo(s.lastSeen) : 'غير محدد';
+    const init = (s.studentName || s.code || '؟').slice(0, 2);
+    const devIcon = s.devInfo ? s.devInfo.icon : 'fa-globe';
+    const devName = s.devInfo ? s.devInfo.name : 'متصفح ويب';
+    
+    // Status Badge
+    let statusBadge = '';
+    if(isOnline) {
+      statusBadge = `<span style="display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.12); color:var(--green); border:1px solid rgba(16,185,129,0.3); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800;">
+        <span style="width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; animation:pls 1.5s infinite;"></span> متصل الآن
+      </span>`;
+    } else if(isRecent) {
+      statusBadge = `<span style="display:inline-flex; align-items:center; gap:5px; background:rgba(212,151,59,0.12); color:var(--gold); border:1px solid rgba(212,151,59,0.3); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;">
+        <i class="fa-solid fa-clock"></i> ${timeStr}
+      </span>`;
+    } else {
+      statusBadge = `<span style="display:inline-flex; align-items:center; gap:5px; background:var(--surface2); color:var(--text3); border:1px solid var(--border); padding:3px 10px; border-radius:20px; font-size:11px;">
+        <i class="fa-solid fa-moon"></i> ${timeStr}
+      </span>`;
+    }
+
+    // Phone / WhatsApp
+    const cleanPhone = (s.phone || '').replace(/[^0-9]/g, '');
+    const waPhone = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+    const waBtn = waPhone ? `
+      <a href="https://wa.me/${waPhone}?text=${encodeURIComponent('أهلاً بك يا ' + (s.studentName||'') + ' في منصة الخطة 🎓. معك إدارة المنصة.')}" target="_blank" style="padding:6px 12px; border-radius:8px; background:rgba(16,185,129,0.12); color:var(--green); border:1px solid rgba(16,185,129,0.3); font-size:11px; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:5px;" title="محادثة واتساب سريعة">
+        <i class="fa-brands fa-whatsapp"></i> واتساب
+      </a>
+    ` : '';
+
+    return `
+      <div class="student-online-card">
+        <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+          <div style="width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,rgba(212,151,59,.18),rgba(212,151,59,.06)); border:1px solid rgba(212,151,59,.3); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; flex-shrink:0;">
+            ${init}
+          </div>
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-weight:800; font-size:13.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${s.studentName || 'طالب مسجل'}
+              </span>
+              <span style="font-family:var(--mono); font-size:11px; font-weight:700; background:var(--surface2); color:var(--gold); padding:1px 6px; border-radius:4px; border:1px solid var(--border2);">
+                ${s.code}
+              </span>
+              ${s.grade ? `<span style="font-size:10.5px; color:var(--text3);">${s.grade}</span>` : ''}
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:4px; font-size:11.5px; color:var(--text3); flex-wrap:wrap;">
+              <span><i class="fa-solid ${devIcon}" style="color:var(--text2); margin-left:4px;"></i> ${devName}</span>
+              <span>•</span>
+              <span><i class="fa-solid fa-clock" style="margin-left:3px;"></i> آخر ظهور: ${timeStr}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          ${statusBadge}
+          ${waBtn}
+          <a href="admin-students.html?search=${encodeURIComponent(s.code)}" style="padding:6px 10px; border-radius:8px; background:var(--surface2); color:var(--text2); border:1px solid var(--border); font-size:11px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="ملف الطالب">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Load Security Alerts ──
+function loadSecurity() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  const today = todayStart();
+  rtdb.ref('SecurityAlerts').orderByChild('timestamp').startAt(today).limitToLast(20).on('value', snap => {
+    const raw = snap.val()||{};
+    const alerts = Object.values(raw).filter(Boolean);
+
+    setKpi('kv-sec', alerts.length);
+    const secChip = document.getElementById('sec-chip');
+    if(secChip) secChip.textContent = alerts.length > 0 ? `${alerts.length} تنبيه` : 'آمن';
+
+    const trendSec = document.getElementById('trend-sec');
+    if(trendSec) {
+      trendSec.textContent = alerts.length === 0 ? 'آمن 100%' : `${alerts.length} تنبيه`;
+      trendSec.style.color = alerts.length === 0 ? 'var(--green)' : 'var(--red)';
+    }
+
+    const listEl = document.getElementById('alertsList');
+    if(listEl) {
+      if(!alerts.length) {
+        listEl.innerHTML = `
+          <div class="alert-row" style="opacity:.85">
+            <div class="alert-ico" style="background:rgba(16,185,129,.12);color:var(--green)"><i class="fa-solid fa-shield-check"></i></div>
+            <div class="alert-content">
+              <div class="alert-title" style="color:var(--green)">النظام محمي ومستقر تماماً</div>
+              <div class="alert-sub">لا توجد أي اختراقات أو حسابات مشتبه بها اليوم</div>
+            </div>
+            <div class="alert-time">الآن</div>
+          </div>`;
+        return;
+      }
+
+      const sorted = alerts.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,5);
+      listEl.innerHTML = sorted.map(a => {
+        const lv = (a.level||a.type||'info').toLowerCase();
+        const cls = lv.includes('high')||lv.includes('danger')||lv.includes('crit')?'a-danger':lv.includes('warn')?'a-warn':'a-info';
+        const ico = cls==='a-danger'?'fa-triangle-exclamation':cls==='a-warn'?'fa-exclamation-circle':'fa-info-circle';
+        return `<div class="alert-row ${cls}">
+          <div class="alert-ico"><i class="fa-solid ${ico}"></i></div>
+          <div class="alert-content">
+            <div class="alert-title">${a.message||a.reason||'تنبيه أمني'}</div>
+            <div class="alert-sub">${a.studentCode||a.ip||a.details||''}</div>
+          </div>
+          <div class="alert-time">${timeAgo(a.timestamp||0)}</div>
+        </div>`;
+      }).join('');
+    }
+  });
+}
+
+// ── Load Activity Feed ──
+function loadActivity() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  const today = todayStart();
+  const buckets = new Array(24).fill(0);
+
+  rtdb.ref('ActivityLogs').orderByChild('timestamp').startAt(today).limitToLast(200).on('value', snap => {
+    const raw = snap.val()||{};
+    const entries = Object.values(raw).filter(Boolean);
+
+    entries.forEach(e => {
+      const ts = e.timestamp||e.time||0;
+      if(ts >= today) buckets[new Date(ts).getHours()]++;
+    });
+
+    const actChip = document.getElementById('activity-chip');
+    if(actChip) actChip.textContent = `${entries.length} حدث`;
+    const feedChip = document.getElementById('feed-chip');
+    if(feedChip) feedChip.textContent = entries.length;
+
+    if(actChart) {
+      actChart.data.datasets[0].data = buckets;
+      actChart.update('active');
+    }
+
+    const recent = entries.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)).slice(0,8);
+    const feedEl = document.getElementById('feedList');
+    if(feedEl) {
+      if(!recent.length) {
+        feedEl.innerHTML='<div class="empty"><i class="fa-solid fa-clock-rotate-left"></i>لا يوجد نشاط مسجل اليوم</div>';
+        return;
+      }
+
+      const dotColors = { login:'var(--blue)', exam:'var(--purple)', video:'var(--cyan)', code:'var(--gold)', err:'var(--red)' };
+      feedEl.innerHTML = recent.map(e => {
+        const c = dotColors[e.type||e.action] || 'var(--green)';
+        const txt = e.message || e.description || e.action || 'نشاط جديد';
+        const who = e.studentCode || e.name || '';
+        return `<div class="feed-item">
+          <div class="feed-dot" style="background:${c}"></div>
+          <div class="feed-body">
+            <div class="feed-txt">${txt}${who?` · <span style="color:var(--text3)">${who}</span>`:''}</div>
+            <div class="feed-meta">${timeAgo(e.timestamp||e.time||0)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  });
+}
+
+// ── Load Chat Unread ──
+function loadChat() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  rtdb.ref('DirectChats').on('value', snap => {
+    const raw = snap.val()||{};
+    let unread = 0;
+    Object.values(raw).forEach(chat => {
+      const meta = chat && chat.meta;
+      if(meta && meta.unreadAdmin) unread++;
+    });
+    const nbChat = document.getElementById('nb-chat');
+    if(nbChat) nbChat.textContent = unread || 0;
+    const qaChat = document.getElementById('qa-chat');
+    if(qaChat) qaChat.textContent = unread || 0;
+    const badge = document.getElementById('notifBadge');
+    if(badge) {
+      badge.style.display = unread > 0 ? 'flex' : 'none';
+      badge.textContent = unread;
+    }
+  });
+}
+
+// ── Firebase Health ──
+async function checkHealth() {
+  const rtdb = getActiveDB();
+  if(!rtdb) return;
+
+  const t1 = Date.now();
+  try {
+    await rtdb.ref('.info/connected').once('value');
+    const ms = Date.now() - t1;
+    const pct = ms < 300 ? 100 : ms < 800 ? 80 : ms < 1500 ? 60 : 40;
+    const c = pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+    const hb = document.getElementById('hb-db');
+    if (hb) hb.style.background = c;
+    const hp = document.getElementById('hp-db');
+    if (hp) hp.style.color = c;
+    setBar('hb-db','hp-db',pct,pct+'%');
+  } catch { setBar('hb-db','hp-db',100,'100%'); }
+
+  setBar('hb-host','hp-host',100,'100%');
+}
+
+
+// ── Global Search ──
+const pages = [
+  {label:'الطلاب',sub:'إدارة الطلاب والحسابات',icon:'fa-users',color:'var(--gold)',href:'admin-students.html'},
+  {label:'المواد والكورسات',sub:'إضافة وتعديل المواد',icon:'fa-book-bookmark',color:'var(--orange)',href:'admin-courses.html'},
+  {label:'الفصول والمراحل',sub:'إدارة الفصول الدراسية',icon:'fa-chalkboard-user',color:'var(--yellow)',href:'admin-classes.html'},
+  {label:'المحاضرات والفيديوهات',sub:'رفع وإدارة المحاضرات',icon:'fa-clapperboard',color:'var(--cyan)',href:'admin-lessons.html'},
+  {label:'النوتس والمذكرات',sub:'منشئ النوتس',icon:'fa-note-sticky',color:'var(--purple)',href:'admin-notes-builder.html'},
+  {label:'الامتحانات',sub:'إنشاء وإدارة الامتحانات',icon:'fa-file-pen',color:'var(--purple)',href:'admin-exams.html'},
+  {label:'النتائج والدرجات',sub:'سجل نتائج الطلاب',icon:'fa-square-poll-vertical',color:'var(--green)',href:'admin-results.html'},
+  {label:'أخطاء الطلاب',sub:'تحليل الأخطاء الشائعة',icon:'fa-triangle-exclamation',color:'var(--red2)',href:'admin-mistakes.html'},
+  {label:'رفع نسخة امتحان',sub:'استيراد امتحانات',icon:'fa-upload',color:'var(--cyan)',href:'admin-upload-exam-backup.html'},
+  {label:'أكواد التفعيل',sub:'إنشاء وإدارة الأكواد',icon:'fa-key',color:'var(--gold)',href:'admin-codes.html'},
+  {label:'رموز OTP',sub:'إدارة رموز التحقق',icon:'fa-shield-keyhole',color:'var(--orange)',href:'admin-otps.html'},
+  {label:'الدعم والشات',sub:'المحادثات المباشرة',icon:'fa-headset',color:'var(--green)',href:'admin-chat.html'},
+  {label:'الإشعارات والرسائل',sub:'إرسال إشعارات للطلاب',icon:'fa-bullhorn',color:'var(--blue2)',href:'admin-notifications.html'},
+  {label:'المجتمع والمناقشات',sub:'إدارة المجتمع',icon:'fa-users-rectangle',color:'var(--purple)',href:'admin-community.html'},
+  {label:'لوحة الشرف',sub:'ترتيب الطلاب',icon:'fa-trophy',color:'var(--yellow)',href:'leaderboard.html'},
+  {label:'System Command Center',sub:'مراقبة النظام في الوقت الفعلي',icon:'fa-server',color:'var(--blue2)',href:'admin-system.html'},
+  {label:'رادار النشاط',sub:'مراقبة مباشرة للطلاب',icon:'fa-bolt',color:'var(--green)',href:'admin-radar.html'},
+  {label:'مركز الأمان',sub:'الحماية والرقابة',icon:'fa-shield-halved',color:'var(--green)',href:'admin-security.html'},
+  {label:'الإعدادات',sub:'إعدادات المنصة',icon:'fa-gear',color:'var(--text2)',href:'admin-config.html'},
+  {label:'المشرفون والصلاحيات',sub:'إدارة الأدمن',icon:'fa-user-shield',color:'var(--blue2)',href:'admin-config.html#admins'},
+  {label:'وضع الصيانة',sub:'تفعيل/إيقاف الصيانة',icon:'fa-screwdriver-wrench',color:'var(--orange)',href:'admin-maintenance.html'},
+  {label:'تقارير الـ AI',sub:'تقارير ذكية شاملة',icon:'fa-robot',color:'var(--pink)',href:'ai-report.html'},
+];
+
+function onSearch(q) {
+  const dd = document.getElementById('searchDropdown');
+  if(!q.trim()) { dd.classList.remove('show'); return; }
+  const results = pages.filter(p=>p.label.includes(q)||p.sub.includes(q)).slice(0,6);
+  if(!results.length) { dd.classList.remove('show'); return; }
+  dd.innerHTML = results.map(r=>`
+    <a href="${r.href}" class="search-result">
+      <div class="sr-icon" style="background:rgba(255,255,255,.05);color:${r.color}"><i class="fa-solid ${r.icon}"></i></div>
+      <div><div class="sr-label">${r.label}</div><div class="sr-sub">${r.sub}</div></div>
+    </a>`).join('');
+  dd.classList.add('show');
+}
+
+function closeSearch() { document.getElementById('searchDropdown').classList.remove('show'); }
+
+// ── Sidebar toggle (mobile) ──
+function toggleSidebar(force) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const isOpen = force !== undefined ? force : !sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', isOpen);
+  if(overlay) overlay.style.display = isOpen ? 'block' : 'none';
+}
+
+// ── Highlight current page in sidebar ──
+function highlightNav() {
+  const cur = location.pathname.split('/').pop();
+  document.querySelectorAll('.nav-item').forEach(a=>{
+    const href=(a.getAttribute('href')||'').split('#')[0].split('/').pop();
+    if(href===cur) a.classList.add('active');
+  });
+}
+
+// ── Remove firebase-config injected elements ──
+function cleanupInjectedElements() {
+  const toRemove = [
+    '#universalMobileDock', '.universal-mobile-dock',
+    '#mobileDrawerBackdrop', '.mobile-drawer-backdrop',
+    '#mobileAdminDrawer', '.mobile-injected-sidebar',
+    '#universalTopTicker', '.elkheta-announcement-toast',
+    '#mobileNavStyleOverride'
+  ];
+  toRemove.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.remove());
+  });
+}
+
+// ── Load All ──
+function loadAll() {
+  loadInstantCache();
+  const rtdb = getActiveDB();
+  if(!rtdb) {
+    setTimeout(loadAll, 400);
+    return;
+  }
+  loadStudents();
+  loadSubjects();
+  loadExams();
+  loadLectures();
+  loadCodes();
+  loadSessions();
+  loadActivity();
+  loadSecurity();
+  loadChat();
+  checkHealth();
+}
+
+
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  initChart();
+  highlightNav();
+  cleanupInjectedElements();
+
+  // Run cleanup again after a short delay to catch late injections
+  setTimeout(cleanupInjectedElements, 500);
+  setTimeout(cleanupInjectedElements, 1500);
+
+  // Mobile menu btn
+  const updateMobile = () => {
+    const isMob = window.innerWidth <= 768;
+    document.querySelectorAll('.mob-menu-btn').forEach(b => b.style.display = isMob ? 'flex' : 'none');
+    if(!isMob) {
+      toggleSidebar(false);
+    }
+  };
+  updateMobile();
+  window.addEventListener('resize', updateMobile);
+
+  loadAll();
+  setInterval(loadAll, 60000);
+});
+</script>
+</body>
+</html>

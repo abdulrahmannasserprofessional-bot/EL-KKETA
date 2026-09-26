@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مركز الصيانة والتحكم - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        .switch-toggle-lg {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .switch-toggle-lg input { opacity: 0; width: 0; height: 0; }
+        .switch-slider-lg {
+            position: absolute; cursor: pointer; inset: 0;
+            background-color: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            transition: 0.2s;
+        }
+        .switch-slider-lg:before {
+            position: absolute; content: "";
+            height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: var(--text3);
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .switch-toggle-lg input:checked + .switch-slider-lg {
+            background-color: var(--red);
+            border-color: var(--red);
+        }
+        .switch-toggle-lg input:checked + .switch-slider-lg:before {
+            transform: translateX(24px);
+            background-color: #FFFFFF;
+        }
+
+        .countdown-digits-box {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: var(--mono);
+            color: var(--gold);
+            letter-spacing: 2px;
+            background: var(--surface2);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Preview Modal */
+        .preview-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .preview-modal-backdrop.active {
+            display: flex;
+        }
+        .preview-modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 560px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #EF4444, #B91C1C);">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Maintenance Control Center</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-wrench"></i>
+            <span>إدارة وتخصيص وضع الصيانة</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--red);">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">مركز إدارة وضع الصيانة والعد التنازلي</h1>
+                        <p class="page-subtitle">التحكم في إتاحة المنصة للطلاب، توقيتات الصيانة بالعداد الرقمي، وتخصيص رسائل الإغلاق</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-ghost" onclick="openLiveStudentModal()">
+                        <i class="fa-solid fa-eye"></i>
+                        <span>معاينة شاشة الطالب 📱</span>
+                    </button>
+                    <button class="btn btn-danger" onclick="triggerEmergencyStop()">
+                        <i class="fa-solid fa-hand"></i>
+                        <span>إيقاف الصيانة فوراً ⚡</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">حالة الصيانة الفورية</span>
+                        <div class="stat-icon-wrap" style="color: var(--red); background: rgba(239, 68, 68, 0.1);">
+                            <i class="fa-solid fa-power-off"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="topStatusText" style="font-size: 18px; color: var(--green);">المنصة مفتوحة 🟢</div>
+                    <div class="stat-sub" id="topStatusSub">الطلاب يمكنهم الدخول بشكل طبيعي</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">الوقت المتبقي للصيانة</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="heroDigitalClock" style="font-family: var(--mono); color: var(--gold);">00:00:00</div>
+                    <div class="stat-sub">عد تنازلي لحظي للفتح</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">الموعد المتوقع للانتهاء</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="expectedEndTimeText" style="font-size: 15px; font-family: var(--mono); color: var(--text);">لم يحدد بعد</div>
+                    <div class="stat-sub">يتم حسابه آلياً حسب المدة</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">نوع الإجراء الحالي</span>
+                        <div class="stat-icon-wrap" style="color: var(--purple); background: rgba(167, 139, 250, 0.1);">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="currentActionType" style="font-size: 16px;">عادي</div>
+                    <div class="stat-sub">تحت إشراف الإدارة العليا</div>
+                </div>
+            </div>
+
+            <!-- Controls 3 Grid -->
+            <div class="two-col" id="maintControlsGrid">
+
+                <!-- Card 1: Toggle & Duration -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-hourglass-half" style="color: var(--gold);"></i>
+                            <span>تفعيل الصيانة والمدة الزمنية</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                        
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                            <div>
+                                <div style="font-weight:900; font-size:14px; color:var(--text);" id="switchLabelText">معطل (المنصة مفتوحة للجميع)</div>
+                                <div style="font-size:11.5px; color:var(--text2);">تفعيل هذا الخيار يحول جميع الطلاب لشاشة الصيانة</div>
+                            </div>
+                            <label class="switch-toggle-lg">
+                                <input type="checkbox" id="maintSwitchInput" onchange="handleToggleChange(this.checked)">
+                                <span class="switch-slider-lg"></span>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="form-label">حدد قيمة ووحدة الوقت:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="durationValueNum" class="form-input" value="30" min="1" max="999" oninput="calculateEndTime()" style="width: 100px; text-align: center; font-family: var(--mono); font-weight: 800; font-size: 16px;">
+                                <select id="durationUnitDrop" class="form-select" onchange="calculateEndTime()">
+                                    <option value="minutes" selected>دقائق</option>
+                                    <option value="hours">ساعات</option>
+                                    <option value="days">أيام</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="setQuickDuration(15, 'minutes')">15 دقيقة</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="setQuickDuration(30, 'minutes')">30 دقيقة</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="setQuickDuration(1, 'hours')">ساعة واحدة</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="setQuickDuration(2, 'hours')">ساعتان</button>
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="setQuickDuration(6, 'hours')">6 ساعات</button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Card 2: Message & Templates -->
+                <div class="card" style="display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fa-solid fa-message" style="color: var(--blue);"></i>
+                            <span>رسالة وقالب شاشة الصيانة</span>
+                        </div>
+                        <span class="badge badge-gold" id="charCounterBadge">0 حرف</span>
+                    </div>
+
+                    <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                        
+                        <div>
+                            <label class="form-label">اختر قالباً جاهزاً:</label>
+                            <select id="templateMasterSelect" class="form-select" onchange="onTemplateSelect(this.value)">
+                                <optgroup label="🚀 التحديثات والتطوير">
+                                    <option value="tpl_update_general">🚀 تحديث شامل وترقية المنظومة</option>
+                                    <option value="tpl_update_2027">🎨 إطلاق التصميم الجديد للمنصة (نسخة 2027)</option>
+                                    <option value="tpl_ai_assistant">🤖 تفعيل وتحديث المساعد الذكي والكشكول</option>
+                                </optgroup>
+                                <optgroup label="🛠️ الصيانة والسيرفرات">
+                                    <option value="tpl_server_routine">🔧 صيانة دورية مجدولة ومنتظمة</option>
+                                    <option value="tpl_server_emergency">🚨 صيانة طارئة وسريعة للسيرفرات</option>
+                                    <option value="tpl_speed_boost">⚡ تحسين السرعة وتخفيف ضغط السيرفرات</option>
+                                    <option value="tpl_security_upgrade" selected>🛡️ ترقية وتحديث أمني شامل للحسابات</option>
+                                </optgroup>
+                                <optgroup label="📚 الشؤون الأكاديمية والامتحانات">
+                                    <option value="tpl_new_courses">📑 تجهيز ورفع مقررات وفصول جديدة</option>
+                                    <option value="tpl_exams_marathon">🏆 تجهيز ماراثون الامتحانات وبنوك الأسئلة</option>
+                                    <option value="tpl_results_audit">📊 استخراج وتدقيق نتائج الامتحانات والشهادات</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label">نص الرسالة التفصيلية للطلاب:</label>
+                            <textarea id="maintMessageTextarea" class="form-textarea" rows="4" placeholder="اكتب الرسالة التي تظهر للطلاب في شاشة الصيانة..." oninput="updateCharCounter()"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 6px;">
+                            <button class="btn btn-gold" onclick="saveAllMaintenanceData()" style="flex: 1; justify-content: center; padding: 11px;">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>حفظ وتطبيق إعدادات الصيانة الآن 💾</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ════ PREVIEW MODAL ════ -->
+<div class="preview-modal-backdrop" id="previewModal" onclick="if(event.target===this) closeLiveStudentModal()">
+    <div class="preview-modal-content">
+        <div class="card-header" style="background: var(--surface2);">
+            <div class="card-title">
+                <i class="fa-solid fa-mobile-screen" style="color: var(--gold);"></i>
+                <span>معاينة حية لشاشة الطالب أثناء الصيانة</span>
+            </div>
+            <button class="btn-icon btn-sm" onclick="closeLiveStudentModal()" title="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div style="padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+            <div style="width: 58px; height: 58px; border-radius: 16px; background: rgba(212,151,59,0.12); border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 26px;">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+
+            <h3 id="modalPrevTitle" style="font-size: 18px; font-weight: 900; color: var(--text);">المنصة تحت الصيانة والتحديث</h3>
+            <p id="modalPrevBody" style="font-size: 13.5px; color: var(--text2); line-height: 1.6; max-width: 440px;">نعمل حالياً على تحديث المنصة لتقديم أفضل تجربة دراسية لكم يا أبطال.</p>
+
+            <div class="countdown-digits-box" id="modalDigitsBox">00:29:45</div>
+        </div>
+
+        <div style="padding: 12px 18px; background: var(--surface2); border-top: 1px solid var(--border); text-align: left;">
+            <button class="btn btn-ghost btn-sm" onclick="closeLiveStudentModal()">إغلاق المعاينة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    var database = getDB();
+    let isMaintenanceModeOn = false;
+    let calculatedEndTimestamp = Date.now() + (30 * 60 * 1000);
+
+    const templatesDict = {
+        tpl_update_general: {
+            title: "تحديث شامل وترقية المنظومة",
+            body: "🚀 نقوم حالياً بعملية ترقية كبرى وموسعة لسيرفرات منصة الخطة لتحسين تجربة التصفح وسرعة الاستجابة.\nسنعود للعمل بكامل طاقتنا فور انتهاء الوقت المحدد بالأسفل. شكراً لصبركم يا أبطال!"
+        },
+        tpl_update_2027: {
+            title: "إطلاق التصميم الجديد للمنصة (نسخة 2027)",
+            body: "🎨 جاري الآن رفع ونشر التحديث البصري الجديد لمنصة الخطة 2027!\nواجهة جديدة كلياً وتجربة استخدام أسرع وأكثر سلاسة. انتظرونا خلال دقائق قليلة."
+        },
+        tpl_ai_assistant: {
+            title: "تحديث المساعد الذكي والكشكول",
+            body: "🤖 نقوم حالياً بترقية أنظمة الذكاء الاصطناعي وبنك الأسئلة التفاعلي.\nستعود الخدمة للعمل بشكل طبيعي فور الانتهاء من التحديث."
+        },
+        tpl_server_routine: {
+            title: "صيانة دورية مجدولة ومنتظمة",
+            body: "🔧 نقوم بعمل الصيانة الدورية المجدولة لتنظيف الكاش ومزامنة قواعد البيانات.\nنعتذر عن أي إزعاج، ونعمل على استعادة الخدمة بأسرع وقت ممكن."
+        },
+        tpl_server_emergency: {
+            title: "صيانة طارئة وسريعة للسيرفرات",
+            body: "🚨 تم رصد ضغط غير اعتيادي على السيرفرات ويقوم الفريق التقني الآن بمعالجته فوراً.\nنقدر تفهمكم وصبركم وسنعود خلال وقت وجيز."
+        },
+        tpl_speed_boost: {
+            title: "تحسين السرعة وتخفيف ضغط السيرفرات",
+            body: "⚡ نقوم بزيادة سعة السيرفرات وتحسين سرعة استجابة المحاضرات لتستمتعوا بمذاكرة سلسة بدون تقطيع."
+        },
+        tpl_security_upgrade: {
+            title: "ترقية وتحديث أمني شامل للحسابات",
+            body: "🛡️ نقوم حالياً بعمل فحص وتحديث أمني شامل لبروتوكولات التشفير وحماية الحسابات لضمان أقصى درجات الأمان لبياناتكم."
+        },
+        tpl_new_courses: {
+            title: "تجهيز ورفع مقررات وفصول جديدة",
+            body: "📑 نقوم حالياً برفع وتنظيم مقررات وفيديوهات جديدة تضاف لأول مرة في حساباتكم.\nدقائق معدودة وتكون كافة المحتويات متاحة."
+        },
+        tpl_exams_marathon: {
+            title: "تجهيز ماراثون الامتحانات وبنوك الأسئلة",
+            body: "🏆 جاري تحديث بنك الأسئلة الشامل ورفع امتحانات تجريبية جديدة استعداداً للاختبارات القادمة."
+        },
+        tpl_results_audit: {
+            title: "استخراج وتدقيق نتائج الامتحانات والشهادات",
+            body: "📊 تجري الآن عمليات التدقيق النهائي لنتائج الاختبارات تمهيداً لنشر لوحة الشرف وإصدار شهادات التقدير."
+        }
+    };
+
+    function initMaintenanceListeners() {
+        const db = database || getDB();
+        if (!db) return setTimeout(initMaintenanceListeners, 300);
+
+        db.ref('PlatformSettings/maintenanceMode').on('value', snap => {
+            isMaintenanceModeOn = !!snap.val();
+            applyMaintenanceUI(isMaintenanceModeOn);
+        });
+
+        db.ref('PlatformSettings/maintenanceMessage').on('value', snap => {
+            if (snap.exists()) {
+                const msg = snap.val();
+                if (msg.body) {
+                    const ta = document.getElementById('maintMessageTextarea');
+                    if (ta) { ta.value = msg.body; updateCharCounter(); }
+                }
+            }
+        });
+
+        db.ref('PlatformSettings/maintenanceDuration').on('value', snap => {
+            if (snap.exists()) {
+                const dur = snap.val();
+                if (dur.durationValue) document.getElementById('durationValueNum').value = dur.durationValue;
+                if (dur.durationUnit) document.getElementById('durationUnitDrop').value = dur.durationUnit;
+                if (dur.endTimestamp) {
+                    calculatedEndTimestamp = dur.endTimestamp;
+                    renderEndTimeDisplay(calculatedEndTimestamp);
+                }
+            }
+        });
+    }
+
+    function applyMaintenanceUI(isOn) {
+        const sw = document.getElementById('maintSwitchInput');
+        const swLabel = document.getElementById('switchLabelText');
+        const topText = document.getElementById('topStatusText');
+        const topSub = document.getElementById('topStatusSub');
+
+        if (sw) sw.checked = isOn;
+
+        if (isOn) {
+            if (swLabel) { swLabel.textContent = 'مفعل (الطلاب في شاشة الصيانة)'; swLabel.style.color = 'var(--red)'; }
+            if (topText) { topText.textContent = 'وضع الصيانة نشط 🔴'; topText.style.color = 'var(--red)'; }
+            if (topSub) topSub.textContent = 'شاشة القفل والعد التنازلي معروضة للطلاب';
+        } else {
+            if (swLabel) { swLabel.textContent = 'معطل (المنصة مفتوحة للجميع)'; swLabel.style.color = 'var(--green)'; }
+            if (topText) { topText.textContent = 'المنصة مفتوحة 🟢'; topText.style.color = 'var(--green)'; }
+            if (topSub) topSub.textContent = 'الطلاب يمكنهم الدخول بشكل طبيعي';
+        }
+    }
+
+    function calculateEndTime() {
+        const val = parseInt(document.getElementById('durationValueNum')?.value) || 30;
+        const unit = document.getElementById('durationUnitDrop')?.value || 'minutes';
+
+        let multMs = 60 * 1000;
+        if (unit === 'minutes') multMs = 60 * 1000;
+        else if (unit === 'hours') multMs = 60 * 60 * 1000;
+        else if (unit === 'days') multMs = 24 * 60 * 60 * 1000;
+
+        calculatedEndTimestamp = Date.now() + (val * multMs);
+        renderEndTimeDisplay(calculatedEndTimestamp);
+    }
+
+    function setQuickDuration(val, unit) {
+        document.getElementById('durationValueNum').value = val;
+        document.getElementById('durationUnitDrop').value = unit;
+        calculateEndTime();
+    }
+
+    function renderEndTimeDisplay(ts) {
+        const d = new Date(ts);
+        const timeStr = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const dateStr = d.toLocaleDateString('ar-EG', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        const el = document.getElementById('expectedEndTimeText');
+        if (el) el.textContent = dateStr + ' | ' + timeStr;
+    }
+
+    function tickDigitalTimer() {
+        const now = Date.now();
+        const diff = Math.max(0, calculatedEndTimestamp - now);
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const hStr = String(hours).padStart(2, '0');
+        const mStr = String(minutes).padStart(2, '0');
+        const sStr = String(seconds).padStart(2, '0');
+
+        const clockStr = hStr + ':' + mStr + ':' + sStr;
+        const heroClock = document.getElementById('heroDigitalClock');
+        if (heroClock) heroClock.textContent = clockStr;
+
+        const modalDigits = document.getElementById('modalDigitsBox');
+        if (modalDigits) modalDigits.textContent = clockStr;
+    }
+    setInterval(tickDigitalTimer, 1000);
+    tickDigitalTimer();
+
+    function onTemplateSelect(key) {
+        const t = templatesDict[key];
+        if (t) {
+            document.getElementById('maintMessageTextarea').value = t.body;
+            updateCharCounter();
+        }
+    }
+
+    function updateCharCounter() {
+        const txt = document.getElementById('maintMessageTextarea')?.value || '';
+        const badge = document.getElementById('charCounterBadge');
+        if (badge) badge.textContent = `${txt.length} حرف`;
+        const modalBody = document.getElementById('modalPrevBody');
+        if (modalBody) modalBody.textContent = txt;
+    }
+
+    function handleToggleChange(checked) {
+        const db = database || getDB();
+        if (!db) return;
+        isMaintenanceModeOn = checked;
+
+        Promise.all([
+            db.ref('PlatformSettings/maintenanceMode').set(checked),
+            db.ref('Settings/maintenance').set(checked)
+        ]).then(() => {
+            Swal.fire({
+                icon: checked ? 'warning' : 'success',
+                title: checked ? 'تم تفعيل وضع الصيانة ⚠️' : 'تم إلغاء وضع الصيانة ✅',
+                text: checked ? 'سيتم توجيه جميع الطلاب تلقائياً إلى صفحة الصيانة.' : 'المنصة متاحة الآن لكافة الطلاب بشكل طبيعي.',
+                confirmButtonColor: '#2563EB'
+            });
+        }).catch(e => {
+            Swal.fire('خطأ', e.message, 'error');
+        });
+    }
+
+    function triggerEmergencyStop() {
+        Swal.fire({
+            title: 'هل أنت متأكد من الإيقاف الفوري؟',
+            text: 'سيتم إلغاء وضع الصيانة وإتاحة المنصة لكافة الطلاب فوراً.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، أوقف الصيانة فوراً',
+            cancelButtonText: 'إلغاء'
+        }).then(res => {
+            if (res.isConfirmed) {
+                handleToggleChange(false);
+            }
+        });
+    }
+
+    function saveAllMaintenanceData() {
+        const db = database || getDB();
+        if (!db) return;
+
+        calculateEndTime();
+        const dVal = parseInt(document.getElementById('durationValueNum')?.value) || 30;
+        const dUnit = document.getElementById('durationUnitDrop')?.value || 'minutes';
+        const body = document.getElementById('maintMessageTextarea')?.value.trim() || '';
+        const tplKey = document.getElementById('templateMasterSelect')?.value;
+        const title = (templatesDict[tplKey] && templatesDict[tplKey].title) ? templatesDict[tplKey].title : 'المنصة تحت الصيانة';
+
+        Promise.all([
+            db.ref('PlatformSettings/maintenanceMessage').set({ title, body, updatedAt: Date.now() }),
+            db.ref('PlatformSettings/maintenanceDuration').set({
+                durationValue: dVal,
+                durationUnit: dUnit,
+                endTimestamp: calculatedEndTimestamp
+            }),
+            db.ref('Settings/maintenanceDetails').set({
+                title: title,
+                reason: body,
+                expectedEnd: calculatedEndTimestamp,
+                active: isMaintenanceModeOn
+            })
+        ]).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم الحفظ والتطبيق بنجاح 🎉',
+                text: 'تم تحديث رسالة ومدة الصيانة لجميع الطلاب في الوقت الفعلي.',
+                confirmButtonColor: '#10B981'
+            });
+        }).catch(e => {
+            Swal.fire('خطأ', e.message, 'error');
+        });
+    }
+
+    function openLiveStudentModal() {
+        updateCharCounter();
+        const tplKey = document.getElementById('templateMasterSelect')?.value;
+        const title = (templatesDict[tplKey] && templatesDict[tplKey].title) ? templatesDict[tplKey].title : 'المنصة تحت الصيانة';
+        document.getElementById('modalPrevTitle').textContent = title;
+        document.getElementById('previewModal').classList.add('active');
+    }
+
+    function closeLiveStudentModal() {
+        document.getElementById('previewModal').classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMaintenanceListeners();
+        onTemplateSelect('tpl_security_upgrade');
+    });
+</script>
+
+</body>
+</html>

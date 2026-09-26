@@ -1,14 +1,62 @@
 {
-  "name": "elkheta-root",
-  "version": "1.0.0",
-  "description": "ELKHETA Educational Platform",
-  "main": "backend_api/server.js",
+  "name": "elkheta-desktop",
+  "version": "2.0.0",
+  "description": "منصة الخطة التعليمية الذكية - النسخة الرسمية للكمبيوتر",
+  "main": "electron-main.js",
+  "author": "ELKHETA Team",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "electron . --dev",
+    "build:portable": "electron-builder --win portable --x64",
+    "build:installer": "electron-builder --win nsis --x64",
+    "build:exe": "electron-builder --win --x64"
+  },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.11.0"
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "firebase": "^12.17.1"
+  },
+  "devDependencies": {
+    "electron": "^34.5.8",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.elkheta.desktop",
+    "productName": "ELKHETA",
+    "copyright": "Copyright © 2026 ELKHETA Platform",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "icons/icon-512.png",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ELKHETA - منصة الخطة التعليمية",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "menuCategory": "ELKHETA"
+    },
+    "portable": {
+      "artifactName": "ELKHETA-Portable-${version}.${ext}"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/**/.bin",
+      "!*.log",
+      "!*.md"
+    ]
   }
 }

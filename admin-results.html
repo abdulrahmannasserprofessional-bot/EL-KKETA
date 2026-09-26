@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-admin-os="true">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سجل النتائج والدرجات - ELKHETA Admin OS</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Unified Dark OS Theme & Layout -->
+    <link rel="stylesheet" href="admin-os-theme.css">
+    <script src="admin-os-layout.js"></script>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="exam-retake-guard.js?v=2.0.0"></script>
+
+    <style>
+        .result-card-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+        .result-card-item:hover {
+            border-color: var(--border-focus);
+            transform: translateY(-2px);
+        }
+        @media(max-width: 768px) {
+            .result-card-item {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px 12px;
+                gap: 12px;
+            }
+            .result-card-item .action-btns-wrap {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .result-card-item .action-btns-wrap .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 7px 4px;
+                font-size: 11px;
+            }
+            .stats-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .stat-card {
+                padding: 9px 11px !important;
+                min-height: 62px !important;
+                border-radius: 10px !important;
+            }
+            .stat-header {
+                margin-bottom: 2px !important;
+            }
+            .stat-label {
+                font-size: 10.5px !important;
+                font-weight: 700 !important;
+            }
+            .stat-icon-wrap {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 13px !important;
+            }
+            .stat-value {
+                font-size: 18px !important;
+                font-weight: 900 !important;
+                margin: 2px 0 0 !important;
+            }
+            .stat-sub {
+                display: none !important;
+            }
+            .page-actions-group {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin-top: 6px !important;
+            }
+            .page-actions-group .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 8px 10px !important;
+                font-size: 11.5px !important;
+                white-space: nowrap !important;
+            }
+            #searchResultInput {
+                width: 100% !important;
+            }
+        }
+
+        .score-circle-gauge {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 900;
+            font-family: var(--mono);
+            flex-shrink: 0;
+        }
+        .score-circle-gauge.high {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
+        }
+        .score-circle-gauge.mid {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+        }
+        .score-circle-gauge.low {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btns-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Honor Roll & Motivation Modal Backdrop & Content */
+        .honor-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 99999 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .honor-modal-backdrop.active {
+            display: flex !important;
+        }
+        .honor-modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 650px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+        .honor-student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+            transition: background 0.15s;
+        }
+        .honor-student-row:hover {
+            background: var(--surface2);
+        }
+        .rank-badge-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .rank-gold { background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #FBBF24; }
+        .rank-silver { background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.4); color: #E2E8F0; }
+        .rank-bronze { background: rgba(217, 119, 6, 0.2); border: 1px solid rgba(217, 119, 6, 0.4); color: #F59E0B; }
+        .rank-default { background: var(--surface2); border: 1px solid var(--border); color: var(--text3); font-family: var(--mono); font-size: 13px; }
+
+        /* Form Controls Styling */
+        .form-select, .form-input {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius-sm) !important;
+            color: var(--text) !important;
+            padding: 9px 14px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            font-family: inherit !important;
+            outline: none !important;
+            transition: all 0.2s !important;
+        }
+        .form-select:focus, .form-input:focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 0 3px rgba(194, 139, 56, 0.15) !important;
+        }
+        .form-select option {
+            background: var(--surface) !important;
+            color: var(--text) !important;
+            padding: 8px 12px !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ TOPBAR ════ -->
+<header class="os-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-icon mob-menu-btn" onclick="toggleSidebar()" title="القائمة">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="admin-panel.html" class="os-brand">
+            <div class="brand-gem" style="background: linear-gradient(135deg, #10B981, #059669);">
+                <i class="fa-solid fa-square-poll-vertical"></i>
+            </div>
+            <div class="brand-titles">
+                <div class="brand-n">ELKHETA <span>ADMIN OS</span></div>
+                <div class="brand-v">Results & Gradebook</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="tb-center">
+        <div class="page-chip">
+            <i class="fa-solid fa-award"></i>
+            <span>سجل النتائج وشهادات التقدير</span>
+        </div>
+    </div>
+
+    <div class="tb-right">
+        <div class="clock-box" id="clock">--:--:--</div>
+        <a href="admin-panel.html" class="btn-icon" title="لوحة التحكم الرئيسية">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+</header>
+
+<!-- ════ APP BODY ════ -->
+<div class="os-body">
+    <!-- Backdrop for mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sidebar injected by admin-os-layout.js -->
+    <nav class="os-sidebar" id="sidebar"></nav>
+
+    <!-- Main Workspace -->
+    <main class="os-main">
+        <div class="main-inner">
+
+            <!-- Page Title Bar -->
+            <div class="page-header-row">
+                <div class="page-title-group">
+                    <div class="page-icon-badge" style="color: var(--green);">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">سجل نتائج الاختبارات ولوحة الشرف</h1>
+                        <p class="page-subtitle">متابعة درجات ونسب أداء الطلاب، تصدير شهادات التقدير الرسمية، وإعادة المحاولات</p>
+                    </div>
+                </div>
+
+                <div class="page-actions-group">
+                    <button class="btn btn-gold" onclick="openHonorRollModal()">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>لوحة الشرف 🏆</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="openRetakeRequestsModal()" style="border-color: rgba(245, 158, 11, 0.4); color: var(--gold);">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        <span>طلبات الفرصة الثانية ⏱️</span>
+                        <span id="pendingRetakesBadge" class="badge" style="background: rgba(239, 68, 68, 0.2); color: var(--red); display:none; margin-right:4px;">0</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="exportResultsCSV()">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>تصدير Excel/CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats KPI Row -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">إجمالي الاختبارات المكتملة</span>
+                        <div class="stat-icon-wrap" style="color: var(--blue); background: rgba(59, 130, 246, 0.1);">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalSubmissions">0</div>
+                    <div class="stat-sub">تسليم مسجل للطلاب</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">متوسط درجات الدفعة</span>
+                        <div class="stat-icon-wrap" style="color: var(--gold); background: var(--gold-dim);">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="avgCohortScore">0%</div>
+                    <div class="stat-sub">المعدل العام التراكمي</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">نسبة النجاح العامة</span>
+                        <div class="stat-icon-wrap" style="color: var(--green); background: rgba(16, 185, 129, 0.1);">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="passRate">0%</div>
+                    <div class="stat-sub">للطلاب الحاصلين على 60%+</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">أعلى درجة مسجلة</span>
+                        <div class="stat-icon-wrap" style="color: #A78BFA; background: rgba(139, 92, 246, 0.1);">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="topScoreStat">0%</div>
+                    <div class="stat-sub">المركز الأول في الدفعة</div>
+                </div>
+            </div>
+
+            <!-- Filters Bar Card -->
+            <div class="card" style="padding: 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1;">
+                        <div style="position: relative; min-width: 240px; flex: 1;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px;"></i>
+                            <input type="text" id="searchResultInput" class="form-input" placeholder="بحث باسم الطالب، الكود، أو اسم الامتحان..." oninput="filterResults()" style="padding-right: 36px;">
+                        </div>
+
+                        <select id="subjectFilter" class="form-select" onchange="filterResults()" style="min-width: 170px;">
+                            <option value="all">كل المواد الدراسية</option>
+                        </select>
+
+                        <select id="scoreTierFilter" class="form-select" onchange="filterResults()" style="min-width: 150px;">
+                            <option value="all">كل النسب المئوية</option>
+                            <option value="high">🟢 ممتاز (85% فأعلى)</option>
+                            <option value="mid">🟡 جيد (65% - 84%)</option>
+                            <option value="low">🔴 يحتاج تحسين (أقل من 65%)</option>
+                        </select>
+                    </div>
+
+                    <div style="font-size: 12px; font-weight: 800; color: var(--text2);" id="filteredCountBadge">
+                        0 نتيجة مطابقة
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Stream Container -->
+            <div style="display: flex; flex-direction: column; gap: 12px;" id="resultsListContainer">
+                <div style="text-align: center; padding: 50px; color: var(--text3);">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: var(--gold); margin-bottom: 12px;"></i>
+                    <p>جاري تحميل نتائج الاختبارات وربط بيانات الطلاب...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ════ HONOR ROLL MODAL ════ -->
+<div class="honor-modal-backdrop" id="honorModalBackdrop" onclick="if(event.target===this) closeHonorRollModal()">
+    <div class="honor-modal-content">
+        <div class="card-header" style="background: var(--surface2);">
+            <div class="card-title">
+                <i class="fa-solid fa-crown" style="color: var(--gold);"></i>
+                <span>لوحة شرف أوائل ومنظومة المتفوقين 👑</span>
+            </div>
+            <button class="btn-icon btn-sm" onclick="closeHonorRollModal()" title="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div style="padding: 12px 18px; background: rgba(212, 151, 59, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 12px; color: var(--gold); font-weight: 700;">
+                ⭐ الطلاب الأوائل الأكثر تفوقاً في كافة الامتحانات
+            </span>
+            <button class="btn btn-gold btn-sm" onclick="publishHonorRollToStudents()">
+                <i class="fa-solid fa-rocket"></i>
+                <span>نشر لوحة الشرف لجميع الطلاب 🏆</span>
+            </button>
+        </div>
+
+        <div style="overflow-y: auto; flex: 1; padding: 8px 0;" id="honorListItems">
+            <!-- Rendered by getTopHonorStudents -->
+        </div>
+
+        <div style="padding: 12px 16px; background: var(--surface2); border-top: 1px solid var(--border); text-align: left;">
+            <button class="btn btn-ghost btn-sm" onclick="closeHonorRollModal()">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════ STUDENT MOTIVATION & REPORT MODAL ════ -->
+<div class="honor-modal-backdrop" id="motivationModalBackdrop" onclick="if(event.target===this) closeMotivationModal()">
+    <div class="honor-modal-content" style="max-width: 580px;">
+        <div class="card-header" style="background: var(--surface2);">
+            <div class="card-title">
+                <i class="fa-solid fa-heart-pulse" style="color: var(--blue2);"></i>
+                <span>تقرير المتابعة والتحفيز الأكاديمي 💬</span>
+            </div>
+            <button class="btn-icon btn-sm" onclick="closeMotivationModal()" title="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;" id="motivationModalBody">
+            <!-- Dynamically populated by openStudentMotivationModal -->
+        </div>
+
+        <div style="padding: 12px 18px; background: var(--surface2); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="closeMotivationModal()">إغلاق النافذة</button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-gold btn-sm" id="motivationRetake5MinBtn" style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.5); color: var(--gold);">
+                    <i class="fa-solid fa-hourglass-start"></i>
+                    <span>منح فرصة ثانية (5د) ⏱️</span>
+                </button>
+                <button class="btn btn-ghost btn-sm" id="motivationResetBtn" style="color: var(--red); border-color: rgba(239, 68, 68, 0.3);">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                    <span>مسح النتيجة نهائياً</span>
+                </button>
+                <button class="btn btn-gold btn-sm" id="motivationWhatsAppBtn" style="background: #10B981; border-color: #10B981; color: white;">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>إرسال التحفيز واتساب</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════ RETAKE REQUESTS MODAL ════ -->
+<div class="honor-modal-backdrop" id="retakeRequestsModalBackdrop" onclick="if(event.target===this) closeRetakeRequestsModal()">
+    <div class="honor-modal-content" style="max-width: 650px;">
+        <div class="card-header" style="background: var(--surface2);">
+            <div class="card-title">
+                <i class="fa-solid fa-hourglass-half" style="color: var(--gold);"></i>
+                <span>طلبات الفرصة الثانية لإعادة الامتحانات ⏳</span>
+            </div>
+            <button class="btn-icon btn-sm" onclick="closeRetakeRequestsModal()" title="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div style="padding: 16px; overflow-y: auto; max-height: 480px; display: flex; flex-direction: column; gap: 10px;" id="retakeRequestsListWrap">
+            <!-- Dynamically populated by renderRetakeRequests -->
+        </div>
+
+        <div style="padding: 12px 18px; background: var(--surface2); border-top: 1px solid var(--border); text-align: left;">
+            <button class="btn btn-ghost btn-sm" onclick="closeRetakeRequestsModal()">إغلاق النافذة</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getDB() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+            return firebase.database();
+        }
+        return null;
+    }
+
+    var database = getDB();
+    let allResults = [];
+    let studentsMap = {};
+
+    function showToast(msg) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: msg,
+            showConfirmButton: false,
+            timer: 2500
+        });
+    }
+
+    // ─── 1. Load Subjects for Filter ───
+    function loadSubjects() {
+        const db = database || getDB();
+        if (!db) return setTimeout(loadSubjects, 300);
+
+        db.ref('Subjects').once('value', snap => {
+            const select = document.getElementById('subjectFilter');
+            if (snap.exists() && select) {
+                snap.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.key;
+                    opt.textContent = sub.val().name || sub.key;
+                    select.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    // ─── 2. Load Students & Exam Results Realtime ───
+    let resultsLoadedOnce = false;
+
+    function loadResults() {
+        const db = database || getDB();
+        if (!db) return setTimeout(loadResults, 300);
+
+        // Safety fallback timer: Ensure spinner is NEVER stuck even if network delays
+        const safetyTimer = setTimeout(() => {
+            if (!resultsLoadedOnce) {
+                console.log('⏰ Safety timeout triggered in admin-results. Rendering current dataset.');
+                updateResultsKPIs();
+                filterResults();
+            }
+        }, 2500);
+
+        function updateResultsKPIs() {
+            const totalCount = allResults.length;
+            const subEl = document.getElementById('totalSubmissions');
+            if (subEl) subEl.textContent = totalCount;
+            if (totalCount > 0) {
+                const totalPercent = allResults.reduce((acc, r) => acc + (r.percentage || 0), 0);
+                const avg = Math.round(totalPercent / totalCount);
+                const passedCount = allResults.filter(r => (r.percentage || 0) >= 60).length;
+                const topScore = Math.max(...allResults.map(r => r.percentage || 0));
+
+                const avgEl = document.getElementById('avgCohortScore');
+                const passEl = document.getElementById('passRate');
+                const topEl = document.getElementById('topScoreStat');
+                if (avgEl) avgEl.textContent = avg + '%';
+                if (passEl) passEl.textContent = Math.round((passedCount / totalCount) * 100) + '%';
+                if (topEl) topEl.textContent = topScore + '%';
+            } else {
+                const avgEl = document.getElementById('avgCohortScore');
+                const passEl = document.getElementById('passRate');
+                const topEl = document.getElementById('topScoreStat');
+                if (avgEl) avgEl.textContent = '0%';
+                if (passEl) passEl.textContent = '0%';
+                if (topEl) topEl.textContent = '0%';
+            }
+        }
+
+        db.ref('Students').on('value', snapStudents => {
+            studentsMap = {};
+            let studentExams = [];
+
+            if (snapStudents && snapStudents.exists()) {
+                snapStudents.forEach(child => {
+                    if (child.key === 'byCode' || child.key === 'byUid') return;
+
+                    const st = child.val() || {};
+                    studentsMap[child.key] = st;
+                    
+                    if (st.exams) {
+                        Object.keys(st.exams).forEach(examId => {
+                            const ex = st.exams[examId];
+                            if (!ex) return;
+                            const total = ex.total || ex.totalQuestions || 10;
+                            const score = ex.score || 0;
+                            const percentage = (typeof ex.percentage === 'number') ? ex.percentage : Math.round((score / total) * 100);
+
+                            studentExams.push({
+                                studentCode: child.key,
+                                studentName: st.fullName || st.name || ex.studentName || 'طالب مسجل',
+                                studentPhone: st.whatsapp || st.phone || ex.studentPhone || '',
+                                examId: examId,
+                                examTitle: ex.title || ex.examName || ex.examTitle || examId,
+                                subjectId: ex.subjectId || ex.subject || '',
+                                score: score,
+                                totalQuestions: total,
+                                percentage: Math.min(100, Math.max(0, percentage)),
+                                submittedAt: ex.submittedAt || ex.timestamp || Date.now()
+                            });
+                        });
+                    }
+                });
+            }
+
+            // Recursive extractor for nested ExamResults (supports flat push keys, subject/examId/studentCode, etc.)
+            function extractExamResults(node, pathSubject = '', pathExamId = '', pathStudentCode = '') {
+                const results = [];
+                if (!node || typeof node !== 'object') return results;
+
+                const hasScore = (node.score !== undefined || node.percentage !== undefined || node.degree !== undefined);
+                const hasContext = (node.studentCode || node.code || node.studentName || node.examId || node.examTitle || pathStudentCode);
+
+                if (hasScore && hasContext) {
+                    const stCode = (node.studentCode || node.code || pathStudentCode || '').trim();
+                    // Reject invalid or ghost test placeholders
+                    if (stCode && stCode !== 'STUDENT' && stCode !== 'undefined' && stCode !== 'null') {
+                        const total = Number(node.total || node.totalQuestions || node.maxScore || node.outOf || 10);
+                        const score = (node.score !== undefined) ? Number(node.score) : (node.percentage !== undefined ? Math.round((Number(node.percentage)/100)*total) : 0);
+                        const pct = (typeof node.percentage === 'number') ? node.percentage : (total > 0 ? Math.round((score / total) * 100) : 0);
+
+                        const stObj = studentsMap[stCode] || {};
+                        const isVerified = !!(node.whatsappVerified || stObj.whatsappVerified);
+                        const vCode = node.whatsappVerificationCode || stObj.pendingVerificationCode || '';
+
+                        results.push({
+                            id: node.id || '',
+                            studentCode: stCode,
+                            studentName: node.studentName || node.name || stObj.fullName || stObj.name || 'طالب مسجل',
+                            studentPhone: node.studentPhone || node.phone || node.whatsapp || stObj.whatsapp || stObj.phone || '',
+                            examId: node.examId || pathExamId || 'general',
+                            examTitle: node.examTitle || node.title || node.examName || pathExamId || 'امتحان',
+                            subjectId: node.subjectId || node.subject || pathSubject || '',
+                            score: score,
+                            totalQuestions: total,
+                            percentage: Math.min(100, Math.max(0, pct)),
+                            whatsappVerified: isVerified,
+                            whatsappVerificationCode: vCode,
+                            submittedAt: node.submittedAt || node.timestamp || node.time || Date.now()
+                        });
+                        return results;
+                    }
+                }
+
+                // Traverse children
+                Object.keys(node).forEach(key => {
+                    const child = node[key];
+                    if (child && typeof child === 'object') {
+                        const isKnownSubject = ['افراد', 'جماعات', 'تنظيم', 'تخطيط', 'بحث', 'انجليزي', 'احصاء'].includes(key) || key.includes('العمل');
+                        const nextSubject = pathSubject || (isKnownSubject ? key : '');
+                        const nextExamId = pathExamId || (nextSubject && !pathExamId ? key : '');
+                        const isStudentCode = !pathStudentCode && (key.startsWith('A') || key.startsWith('U') || /^[A-Z0-9_-]{3,}$/i.test(key)) && (child.score !== undefined || child.percentage !== undefined);
+                        const nextStudentCode = isStudentCode ? key : pathStudentCode;
+
+                        results.push(...extractExamResults(child, nextSubject, nextExamId, nextStudentCode));
+                    }
+                });
+
+                return results;
+            }
+
+            // Also merge from top-level ExamResults node
+            db.ref('ExamResults').on('value', snapExams => {
+                resultsLoadedOnce = true;
+                clearTimeout(safetyTimer);
+                allResults = [...studentExams];
+
+                if (snapExams && snapExams.exists()) {
+                    const extracted = extractExamResults(snapExams.val() || {});
+                    extracted.forEach(ex => {
+                        const exists = allResults.some(r =>
+                            (r.studentCode === ex.studentCode && (r.examId === ex.examId || Math.abs(r.percentage - ex.percentage) < 1)) ||
+                            (r.examId === ex.examId && Math.abs(r.submittedAt - ex.submittedAt) < 2000)
+                        );
+                        if (!exists && ex.studentCode && ex.studentCode !== 'STUDENT') {
+                            allResults.push(ex);
+                        }
+                    });
+                }
+
+                // Strictly filter out any phantom or dummy entries
+                allResults = allResults.filter(r => r.studentCode && r.studentCode !== 'STUDENT' && r.studentCode !== 'undefined' && r.studentName !== 'طالب مسجل STUDENT');
+
+                updateResultsKPIs();
+                filterResults();
+
+                updateResultsKPIs();
+                filterResults();
+            }, err => {
+                console.warn('ExamResults fetch error:', err);
+                resultsLoadedOnce = true;
+                clearTimeout(safetyTimer);
+                allResults = [...studentExams];
+                updateResultsKPIs();
+                filterResults();
+            });
+        }, err => {
+            console.warn('Students fetch error:', err);
+            resultsLoadedOnce = true;
+            clearTimeout(safetyTimer);
+            updateResultsKPIs();
+            filterResults();
+        });
+    }
+
+    // ─── 3. Filter Results ───
+    function filterResults() {
+        const q = document.getElementById('searchResultInput')?.value.trim().toLowerCase() || '';
+        const subject = document.getElementById('subjectFilter')?.value || 'all';
+        const tier = document.getElementById('scoreTierFilter')?.value || 'all';
+
+        let filtered = allResults;
+        if (subject !== 'all') {
+            filtered = filtered.filter(r => (r.subjectId || '').toLowerCase() === subject.toLowerCase());
+        }
+        if (tier === 'high') filtered = filtered.filter(r => r.percentage >= 85);
+        else if (tier === 'mid') filtered = filtered.filter(r => r.percentage >= 65 && r.percentage < 85);
+        else if (tier === 'low') filtered = filtered.filter(r => r.percentage < 65);
+
+        if (q) {
+            filtered = filtered.filter(r =>
+                (r.studentName || '').toLowerCase().includes(q) ||
+                (r.studentCode || '').toLowerCase().includes(q) ||
+                (r.examTitle || '').toLowerCase().includes(q)
+            );
+        }
+
+        const countBadge = document.getElementById('filteredCountBadge');
+        if (countBadge) countBadge.textContent = `${filtered.length} نتيجة مطابقة`;
+
+        renderResults(filtered);
+    }
+
+    // ─── 4. Render Results Cards ───
+    function renderResults(list) {
+        const container = document.getElementById('resultsListContainer');
+        if (!container) return;
+        container.innerHTML = "";
+
+        if (!list || list.length === 0) {
+            const isTotalEmpty = (allResults.length === 0);
+            container.innerHTML = `
+                <div class="card" style="text-align: center; padding: 40px 20px; color: var(--text3); border: 2px dashed var(--border);">
+                    <i class="fa-solid fa-clipboard-question" style="font-size: 38px; color: var(--gold); opacity: 0.8; margin-bottom: 12px; display:block;"></i>
+                    <p style="font-weight: 800; font-size: 15px; color: var(--text);">${isTotalEmpty ? 'لا توجد نتائج اختبارات مسجلة حالياً' : 'لا توجد نتائج اختبارات مطابقة للبحث'}</p>
+                    <span style="font-size: 12px; color: var(--text2);">${isTotalEmpty ? 'يتم حفظ نتائج الاختبارات ومستويات الطلاب تلقائياً فور إكمال الطلاب للاختبارات.' : 'تأكد من اختيار المادة الصحيحة أو قم بمسح نص البحث'}</span>
+                    ${isTotalEmpty ? `
+                    <div style="margin-top: 18px;">
+                        <button class="btn btn-gold" onclick="generateSampleExamResultsForTesting()" style="font-size: 12.5px; padding: 8px 18px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>توليد نتائج تجريبية لاختبار المنظومة (Demo Data)</span>
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            return;
+        }
+
+        const sorted = [...list].sort((a, b) => b.submittedAt - a.submittedAt);
+        window.currentRenderedResults = sorted;
+
+        sorted.forEach((res, idx) => {
+            let tierClass = 'high';
+            if (res.percentage < 65) tierClass = 'low';
+            else if (res.percentage < 85) tierClass = 'mid';
+
+            const card = document.createElement('div');
+            card.className = "result-card-item";
+            const escName = res.studentName.replace(/'/g, "\\'");
+            const escTitle = res.examTitle.replace(/'/g, "\\'");
+            const dateStr = new Date(res.submittedAt).toLocaleDateString('ar-EG');
+
+            // Buttons: Honors Certificate for >= 85%, and Motivation & Report available for all
+            const certBtn = res.percentage >= 85 ? `
+                <button class="btn btn-ghost btn-sm" onclick="generateCertificatePDF('${escName}', '${escTitle}', ${res.percentage}, '${dateStr}')" style="border-color: rgba(212, 151, 59, 0.4); color: var(--gold);" title="تصدير وثيقة تكريم رسمية">
+                    <i class="fa-solid fa-award"></i>
+                    <span>شهادة تفوق 🎓</span>
+                </button>
+            ` : '';
+
+            const motivationBtn = `
+                <button class="btn btn-ghost btn-sm" onclick="openStudentMotivationModalByIndex(${idx})" style="border-color: rgba(59, 130, 246, 0.4); color: var(--blue2);" title="عرض بطاقة المتابعة والتحفيز الأكاديمي">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>تقرير وتحفيز 💬</span>
+                </button>
+            `;
+
+            const waBadge = res.whatsappVerified ? `
+                <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 11px;">
+                    <i class="fa-solid fa-circle-check"></i> واتساب مؤكد يدويًا
+                </span>
+            ` : (res.whatsappVerificationCode ? `
+                <span class="badge" style="background: rgba(245, 158, 11, 0.12); color: var(--gold); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 11px;" title="كود التحقق: ${res.whatsappVerificationCode}">
+                    <i class="fa-brands fa-whatsapp"></i> بانتظار التأكيد (${res.whatsappVerificationCode})
+                </span>
+            ` : '');
+
+            const verifyBtn = !res.whatsappVerified ? `
+                <button class="btn btn-ghost btn-sm" onclick="manuallyVerifyWhatsApp('${res.studentCode}', '${res.id || ''}')" style="color: var(--gold); border-color: rgba(212, 151, 59, 0.4); font-size: 11px; font-weight: 800;" title="تأكيد رقم الواتساب يدويًا">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>تأكيد الرقم</span>
+                </button>
+            ` : `
+                <span style="font-size: 11px; font-weight: 800; color: #34D399; display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px;">
+                    <i class="fa-solid fa-circle-check"></i> معتمد
+                </span>
+            `;
+
+            card.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+                    <div class="score-circle-gauge ${tierClass}">${res.percentage}%</div>
+                    <div style="min-width: 0;">
+                        <h4 style="font-size: 15px; font-weight: 900; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>${res.studentName}</span>
+                            <span class="badge" style="background: rgba(249, 115, 22, 0.12); color: var(--orange); font-family: var(--mono);">${res.studentCode}</span>
+                            ${waBadge}
+                        </h4>
+                        <div style="font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span><i class="fa-solid fa-file-pen" style="color:var(--gold);"></i> ${res.examTitle}</span>
+                            <span>•</span>
+                            <span>الدرجة: <b style="color:var(--text);">${res.score} / ${res.totalQuestions}</b></span>
+                            <span>•</span>
+                            <span>📅 ${dateStr}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-btns-wrap">
+                    ${certBtn}
+                    ${motivationBtn}
+                    ${verifyBtn}
+                    <button class="btn btn-gold btn-sm" onclick="adminGrant5MinRetake('${res.studentCode}', '${res.examId}', '${escTitle}', '${escName}')" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: var(--gold);" title="منح فرصة ثانية بمؤقت 5 دقائق يفتح بعدها الامتحان تلقائياً">
+                        <i class="fa-solid fa-hourglass-start"></i>
+                        <span>فرصة ثانية (5د) ⏱️</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="sendWhatsAppReport('${res.studentPhone}', '${escName}', '${escTitle}', ${res.percentage})" style="color: #34D399;" title="إرسال التقرير لولي الأمر أو الطالب">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <span>واتساب</span>
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="resetStudentExamAttempt('${res.studentCode}', '${res.examId}', '${escName}')" title="إلغاء النتيجة والسماح له بأداء الامتحان مجدداً">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        <span>مسح</span>
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // ─── 4.1 Motivation & Guidance Modal ───
+    function openStudentMotivationModalByIndex(idx) {
+        const list = window.currentRenderedResults || allResults || [];
+        const res = list[idx];
+        if (!res) {
+            return Swal.fire('تنبيه', 'تعذر جلب بيانات التقرير للطالب المحدد.', 'warning');
+        }
+        openStudentMotivationModal(res);
+    }
+
+    function openStudentMotivationModal(res) {
+        if (!res) return;
+        const backdrop = document.getElementById('motivationModalBackdrop');
+        const body = document.getElementById('motivationModalBody');
+        const waBtn = document.getElementById('motivationWhatsAppBtn');
+        const resetBtn = document.getElementById('motivationResetBtn');
+        if (!backdrop || !body) return;
+
+        const pct = res.percentage || 0;
+        let tierColor = 'var(--blue2)';
+        let tierBg = 'rgba(59, 130, 246, 0.08)';
+        let tierBorder = 'rgba(59, 130, 246, 0.25)';
+        let tierTitle = '';
+        let tierMsg = '';
+        let tierIcon = 'fa-solid fa-heart-pulse';
+        let waText = '';
+
+        if (pct >= 85) {
+            tierColor = 'var(--gold)';
+            tierBg = 'var(--gold-dim)';
+            tierBorder = 'rgba(212, 151, 59, 0.35)';
+            tierTitle = '👑 مرتبة الشرف والتميز الأكاديمي الأعلى';
+            tierMsg = `مبارك التفوق الباهر يا <b>${res.studentName}</b>! نتيجتك (<b>${res.score}/${res.totalQuestions}</b> بنسبة <b>${pct}%</b>) في اختبار (<b>${res.examTitle}</b>) تؤهلك لمرتبة الشرف ونيل شهادة التقدير الملكية المعتمدة.<br><br>💡 <b>ملاحظة الأكاديمية:</b> أداء ممتاز ومبهر، استمر على هذا المستوى الراقي لتكون دائماً في مقدمة الأوائل!`;
+            tierIcon = 'fa-solid fa-crown';
+            waText = `مرحباً بك يا ${res.studentName} 👑\nمبارك تفوقك الباهر في اختبار (${res.examTitle}) بنتيجة ${res.score}/${res.totalQuestions} (${pct}%).\nلقد حققت مرتبة الشرف والشهادة المعتمدة! 🎓\nاستمر في التألق! 🚀\nمنصة الخطة التعليمية`;
+        } else if (pct >= 70) {
+            tierColor = 'var(--gold)';
+            tierBg = 'var(--gold-dim)';
+            tierBorder = 'rgba(212, 151, 59, 0.35)';
+            tierTitle = '🌟 مستوى جيد جداً ومبشر (قريب جداً من مرتبة الشرف)';
+            tierMsg = `أحسنت صنعاً يا <b>${res.studentName}</b>! نتيجتك (<b>${res.score}/${res.totalQuestions}</b> بنسبة <b>${pct}%</b>) في اختبار (<b>${res.examTitle}</b>) تدل على فهم واستيعاب قوي للمنهج.<br><br>💡 <b>ملاحظة الأكاديمية:</b> أنت على بُعد ${85 - pct}% فقط من نيل وسام وشهادة التميز الملكية (المعتمدة للدرجات 85% فأعلى). راجع النقاط البسيطة التي تعثرت بها واستعد للمحاولة القادمة لتتصدر لوحة الشرف!`;
+            tierIcon = 'fa-solid fa-star';
+            waText = `مرحباً بك يا ${res.studentName} 🌟\nأحسنت الأداء في اختبار (${res.examTitle}) وحصلت على ${res.score}/${res.totalQuestions} بنسبة ${pct}%.\nأنت قريب جداً من مرتبة الشرف والشهادة الملكية المعتمدة (85%+).\nراجع أخطاءك واستعد للمحاولة القادمة لتتصدر الأوائل! 🚀\nمنصة الخطة التعليمية`;
+        } else if (pct >= 50) {
+            tierColor = 'var(--green)';
+            tierBg = 'rgba(16, 185, 129, 0.08)';
+            tierBorder = 'rgba(16, 185, 129, 0.3)';
+            tierTitle = '💪 اجتياز واعد ومحاولة مقدرة';
+            tierMsg = `مبروك اجتياز الاختبار يا <b>${res.studentName}</b> بحصولك على (<b>${res.score}/${res.totalQuestions}</b> بنسبة <b>${pct}%</b>) في اختبار (<b>${res.examTitle}</b>).<br><br>💡 <b>ملاحظة الأكاديمية:</b> الأساس العلمي موجود لديك، ولكننا ننتظر منك قفزة أعلى للوصول إلى مرتبة الشرف (85% فأكثر) ونيل الشهادة المعتمدة. ركز على النقاط المعقدة في المحاضرة واطلب مساندة الدعم وستصل للتفوق.`;
+            tierIcon = 'fa-solid fa-thumbs-up';
+            waText = `مرحباً بك يا ${res.studentName} 💪\nتم رصد اجتيازك بنجاح لاختبار (${res.examTitle}) بنتيجة ${res.score}/${res.totalQuestions} (${pct}%).\nبداية موفقة وننتظر منك قفزة أكبر في الاختبار القادم للوصول لمرتبة الشرف (85%+).\nمنصة الخطة التعليمية`;
+        } else {
+            tierColor = 'var(--purple)';
+            tierBg = 'rgba(167, 139, 250, 0.1)';
+            tierBorder = 'rgba(167, 139, 250, 0.3)';
+            tierTitle = '🚀 فرصة جديدة وانطلاقة للبداية';
+            tierMsg = `لا تقلق يا <b>${res.studentName}</b>، التعثر في البداية هو أول خطوة نحو الفهم والتعلم الحقيقي (${res.score}/${res.totalQuestions}).<br><br>💡 <b>ملاحظة الأكاديمية:</b> هذا الاختبار يوضح لك بدقة مواضع الأسئلة الصعبة التي تحتاج إلى مراجعة. راجع فيديو المحاضرة والملخص بهدوء، ويمكنك إعادة المحاولة مرة أخرى لتحقيق النتيجة التي تفخر بها!`;
+            tierIcon = 'fa-solid fa-seedling';
+            waText = `مرحباً بك يا ${res.studentName} 🚀\nلا تقلق بشأن نتيجة اختبار (${res.examTitle}) (${res.score}/${res.totalQuestions}).\nالتعثر هو أولى خطوات التعلم الحقيقي. راجع المحاضرة وملخصاتها بهدوء ثم أعد المحاولة، ونحن واثقون بقدرتك على التفوق!\nمنصة الخطة التعليمية`;
+        }
+
+        body.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px;">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 4px;">${res.studentName}</h3>
+                    <div style="font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 8px;">
+                        <span class="badge" style="background: rgba(249, 115, 22, 0.12); color: var(--orange); font-family: var(--mono);">${res.studentCode}</span>
+                        <span>•</span>
+                        <span><i class="fa-solid fa-file-pen" style="color:var(--gold);"></i> ${res.examTitle}</span>
+                    </div>
+                </div>
+                <div class="score-circle-gauge ${pct >= 70 ? 'mid' : 'low'}" style="width: 58px; height: 58px; font-size: 16px;">
+                    ${pct}%
+                </div>
+            </div>
+
+            <div style="background: ${tierBg}; border: 1.5px solid ${tierBorder}; border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size: 14px; font-weight: 900; color: ${tierColor}; display: flex; align-items: center; gap: 8px;">
+                    <i class="${tierIcon}"></i>
+                    <span>${tierTitle}</span>
+                </div>
+                <div style="font-size: 13px; color: var(--text); line-height: 1.6;">
+                    ${tierMsg}
+                </div>
+            </div>
+
+            <div style="background: var(--surface2); border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--text2); display: flex; align-items: center; justify-content: space-between;">
+                <span>🔒 شروط الشهادة الملكية:</span>
+                <span style="font-weight: 800; color: var(--gold);">${pct >= 85 ? 'مستحق للشهادة الملكية بنجاح 🎓' : 'تُمنح حصرياً للدرجات 85% فأعلى'}</span>
+            </div>
+
+            <div>
+                <a href="ai-report.html?code=${encodeURIComponent(res.studentCode)}" target="_blank" class="btn btn-ghost btn-sm" style="width: 100%; justify-content: center; text-decoration: none; border-color: rgba(168, 85, 247, 0.4); color: var(--purple); background: rgba(168, 85, 247, 0.08); padding: 9px 14px; border-radius: 8px;">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>عرض التقرير والتحليل الذكي الشامل للطالب (AI Report) 🧠</span>
+                </a>
+            </div>
+        `;
+
+        if (waBtn) {
+            waBtn.onclick = () => {
+                const phone = (res.studentPhone || '').replace(/[^0-9]/g, '');
+                const waNumber = phone.startsWith('01') ? '2' + phone : phone;
+                window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`, '_blank');
+            };
+        }
+
+        const retake5MinBtn = document.getElementById('motivationRetake5MinBtn');
+        if (retake5MinBtn) {
+            retake5MinBtn.onclick = () => {
+                closeMotivationModal();
+                adminGrant5MinRetake(res.studentCode, res.examId, res.examTitle, res.studentName);
+            };
+        }
+
+        if (resetBtn) {
+            resetBtn.onclick = () => {
+                closeMotivationModal();
+                resetStudentExamAttempt(res.studentCode, res.examId, res.studentName);
+            };
+        }
+
+        backdrop.classList.add('active');
+        backdrop.style.display = 'flex';
+    }
+
+    function closeMotivationModal() {
+        const backdrop = document.getElementById('motivationModalBackdrop');
+        if (backdrop) {
+            backdrop.classList.remove('active');
+            backdrop.style.display = 'none';
+        }
+    }
+
+    // ─── 5. Actions: WhatsApp, Reset, CSV ───
+    function sendWhatsAppReport(phone, name, examTitle, score) {
+        const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+        const waNumber = cleanPhone.startsWith('01') ? '2' + cleanPhone : cleanPhone;
+        const waMsg = encodeURIComponent(`مرحباً بك يا ${name} 🎓\nتم رصد واعتماد نتيجتك في اختبار (${examTitle}): ${score}%\nمنصة الخطة التعليمية - دفعة 2027 🚀`);
+        window.open(`https://wa.me/${waNumber}?text=${waMsg}`, '_blank');
+    }
+
+    function resetStudentExamAttempt(code, examId, name) {
+        Swal.fire({
+            title: 'مسح نتيجة الاختبار؟',
+            text: `سيتم مسح النتيجة الحالية والسماح للطالب (${name}) بدخول الاختبار مجدداً دون مؤقت.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563EB',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، مسح النتيجة',
+            cancelButtonText: 'إلغاء'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const db = database || getDB();
+                if (!db) return;
+                await db.ref('Students/' + code + '/exams/' + examId).remove();
+                Swal.fire('تمت الإعادة!', 'تم مسح النتيجة وأصبح بإمكان الطالب الدخول للاختبار الآن.', 'success');
+            }
+        });
+    }
+
+    // ─── 5.1 Retake Permission Controller (منح فرصة ثانية بمؤقت 5 دقائق) ───
+    async function adminGrant5MinRetake(code, examId, title, name, reqKey = null) {
+        const safeName = name || 'طالب';
+        const safeTitle = title || 'الاختبار الأكاديمي';
+
+        const confirm = await Swal.fire({
+            title: 'منح فرصة ثانية بمؤقت 5 دقائق؟ ⏱️',
+            html: `
+                <div style="font-family:'Cairo',sans-serif; text-align:right; direction:rtl; font-size:13.5px; color:#CBD5E1; line-height:1.6;">
+                    هل أنت متأكد من منح الطالب: <b style="color:#F0B855;">${safeName}</b> (${code}) فرصة أخرى لحل: <b style="color:#60A5FA;">${safeTitle}</b>؟<br><br>
+                    💡 <b>ما سيحدث تلقائياً:</b><br>
+                    1. سيبدأ مؤقت عد تنازلي مدته <b>5 دقائق</b> أمام الطالب للتحضير السريع.<br>
+                    2. سيفتح له الامتحان <b>تلقائياً فور انتهاء الـ 5 دقائق</b> دون أي تدخل منه.<br>
+                    3. ستصل رسالة تأكيد للطالب في الشات لإعلامه بالفرصة والمؤقت.
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#D4973B',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، تفعيل الـ 5 دقائق والفتح التلقائي 🚀',
+            cancelButtonText: 'إلغاء'
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        try {
+            if (window.ExamRetakeGuard) {
+                await ExamRetakeGuard.grantRetakePermission(code, examId, safeTitle, 5);
+            } else {
+                const db = database || getDB();
+                if (!db) throw new Error('Database not connected');
+                const key = `${code}_${examId}`;
+                await db.ref(`ExamRetakePermissions/${key}`).set({
+                    studentCode: code,
+                    examId: examId,
+                    examTitle: safeTitle,
+                    grantedAt: Date.now(),
+                    timerDurationMinutes: 5,
+                    autoOpenAt: Date.now() + 5 * 60 * 1000,
+                    status: 'active',
+                    grantedBy: 'Admin'
+                });
+                await db.ref(`ExamRetakeRequests/${key}`).update({ status: 'approved' }).catch(() => {});
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم منح الفرصة بنجاح! ⏱️',
+                text: `تم تفعيل مؤقت الـ 5 دقائق للطالب (${safeName}) وسيفتح له الامتحان تلقائياً فور انتهاء الوقت.`,
+                confirmButtonColor: '#10B981'
+            });
+
+            if (reqKey) {
+                renderRetakeRequests();
+            }
+        } catch (err) {
+            Swal.fire('خطأ', err.message || 'تعذر منح الفرصة للطالب.', 'error');
+        }
+    }
+
+    // ─── 5.2 Realtime Retake Requests Listener & Modal ───
+    let allRetakeRequests = [];
+
+    function initRetakeRequestsListener() {
+        const db = database || getDB();
+        if (!db) return;
+
+        db.ref('ExamRetakeRequests').on('value', snap => {
+            allRetakeRequests = [];
+            if (snap.exists()) {
+                snap.forEach(c => {
+                    const val = c.val();
+                    if (val && val.status === 'pending') {
+                        allRetakeRequests.push({ key: c.key, ...val });
+                    }
+                });
+            }
+
+            // Update badge
+            const badge = document.getElementById('pendingRetakesBadge');
+            if (badge) {
+                badge.textContent = allRetakeRequests.length;
+                badge.style.display = allRetakeRequests.length > 0 ? 'inline-flex' : 'none';
+            }
+
+            renderRetakeRequests();
+        });
+    }
+
+    function renderRetakeRequests() {
+        const wrap = document.getElementById('retakeRequestsListWrap');
+        if (!wrap) return;
+
+        if (allRetakeRequests.length === 0) {
+            wrap.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: var(--text3);">
+                    <i class="fa-solid fa-circle-check" style="font-size: 38px; color: var(--green); opacity: 0.5; margin-bottom: 10px; display:block;"></i>
+                    <p style="font-weight: 800; font-size: 14px;">لا توجد طلبات فرصة ثانية معلقة حالياً.</p>
+                    <span style="font-size: 12px;">عند قيام أي طالب بطلب فرصة ثانية عبر الدعم الفني، ستظهر هنا فوراً.</span>
+                </div>
+            `;
+            return;
+        }
+
+        wrap.innerHTML = allRetakeRequests.map(req => {
+            const timeStr = req.requestedAt ? new Date(req.requestedAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+            const escName = (req.studentName || 'طالب').replace(/'/g, "\\'");
+            const escTitle = (req.examTitle || 'اختبار').replace(/'/g, "\\'");
+
+            return `
+                <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-weight: 900; font-size: 14.5px; color: var(--text); display: flex; align-items: center; gap: 8px;">
+                            <span>${req.studentName}</span>
+                            <span class="badge" style="background: rgba(249, 115, 22, 0.12); color: var(--orange); font-family: var(--mono);">${req.studentCode}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text2); margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+                            <span style="color: var(--gold);"><i class="fa-solid fa-file-pen"></i> ${req.examTitle}</span>
+                            <span>•</span>
+                            <span>⏰ ${timeStr}</span>
+                            ${req.studentPhone ? `<span>•</span> <span>📱 ${req.studentPhone}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button class="btn btn-gold btn-sm" onclick="adminGrant5MinRetake('${req.studentCode}', '${req.examId}', '${escTitle}', '${escName}', '${req.key}')" style="background: linear-gradient(135deg, #10B981, #059669); border-color: #10B981; color: white;">
+                            <i class="fa-solid fa-check"></i>
+                            <span>موافقة (بدء مؤقت 5د) ⏱️</span>
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="rejectRetakeRequest('${req.key}', '${escName}')" style="color: var(--red); border-color: rgba(239,68,68,0.3);">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>رفض</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function rejectRetakeRequest(reqKey, studentName) {
+        const confirm = await Swal.fire({
+            title: 'رفض طلب إعادة الامتحان؟',
+            text: `هل أنت متأكد من رفض طلب الطالب (${studentName})؟`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'نعم، رفض الطلب',
+            cancelButtonText: 'إلغاء'
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        const db = database || getDB();
+        if (db) {
+            await db.ref(`ExamRetakeRequests/${reqKey}`).update({ status: 'rejected', rejectedAt: Date.now() });
+            Swal.fire('تم الرفض', 'تم رفض الطلب بنجاح.', 'info');
+        }
+    }
+
+    function openRetakeRequestsModal() {
+        const backdrop = document.getElementById('retakeRequestsModalBackdrop');
+        if (backdrop) {
+            backdrop.classList.add('active');
+            backdrop.style.display = 'flex';
+            renderRetakeRequests();
+        }
+    }
+
+    function closeRetakeRequestsModal() {
+        const backdrop = document.getElementById('retakeRequestsModalBackdrop');
+        if (backdrop) {
+            backdrop.classList.remove('active');
+            backdrop.style.display = 'none';
+        }
+    }
+
+    function exportResultsCSV() {
+        if (!allResults || allResults.length === 0) {
+            return Swal.fire('تنبيه', 'لا توجد نتائج مسجلة لتصديرها حالياً.', 'info');
+        }
+
+        let csv = '\uFEFF'; // BOM for Arabic
+        csv += 'كود الطالب,اسم الطالب,رقم الهاتف,اسم الاختبار,الدرجة,إجمالي الأسئلة,النسبة المئوية,تاريخ التسليم\n';
+
+        allResults.forEach(r => {
+            const dateStr = new Date(r.submittedAt).toLocaleDateString('ar-EG');
+            csv += `"${r.studentCode}","${r.studentName}","${r.studentPhone}","${r.examTitle}",${r.score},${r.totalQuestions},${r.percentage}%,"${dateStr}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `elkheta_exam_results_${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ─── 6. Honor Roll Leaderboard ───
+    function getTopHonorStudents() {
+        const studentBestMap = {};
+        allResults.forEach(r => {
+            if (!studentBestMap[r.studentCode] || r.percentage > studentBestMap[r.studentCode].percentage) {
+                studentBestMap[r.studentCode] = r;
+            }
+        });
+        const list = Object.values(studentBestMap);
+        list.sort((a, b) => b.percentage - a.percentage || b.submittedAt - a.submittedAt);
+        return list.slice(0, 15);
+    }
+
+    function openHonorRollModal() {
+        const backdrop = document.getElementById('honorModalBackdrop');
+        const listWrap = document.getElementById('honorListItems');
+        if (!backdrop || !listWrap) return;
+
+        const topList = getTopHonorStudents();
+        listWrap.innerHTML = '';
+
+        if (topList.length === 0) {
+            listWrap.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text3);">
+                    <i class="fa-solid fa-trophy" style="font-size: 32px; opacity: 0.3; margin-bottom: 8px; display:block;"></i>
+                    <p style="font-weight: 800;">لا توجد نتائج اختبارات مسجلة حتى الآن.</p>
+                </div>
+            `;
+        } else {
+            topList.forEach((st, idx) => {
+                let rankBadge = `<div class="rank-badge-box rank-default">#${idx + 1}</div>`;
+                if (idx === 0) rankBadge = `<div class="rank-badge-box rank-gold">🥇</div>`;
+                else if (idx === 1) rankBadge = `<div class="rank-badge-box rank-silver">🥈</div>`;
+                else if (idx === 2) rankBadge = `<div class="rank-badge-box rank-bronze">🥉</div>`;
+
+                const row = document.createElement('div');
+                row.className = 'honor-student-row';
+                const escName = st.studentName.replace(/'/g, "\\'");
+                const escTitle = st.examTitle.replace(/'/g, "\\'");
+                const dateStr = new Date(st.submittedAt).toLocaleDateString('ar-EG');
+
+                row.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                        ${rankBadge}
+                        <div style="min-width: 0;">
+                            <div style="font-weight: 900; font-size: 14.5px; color: var(--text);">${st.studentName}</div>
+                            <div style="font-size: 11.5px; color: var(--text2); margin-top: 2px;">
+                                <span>${st.examTitle}</span> • <span style="color: var(--gold); font-weight: 800; font-family:var(--mono);">${st.percentage}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="generateCertificatePDF('${escName}', '${escTitle}', ${st.percentage}, '${dateStr}')" style="padding: 4px 10px; font-size: 11px;">
+                            <i class="fa-solid fa-certificate"></i> شهادة
+                        </button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="sendWhatsAppReport('${st.studentPhone}', '${escName}', '${escTitle}', ${st.percentage})" style="padding: 4px 8px; font-size: 11px; color:#34D399;">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                    </div>
+                `;
+                listWrap.appendChild(row);
+            });
+        }
+
+        backdrop.classList.add('active');
+        backdrop.style.display = 'flex';
+    }
+
+    function closeHonorRollModal() {
+        const backdrop = document.getElementById('honorModalBackdrop');
+        if (backdrop) {
+            backdrop.classList.remove('active');
+            backdrop.style.display = 'none';
+        }
+    }
+
+    function publishHonorRollToStudents() {
+        const topList = getTopHonorStudents();
+        if (topList.length === 0) {
+            return Swal.fire('تنبيه', 'لا توجد نتائج مسجلة لنشرها حالياً.', 'info');
+        }
+
+        const db = database || getDB();
+        if (!db) return;
+
+        const payload = {
+            updatedAt: Date.now(),
+            publishedBy: sessionStorage.getItem('adminName') || 'المدير العام',
+            topStudents: topList.slice(0, 10).map((st, i) => ({
+                rank: i + 1,
+                studentName: st.studentName,
+                studentCode: st.studentCode,
+                examTitle: st.examTitle,
+                percentage: st.percentage
+            }))
+        };
+
+        db.ref('HonorRoll').set(payload).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم النشر بنجاح! 🏆',
+                text: 'تم تحديث لوحة الشرف وأصبحت ظاهرة الآن لجميع الطلاب في الصفحة الرئيسية.',
+                confirmButtonColor: '#10B981',
+                confirmButtonText: 'ممتاز 🫡'
+            });
+        }).catch(err => {
+            Swal.fire('خطأ', 'تعذر نشر لوحة الشرف، حاول مجدداً.', 'error');
+        });
+    }
+
+    // ─── 7. Royal Certificate Engine (Pure HTML5 Canvas 2D - 100% Non-Blank Guaranteed) ───
+    function drawArcTextTop(ctx, text, cx, cy, radius, startAngle, endAngle) {
+        const chars = text.split('');
+        const len = chars.length;
+        if (len === 0) return;
+        const step = (endAngle - startAngle) / (len - 1 || 1);
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        chars.forEach((ch, idx) => {
+            const ang = startAngle + idx * step;
+            ctx.save();
+            ctx.translate(cx + radius * Math.cos(ang), cy + radius * Math.sin(ang));
+            ctx.rotate(ang + Math.PI / 2);
+            ctx.fillText(ch, 0, 0);
+            ctx.restore();
+        });
+        ctx.restore();
+    }
+
+    function drawArcTextBottom(ctx, text, cx, cy, radius, startAngle, endAngle) {
+        const chars = text.split('');
+        const len = chars.length;
+        if (len === 0) return;
+        const step = (endAngle - startAngle) / (len - 1 || 1);
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        chars.forEach((ch, idx) => {
+            const ang = startAngle + idx * step;
+            ctx.save();
+            ctx.translate(cx + radius * Math.cos(ang), cy + radius * Math.sin(ang));
+            ctx.rotate(ang - Math.PI / 2);
+            ctx.fillText(ch, 0, 0);
+            ctx.restore();
+        });
+        ctx.restore();
+    }
+
+    function generateRoyalCertificateCanvas({ studentName, examTitle, score, dateStr, gradeTitle }) {
+        const W = 2400;
+        const H = 1697; // Exact A4 Landscape aspect ratio (2400 / 1.4142)
+        const canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Deep Royal Obsidian Midnight Navy Background with Radial Vignette
+        const bgGrad = ctx.createRadialGradient(W / 2, H / 2, 140, W / 2, H / 2, W / 1.15);
+        bgGrad.addColorStop(0, '#111827');
+        bgGrad.addColorStop(0.55, '#090D17');
+        bgGrad.addColorStop(1, '#030508');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Subtle Luxury Geometric Diagonal Watermark Pattern
+        ctx.save();
+        ctx.strokeStyle = 'rgba(212, 151, 59, 0.038)';
+        ctx.lineWidth = 1.5;
+        for (let x = -H; x < W + H; x += 90) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + H, H);
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // 3. Ornate Double Gold Borders & Luxury Corner Jewels
+        ctx.save();
+        // Outer Heavy Gold Border
+        ctx.strokeStyle = '#D4973B';
+        ctx.lineWidth = 14;
+        ctx.strokeRect(52, 52, W - 104, H - 104);
+
+        // Inner Bright Gold Border
+        ctx.strokeStyle = '#F0B855';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(76, 76, W - 152, H - 152);
+
+        // Inset Dotted Accent Frame
+        ctx.strokeStyle = 'rgba(212, 151, 59, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([12, 8]);
+        ctx.strokeRect(92, 92, W - 184, H - 184);
+        ctx.setLineDash([]);
+
+        // Four Corner Golden Accents
+        const corners = [
+            [92, 92],
+            [W - 92, 92],
+            [92, H - 92],
+            [W - 92, H - 92]
+        ];
+        corners.forEach(([cx, cy]) => {
+            ctx.fillStyle = '#D4973B';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#F0B855';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+
+        // 4. English Royal Typography with Arabic Quranic Inscription
+        ctx.direction = 'ltr';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Quranic Ayah in Arabic Calligraphy
+        ctx.save();
+        ctx.font = '700 46px "Amiri", "Cairo", serif';
+        ctx.fillStyle = '#F0B855';
+        ctx.shadowColor = 'rgba(240, 184, 85, 0.6)';
+        ctx.shadowBlur = 16;
+        ctx.fillText('﴿ وَقُل رَّبِّ زِدْنِي عِلْمًا ﴾', W / 2, 168);
+        ctx.restore();
+
+        // Header Platform Tag
+        ctx.font = 'bold 30px "Cinzel", "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#D4973B';
+        ctx.fillText('👑  ELKHETA EDUCATIONAL PLATFORM • ACADEMIC BOARD  🎓', W / 2, 230);
+
+        // Certificate Royal Title
+        ctx.save();
+        ctx.font = '900 74px "Cinzel", "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.shadowColor = 'rgba(212, 151, 59, 0.75)';
+        ctx.shadowBlur = 28;
+        ctx.fillText('⭐  CERTIFICATE OF ACADEMIC EXCELLENCE  ⭐', W / 2, 320);
+        ctx.restore();
+
+        // Dedication Line
+        ctx.font = '600 34px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('The Academic Board & Examination Committee proudly confer this Certificate of Honor upon:', W / 2, 425);
+
+        // Golden Student Name Plaque
+        const nameY = 545;
+        const plaqueW = 1260;
+        const plaqueH = 118;
+        ctx.save();
+        ctx.fillStyle = 'rgba(212, 151, 59, 0.14)';
+        ctx.strokeStyle = '#D4973B';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect((W - plaqueW) / 2, nameY - plaqueH / 2, plaqueW, plaqueH, 32);
+        } else {
+            ctx.rect((W - plaqueW) / 2, nameY - plaqueH / 2, plaqueW, plaqueH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // Inner glowing border for plaque
+        ctx.strokeStyle = '#F0B855';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.font = '900 66px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#F0B855';
+        ctx.shadowColor = 'rgba(240, 184, 85, 0.6)';
+        ctx.shadowBlur = 20;
+        ctx.fillText(studentName || 'Distinguished Student', W / 2, nameY + 4);
+        ctx.restore();
+
+        // Citation Text
+        ctx.font = '700 36px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#E2E8F0';
+        ctx.fillText('In recognition of outstanding academic performance, exemplary dedication, and achieving a score of', W / 2, 705);
+
+        // Score Ribbon & Evaluation
+        const ribbonY = 805;
+        const scoreVal = (score !== undefined && score !== null) ? Number(score) : 100;
+        const defaultGrade = scoreVal >= 85 ? 'HIGH HONORS WITH DISTINCTION 🏅' : (scoreVal >= 75 ? 'VERY GOOD WITH MERIT 🎖️' : 'SUCCESSFUL COMPLETION 🌟');
+        const finalGrade = gradeTitle || defaultGrade;
+
+        // Emerald Score Pill
+        ctx.save();
+        const pillW = 260;
+        const pillH = 76;
+        ctx.fillStyle = '#059669';
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(W / 2 - pillW / 2, ribbonY - pillH / 2, pillW, pillH, 22);
+        } else {
+            ctx.rect(W / 2 - pillW / 2, ribbonY - pillH / 2, pillW, pillH);
+        }
+        ctx.fill();
+        ctx.strokeStyle = '#10B981';
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+
+        ctx.font = '900 48px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`${scoreVal}%`, W / 2, ribbonY + 2);
+        ctx.restore();
+
+        // Distinction Title & Exam Context
+        ctx.font = '800 38px "Cinzel", "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#FBBF24';
+        ctx.fillText(`HONOR GRADE: [ ${finalGrade} ]`, W / 2, ribbonY + 85);
+
+        ctx.font = '700 32px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('in the official examination:', W / 2, ribbonY + 145);
+
+        ctx.font = '900 44px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#38BDF8';
+        ctx.fillText(`« ${examTitle || 'Comprehensive Examination'} »`, W / 2, ribbonY + 205);
+
+        // Well Wishes & Encouragement
+        ctx.font = '600 28px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#64748B';
+        ctx.fillText('Wishing continuous brilliance, distinguished leadership, and ongoing scholarly achievements 🎓', W / 2, 1145);
+
+        // Dashed Divider Line
+        const footerY = 1410;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(212, 151, 59, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([16, 12]);
+        ctx.beginPath();
+        ctx.moveTo(180, footerY - 170);
+        ctx.lineTo(W - 180, footerY - 170);
+        ctx.stroke();
+        ctx.restore();
+
+        // ─── 5. State-Style Official Accreditation Seal (ختم الدولة الرسمي لمنصة الخطة) ───
+        ctx.save();
+        const sealX = W / 2;
+        const sealY = footerY;
+        const sealR = 126;
+
+        // Outer Beaded Dentil Ring (40 Golden Studs)
+        for (let a = 0; a < 40; a++) {
+            const beadAng = (a / 40) * Math.PI * 2;
+            const bx = sealX + Math.cos(beadAng) * (sealR + 2);
+            const by = sealY + Math.sin(beadAng) * (sealR + 2);
+            ctx.fillStyle = (a % 2 === 0) ? '#F0B855' : '#D4973B';
+            ctx.beginPath();
+            ctx.arc(bx, by, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Outer Heavy Gold Ring
+        ctx.strokeStyle = '#D4973B';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(sealX, sealY, sealR - 10, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Secondary Concentric Gold Ring
+        ctx.strokeStyle = '#F0B855';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(sealX, sealY, sealR - 18, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Circular Text Band Fill
+        ctx.fillStyle = 'rgba(212, 151, 59, 0.12)';
+        ctx.beginPath();
+        ctx.arc(sealX, sealY, sealR - 18, 0, Math.PI * 2);
+        ctx.arc(sealX, sealY, 78, 0, Math.PI * 2, true);
+        ctx.fill();
+
+        // Inner Dashed Gold Border
+        ctx.strokeStyle = '#D4973B';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.arc(sealX, sealY, 78, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Curved Circular Text: Upper Arc
+        ctx.font = '900 17px "Cinzel", "Montserrat", "Cairo", sans-serif';
+        ctx.fillStyle = '#F0B855';
+        ctx.shadowColor = 'rgba(240, 184, 85, 0.4)';
+        ctx.shadowBlur = 6;
+        drawArcTextTop(ctx, '★  ELKHETA EDUCATIONAL PLATFORM  ★', sealX, sealY, 93, -Math.PI * 0.82, -Math.PI * 0.18);
+
+        // Curved Circular Text: Lower Arc
+        drawArcTextBottom(ctx, '★  OFFICIAL ACCREDITATION SEAL  ★', sealX, sealY, 93, Math.PI * 0.82, Math.PI * 0.18);
+        ctx.shadowBlur = 0;
+
+        // Inner Dark Medallion
+        const coreGrad = ctx.createRadialGradient(sealX, sealY, 10, sealX, sealY, 76);
+        coreGrad.addColorStop(0, '#1E293B');
+        coreGrad.addColorStop(0.65, '#0F172A');
+        coreGrad.addColorStop(1, '#020617');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(sealX, sealY, 74, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#F0B855';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Center Heraldic Icon & Stars
+        ctx.font = '42px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🦅', sealX, sealY - 14);
+
+        ctx.font = '900 18px "Cinzel", "Cairo", sans-serif';
+        ctx.fillStyle = '#F0B855';
+        ctx.fillText('★  ★  ★', sealX, sealY + 22);
+
+        ctx.font = '800 14px "Montserrat", "Cinzel", sans-serif';
+        ctx.fillStyle = '#E2E8F0';
+        ctx.fillText('★ ACCREDITED ★', sealX, sealY + 44);
+
+        // Under-Seal Subtitle Ribbon
+        ctx.font = '800 20px "Cinzel", "Montserrat", sans-serif';
+        ctx.fillStyle = '#D4973B';
+        ctx.fillText('OFFICIAL STATE ACCREDITATION', sealX, sealY + sealR + 32);
+        ctx.restore();
+
+        // ─── 6. Left Column: Date of Accreditation ───
+        const safeDate = dateStr || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const hashSeed = Math.abs(Array.from(studentName || 'ELK').reduce((acc, c) => ((acc << 5) - acc) + c.charCodeAt(0), 0) % 90000) + 10000;
+        
+        ctx.save();
+        ctx.textAlign = 'center';
+        const leftColX = 420;
+        ctx.font = '700 24px "Cinzel", "Cairo", sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('DATE OF ACCREDITATION', leftColX, footerY - 55);
+
+        ctx.font = '900 34px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`📅  ${safeDate}`, leftColX, footerY - 5);
+
+        ctx.font = '700 20px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#64748B';
+        ctx.fillText(`DOC ID: ELK-${hashSeed}`, leftColX, footerY + 40);
+
+        ctx.font = '800 18px "Cairo", sans-serif';
+        ctx.fillStyle = '#10B981';
+        ctx.fillText('✓ OFFICIALLY RECORDED & VERIFIED', leftColX, footerY + 80);
+        ctx.restore();
+
+        // ─── 7. Right Column: Academic Authority (ELKHETA Academic Support Team) ───
+        ctx.save();
+        ctx.textAlign = 'center';
+        const rightColX = W - 420;
+        ctx.font = '700 24px "Cinzel", "Cairo", sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('ACADEMIC AUTHORITY', rightColX, footerY - 55);
+
+        ctx.font = '900 36px "Cinzel", "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#F0B855';
+        ctx.shadowColor = 'rgba(240, 184, 85, 0.5)';
+        ctx.shadowBlur = 12;
+        ctx.fillText('ELKHETA Academic Support Team 👑', rightColX, footerY - 5);
+        ctx.shadowBlur = 0;
+
+        ctx.font = '700 22px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#CBD5E1';
+        ctx.fillText('Academic Board & Examination Committee', rightColX, footerY + 40);
+
+        ctx.font = '600 19px "Cairo", system-ui, sans-serif';
+        ctx.fillStyle = '#64748B';
+        ctx.fillText('ELKHETA Educational Platform • Quality Assurance', rightColX, footerY + 80);
+        ctx.restore();
+
+        return canvas;
+    }
+
+    function generateCertificatePDF(studentName, examTitle, score, dateStr) {
+        if (score < 85) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'الشهادة معتمدة للمتفوقين فقط (85% فأعلى) 🎓',
+                text: 'شهادات التميز الملكية تصدر حصرياً للمتفوقين الحاصلين على 85% فما فوق. يمكنك الاطلاع على تقرير المتابعة والتحفيز.',
+                confirmButtonColor: '#C28B38',
+                confirmButtonText: 'حسناً'
+            });
+            return;
+        }
+        previewCertificateModal(studentName, examTitle, score, dateStr);
+    }
+
+    async function previewCertificateModal(studentName, examTitle, score, dateStr) {
+        const safeDate = dateStr || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const escName = (studentName || 'طالب').replace(/'/g, "\\'");
+        const escTitle = (examTitle || 'اختبار').replace(/'/g, "\\'");
+
+        // Ensure fonts are ready before canvas draw with timeout guard
+        if (document.fonts) {
+            try { 
+                await Promise.race([
+                    document.fonts.ready,
+                    new Promise(res => setTimeout(res, 400))
+                ]);
+            } catch(e){}
+        }
+
+        const canvas = generateRoyalCertificateCanvas({
+            studentName: studentName,
+            examTitle: examTitle,
+            score: score,
+            dateStr: safeDate
+        });
+
+        const previewDataUrl = canvas.toDataURL('image/jpeg', 0.90);
+
+        Swal.fire({
+            title: '',
+            html: `
+                <div style="direction: rtl; font-family: 'Cairo', sans-serif; text-align: center;">
+                    <!-- Exact Pixel-Identical Canvas Image Preview -->
+                    <div style="border-radius: 14px; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.5); border: 2px solid #D4973B; background: #0B0F19;">
+                        <img src="${previewDataUrl}" alt="معاينة شهادة التقدير الرسمية" style="width: 100%; height: auto; display: block; border-radius: 12px;">
+                    </div>
+
+                    <!-- Action Download Buttons -->
+                    <div style="margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button onclick="exportCertificateDocument('pdf', '${escName}', '${escTitle}', ${score}, '${safeDate}')" 
+                                style="padding: 11px 12px; border-radius: 10px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; border: none; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(37,99,235,0.35);">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>تحميل PDF رسمي 📥</span>
+                        </button>
+                        <button onclick="exportCertificateDocument('png', '${escName}', '${escTitle}', ${score}, '${safeDate}')" 
+                                style="padding: 11px 12px; border-radius: 10px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: #FFFFFF; border: none; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.35);">
+                            <i class="fa-solid fa-image"></i>
+                            <span>حفظ صورة PNG 🖼️</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; gap: 8px; justify-content: center;">
+                        <button onclick="printCertificate('${escName}', '${escTitle}', ${score}, '${safeDate}')" 
+                                style="flex: 1; padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.06); color: #CBD5E1; border: 1px solid rgba(255,255,255,0.15); font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-print"></i>
+                            <span>طباعة مباشرة</span>
+                        </button>
+                        <button onclick="Swal.close()" 
+                                style="flex: 1; padding: 9px 12px; border-radius: 8px; background: transparent; color: #94A3B8; border: 1px solid var(--border); font-size: 12.5px; font-weight: 700; cursor: pointer;">
+                            إغلاق
+                        </button>
+                    </div>
+                </div>
+            `,
+            width: '600px',
+            showConfirmButton: false,
+            showCloseButton: true,
+            background: '#0B0F19',
+            padding: '16px'
+        });
+    }
+
+    async function exportCertificateDocument(format, studentName, examTitle, score, dateStr) {
+        Swal.fire({
+            title: 'جاري استخراج وثيقة التكريم... 🎓',
+            html: `جاري توليد ملف ${format === 'pdf' ? 'PDF عالي الجودة' : 'صورة فائقة الدقة'} للطالب <b>${studentName}</b>`,
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        if (document.fonts) {
+            try { 
+                await Promise.race([
+                    document.fonts.ready,
+                    new Promise(res => setTimeout(res, 400))
+                ]);
+            } catch(e){}
+        }
+
+        const safeDate = dateStr || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const cleanName = (studentName || 'Student').replace(/\s+/g, '_');
+
+        const canvas = generateRoyalCertificateCanvas({
+            studentName: studentName,
+            examTitle: examTitle,
+            score: score,
+            dateStr: safeDate
+        });
+
+        if (format === 'png') {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `ELKHETA_Certificate_${cleanName}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم حفظ الشهادة كصورة! 🖼️',
+                text: 'تم تنزيل الشهادة بصيغة PNG فائقة الدقة جاهزة للمشاركة والنشر الفوري.',
+                confirmButtonColor: '#10B981'
+            });
+        } else {
+            // PDF Export via native jsPDF landscape A4
+            try {
+                const imgData = canvas.toDataURL('image/jpeg', 0.96);
+                const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+
+                if (jsPDFClass) {
+                    const pdf = new jsPDFClass({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                    // A4 landscape is 297mm x 210mm
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+
+                    // Reliable Blob URL download preventing blank white tabs
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = `ELKHETA_Certificate_${cleanName}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        link.remove();
+                        URL.revokeObjectURL(blobUrl);
+                    }, 1500);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم تصدير الشهادة بنجاح! 🎓',
+                        text: `تم تنزيل شهادة التقدير الرسمية للطالب (${studentName}) بصيغة PDF كاملة وواضحة 100%.`,
+                        confirmButtonColor: '#2563EB'
+                    });
+                } else {
+                    // Fallback to direct PNG download if jsPDF is unavailable
+                    const link = document.createElement('a');
+                    link.download = `ELKHETA_Certificate_${cleanName}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم حفظ الشهادة كصورة فائقة الدقة! 🖼️',
+                        text: 'تم حفظ الشهادة بدقة عالية كبديل فوري جاهز للطباعة.',
+                        confirmButtonColor: '#D4973B'
+                    });
+                }
+            } catch(err) {
+                console.error('PDF export error:', err);
+                const link = document.createElement('a');
+                link.download = `ELKHETA_Certificate_${cleanName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'تم حفظ الشهادة بدقة عالية! 🖼️',
+                    text: 'تم تنزيل الشهادة كصورة PNG فائقة الجودة.',
+                    confirmButtonColor: '#D4973B'
+                });
+            }
+        }
+    }
+
+    function printCertificate(studentName, examTitle, score, dateStr) {
+        const safeDate = dateStr || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const canvas = generateRoyalCertificateCanvas({
+            studentName: studentName,
+            examTitle: examTitle,
+            score: score,
+            dateStr: safeDate
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        const printWin = window.open('', '_blank');
+        if (!printWin || printWin.closed || typeof printWin.closed === 'undefined') {
+            exportCertificateDocument('png', studentName, examTitle, score, dateStr);
+            return;
+        }
+        printWin.document.open();
+        printWin.document.write(`
+            <!DOCTYPE html>
+            <html dir="ltr" lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>ELKHETA Certificate - ${studentName}</title>
+                <style>
+                    @page { size: landscape; margin: 0; }
+                    body { margin: 0; padding: 0; background: #0B0F19; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    img { width: 100%; height: 100%; object-fit: contain; }
+                </style>
+            </head>
+            <body>
+                <img src="${imgData}" onload="setTimeout(() => { window.print(); window.close(); }, 250);">
+            </body>
+            </html>
+        `);
+        printWin.document.close();
+    }
+
+    // ─── 8. Demo Data Generator for Testing ───
+    function generateSampleExamResultsForTesting() {
+        const db = database || getDB();
+        if (!db) return showToast('تعذر الاتصال بقاعدة البيانات');
+
+        const samples = [
+            {
+                studentCode: 'KH_9012',
+                studentName: 'سارة أحمد محمود',
+                studentPhone: '01012345678',
+                examId: 'exam_ind_1',
+                examTitle: 'اختبار مهارات المقابلة والتشخيص الاجتماعي',
+                subjectId: 'افراد',
+                score: 5,
+                totalQuestions: 5,
+                percentage: 100,
+                submittedAt: Date.now() - 3600000 * 2
+            },
+            {
+                studentCode: 'KH_4482',
+                studentName: 'محمد حسام عبد العزيز',
+                studentPhone: '01123456789',
+                examId: 'exam_grp_1',
+                examTitle: 'تقييم ديناميات الجماعة وتطور الأدوار',
+                subjectId: 'جماعات',
+                score: 4,
+                totalQuestions: 4,
+                percentage: 100,
+                submittedAt: Date.now() - 3600000 * 4
+            },
+            {
+                studentCode: 'KH_3190',
+                studentName: 'عمر خالد إبراهيم',
+                studentPhone: '01234567890',
+                examId: 'exam_com_1',
+                examTitle: 'نماذج تنظيم المجتمع والتنمية المحلية',
+                subjectId: 'مجتمعات',
+                score: 2,
+                totalQuestions: 3,
+                percentage: 67,
+                submittedAt: Date.now() - 3600000 * 8
+            },
+            {
+                studentCode: 'KH_7715',
+                studentName: 'مريم علي حسن',
+                studentPhone: '01512345678',
+                examId: 'exam_pol_1',
+                examTitle: 'التشريعات وسياسات الحماية الاجتماعية',
+                subjectId: 'سياسات الرعاية الاجتماعية',
+                score: 1,
+                totalQuestions: 2,
+                percentage: 50,
+                submittedAt: Date.now() - 3600000 * 12
+            }
+        ];
+
+        Swal.fire({
+            title: 'توليد نتائج اختبارات تجريبية؟',
+            text: 'سيتم إضافة 4 نتائج لاختبارات مختلفة لاختبار لوحة الشرف وإصدار الشهادات ورسائل الواتساب.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#C28B38',
+            confirmButtonText: 'نعم، توليد النتائج',
+            cancelButtonText: 'إلغاء'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const promises = samples.map(s => db.ref('ExamResults').push(s));
+                Promise.all(promises).then(() => {
+                    Swal.fire('تم بنجاح! 🎓', 'تم تسجيل النتائج التجريبية بنجاح، يمكنك الآن تجربة إصدار الشهادات ولوحة الشرف.', 'success');
+                }).catch(e => {
+                    Swal.fire('خطأ', e.message, 'error');
+                });
+            }
+        });
+    }
+
+    window.manuallyVerifyWhatsApp = function(studentCode, resultId) {
+        Swal.fire({
+            title: 'تأكيد رقم الواتساب يدويًا؟',
+            text: `هل تريد اعتماد وتوثيق رقم واتساب الطالب (${studentCode}) كـ «واتساب مؤكد يدويًا»؟`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، اعتماد الرقم الآن ✅',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#10B981',
+            cancelButtonColor: '#6B7280'
+        }).then(res => {
+            if (res.isConfirmed) {
+                const db = database || getDB();
+                if (db) {
+                    const updates = {};
+                    if (studentCode) {
+                        updates[`Students/${studentCode}/whatsappVerified`] = true;
+                        updates[`Students/${studentCode}/whatsappVerifiedAt`] = Date.now();
+                        updates[`Students/${studentCode}/whatsappVerificationStatus`] = 'verified';
+                    }
+                    if (resultId) {
+                        updates[`ExamResults/${resultId}/whatsappVerified`] = true;
+                        updates[`ExamResults/${resultId}/whatsappVerifiedAt`] = Date.now();
+                        updates[`ExamResults/${resultId}/whatsappVerificationStatus`] = 'verified';
+                    }
+                    db.ref().update(updates).then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم تأكيد الرقم بنجاح! 🎯',
+                            text: 'تم حفظ رقم الطالب كـ «واتساب مؤكد يدويًا» في قاعدة البيانات.',
+                            confirmButtonColor: '#10B981'
+                        });
+                        loadResults();
+                    }).catch(err => {
+                        Swal.fire('خطأ', 'تعذر حفظ التحديث: ' + err.message, 'error');
+                    });
+                }
+            }
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSubjects();
+        loadResults();
+        initRetakeRequestsListener();
+    });
+</script>
+
+</body>
+</html>
