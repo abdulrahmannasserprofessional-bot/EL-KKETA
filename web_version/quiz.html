@@ -6161,6 +6161,29 @@ window.toggleMobileSidebar = toggleMobileSidebar;
                     whatsappVerificationCode: vCode,
                     whatsappVerified: false,
                     whatsappVerificationStatus: 'pending',
+                    // Keep the student's complete answers so the admin can review essays.
+                    essayAnswers: essayQuestions.map((q) => {
+                        const idx = questions.indexOf(q);
+                        const answer = userAnswers[idx] || {};
+                        return {
+                            questionIndex: idx,
+                            questionId: q.id || `q_${idx + 1}`,
+                            question: q.text || q.q || `سؤال مقالي ${idx + 1}`,
+                            answer: answer.text || '',
+                            modelAnswer: q.modelAnswer || q.explanation || '',
+                            submitted: !!answer.answered
+                        };
+                    }),
+                    objectiveAnswers: objectiveQuestions.map((q) => {
+                        const idx = questions.indexOf(q);
+                        const answer = userAnswers[idx] || {};
+                        return {
+                            questionIndex: idx,
+                            question: q.text || q.q || `سؤال ${idx + 1}`,
+                            selected: answer.selectedIdx !== undefined ? answer.selectedIdx : null,
+                            correct: !!answer.correct
+                        };
+                    }),
                     submittedAt: Date.now(),
                     timestamp: Date.now()
                 };
