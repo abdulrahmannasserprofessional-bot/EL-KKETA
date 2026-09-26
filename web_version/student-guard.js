@@ -1047,7 +1047,50 @@
             initMaintenanceGuard(db);
             checkStudentDeviceAuth(db);
             initSingleSessionLock(db);
+            initActivityHeartbeat(db);
         });
+    }
+
+    // ==========================================
+    // Student Page Browsing & Activity Telemetry
+    // ==========================================
+    function initActivityHeartbeat(db) {
+        try {
+            const rawUser = localStorage.getItem('user');
+            if (!rawUser) return;
+            const user = JSON.parse(rawUser);
+            const studentCode = user.code || user.studentCode || localStorage.getItem('studentCode');
+            if (!studentCode) return;
+            const studentName = user.fullName || user.full_name || user.name || 'طالب';
+
+            const pageName = document.title || location.pathname.split('/').pop() || 'صفحة المنصة';
+            const pagePath = location.pathname.split('/').pop() || 'home.html';
+            
+            // Avoid logging repeatedly on every quick reload - throttle to once per 2 minutes per page
+            const sessionKey = 'last_log_' + pagePath;
+            const lastLogTime = parseInt(sessionStorage.getItem(sessionKey) || '0', 10);
+            const now = Date.now();
+            if (now - lastLogTime < 120000) {
+                return; // throttled
+            }
+            sessionStorage.setItem(sessionKey, now.toString());
+
+            let actionText = 'تصفح المنصة 📖';
+            if (pagePath.includes('quiz') || pagePath.includes('exam')) actionText = 'بدء اختبار أو واجب 📝';
+            else if (pagePath.includes('lecture') || pagePath.includes('video')) actionText = 'مشاهدة محاضرة تعليمية 🎥';
+            else if (pagePath.includes('summary')) actionText = 'قراءة ملخصات ومذكرات 📚';
+            else if (pagePath.includes('mistake')) actionText = 'مراجعة الأخطاء والامتحانات 🔍';
+            else if (pagePath.includes('home')) actionText = 'التواجد في الشاشة الرئيسية 🏠';
+
+            db.ref('ActivityLogs').push({
+                studentCode: studentCode,
+                studentName: studentName,
+                action: actionText,
+                details: 'تصفح: ' + pageName.replace(' | منصة الخطة التعليمية', ''),
+                userAgent: navigator.userAgent || '',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        } catch(e) {}
     }
 
     if (document.readyState === 'loading') {

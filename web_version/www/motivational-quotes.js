@@ -535,6 +535,10 @@
         /**
          * تهيئة ودجت التحفيز المباشر في صفحات تسجيل الدخول أو إنشاء الحساب
          */
+        renderWidget(containerId) {
+            return this.initWidget(containerId);
+        },
+
         initWidget(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;

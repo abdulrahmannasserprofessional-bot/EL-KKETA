@@ -26,12 +26,17 @@
         return window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
     }
 
-    // 2. Inject CSS if not loaded
+    // 2. Inject CSS & ExamRetakeGuard if not loaded
     if (!document.querySelector('link[href*="live-chat.css"]')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = 'live-chat.css?v=2.0';
         document.head.appendChild(link);
+    }
+    if (!window.ExamRetakeGuard && !document.querySelector('script[src*="exam-retake-guard.js"]')) {
+        const scr = document.createElement('script');
+        scr.src = 'exam-retake-guard.js?v=2.0.0';
+        document.head.appendChild(scr);
     }
 
     // 3. Build UI Elements
@@ -95,6 +100,7 @@
 
             <!-- Quick Topic Pills -->
             <div class="live-chat-quick-tags">
+                <span class="quick-topic-chip" id="retakeAuthChip" data-action="retake_auth" style="background:rgba(16,185,129,0.14); border-color:rgba(16,185,129,0.4); color:#059669; font-weight:800; cursor:pointer;" title="إعادة فتح الاختبار تلقائياً عبر الدعم الأكاديمي (بدون كود)">⚡ فتح الاختبار مجدداً (بدون كود)</span>
                 <span class="quick-topic-chip active" data-topic="استفسار عام">💬 استفسار عام</span>
                 <span class="quick-topic-chip" data-topic="امتحان وبابل شيت">📝 امتحان وبابل شيت</span>
                 <span class="quick-topic-chip" data-topic="فيديو المحاضرة">🎥 فيديو ومحاضرة</span>
@@ -150,6 +156,23 @@
                 }
             });
         });
+
+        const retakeBtn = drawer.querySelector('#retakeAuthChip');
+        if (retakeBtn) {
+            retakeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.ExamRetakeGuard) {
+                    ExamRetakeGuard.openAcademicSupportBot();
+                } else {
+                    const scr = document.createElement('script');
+                    scr.src = 'exam-retake-guard.js?v=2.0.0';
+                    scr.onload = () => {
+                        if (window.ExamRetakeGuard) ExamRetakeGuard.openAcademicSupportBot();
+                    };
+                    document.head.appendChild(scr);
+                }
+            });
+        }
 
         // Send actions
         const sendBtn = document.getElementById('chatSendBtn');

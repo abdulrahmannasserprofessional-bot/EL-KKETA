@@ -1007,10 +1007,12 @@
             }
         }
 
-        // Student Data
+        // Student Data (Supports URL query param ?code= or localStorage)
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryCode = urlParams.get('code') || urlParams.get('studentCode');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const studentCode = (user.studentCode || user.code || '').trim();
-        const studentName = user.fullName || user.name || 'طالب منصة الخطة';
+        let studentCode = (queryCode || user.studentCode || user.code || '').trim();
+        let studentName = user.fullName || user.name || (queryCode ? 'طالب برقم ' + queryCode : 'طالب منصة الخطة');
         const safeStCode = studentCode.replace(/[.#$\[\]]/g, '_');
 
         document.getElementById('aiStudentName').textContent = studentName;
@@ -1026,8 +1028,28 @@
 
         async function initAIReportEngine() {
             try {
+                const db = window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+                if (!db) {
+                    setTimeout(initAIReportEngine, 400);
+                    return;
+                }
+
+                // If queryCode provided, try to fetch student name from Students node
+                if (queryCode && safeStCode) {
+                    try {
+                        const sSnap = await db.ref('Students/' + safeStCode).once('value');
+                        if (sSnap.exists()) {
+                            const sVal = sSnap.val();
+                            if (sVal && (sVal.fullName || sVal.name)) {
+                                studentName = sVal.fullName || sVal.name;
+                                document.getElementById('aiStudentName').textContent = studentName;
+                            }
+                        }
+                    } catch(e) {}
+                }
+
                 // 1. Fetch Lectures to map Chapters and Lessons
-                const lecSnap = await database.ref('Lectures').once('value');
+                const lecSnap = await db.ref('Lectures').once('value');
                 if (lecSnap.exists()) {
                     lecSnap.forEach(subChild => {
                         const subName = subChild.key;
@@ -1044,16 +1066,45 @@
                     });
                 }
 
-                // 2. Fetch Student Exam Results across all subjects
-                const examsSnap = await database.ref('ExamResults').once('value');
+                // 2. Fetch Student Exam Results (From Students/{safeStCode}/exams AND ExamResults)
                 studentExamResults = [];
+                const recordedExamIds = new Set();
+
+                if (safeStCode) {
+                    try {
+                        const stExamsSnap = await db.ref('Students/' + safeStCode + '/exams').once('value');
+                        if (stExamsSnap.exists()) {
+                            stExamsSnap.forEach(exChild => {
+                                const ex = exChild.val();
+                                if (!ex) return;
+                                const total = ex.total || ex.totalQuestions || 10;
+                                const score = ex.score || 0;
+                                const percentage = (typeof ex.percentage === 'number') ? ex.percentage : Math.round((score / total) * 100);
+                                recordedExamIds.add(exChild.key);
+                                studentExamResults.push({
+                                    subjectName: ex.subject || ex.subjectName || ex.subjectId || 'مقرر دراسي',
+                                    examId: exChild.key,
+                                    score: score,
+                                    totalQuestions: total,
+                                    percentage: percentage,
+                                    passed: percentage >= 60,
+                                    timestamp: ex.submittedAt || ex.timestamp || Date.now()
+                                });
+                            });
+                        }
+                    } catch(e) {}
+                }
+
+                const examsSnap = await db.ref('ExamResults').once('value');
                 if (examsSnap.exists()) {
                     examsSnap.forEach(subChild => {
                         const subName = subChild.key;
                         subChild.forEach(examChild => {
                             const examId = examChild.key;
+                            if (recordedExamIds.has(examId)) return;
                             if (examChild.hasChild(safeStCode)) {
                                 const res = examChild.child(safeStCode).val();
+                                recordedExamIds.add(examId);
                                 studentExamResults.push({
                                     subjectName: subName,
                                     examId: examId,

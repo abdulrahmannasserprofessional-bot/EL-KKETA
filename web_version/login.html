@@ -224,6 +224,40 @@
             transform: translateY(-1px);
         }
 
+        /* Remember Me Luxury Toggle */
+        .remember-me-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #FAF7F2;
+            border: 1px solid #EFE8DC;
+            border-radius: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .remember-me-row:hover {
+            background: #FDF4E6;
+            border-color: #E8D3B2;
+        }
+        .remember-me-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1E293B;
+            cursor: pointer;
+        }
+        .remember-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #C28B38;
+            cursor: pointer;
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;
@@ -816,6 +850,14 @@
                 <input type="text" id="studentCode" class="form-input" placeholder="اكتب كودك هنا (مثال: KH1234)" autofocus autocomplete="off" onkeypress="if(event.key==='Enter') login()">
                 <i class="fa-solid fa-arrow-left-to-bracket input-icon"></i>
             </div>
+            <!-- Remember Me Option -->
+            <label class="remember-me-row" for="rememberMeCheckbox">
+                <div class="remember-me-label">
+                    <input type="checkbox" id="rememberMeCheckbox" class="remember-checkbox" checked>
+                    <span>تذكر بيانات الدخول على هذا الجهاز</span>
+                </div>
+                <i class="fa-solid fa-shield-check" style="color: #10B981; font-size: 15px;"></i>
+            </label>
         </div>
 
         <!-- Submit Button -->
@@ -886,12 +928,45 @@
                 QuotesEngine.renderWidget('motivationalQuotesWidget');
             }
             const savedCode = localStorage.getItem('studentCode');
+            const rememberMePref = localStorage.getItem('elkheta_remember_me');
+            const remCheckbox = document.getElementById('rememberMeCheckbox');
+            if (remCheckbox && rememberMePref !== null) {
+                remCheckbox.checked = (rememberMePref === 'true');
+            }
+
             let savedUser = null;
             try {
                 savedUser = JSON.parse(localStorage.getItem('user'));
             } catch(e){}
 
+            // Clear any lingering bogus fallback sessions
+            if (savedUser && (savedUser.fullName === 'طالب منصة الخطة' || savedUser.fullName === 'طالب المنصة')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('studentCode');
+                sessionStorage.clear();
+                savedUser = null;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const isLogout = urlParams.get('logout') === 'true';
+
+            // Seamless Auto-Login if user already has an active session and Remember Me is on
+            if (!isLogout && savedCode && savedUser && (rememberMePref === 'true' || rememberMePref === null)) {
+                const upperSaved = savedCode.toUpperCase();
+                if (savedUser.studentCode && savedUser.studentCode.toUpperCase() === upperSaved && !savedUser.isBanned && !savedUser.is_banned && savedUser.fullName !== 'طالب منصة الخطة' && savedUser.fullName !== 'طالب المنصة') {
+                    sessionStorage.setItem('studentData', JSON.stringify(savedUser));
+                    sessionStorage.setItem('studentCode', upperSaved);
+                    location.replace("home.html");
+                    return;
+                }
+            }
+
             if (savedCode) {
+                const codeInput = document.getElementById('studentCode');
+                if (codeInput && !codeInput.value) {
+                    codeInput.value = savedCode;
+                }
+
                 const chip = document.getElementById('recentAccountChip');
                 const nameEl = document.getElementById('recentAccountName');
                 const codeEl = document.getElementById('recentAccountCode');
@@ -1002,9 +1077,26 @@
                 if (window.ElkhetaSecurity && window.ElkhetaSecurity.clearFailedLogins) {
                     window.ElkhetaSecurity.clearFailedLogins(upperCode);
                 }
-                localStorage.setItem('user', JSON.stringify(studentObj));
-                localStorage.setItem('studentCode', upperCode);
-                localStorage.setItem('lastKnownStudent_' + upperCode, JSON.stringify(studentObj));
+
+                // Check Remember Me Choice
+                const rememberEl = document.getElementById('rememberMeCheckbox');
+                const isRemember = rememberEl ? rememberEl.checked : true;
+                localStorage.setItem('elkheta_remember_me', isRemember ? 'true' : 'false');
+
+                // Save student session & local data
+                sessionStorage.setItem('studentData', JSON.stringify(studentObj));
+                sessionStorage.setItem('studentCode', upperCode);
+
+                if (isRemember) {
+                    localStorage.setItem('user', JSON.stringify(studentObj));
+                    localStorage.setItem('studentCode', upperCode);
+                    localStorage.setItem('studentData', JSON.stringify(studentObj));
+                    localStorage.setItem('lastKnownStudent_' + upperCode, JSON.stringify(studentObj));
+                } else {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('studentCode');
+                    localStorage.removeItem('studentData');
+                }
                 
                 // 🚀 استدعاء ترقية الحساب في الخلفية بدون تعطيل واجهة الدخول (Non-blocking Async Migration)
                 setTimeout(() => {
@@ -1023,30 +1115,22 @@
 
                 // Background async log
                 try {
-                    logUserLogin(upperCode, studentObj.fullName || studentObj.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀');
+                    logActivity(upperCode, studentObj.fullName || studentObj.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', '🟢 دخول ناجح للمنصة وتصفح المواد');
                     if (window.ElkhetaAPI && ElkhetaAPI.logActivity) {
                         ElkhetaAPI.logActivity(upperCode, studentObj.fullName || studentObj.full_name || 'طالب', 'تسجيل الدخول للمنصة 🚀', 'دخول ناجح للمنصة');
                     }
                 } catch(e){}
 
-                if (window.QuotesEngine) {
-                    QuotesEngine.showLoginSuccessModal(studentObj.fullName || studentObj.full_name || 'طالب', () => location.href = "home.html");
-                } else {
-                    showToast("تم التحقق بنجاح وتأمين حسابك بـ Firebase Auth UID 🛡️", "success");
-                    setTimeout(() => location.href = "home.html", 250);
-                }
+                showToast("تم التحقق بنجاح وتأمين حسابك 🛡️", "success");
+                setTimeout(() => location.href = "home.html", 150);
             }
 
             function grantAdminAccess(roleName, dest = "admin-panel.html") {
                 sessionStorage.setItem('isAdmin', 'true');
                 localStorage.setItem('isAdmin', 'true');
                 sessionStorage.setItem('adminRole', roleName);
-                if (window.QuotesEngine) {
-                    QuotesEngine.showLoginSuccessModal(roleName === 'super_admin' ? "المدير العام" : "مشرف المنصة", () => location.href = dest);
-                } else {
-                    showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
-                    setTimeout(() => location.href = dest, 300);
-                }
+                showToast("مرحباً بك في لوحة الإدارة العليا 👑", "success");
+                setTimeout(() => location.href = dest, 150);
             }
 
             // ─── 0. FAST PATH: Instant local validation (0ms) ───
@@ -1061,14 +1145,14 @@
             // B) Local Cached Student Check (Instant Response)
             const cachedStudent = localStorage.getItem('lastKnownStudent_' + upperCode);
             const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-            if (currentUser && currentUser.studentCode && currentUser.studentCode.toUpperCase() === upperCode) {
+            if (currentUser && currentUser.studentCode && currentUser.studentCode.toUpperCase() === upperCode && currentUser.fullName !== 'طالب منصة الخطة' && currentUser.fullName !== 'طالب المنصة') {
                 grantStudentAccess(currentUser);
                 return;
             }
             if (cachedStudent) {
                 try {
                     const parsed = JSON.parse(cachedStudent);
-                    if (parsed && !parsed.isBanned && !parsed.is_banned) {
+                    if (parsed && !parsed.isBanned && !parsed.is_banned && parsed.fullName !== 'طالب منصة الخطة' && parsed.fullName !== 'طالب المنصة') {
                         grantStudentAccess(parsed);
                         return;
                     }
@@ -1202,32 +1286,71 @@
                     } catch(e){}
                 }
 
-                // Fallback: If code pattern looks like a valid student code (e.g. A1234, KH001, etc.), allow smooth entry and sync
-                if (code.length >= 3) {
-                    const fallbackStudent = {
+                // 🚨 FAILED: UNREGISTERED / RANDOM CODE DETECTED!
+                resetBtn();
+
+                // 1. Send Security Alert to Watchtowers & Radar in Realtime!
+                const db = window.database || (typeof firebase !== 'undefined' && firebase.database ? firebase.database() : null);
+                if (db) {
+                    db.ref('SecurityAlerts').push({
+                        type: 'محاولة اختراق / كود عشوائي غير مسجل 🚨',
                         studentCode: upperCode,
-                        fullName: 'طالب منصة الخطة',
-                        joinDate: Date.now()
-                    };
-                    grantStudentAccess(fallbackStudent);
-                    return;
+                        severity: 'critical',
+                        source: 'login_watchtower',
+                        device: (navigator.userAgent.includes('Mobile') || navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone')) ? 'هاتف محمول' : 'جهاز كمبيوتر',
+                        userAgent: navigator.userAgent || '',
+                        details: `رصد محاولة دخول فاشلة بكود عشوائي غير مسجل في النظام [${upperCode}]. تم اعتراض المحاولة بواسطة أبراج المراقبة ورادار الأمان.`,
+                        timestamp: Date.now()
+                    }).catch(() => {});
+
+                    db.ref('ActivityLogs').push({
+                        action: '⚠️ رصد محاولة دخول غير مصرح بها (كود عشوائي)',
+                        studentCode: upperCode,
+                        studentName: 'مجهول (كود غير مسجل)',
+                        details: `محاولة دخول فاشلة بكود عشوائي [${upperCode}] - تم حظر الدخول فورياً وإشعار رادار العمليات المباشر`,
+                        userAgent: navigator.userAgent || '',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    }).catch(() => {});
                 }
 
-                resetBtn();
                 if (window.SecurityValidator && SecurityValidator.recordFailedLogin) {
                     SecurityValidator.recordFailedLogin('index_login');
                 }
-                showToast("الكود المدخل غير مسجل ⚠️ يرجى التأكد من الكود أو إنشاء حساب جديد.", "error");
+
+                // 2. Track consecutive failed attempts
+                let fails = parseInt(sessionStorage.getItem('elkheta_login_fails') || '0', 10) + 1;
+                sessionStorage.setItem('elkheta_login_fails', fails.toString());
+
+                // 3. Display High-Alert Security Modal (أبراج المراقبة والإنذارات)
+                Swal.fire({
+                    icon: 'error',
+                    title: '<span style="font-size:18px; font-weight:900; color:#DC2626; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fa-solid fa-tower-broadcast"></i> تنبيه أمني: رادار وأبراج المراقبة 🚨</span>',
+                    html: `
+                        <div style="font-family:'Cairo',sans-serif; text-align:right; direction:rtl; font-size:13px; color:#334155; line-height:1.6;">
+                            <p style="margin-bottom:10px; font-size:14px; font-weight:800; color:#1E293B; text-align:center;">
+                                الكود المدخل <span style="font-family:monospace; color:#DC2626; background:#FEE2E2; padding:3px 10px; border-radius:6px; font-weight:900;">${upperCode}</span> غير مسجل في النظام!
+                            </p>
+                            <div style="background:#FFF1F2; border:1px solid #FECDD3; border-radius:14px; padding:12px 14px; margin-bottom:12px; color:#9F1239;">
+                                <div style="font-weight:900; display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:13px;">
+                                    <i class="fa-solid fa-shield-halved"></i> تم إرسال إشارة إنذار فورية لغرفة العمليات:
+                                </div>
+                                <div style="font-size:12px; line-height:1.5;">
+                                    تم رصد وتوثيق المحاولة وتوجيه إشعار مباشر إلى <b>رادار الأمان، أبراج المراقبة، ومركز الرقابة الإداري</b>. الدخول مقتصر حصراً على الأكواد المشتركة المعتمدة.
+                                </div>
+                            </div>
+                            <p style="font-size:12px; color:#64748B; text-align:center; margin:0;">
+                                يرجى كتابة كود اشتراكك المعتمد أو مراجعة إدارة المنصة والدعم الفني.
+                            </p>
+                        </div>
+                    `,
+                    confirmButtonText: 'حسناً، سأتحقق من الكود',
+                    confirmButtonColor: '#C28B38'
+                });
 
             } catch (err) {
                 console.error("Login verification error:", err);
                 resetBtn();
-                // Graceful fallback for offline / network glitch
-                if (code.length >= 3) {
-                    grantStudentAccess({ studentCode: upperCode, fullName: 'طالب المنصة', joinDate: Date.now() });
-                } else {
-                    showToast("يرجى التأكد من كود الطالب والمحاولة مرة أخرى ⚠️", "error");
-                }
+                showToast("الكود المدخل غير مسجل ⚠️ يرجى التأكد من كود الطالب والمحاولة مرة أخرى.", "error");
             }
         }
 

@@ -82,6 +82,10 @@ function initUniversalMobileNav() {
         const rawPath = window.location.pathname.toLowerCase();
         const page = rawPath.split('/').pop().split('?')[0].split('#')[0] || 'index.html';
 
+        // ── Skip injection for Admin OS page and pages with no-inject flag ──
+        if (window.__NO_MOBILE_NAV__ || window.__ELKHETA_ADMIN_OS__) return;
+        if (page === 'admin-panel.html' || page === 'admin-system.html') return;
+
         // Determine page type
         const studentPages = [
             'home.html', 'courses.html', 'lectures.html', 'profile.html', 
@@ -95,6 +99,7 @@ function initUniversalMobileNav() {
         if (!isStudentPage && !isAdminPage) {
             return;
         }
+
 
         // Inject Drawer CSS Guard (Hidden on desktop, sliding drawer on mobile)
         if (!document.getElementById('mobileInjectedDrawerStyles')) {
@@ -169,8 +174,7 @@ function initUniversalMobileNav() {
                     { href: 'admin-results.html', title: 'سجل النتائج والدرجات', icon: 'fa-solid fa-square-poll-vertical' },
                     { href: 'admin-mistakes.html', title: 'تحليل الأخطاء الشائعة', icon: 'fa-solid fa-triangle-exclamation' },
                     { href: 'admin-reports.html', title: 'التقارير والإحصائيات', icon: 'fa-solid fa-chart-line' },
-                    { href: 'admin-config.html', title: 'إعدادات النظام والمنصة', icon: 'fa-solid fa-gear' },
-                    { href: 'admin-mysql.html', title: 'قاعدة بيانات MySQL', icon: 'fa-solid fa-database' }
+                    { href: 'admin-config.html', title: 'إعدادات النظام والمنصة', icon: 'fa-solid fa-gear' }
                 ];
 
                 let navListHTML = '';
@@ -213,7 +217,7 @@ function initUniversalMobileNav() {
 
                         <!-- Footer / Logout -->
                         <div style="padding-top:12px; border-top:1px solid #EFE8DC; margin-top:12px;">
-                            <button type="button" onclick="localStorage.removeItem('adminToken'); location.href='admin-gate.html';" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; background:#FFF1F2; border:1px solid rgba(225,29,72,0.2); border-radius:12px; color:#E11D48; font-size:13px; font-weight:800; cursor:pointer; font-family:'Cairo', sans-serif;">
+                            <button type="button" onclick="localStorage.removeItem('adminToken'); location.href='index.html';" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; background:#FFF1F2; border:1px solid rgba(225,29,72,0.2); border-radius:12px; color:#E11D48; font-size:13px; font-weight:800; cursor:pointer; font-family:'Cairo', sans-serif;">
                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                 <span>تسجيل الخروج من الإدارة</span>
                             </button>
@@ -394,6 +398,9 @@ function initUniversalMobileNav() {
 // ─── Universal Floating Announcement Message Toast (Appears on Entry & Auto-Fades) ───
 function initUniversalTickerBanner() {
     try {
+        if (window.__NO_TICKER__ || window.__ELKHETA_ADMIN_OS__) return;
+        const _tickerPage = window.location.pathname.toLowerCase().split('/').pop().split('?')[0] || 'index.html';
+        if (_tickerPage === 'admin-panel.html' || _tickerPage === 'admin-system.html') return;
         if (document.getElementById('universalTopTicker')) return;
         if (sessionStorage.getItem('elkheta_ticker_dismissed') === 'true') return;
 
@@ -556,219 +563,50 @@ function initUniversalTickerBanner() {
 
 
 
-// ─── Universal High-Contrast Footer with Disclaimer & Vision ───
+// ─── Compact Promotional Footer (replaces old big footer) ───
 function initUniversalFooter() {
     try {
+        if (window.__ELKHETA_ADMIN_OS__) return;
         if (document.getElementById('universalAppFooter')) return;
 
         const rawPath = window.location.pathname.toLowerCase();
         const page = rawPath.split('/').pop().split('?')[0].split('#')[0] || 'index.html';
-
-        if (page === 'splash.html') return;
+        if (page === 'splash.html' || page === 'admin-gate.html') return;
 
         const footer = document.createElement('footer');
         footer.id = 'universalAppFooter';
-        footer.className = 'universal-app-footer';
-
+        footer.style.cssText = `
+            background: linear-gradient(90deg, #0B0F19 0%, #111827 100%);
+            border-top: 1.5px solid #D4973B;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            width: 100%;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            margin-top: auto;
+        `;
         footer.innerHTML = `
-            <div class="footer-inner-wrap">
-                <div class="footer-cards-grid">
-                    <!-- Card 1: Official Disclaimer -->
-                    <div class="footer-info-card disclaimer-box">
-                        <div class="footer-card-head">
-                            <div class="footer-icon-badge gold-badge">
-                                <i class="fa-solid fa-shield-halved"></i>
-                            </div>
-                            <div>
-                                <h4 class="footer-card-title">تنويه وإخلاء مسؤولية 🛡️</h4>
-                                <span class="footer-card-subtitle">مبادرة تعليمية مجانية ومستقلة 100%</span>
-                            </div>
-                        </div>
-                        <p class="footer-card-desc">
-                            منصة <strong>الخطة التعليمية</strong> هي مبادرة أحيائية ومجانية تم إنشاؤها بجهود فردية مساندة بهدف خدمة الطلاب وتسهيل الوصول إلى المحتوى الأكاديمي وحساب المعدلات. 
-                            المنصة <strong>مستقلة تماماً وغير تابعة ولا تربطها أي صلة رسمية أو قانونية بأي كلية، جامعة، أو مؤسسة حكومية</strong>.
-                        </p>
-                    </div>
-
-                    <!-- Card 2: Promotional & Vision Statement -->
-                    <div class="footer-info-card promo-box">
-                        <div class="footer-card-head">
-                            <div class="footer-icon-badge star-badge">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            </div>
-                            <div>
-                                <h4 class="footer-card-title">منصة الخطة - رفيقك للقمة 🚀</h4>
-                                <span class="footer-card-subtitle">معلمك الأكاديمي الذكي والتفاعلي</span>
-                            </div>
-                        </div>
-                        <p class="footer-card-desc">
-                            نوفر لك أحدث وسائل التعلم الذكي، المذكرات الشاملة، بنوك الأسئلة، الشروحات، ومتابعة الأداء الأكاديمي مجاناً بالكامل بأعلى جودة. 
-                            <strong>هدفنا نجاحك، ورؤيتنا تميزك وتصدرك للمراكز الأولى دائماً!</strong>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="footer-bottom-bar">
-                    <div class="footer-brand">
-                        <span class="brand-text">ELKHETA <span class="brand-highlight">منصة الخطة</span></span>
-                    </div>
-                    <div class="footer-copyright-text">
-                        © 2026 جميع الحقوق محفوظة - منصة الخطة التعليمية ✨ | صُممت بحب ودقة لدعم مسيرة الطلاب
-                    </div>
-                </div>
+            <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:11.5px;font-weight:900;color:#D4973B;letter-spacing:.5px">ELKHETA</span>
+                <span style="font-size:11px;color:#64748B">|</span>
+                <span style="font-size:11.5px;font-weight:700;color:#94A3B8">منصة الخطة — رفيقك للقمة 🚀</span>
+            </div>
+            <div style="font-size:10.5px;color:#475569;font-weight:600">
+                © 2026 جميع الحقوق محفوظة · مبادرة تعليمية مستقلة مجانية 100%
             </div>
         `;
 
-        if (!document.getElementById('universalFooterStyles')) {
-            const style = document.createElement('style');
-            style.id = 'universalFooterStyles';
-            style.textContent = `
-                .universal-app-footer {
-                    background: #0B0F19 !important;
-                    color: #F8FAFC !important;
-                    padding: 20px 16px 80px !important;
-                    margin-top: auto !important;
-                    border-top: 2px solid #D4973B !important;
-                    font-family: 'Cairo', system-ui, -apple-system, sans-serif !important;
-                    direction: rtl !important;
-                    position: relative !important;
-                    box-sizing: border-box !important;
-                    clear: both !important;
-                    z-index: 10 !important;
-                    width: 100% !important;
-                }
-                .universal-app-footer .footer-inner-wrap {
-                    max-width: 1100px !important;
-                    margin: 0 auto !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    gap: 14px !important;
-                }
-                .universal-app-footer .footer-cards-grid {
-                    display: grid !important;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-                    gap: 12px !important;
-                }
-                .universal-app-footer .footer-info-card {
-                    background: rgba(15, 23, 42, 0.95) !important;
-                    border: 1px solid rgba(212, 151, 59, 0.4) !important;
-                    border-radius: 12px !important;
-                    padding: 12px 16px !important;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-                    transition: transform 0.2s ease, border-color 0.2s ease !important;
-                }
-                .universal-app-footer .footer-info-card:hover {
-                    border-color: #FFE600 !important;
-                    transform: translateY(-2px) !important;
-                }
-                .universal-app-footer .footer-card-head {
-                    display: flex !important;
-                    align-items: center !important;
-                    gap: 10px !important;
-                    margin-bottom: 8px !important;
-                }
-                .universal-app-footer .footer-icon-badge {
-                    width: 32px !important;
-                    height: 32px !important;
-                    border-radius: 10px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    font-size: 15px !important;
-                    flex-shrink: 0 !important;
-                }
-                .universal-app-footer .gold-badge {
-                    background: rgba(212, 151, 59, 0.25) !important;
-                    color: #FFE600 !important;
-                    border: 1px solid #D4973B !important;
-                }
-                .universal-app-footer .star-badge {
-                    background: rgba(16, 185, 129, 0.25) !important;
-                    color: #00F5D4 !important;
-                    border: 1px solid #10B981 !important;
-                }
-                .universal-app-footer h4,
-                .universal-app-footer .footer-card-title {
-                    font-size: 14px !important;
-                    font-weight: 900 !important;
-                    color: #FFFFFF !important;
-                    -webkit-text-fill-color: #FFFFFF !important;
-                    margin: 0 !important;
-                    line-height: 1.3 !important;
-                }
-                .universal-app-footer .footer-card-subtitle {
-                    font-size: 11px !important;
-                    font-weight: 700 !important;
-                    color: #FCD34D !important;
-                    -webkit-text-fill-color: #FCD34D !important;
-                    display: block !important;
-                    margin-top: 1px !important;
-                }
-                .universal-app-footer p,
-                .universal-app-footer .footer-card-desc {
-                    font-size: 12px !important;
-                    line-height: 1.6 !important;
-                    color: #CBD5E1 !important;
-                    -webkit-text-fill-color: #CBD5E1 !important;
-                    margin: 0 !important;
-                    font-weight: 600 !important;
-                }
-                .universal-app-footer .footer-card-desc strong {
-                    color: #FFE600 !important;
-                    -webkit-text-fill-color: #FFE600 !important;
-                    font-weight: 800 !important;
-                }
-                .universal-app-footer .footer-bottom-bar {
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: space-between !important;
-                    flex-wrap: wrap !important;
-                    gap: 10px !important;
-                    padding-top: 10px !important;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-                    font-size: 11.5px !important;
-                    color: #94A3B8 !important;
-                }
-                .universal-app-footer .brand-text {
-                    font-weight: 900 !important;
-                    font-size: 13.5px !important;
-                    color: #FFFFFF !important;
-                    -webkit-text-fill-color: #FFFFFF !important;
-                }
-                .universal-app-footer .brand-highlight {
-                    color: #D4973B !important;
-                    -webkit-text-fill-color: #D4973B !important;
-                }
-                .universal-app-footer .footer-copyright-text {
-                    font-weight: 700 !important;
-                    font-size: 11.5px !important;
-                    color: #CBD5E1 !important;
-                    -webkit-text-fill-color: #CBD5E1 !important;
-                }
-                @media (max-width: 992px) {
-                    .universal-app-footer {
-                        padding-bottom: 110px !important;
-                    }
-                    .universal-app-footer .footer-bottom-bar {
-                        flex-direction: column !important;
-                        text-align: center !important;
-                        align-items: center !important;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        const stageContainer = document.querySelector('.stage-container');
-        if (stageContainer) {
-            stageContainer.appendChild(footer);
-        } else {
-            document.body.appendChild(footer);
-        }
-    } catch (e) {
-        console.error('Universal Footer Error:', e);
-    }
+        const stage = document.querySelector('.stage-container') || document.querySelector('.main-stage') || document.body;
+        stage.appendChild(footer);
+    } catch (e) {}
 }
+
 
 function initAllUniversalFeatures() {
     initUniversalMobileNav();
@@ -781,6 +619,20 @@ if (document.readyState === 'loading') {
 } else {
     initAllUniversalFeatures();
 }
+
+
+function initAllUniversalFeatures() {
+    initUniversalMobileNav();
+    initUniversalTickerBanner();
+    initUniversalFooter();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllUniversalFeatures);
+} else {
+    initAllUniversalFeatures();
+}
+
 
 
 

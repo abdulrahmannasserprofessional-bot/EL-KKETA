@@ -938,8 +938,9 @@ window.toggleMobileSidebar = toggleMobileSidebar;
 
             let students = [];
             snap.forEach(c => {
+                if (c.key === 'byUid' || c.key === 'byCode') return; // استبعاد عقد الفهرسة التقنية
                 const s = c.val();
-                if (s && !s.isBanned) {
+                if (s && !s.isBanned && s.studentCode !== 'byUid' && s.studentCode !== 'byCode') {
                     students.push({
                         code: s.studentCode || c.key,
                         name: s.fullName || s.name || 'طالب متميز',

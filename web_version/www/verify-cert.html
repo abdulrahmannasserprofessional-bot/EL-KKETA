@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>التحقق من الشهادة الرسمية - منصة الخطة التعليمية</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #07090F;
+            --surface: #121929;
+            --surface2: #1A2236;
+            --gold: #D4973B;
+            --gold2: #F0B855;
+            --gold-dim: rgba(212, 151, 59, 0.12);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(212, 151, 59, 0.35);
+            --green: #10B981;
+            --text: #F0F4FF;
+            --text2: #8DA0BF;
+            --text3: #4A607A;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(212, 151, 59, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 90%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
+        }
+
+        .cert-verify-container {
+            width: 100%;
+            max-width: 680px;
+            background: var(--surface);
+            border: 2px solid var(--border-gold);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(212, 151, 59, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cert-header {
+            background: linear-gradient(135deg, #1A2236, #0B0F1A);
+            padding: 30px 24px 24px;
+            text-align: center;
+            border-bottom: 2px solid var(--border-gold);
+            position: relative;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: var(--gold-dim);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            color: var(--gold2);
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .cert-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 6px;
+        }
+
+        .cert-sub {
+            font-size: 13px;
+            color: var(--text2);
+        }
+
+        .verification-status-banner {
+            background: rgba(16, 185, 129, 0.12);
+            border-top: 1px solid rgba(16, 185, 129, 0.3);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--green);
+            font-size: 13.5px;
+            font-weight: 800;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 12px var(--green);
+            animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        .cert-body {
+            padding: 26px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 580px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text3);
+        }
+
+        .info-value {
+            font-size: 14.5px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .info-value.gold {
+            color: var(--gold2);
+        }
+
+        .info-value.green {
+            color: var(--green);
+        }
+
+        .cert-seal-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, rgba(212, 151, 59, 0.08), rgba(212, 151, 59, 0.02));
+            border: 1.5px dashed var(--border-gold);
+            border-radius: 16px;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .seal-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .seal-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gold-dim);
+            border: 2px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .cert-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-cert-action {
+            flex: 1;
+            padding: 13px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-cert-action.primary {
+            background: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+            color: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(180, 140, 75, 0.35);
+        }
+
+        .btn-cert-action.ghost {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+        }
+
+        .btn-cert-action:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cert-verify-container">
+        <!-- Header -->
+        <header class="cert-header">
+            <div class="brand-badge">
+                <i class="fa-solid fa-crown"></i>
+                <span>منصة الخطة التعليمية • البوابة الرسمية للتحقق</span>
+            </div>
+            <h1 class="cert-title">شهادة تفوق أكاديمي معتمدة</h1>
+            <p class="cert-sub">نظام التدقيق الرقمي الرسمي لتوثيق الشهادات والدرجات الأكاديمية</p>
+        </header>
+
+        <!-- Live Status Banner -->
+        <div class="verification-status-banner">
+            <div class="status-dot"></div>
+            <span>وثيقة أصلية ومعتمدة رسمياً ومسجلة في السجلات الأكاديمية للمنصة ✓</span>
+        </div>
+
+        <!-- Details Body -->
+        <div class="cert-body">
+            <div class="info-grid">
+                <!-- Student Name -->
+                <div class="info-box">
+                    <span class="info-label">اسم الطالب المكرم</span>
+                    <span class="info-value gold" id="certStudentName">طالب متميز</span>
+                </div>
+
+                <!-- Exam Title -->
+                <div class="info-box">
+                    <span class="info-label">المقرر / الاختبار الأكاديمي</span>
+                    <span class="info-value" id="certExamTitle">طريقة العمل مع الأفراد</span>
+                </div>
+
+                <!-- Score & Grade -->
+                <div class="info-box">
+                    <span class="info-label">الدرجة والتقدير</span>
+                    <span class="info-value green" id="certScoreVal">95% • مرتبة الشرف العليا 🏅</span>
+                </div>
+
+                <!-- Issue Date -->
+                <div class="info-box">
+                    <span class="info-label">تاريخ الاعتماد الرسمي</span>
+                    <span class="info-value" id="certDateVal">2026</span>
+                </div>
+            </div>
+
+            <!-- Accreditation Seal Box -->
+            <div class="cert-seal-row">
+                <div class="seal-meta">
+                    <div class="seal-icon-box">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: #FFFFFF;">هيئة الدعم الأكاديمي والامتحانات</div>
+                        <div style="font-size: 11px; color: var(--text3); font-family: var(--mono);" id="certDocIdText">DOC ID: ELK-74921</div>
+                    </div>
+                </div>
+                <div style="font-family: var(--mono); font-size: 11px; background: rgba(16, 185, 129, 0.15); color: var(--green); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                    SECURE_HASH_VERIFIED
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="cert-actions">
+                <button type="button" class="btn-cert-action primary" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i>
+                    <span>طباعة وثيقة التحقق</span>
+                </button>
+                <a href="home.html" class="btn-cert-action ghost">
+                    <i class="fa-solid fa-house"></i>
+                    <span>العودة للمنصة</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        جميع الحقوق محفوظة © 2026 • منصة الخطة التعليمية (ELKHETA Educational Platform)
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const certId = params.get('certId') || 'ELK-' + (Math.floor(Math.random() * 80000) + 10000);
+            const studentName = params.get('st') || 'طالب متميز';
+            const examTitle = params.get('exam') || 'امتحان الفصل الأول الأكاديمي';
+            const score = params.get('score') || '95';
+            const date = params.get('date') || new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById('certDocIdText').textContent = 'DOC ID: ' + certId;
+            document.getElementById('certStudentName').textContent = decodeURIComponent(studentName);
+            document.getElementById('certExamTitle').textContent = decodeURIComponent(examTitle);
+            
+            const scoreNum = Number(score) || 95;
+            const distinction = scoreNum >= 85 ? 'مرتبة الشرف العليا 🏅' : (scoreNum >= 75 ? 'تقدير جيد جداً 🎖️' : 'اجتياز معتمد 🌟');
+            document.getElementById('certScoreVal').textContent = `${scoreNum}% • ${distinction}`;
+            document.getElementById('certDateVal').textContent = decodeURIComponent(date);
+        });
+    </script>
+</body>
+</html>

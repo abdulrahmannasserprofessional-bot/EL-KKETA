@@ -1,0 +1,962 @@
+/**
+ * ═════════════════════════════════════════════════════════════════════════════
+ * 🎓 ELKHETA ACADEMIC ASSISTANT SUITE (المساعد الأكاديمي الذكي)
+ * Luxury Styles for Quick Action Chips, Collapsible Smart Drawer, & 20 Tools
+ * ═════════════════════════════════════════════════════════════════════════════
+ */
+
+:root {
+    --ast-gold: #D4973B;
+    --ast-gold-dark: #B88028;
+    --ast-gold-light: #FDF4E6;
+    --ast-gold-border: #E8D3B2;
+    --ast-gold-text: #8E5D16;
+    --ast-gold-grad: linear-gradient(135deg, #D4973B 0%, #B88028 100%);
+    
+    --ast-surface: #FFFFFF;
+    --ast-surface-soft: #FAF7F2;
+    --ast-surface-card: #FFFFFF;
+    --ast-border: #EFE8DC;
+    --ast-border-hover: #D9C3A3;
+    
+    --ast-text-title: #1E293B;
+    --ast-text-body: #475569;
+    --ast-text-muted: #8C827A;
+    
+    --ast-green: #10B981;
+    --ast-green-light: #ECFDF5;
+    --ast-red: #EF4444;
+    --ast-red-light: #FEF2F2;
+    --ast-blue: #3B82F6;
+    --ast-blue-light: #EFF6FF;
+    --ast-purple: #8B5CF6;
+    --ast-purple-light: #F5F3FF;
+    
+    --ast-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --ast-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.16);
+    --ast-drawer-width: 480px;
+}
+
+body.dark-mode {
+    --ast-gold-light: rgba(212, 151, 59, 0.15);
+    --ast-gold-border: rgba(212, 151, 59, 0.35);
+    --ast-gold-text: #F0B855;
+    
+    --ast-surface: #121929;
+    --ast-surface-soft: #0B0F1A;
+    --ast-surface-card: #1A2236;
+    --ast-border: rgba(255, 255, 255, 0.08);
+    --ast-border-hover: rgba(212, 151, 59, 0.45);
+    
+    --ast-text-title: #F0F4FF;
+    --ast-text-body: #CBD5E1;
+    --ast-text-muted: #8B949E;
+    
+    --ast-green-light: rgba(16, 185, 129, 0.15);
+    --ast-red-light: rgba(239, 68, 68, 0.15);
+    --ast-blue-light: rgba(59, 130, 246, 0.15);
+    --ast-purple-light: rgba(139, 92, 246, 0.15);
+    
+    --ast-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --ast-shadow-lg: 0 25px 60px rgba(0, 0, 0, 0.65);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. QUICK ACTION CHIPS (أسفل مشغل الفيديو مباشرة)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.elk-video-quick-chips-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 4px 6px 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin-top: 8px;
+    margin-bottom: 6px;
+    user-select: none;
+    -webkit-overflow-scrolling: touch;
+}
+.elk-video-quick-chips-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.elk-quick-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: var(--ast-gold-light);
+    border: 1.5px solid var(--ast-gold-border);
+    border-radius: 24px;
+    color: var(--ast-gold-text);
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(194, 139, 56, 0.06);
+    font-family: 'Cairo', sans-serif;
+}
+.elk-quick-chip i {
+    font-size: 13px;
+    color: var(--ast-gold);
+    transition: transform 0.2s;
+}
+.elk-quick-chip:hover {
+    background: #FFFFFF;
+    border-color: var(--ast-gold);
+    color: var(--ast-gold-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(194, 139, 56, 0.18);
+}
+body.dark-mode .elk-quick-chip:hover {
+    background: #1A2236;
+}
+.elk-quick-chip:hover i {
+    transform: scale(1.18);
+}
+.elk-quick-chip:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.elk-quick-chip.elk-chip-highlight {
+    background: var(--ast-gold-grad);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
+    box-shadow: 0 4px 15px rgba(212, 151, 59, 0.35);
+}
+.elk-quick-chip.elk-chip-highlight i {
+    color: #FFFFFF;
+}
+.elk-quick-chip.elk-chip-highlight:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 22px rgba(212, 151, 59, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. FLOATING TRIGGER BUTTON (المساعد الأكاديمي - أسفل يمين الشاشة)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.elk-assistant-btn {
+    position: fixed;
+    bottom: 84px;
+    right: 22px;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 18px 10px 14px;
+    background: var(--ast-gold-grad);
+    color: #FFFFFF;
+    border-radius: 40px;
+    box-shadow: 0 8px 25px rgba(194, 139, 56, 0.45);
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(8px);
+    direction: rtl;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.elk-assistant-btn:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 12px 32px rgba(194, 139, 56, 0.65);
+}
+.elk-assistant-btn .bot-pulse {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    position: relative;
+    flex-shrink: 0;
+}
+.elk-assistant-btn .bot-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.65);
+    animation: assistantPulse 2s infinite;
+}
+@keyframes assistantPulse {
+    0% { transform: scale(0.95); opacity: 1; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+.elk-assistant-btn .btn-text-box {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.25;
+}
+.elk-assistant-btn .title {
+    font-size: 13.5px;
+    font-weight: 900;
+}
+.elk-assistant-btn .sub {
+    font-size: 11px;
+    font-weight: 700;
+    color: #FEF3C7;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. SMART COLLAPSIBLE DRAWER / SIDEBAR (لوحة المساعد الأكاديمي الذكية)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.elk-assistant-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.elk-assistant-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.elk-assistant-drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: -600px; /* Completely offscreen when closed */
+    width: 500px;
+    max-width: 95vw;
+    background: var(--ast-surface);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.32s;
+    direction: rtl;
+    font-family: 'Cairo', sans-serif;
+    color: var(--ast-text-title);
+    border-left: 2px solid var(--ast-gold);
+}
+.elk-assistant-drawer.open {
+    right: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Hide all floating pills when drawer is open so they never collide */
+.elk-assistant-drawer.open ~ .elk-assistant-btn,
+.elk-assistant-drawer.open ~ .live-chat-float-btn,
+.elk-assistant-drawer.open ~ #liveChatFloatBtn,
+body.elk-drawer-active .elk-assistant-btn,
+body.elk-drawer-active .live-chat-float-btn,
+body.elk-drawer-active #liveChatFloatBtn {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.6) !important;
+    visibility: hidden !important;
+}
+
+/* Drawer Header */
+.elk-drawer-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--ast-gold);
+    flex-shrink: 0;
+}
+.elk-drawer-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.elk-drawer-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--ast-gold-grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(212, 151, 59, 0.4);
+}
+.elk-drawer-title-group h3 {
+    font-size: 15px;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.25;
+}
+.elk-drawer-subbadge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #F0B855;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+}
+.elk-drawer-subbadge .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10B981;
+    display: inline-block;
+    box-shadow: 0 0 6px #10B981;
+}
+.elk-drawer-close-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    color: #FFFFFF;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.elk-drawer-close-btn:hover {
+    background: rgba(239, 68, 68, 0.4);
+    transform: scale(1.1);
+}
+
+/* Category Switcher Tabs - Modern 5-Category Adaptive Grid */
+.elk-cat-tabs-container {
+    padding: 10px 14px;
+    background: var(--ast-surface-soft);
+    border-bottom: 1px solid var(--ast-border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.elk-cat-tab-btn:last-child:nth-child(odd) {
+    grid-column: span 2;
+}
+.elk-cat-tab-btn {
+    padding: 9px 10px;
+    border-radius: 12px;
+    background: var(--ast-surface);
+    border: 1.5px solid var(--ast-border);
+    color: var(--ast-text-body);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.25;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.elk-cat-tab-btn i {
+    font-size: 13px;
+    color: var(--ast-gold);
+    flex-shrink: 0;
+}
+.elk-cat-tab-btn:hover {
+    border-color: var(--ast-gold);
+    color: var(--ast-gold-dark);
+    transform: translateY(-1px);
+}
+.elk-cat-tab-btn.active {
+    background: var(--ast-gold-grad);
+    border-color: transparent;
+    color: #FFFFFF;
+    box-shadow: 0 3px 12px rgba(212, 151, 59, 0.35);
+}
+.elk-cat-tab-btn.active i {
+    color: #FFFFFF;
+}
+
+/* Search Bar Inside Drawer */
+.elk-drawer-search-wrap {
+    padding: 10px 16px;
+    background: var(--ast-surface);
+    border-bottom: 1px solid var(--ast-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.elk-drawer-search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ast-surface-soft);
+    border: 1.5px solid var(--ast-border);
+    border-radius: 12px;
+    padding: 6px 12px;
+    transition: border-color 0.2s;
+}
+.elk-drawer-search-box:focus-within {
+    border-color: var(--ast-gold);
+}
+.elk-drawer-search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 12.5px;
+    outline: none;
+    font-family: inherit;
+}
+
+/* Drawer Content Body */
+.elk-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px;
+    background: var(--ast-surface-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Tools List View in Category */
+.elk-tools-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.elk-tool-card {
+    background: var(--ast-surface);
+    border: 1.5px solid var(--ast-border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+.elk-tool-card:hover {
+    border-color: var(--ast-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(194, 139, 56, 0.12);
+}
+.elk-tool-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.elk-tool-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.elk-tool-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.elk-tool-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--ast-text-title);
+}
+.elk-tool-desc {
+    font-size: 11.5px;
+    color: var(--ast-text-muted);
+}
+.elk-tool-open-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ast-gold-light);
+    color: var(--ast-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.elk-tool-card:hover .elk-tool-open-btn {
+    background: var(--ast-gold);
+    color: #FFFFFF;
+    transform: scale(1.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. ACTIVE TOOL INTERACTIVE VIEW (داخل اللوحة أو في نافذة كاملة)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.elk-tool-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeInTool 0.28s ease;
+}
+@keyframes fadeInTool {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.elk-tool-view-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ast-border);
+}
+.elk-btn-back-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--ast-surface);
+    border: 1px solid var(--ast-border);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ast-text-body);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.elk-btn-back-tools:hover {
+    border-color: var(--ast-gold);
+    color: var(--ast-gold);
+}
+
+/* ─── Tool 1: المتشابهات بتلخبط ─── */
+.elk-comparison-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--ast-border);
+    background: var(--ast-surface);
+}
+.elk-comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    text-align: right;
+}
+.elk-comp-table th {
+    background: var(--ast-gold-light);
+    color: var(--ast-gold-text);
+    padding: 10px 12px;
+    font-weight: 900;
+    border-bottom: 1.5px solid var(--ast-gold-border);
+}
+.elk-comp-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--ast-border);
+    color: var(--ast-text-body);
+    line-height: 1.5;
+}
+.elk-comp-table tr:last-child td {
+    border-bottom: none;
+}
+.elk-comp-table tr:hover td {
+    background: var(--ast-surface-soft);
+}
+
+/* ─── Tool 2: أفخاخ الامتحانات ─── */
+.elk-trap-card {
+    background: #FFFBEB;
+    border: 1.5px solid #FDE68A;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.08);
+}
+body.dark-mode .elk-trap-card {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+.elk-trap-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #F59E0B;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 6px;
+    align-self: flex-start;
+}
+.elk-trap-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #92400E;
+}
+body.dark-mode .elk-trap-title {
+    color: #FCD34D;
+}
+.elk-trap-content {
+    font-size: 12px;
+    color: var(--ast-text-body);
+    line-height: 1.6;
+}
+
+/* ─── Tool 3: فروق الاختيارات ─── */
+.elk-mcq-analyzer {
+    background: var(--ast-surface);
+    border: 1.5px solid var(--ast-border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.elk-mcq-qtext {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--ast-text-title);
+    line-height: 1.5;
+}
+.elk-mcq-opt {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--ast-border);
+    background: var(--ast-surface-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.elk-mcq-opt.correct {
+    border-color: #10B981;
+    background: var(--ast-green-light);
+}
+.elk-mcq-opt.wrong {
+    border-color: #EF4444;
+    background: var(--ast-red-light);
+}
+.elk-mcq-opt-label {
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.elk-mcq-opt-expl {
+    font-size: 11.5px;
+    color: var(--ast-text-muted);
+    line-height: 1.4;
+}
+
+/* ─── Tool 4: شفرات الحفظ ─── */
+.elk-mnemonic-box {
+    background: linear-gradient(135deg, #FDF4E6, #FFFBEB);
+    border: 1.5px dashed var(--ast-gold);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+body.dark-mode .elk-mnemonic-box {
+    background: rgba(212, 151, 59, 0.1);
+}
+.elk-mnemonic-code {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--ast-gold-text);
+    text-align: center;
+    letter-spacing: 2px;
+    background: var(--ast-surface);
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.elk-mnemonic-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--ast-text-body);
+}
+
+/* ─── Tool 6: خريطة ذهنية تفاعلية ─── */
+.elk-mindmap-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 0;
+}
+.elk-mm-node {
+    background: var(--ast-surface);
+    border: 1.5px solid var(--ast-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.elk-mm-node.root {
+    background: var(--ast-gold-grad);
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 14px;
+    text-align: center;
+    border: none;
+}
+.elk-mm-branches {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-right: 18px;
+    padding-right: 12px;
+    border-right: 2px dashed var(--ast-gold-border);
+}
+.elk-mm-branch-item {
+    background: var(--ast-surface);
+    border: 1px solid var(--ast-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--ast-text-body);
+    transition: transform 0.2s;
+}
+.elk-mm-branch-item:hover {
+    transform: translateX(-4px);
+    border-color: var(--ast-gold);
+}
+
+/* ─── Tool 7: الموجز الذهبي للفصل (ملخص شامل ومفصل) ─── */
+.elk-summary-card {
+    background: var(--ast-surface);
+    border: 1px solid var(--ast-border);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+.elk-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--ast-border);
+    padding-bottom: 14px;
+    gap: 12px;
+}
+.elk-summary-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #EC4899, #BE185D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.elk-summary-content {
+    background: var(--ast-surface-soft);
+    border: 1px solid var(--ast-border);
+    border-radius: 12px;
+    padding: 18px;
+    font-size: 13.5px;
+    color: var(--ast-text-body);
+    line-height: 1.9;
+}
+
+/* ─── Tool 10: بطاقات التثبيت الذكية (Flashcards) ─── */
+.elk-flashcard-stage {
+    perspective: 1000px;
+    width: 100%;
+    height: 220px;
+    cursor: pointer;
+}
+.elk-flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+.elk-flashcard-stage.flipped .elk-flashcard-inner {
+    transform: rotateY(180deg);
+}
+.elk-fc-front, .elk-fc-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--ast-shadow);
+}
+.elk-fc-front {
+    background: linear-gradient(135deg, #FFFFFF, var(--ast-gold-light));
+    border: 2px solid var(--ast-gold-border);
+    color: var(--ast-text-title);
+}
+body.dark-mode .elk-fc-front {
+    background: linear-gradient(135deg, #1A2236, #121929);
+    border-color: var(--ast-gold-border);
+}
+.elk-fc-back {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    border: 2px solid var(--ast-gold);
+    color: #FFFFFF;
+    transform: rotateY(180deg);
+}
+.elk-fc-question {
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.5;
+    margin: auto 0;
+}
+.elk-fc-answer {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin: auto 0;
+    color: #F8FAFC;
+}
+.elk-fc-tip {
+    font-size: 11px;
+    color: var(--ast-gold);
+    font-weight: 700;
+}
+.elk-fc-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+.elk-btn-fc-know {
+    flex: 1;
+    padding: 9px;
+    border-radius: 10px;
+    background: var(--ast-green-light);
+    border: 1px solid #10B981;
+    color: #059669;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+}
+.elk-btn-fc-repeat {
+    flex: 1;
+    padding: 9px;
+    border-radius: 10px;
+    background: var(--ast-red-light);
+    border: 1px solid #EF4444;
+    color: #DC2626;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* ─── Tool 12: سمّع لي الذكي ─── */
+.elk-recite-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.elk-recite-input {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--ast-border);
+    background: var(--ast-surface);
+    color: inherit;
+    font-family: inherit;
+    font-size: 12.5px;
+    outline: none;
+    resize: vertical;
+}
+.elk-recite-input:focus {
+    border-color: var(--ast-gold);
+}
+.elk-recite-result {
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--ast-surface);
+    border: 1.5px solid var(--ast-border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ─── Tool 15: اسأل عن دقيقة محددة ─── */
+.elk-timestamp-item {
+    background: var(--ast-surface);
+    border: 1px solid var(--ast-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.elk-timestamp-item:hover {
+    border-color: var(--ast-gold);
+    transform: translateX(-4px);
+    background: var(--ast-gold-light);
+}
+.elk-ts-badge {
+    background: var(--ast-gold-grad);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 8px;
+    direction: ltr;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    :root {
+        --ast-drawer-width: 100vw;
+    }
+    .elk-assistant-btn {
+        bottom: 74px;
+        right: 14px;
+        padding: 8px 14px;
+    }
+    .elk-assistant-btn .title {
+        font-size: 12px;
+    }
+    .elk-assistant-btn .sub {
+        font-size: 9.5px;
+    }
+    .elk-assistant-drawer {
+        width: 100vw;
+        border-left: none;
+    }
+}
